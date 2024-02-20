@@ -1,0 +1,212 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_XML_Persistent_Arm" Id="{a607b57e-c339-499a-bf1f-a29756758470}">
+    <Declaration><![CDATA[TYPE DS_XML_Persistent_Arm :
+STRUCT
+	(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  Station Info xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	bEnableCallArmNo 						: BOOL;
+	iCallArmNo 								: INT;
+	ARiVertArmPosOffset 					: ARRAY [0..iArmQty] OF INT;
+
+	bAgitationEn							: BOOL;
+	bArm2AgitationEn						: BOOL;
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxx  Display Product Description xxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARsProductRecipeDescription				: ARRAY [0..iProductRecipeArrayQty] OF STRING(50);
+	DSHmiStationDisplayInfo 				: ARRAY [1..iStnQty] OF DS_HMIStationDisplayInfo;
+
+	ARbStnSeqRepNoVisible					: ARRAY [0..iProductRecipeStepArrayQty] OF BOOL;
+	ARsStnProcessStatus 					: ARRAY [0..iStnQty] OF STRING;
+
+(* xxxxxxxxxxxxxxxxxxxxxx  Arm PnP Sequence Memory Description xxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	DSA1fbPnpSequenceMemoryCall 			: DSV2_A1_fbPnpSequenceMemoryCall;
+	DSA1fbPnpSequenceMemoryStore 			: DSV2_A1_fbPnpSequenceMemoryStore;
+	DSA21UpDownPatternCall 					: DSA21_UpDownPatternCall;
+	DSA21UpDownPatternStore 				: DSA21_UpDownPatternStore;
+	DSA31ArmSpeedProfileCall 				: DSA31_ArmSpeedProfileCall;
+	DSA31ArmSpeedProfileStore 				: DSA31_ArmSpeedProfileStore;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx Admin Arm Setting xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	DSHomingSetting 						: DS_HomingSetting;
+
+	ARDSArmCtrl 							: ARRAY [0..iArmQty] OF DSV2_ArmPosition;
+	(*1 = Stn, 2 = Id, 3 = Uld*)
+	(*1 = Up, 2 = SPSlanted, 3 = Regular(*midtop*), 4 = AgitationUp, 5 = AgitationDown, 6 = Down, 7 = Unhook, 8 = Hook, 9 = SlantedLeft, 10 = SlantedRight
+		,11 = lifter up, 12 = lifter = down*)
+
+(* xxxxxxxxxxxxxxxxxxxxx  4 Step Arm Movement - Auto/Manual Used xxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*==============================================================================*)
+
+	DS4StepsMovement 						: DS_SA_Movement;
+	DSManual4StepsMovement					: DS_SA_Movement;
+
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxx Arm 1 Vert / Horz Velo,Acc,Dcc xxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARlrArmVertFix_PosCfmTolerance			: ARRAY [0..iArmQty] OF LREAL;
+	ARlrArmVertFix_2ndSpdRange				: ARRAY [0..iArmQty] OF LREAL;
+
+	ARlrArmHorzFix_PosCfmTolerance			: ARRAY [0..iArmQty] OF LREAL;
+	ARlrArmHorzFix_2ndSpdRange				: ARRAY [0..iArmQty] OF LREAL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Jog Control Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*============================================================================*)
+
+	ARrArmVertJogPercent					: ARRAY [1..iArmQty] OF REAL;
+	ARrArmVertJogAcc						: ARRAY [1..iArmQty] OF REAL;
+	ARrArmVertJogDcc						: ARRAY [1..iArmQty] OF REAL;
+
+	ARrArmHorzJogPercent					: ARRAY [1..iArmQty] OF REAL;
+	ARrArmHorzJogAcc						: ARRAY [1..iArmQty] OF REAL;
+	ARrArmHorzJogDcc						: ARRAY [1..iArmQty] OF REAL;
+
+	ARlrArmSlowPullJogVelo					: ARRAY [1..iArmSlowPullQty] OF LREAL;
+	ARlrArmSlowPullJogAcc					: ARRAY [1..iArmSlowPullQty] OF LREAL;
+	ARlrArmSlowPullJogDcc					: ARRAY [1..iArmSlowPullQty] OF LREAL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Homing Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*============================================================================*)
+
+	ARrVertHomeDccDelayTimeSec				: ARRAY [0..iArmQty] OF REAL;
+	ARrHorzHomeDccDelayTimeSec				: ARRAY [0..iArmQty] OF REAL;
+
+	ARrArmVertHome1stPercent				: ARRAY [0..iArmQty] OF REAL;
+	ARrArmVertHome1stPercentAcc				: ARRAY [0..iArmQty] OF REAL;
+	ARrArmVertHome1stPercentDcc				: ARRAY [0..iArmQty] OF REAL;
+
+	ARrArmVertHome2ndPercent				: ARRAY [0..iArmQty] OF REAL;
+	ARrArmVertHome2ndPercentAcc				: ARRAY [0..iArmQty] OF REAL;
+	ARrArmVertHome2ndPercentDcc				: ARRAY [0..iArmQty] OF REAL;
+
+	ARrArmHorzHome1stPercent				: ARRAY [0..iArmQty] OF REAL;
+	ARrArmHorzHome1stPercentAcc				: ARRAY [0..iArmQty] OF REAL;
+	ARrArmHorzHome1stPercentDcc				: ARRAY [0..iArmQty] OF REAL;
+
+	ARrArmHorzHome2ndPercent				: ARRAY [0..iArmQty] OF REAL;
+	ARrArmHorzHome2ndPercentAcc				: ARRAY [0..iArmQty] OF REAL;
+	ARrArmHorzHome2ndPercentDcc				: ARRAY [0..iArmQty] OF REAL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ArmHorzZoneConfirm xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*============================================================================*)
+
+	ARlrArmHorzStartPoint 					: ARRAY [0..iArmQty] OF LREAL;
+	ARlrArmHorzEndPoint 					: ARRAY [0..iArmQty] OF LREAL;
+
+	ARiArmCurrentHorzZoneNo 				: ARRAY [0..iArmQty] OF INT;
+	ARbArmInvalidListingErr					: ARRAY [0..iArmQty] OF BOOL;
+
+	ARlrLdHorzCentrePoint 					: ARRAY [0..iLdStnQty] OF LREAL;
+	ARlrStnHorzCentrePoint 					: ARRAY [0..iStnQty] OF LREAL;
+	ARlrUldHorzCentrePoint 					: ARRAY [0..iUldStnQty] OF LREAL;
+
+	ARbLdHorzZoneConfirm 					: ARRAY [0..iLdStnQty] OF BOOL;
+	ARbArm1HorzStnZoneConfirm 				: ARRAY [1..iStnQty] OF BOOL;
+	ARbUldHorzZoneConfirm 					: ARRAY [0..iUldStnQty] OF BOOL;
+
+	ARiArm1HorzListing 						: ARRAY [1..50] OF INT;
+
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Pos Num xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*=========================Pos num============================*)
+
+	ARrVertPos_In_TargetSpdHz				: ARRAY [0..iArmQty] OF REAL;
+	ARrVertPos_In_2ndSpdHz					: ARRAY [0..iArmQty] OF REAL;
+
+	ARrHorzPos_In_TargetSpdHz				: ARRAY [0..iArmQty] OF REAL;
+	ARrHorzPos_In_2ndSpdHz					: ARRAY [0..iArmQty] OF REAL;
+
+(*=========================Arm Servo Ctrl============================*)
+
+	ARlrVertPos_In_HighSpeed 				: ARRAY [1..iArmQty] OF LREAL;
+	ARlrVertPos_In_Acc						: ARRAY [1..iArmQty] OF LREAL;
+	ARlrVertPos_In_Dcc						: ARRAY [1..iArmQty] OF LREAL;
+
+	ARlrHorzPos_In_HighSpeed 				: ARRAY [1..iArmQty] OF LREAL;
+	ARlrHorzPos_In_Acc						: ARRAY [1..iArmQty] OF LREAL;
+	ARlrHorzPos_In_Dcc						: ARRAY [1..iArmQty] OF LREAL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx Arm Move Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*============================================================================*)
+
+	DS_ArmLifterPosition					: DS_ArmPnPInOut;
+
+	DSArm1VertConfig						: DS_Servo ;
+	DSArm1HorzConfig						: DS_Servo ;
+
+	DSArm2VertConfig						: DS_Servo ;
+	DSArm2HorzConfig						: DS_Servo ;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx Generate Arm Pick Transfer Bit xxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*============================================================================*)
+
+	bArmPickLd 								: BOOL;
+	bArmPickUld 							: BOOL;
+	ARbArmPickStn 							: ARRAY [1..iStnQty] OF BOOL;
+	bArmTransferLd 							: BOOL;
+	bArmTransferUld 						: BOOL;
+	ARbArmTransferStn 						: ARRAY [1..iStnQty] OF BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx HMI Simulate Arm Movement xxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*============================================================================*)
+
+	lrAngleRatio 							: LREAL;
+	bHMIArmSimulateEN 						: BOOL;
+	iInterval_ms 							: INT;
+	lrMaxSimulateNo 						: LREAL;
+
+	lrSimulateHorzXPos						: LREAL;
+	lrSimulateVertYPos						: LREAL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx PnP control variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*============================================================================*)
+
+(*Input*)
+
+	ARbPnPStart								: ARRAY [0..iArmQty] OF BOOL;
+	ARiPickStnNo							: ARRAY [0..iArmQty] OF INT;
+	ARiTransferStnNo						: ARRAY [0..iArmQty] OF INT;
+	ARbArmReset								: ARRAY [0..iArmQty] OF BOOL;
+	ARbDownPickCondition					: ARRAY [0..iArmQty] OF BOOL;
+	ARbDownTransferCondition				: ARRAY [0..iArmQty] OF BOOL;
+	ARbPickMidDownStnEn						: ARRAY [0..iStnQty] OF BOOL;
+	ARbTransferMidDownStnEn					: ARRAY [0..iStnQty] OF BOOL;
+	ARiStationDippingTime					: ARRAY [0..iStnQty] OF INT;
+	ARiStepDelayTime						: ARRAY [0..iArmQty] OF INT;
+
+(*Output*)
+
+	ARbArmPnPCompleted						: ARRAY [0..iArmQty] OF BOOL;
+	ARbPnPbusy								: ARRAY [0..iArmQty] OF BOOL;
+
+	bMoveTop								: BOOL;
+	ARbMoveLdDown							: ARRAY [0..iLdStnQty] OF BOOL;
+	ARbMoveUldDown							: ARRAY [0..iUldStnQty] OF BOOL;
+	ARbMoveStnMidDown 						: ARRAY [0..iStnQty] OF BOOL;
+	ARbMoveStnDown							: ARRAY [0..iStnQty] OF BOOL;
+
+	ARbMoveLdHook							: ARRAY [0..iLdStnQty] OF BOOL;
+	ARbMoveLdUnhook							: ARRAY [0..iLdStnQty] OF BOOL;
+	ARbMoveStnHook							: ARRAY [0..iStnQty] OF BOOL;
+	ARbMoveStnUnhook						: ARRAY [0..iStnQty] OF BOOL;
+	ARbMoveUldHook							: ARRAY [0..iUldStnQty] OF BOOL;
+	ARbMoveUldUnhook						: ARRAY [0..iUldStnQty] OF BOOL;
+
+	iArm1PnpStep							: INT;
+	tStepDelayTimeEV						: TIME;
+	iStationDrippingTimeEV					: INT;
+	sStatusMessage							: STRING(50);
+
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

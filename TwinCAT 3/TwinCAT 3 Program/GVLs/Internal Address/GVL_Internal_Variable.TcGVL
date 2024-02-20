@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="GVL_Internal_Variable" Id="{8519c1b3-7422-4e6d-bd47-918126fff047}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+	
+	ARbMAP_ArmMisshookSensorA 				: ARRAY [1..iArmQty] OF BOOL;
+	ARbMAP_ArmMisshookSensorB 				: ARRAY [1..iArmQty] OF BOOL;
+	
+	bMAP_LdConfirmBasketPickAvailibility	: BOOL;
+
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

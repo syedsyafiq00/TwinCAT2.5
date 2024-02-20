@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_SA_Movement" Id="{a73a5915-bb57-4450-af51-72de05d06822}">
+    <Declaration><![CDATA[TYPE DS_SA_Movement :
+STRUCT
+
+	b_Execute	: BOOL;
+	b_Terminate	: BOOL;
+
+	lrZone1StartPos	: LREAL;
+	lrZone2StartPos	: LREAL;
+	lrZone3StartPos	: LREAL;
+	lrZone4StartPos	: LREAL;
+
+	lrZone1EndPos	: LREAL;
+	lrZone2EndPos	: LREAL;
+	lrZone3EndPos	: LREAL;
+	lrZone4EndPos	: LREAL;
+
+	lzZone1EndSpeed	: LREAL;
+	lzZone2EndSpeed	: LREAL;
+	lzZone3EndSpeed	: LREAL;
+	lzZone4EndSpeed	: LREAL;
+
+	lrZone1Speed	: LREAL;
+	lrZone1Acc		: LREAL;
+	lrZone1Dcc		: LREAL;
+
+	lrZone2Speed	: LREAL;
+	lrZone2Acc		: LREAL;
+	lrZone2Dcc		: LREAL;
+
+	lrZone3Speed	: LREAL;
+	lrZone3Acc		: LREAL;
+	lrZone3Dcc		: LREAL;
+
+	lrZone4Speed	: LREAL;
+	lrZone4Acc		: LREAL;
+	lrZone4Dcc		: LREAL;
+
+	(*Keep this*)
+	iLdId			: INT;
+	iUldId			: INT;
+
+	Fix_VertSpeed	: LREAL;
+	Fix_VertAcc		: LREAL;
+	Fix_VertDcc		: LREAL;
+
+	Fix_HorzSpeed	: LREAL;
+	Fix_HorzAcc		: LREAL;
+	Fix_HorzDcc		: LREAL;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

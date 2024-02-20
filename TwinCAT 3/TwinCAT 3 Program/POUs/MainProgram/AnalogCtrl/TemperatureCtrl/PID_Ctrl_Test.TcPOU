@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="PID_Ctrl_Test" Id="{dff111b8-27b3-4178-a64a-331fea9ef564}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM PID_Ctrl_Test
+VAR
+	fb_pid : FBV4_PID;
+	fb_pid_Ctrl : FBV4_PID_Ctrl;
+	fOutputValue : LREAL;
+	lrKp: LREAL := 1;
+	lrTn: LREAL := 1;
+	lrTv: LREAL := 0.03;
+	lrTd: LREAL := 0.04;
+	lrCtrlCycleTime: LREAL := 0.01;
+	lrMaxLimit_SvPv: LREAL := 200;
+	lrMinLimit_SvPv: LREAL := 0;
+	lrMaxLimit_Output: LREAL := 32767;
+	lrMinLimit_Output: LREAL := 0;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+(* //Vicky's
+IF ARbDO[eY10207_STN10PROCESSTANKHEATERON_OFF] THEN
+	fb_pid(
+		fSetpointValue:= ARrStnTempSV[10], 
+		fActualValue:= ARrStnTempPV[10], 
+		bReset:= , 
+		fCtrlCycleTime:= 0.01, 
+		fMinOutput:= 0, 
+		fMaxOutput:= 100, 
+		iAnalogOutputMin:= 0, 
+		iAnalogOutputMax:= 32767, 
+		PID_fKp:= 10, 
+		PID_tTn:= , 
+		PID_tTv:= , 
+		PID_tTd:= , 
+		nErrorStatus=> , 
+		fOutputValue=> fOutputValue, 
+		iAnalogOutput=> ANO1_1);
+END_IF
+*)
+
+ // Mr Lim
+fb_pid_Ctrl(
+	lrMaxLimit_SvPv:= lrMaxLimit_SvPv , 
+	lrMinLimit_SvPv:= lrMinLimit_SvPv , 
+	lrMaxLimit_Output:= lrMaxLimit_Output , 
+	lrMinLimit_Output:= lrMinLimit_Output , 
+	lrSetPointValue:=ARrStnTempSV[10] , 
+	lrActualValue:=ARrStnTempPV[10] , 
+	bStart:=ARbDO[eY10207_Stn10ProcessTankHeaterOn_Off], 
+	lrCtrlCycleTime:= lrCtrlCycleTime , 
+	lrKp:= lrKp , 
+	lrTn:= lrTn , 
+	lrTv:= lrTv , 
+	lrTd:= lrTd , 
+	lrOutput=>fOutputValue , 
+	uiErrorStatus=> );
+	
+ //	ANO1_1 := LREAL_TO_INT (fOutputValue);	
+]]></ST>
+    </Implementation>
+    <LineIds Name="PID_Ctrl_Test">
+      <LineId Id="55" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="7" Count="14" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="39" Count="15" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="71" Count="1" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

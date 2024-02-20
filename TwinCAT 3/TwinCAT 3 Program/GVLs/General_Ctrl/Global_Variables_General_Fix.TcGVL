@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_General_Fix" Id="{d31ed571-8961-411a-bea2-2062beb31936}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx Machine Time Counter xxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	bMachineOnTimeRstPB_JKS							: BOOL;
+	bMachineOnTimeRstPB_Customer						: BOOL;
+
+	bMachineRunningTimeRstPB_JKS						: BOOL;
+	bMachineRunningTimeRstPB_Customer					: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Basket Totalizer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	bBasketTotalizerResetPB_JKS							: BOOL;
+	bBasketTotalizerResetPB_Customer						: BOOL;
+	bBasketTotalizerResetPB_User							: BOOL;
+	bBasketTotalizerResetPB_Daily							: BOOL;
+
+	ARbStnBasketTotalizerResetPB							: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnBasketCounter1stLimitAlarm						: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnBasketCounter2ndLimitAlarm						: ARRAY [1..iStnQty] OF BOOL;
+
+	bBasketTotalizerResetPB_JKSPreviousLog				: BOOL;
+	bBasketTotalizerResetPB_CustomerPreviousLog			: BOOL;
+	bBasketTotalizerResetPB_UserPreviousLog				: BOOL;
+	bBasketTotalizerResetPB_DailyPreviousLog				: BOOL;
+
+	bBasketTotalizerResetPB_Daily1st						: BOOL;
+	bBasketTotalizerResetPB_Daily2nd						: BOOL;
+	bBasketTotalizerResetPB_Daily1stPreviousLog			: BOOL;
+	bBasketTotalizerResetPB_Daily2ndPreviousLog			: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxx Machine Shut Down Operation Control xxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	bSystemError											: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxx BasketInfoManager xxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	fbBasketInfoManagerCfm_LDCV : ARRAY [0..iLdStnQty, 0..iCvLdQty] OF fbV2_BasketInfoManager;
+	fbBasketInfoManagerTrf_LDCV : ARRAY [0..iLdStnQty, 0..iCvLdQty] OF fbV2_BasketInfoManager;
+	fbBasketInfoManagerCfm_ULDCV : ARRAY [0..iUldStnQty, 0..iCvUldQty] OF fbV2_BasketInfoManager;
+	fbBasketInfoManagerTrf_ULDCV : ARRAY [0..iUldStnQty, 0..iCvUldQty] OF fbV2_BasketInfoManager;
+
+	fbBasketInfoManagerCfm_LD : ARRAY [0..iLdStnQty] OF fbV2_BasketInfoManager;
+	fbBasketInfoManagerTrf_LD : ARRAY [0..iLdStnQty] OF fbV2_BasketInfoManager;
+	fbBasketInfoManagerCfm_ULD : ARRAY [0..iUldStnQty] OF fbV2_BasketInfoManager;
+	fbBasketInfoManagerTrf_ULD : ARRAY [0..iUldStnQty] OF fbV2_BasketInfoManager;
+
+	fbBasketInfoManagerCfm_STN : ARRAY [0..iStnQty] OF fbV2_BasketInfoManager;
+	fbBasketInfoManagerCfm_ARM : ARRAY [0..iArmQty] OF fbV2_BasketInfoManager;
+
+END_VAR
+
+
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

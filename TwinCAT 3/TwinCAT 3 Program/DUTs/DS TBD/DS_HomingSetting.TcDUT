@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_HomingSetting" Id="{0a2e57fd-6024-4105-bb17-e3bc0aabb45b}">
+    <Declaration><![CDATA[TYPE DS_HomingSetting :
+STRUCT
+
+(*Arm Homing*)
+(*==================================================*)
+	lrArm1HorzHomeVelo 				: LREAL;
+	lrArm1HorzHomeAcc 				: LREAL ;
+	lrArm1HorzHomeDcc 				: LREAL;
+	lrArm1Horz2HomeVelo 			: LREAL;
+	lrArm1Horz2HomeAcc 				: LREAL;
+	lrArm1Horz2HomeDcc 				: LREAL;
+
+	lrArm1VertHomeVelo 				: LREAL;
+	lrArm1VertHomeAcc 				: LREAL;
+	lrArm1VertHomeDcc 				: LREAL;
+	lrArm1Vert2HomeVelo				: LREAL;
+	lrArm1Vert2HomeAcc 				: LREAL;
+	lrArm1Vert2HomeDcc 				: LREAL;
+
+	lrArm2HorzHomeVelo 				: LREAL;
+	lrArm2HorzHomeAcc 				: LREAL ;
+	lrArm2HorzHomeDcc 				: LREAL;
+	lrArm2Horz2HomeVelo 			: LREAL;
+	lrArm2Horz2HomeAcc 				: LREAL;
+	lrArm2Horz2HomeDcc 				: LREAL;
+
+	lrArm2VertHomeVelo 				: LREAL;
+	lrArm2VertHomeAcc 				: LREAL;
+	lrArm2VertHomeDcc 				: LREAL;
+	lrArm2Vert2HomeVelo				: LREAL;
+	lrArm2Vert2HomeAcc 				: LREAL;
+	lrArm2Vert2HomeDcc 				: LREAL;
+
+	lrArmLifterHomeVelo 				: LREAL;
+	lrArmLifterHomeAcc 				: LREAL;
+	lrArmLifterHomeDcc 				: LREAL;
+	lrArmLifter2HomeVelo				: LREAL;
+	lrArmLifter2HomeAcc 				: LREAL;
+	lrArmLifter2HomeDcc 				: LREAL;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

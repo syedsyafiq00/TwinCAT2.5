@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_SubAnalyzeRTBEffTime" Id="{30c13218-e5fe-43a9-b9d6-81d5ed1442fc}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_SubAnalyzeRTBEffTime
+VAR_INPUT
+	bReset											: BOOL;
+	DSV2MTBMinMaxEffTime 							: DSV2_MinMaxEffTime;
+	iRTBTotalBlockQty								: INT;
+END_VAR
+
+VAR_IN_OUT
+	bEn												: BOOL;
+	AR2SiRecipeTimeBlockWithCallArmTime 			: ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+	DSV2BasketInfo									: DSV2_BasketInfo;
+(*	ARiMinTime 										: ARRAY [0..iProductRecipeStepArrayQty] OF INT;
+	ARiMaxTime 										: ARRAY [0..iProductRecipeStepArrayQty] OF INT;
+	ARiEffTime 										: ARRAY [0..iProductRecipeStepArrayQty] OF INT;
+*)
+(* RecipeTimeBlockDetail
+	1 - Start Time
+	2 - End Time
+	3 - Stn ID
+	4 - Step No (Based on Product Recipe PnP Step No)
+	5 - Busy Time <Duration> = EndTime - StartTime + 1; 
+	6 - Min Time (Define by User -> Process Time Per Station)
+	7 - Max Time (Define by User -> For Process Tank only)
+	8 - Eff Time (Final Process Time, Used on Station Timer and Call Arm Used)
+	9 - BusyLink Reference 
+		0		=Non
+		11-19 	= BusyLinkGroupMaster No 1
+		21-29 	= BusyLinkGroupMaster No 2
+		=================================
+		91-99 	= BusyLinkGroupMaster No 9
+
+		111-119 	= BusyLinkGroupMaster No 1 - 1st Stn ID
+		121-129 	= BusyLinkGroupMaster No 1 - 2nd Stn ID
+		131-139 	= BusyLinkGroupMaster No 1 - 3rd Stn ID
+
+		211-219 	= BusyLinkGroupMaster No 2 - 1st Stn ID
+		221-229 	= BusyLinkGroupMaster No 2 - 2nd Stn ID
+		231-239 	= BusyLinkGroupMaster No 2 - 3rd Stn ID
+
+		911-919 	= BusyLinkGroupMaster No 9 - 1st Stn ID
+		921-929 	= BusyLinkGroupMaster No 9 - 2nd Stn ID
+		931-939 	= BusyLinkGroupMaster No 9 - 3rd Stn ID
+
+		
+
+*)
+
+END_VAR
+
+
+
+VAR_OUTPUT
+	bDone : BOOL;
+	iExtTime: ARRAY[1..iRecipeBlockQty] OF INT;
+
+END_VAR
+
+VAR
+	iExtTimeEmpty: ARRAY[1..iRecipeBlockQty] OF INT;
+
+	bResetRE: R_TRIG;
+	iStep: INT;
+
+(*	iRtbFL: INT;*)
+	iRecipeCheckFL: INT;
+END_VAR
+
+VAR_INPUT
+
+
+(* RecipeTimeBlockDetail
+	1 - Start Time
+	2 - End Time
+	3 - Stn ID
+	4 - Step No (Based on Product Recipe PnP Step No)
+	5 - Busy Time <Duration> = EndTime - StartTime + 1; 
+	6 - Min Time (Define by User -> Process Time Per Station)
+	7 - Max Time (Define by User -> For Process Tank only)
+	8 - Eff Time (Final Process Time, Used on Station Timer and Call Arm Used)
+	9 - BusyLink Reference ( 0=Non, 1~9=BusyLinkGroupMaster No, 11-19=Group1Slave, 21-29=Group2Slave ~ 91-99=Group9Slave)
+*)
+
+END_VAR
+
+
+VAR PERSISTENT
+
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[bResetRE(CLK:=bReset , Q=> );
+
+IF bResetRE.Q THEN
+bDone := FALSE;
+iExtTime := iExtTimeEmpty;
+END_IF
+
+(*
+IF NOT bEn THEN
+bDone := FALSE;
+END_IF
+*)
+
+
+IF NOT bReset AND bEn THEN
+bDone := FALSE;
+iExtTime := iExtTimeEmpty;
+
+(*
+CASE iStep OF
+
+1:
+*)
+	IF DSV2BasketInfo.DSV2MinMaxEffTime.iProductRecipeNo >= 1 AND DSV2BasketInfo.DSV2MinMaxEffTime.iProductRecipeNo <= iProductRecipeArrayQty THEN
+		DSV2BasketInfo.DSV2MinMaxEffTime.ARiStnSeqRepNo 		:= DSV2MTBMinMaxEffTime.ARiStnSeqRepNo;
+		DSV2BasketInfo.DSV2MinMaxEffTime.ARiTransferStationNo 	:= DSV2MTBMinMaxEffTime.ARiTransferStationNo;
+	END_IF
+
+	iRecipeCheckFL := 1;
+	IF iRecipeCheckFL>0 AND iRecipeCheckFL <= iRTBTotalBlockQty THEN
+		FOR iRecipeCheckFL := 1 TO iRTBTotalBlockQty DO
+			IF AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,6] > 0 THEN
+
+				iExtTime[iRecipeCheckFL] :=
+				(AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,2] - AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,1]+1) - ( AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,5]);
+
+				AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,8] := iExtTime[iRecipeCheckFL] + AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,6];
+
+				IF AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,9] < 100  THEN
+					DSV2BasketInfo.DSV2MinMaxEffTime.ARiMinTime[AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,4]] 	:= AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,6];
+					DSV2BasketInfo.DSV2MinMaxEffTime.ARiMaxTime[AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,4]] 	:= AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,7];
+					DSV2BasketInfo.DSV2MinMaxEffTime.ARiEffTime[AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,4]] 	:= AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,8];
+				END_IF
+
+			END_IF
+		END_FOR
+	END_IF
+
+
+
+bDone := TRUE;
+bEn := FALSE;
+
+
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_SubAnalyzeRTBEffTime">
+      <LineId Id="89" Count="54" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

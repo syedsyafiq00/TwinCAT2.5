@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_Barcode" Id="{fbe2f7a0-fa1d-40c7-a435-ef1060c1484b}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL PERSISTENT
+
+	ARsProgramDescrip						: ARRAY [0..iProductRecipeArrayQty] OF STRING;
+	ARsBarcodeOutput						: ARRAY [0..iProductRecipeArrayQty] OF STRING;
+	ARsBarcodeBatch						: ARRAY [0..iProductRecipeArrayQty] OF STRING;
+	ARsBarcodeJob							: ARRAY [0..iProductRecipeArrayQty] OF STRING;
+
+	ilengthElimater							: INT :=1;
+	bBarcodeBypass							: BOOL;
+	bBarcodeEnable 							: BOOL;
+
+END_VAR
+
+VAR_GLOBAL
+
+(*	SerInDataCom	                                     AT%I*	: EL6inData22B;*)		(*****off for utac_barcode function*****)
+(*	SerOutDataCom				         AT%Q*	: EL6OutData22B;*)	(*****off for utac_barcode function*****)
+(*	BufferReadCom							: ComBuffer;*) 			(*****off for utac_barcode function*****)
+(*	BufferWriteCom							: ComBuffer;*)			(*****off for utac_barcode function*****)
+
+	bClearData								: BOOL;
+
+(*	bBarcodeValid							: BOOL;*)				(*****off for utac_barcode function*****)
+(*	bBarcodeInvalid							: BOOL;*)				(*****off for utac_barcode function*****)
+
+	sBarcodeDescripOut						: STRING;
+
+	sBarcodeScannerReceivedCmd			: STRING;
+
+	BarcodeRecipeNO						: INT;
+(*	BarcodeByPassNo						: INT;*)
+
+	iBarcodeRegisterProductNo				: INT;
+	bBarcodeRegisterPB						: BOOL;
+	bBarcodeClearPB							: BOOL;
+
+	ARbLdBasketBarcodeAvailable				: ARRAY [1..iCvLdQty] OF BOOL;
+
+	SerialComErrorID: comerror_t;
+	SerialComErrorID1: comerror_t;
+	SerialComErrorFlag: BOOL;
+	SerialComErrorFlag1: BOOL;
+
+	COM: SerialLineControl;
+	COM1: SerialLineControl;
+
+	Empty: STRING;
+	ClearBufferTime: TON;
+
+	ReceiveString: ReceiveString;
+	fbReceiveString_Rst: BOOL;
+	fbReceiveString_StrRcv: BOOL;
+	ManualTest: BOOL;
+	TON2: TON;
+	bBarcodeEmpty: BOOL;
+
+	Trig2: R_TRIG;
+	BarcodeTracer: fbBarcodeTracer;
+	presuffix: fbPreSuffixEliminator;
+	sBarcodeScannerReceived: STRING;
+
+
+(*By Pass*)
+
+	BypassRecipeNo				: INT;
+
+(*Barcode Page Manual Scan Save*)
+
+	fbBarcodeSorting10ML5575: fbBarcodeSorting_10ML5575;
+	bBarcodeSortingEN : BOOL;
+	bConfirmPB : BOOL;
+
+	ARbBarcodeStorageEnable : ARRAY [0..10] OF BOOL;
+	ARbHMIBarcodeScanEn : ARRAY [0..10] OF BOOL;
+	ARsHMIBarcodeData_ScanIn : ARRAY [0..10] OF STRING(50);
+	ARsBarcodeData_LdBasketInfo : ARRAY [0..10] OF STRING(50);
+	bBarcodeScanEnableFlag : BOOL;
+	bConfirmReadyFlag : BOOL;
+
+
+(*Ultrasonic Weber Freq Change Variable*)
+
+	U485BufferRead : ComBuffer;
+	U485BufferWrite : ComBuffer;
+	U485InData AT %I* : EL6inData22B;
+	U485OutData AT %Q* : EL6outData22B;
+
+	Gen_send_bit			: BOOL;
+	F_GEN1				: INT;
+
+
+(*Barcode serial com*)	
+	dsSerialCom : DS_SerialCommunication;
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

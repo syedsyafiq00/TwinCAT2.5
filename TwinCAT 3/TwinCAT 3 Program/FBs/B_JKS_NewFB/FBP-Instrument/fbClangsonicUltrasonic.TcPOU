@@ -1,0 +1,211 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbClangsonicUltrasonic" Id="{4fcd86d2-8ffc-49d2-9ac3-99c99865206a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbClangsonicUltrasonic
+VAR_INPUT
+
+	bStart: BOOL;
+
+	wModbusStartAddress: WORD;
+
+	ARbyUnitID: ARRAY [1..iUSGeneratorQty] OF BYTE;
+
+END_VAR
+VAR_IN_OUT PERSISTENT
+	DSClangsonicGenerator : ARRAY [1..iUSGeneratorQty] OF DS_ClangsonicGenerator;
+
+END_VAR
+VAR_OUTPUT
+	bModbusBusy: BOOL;
+	bModbusError: BOOL;
+
+END_VAR
+VAR
+	ClangsonicModbus:ModbusRtuMaster_KL6x22B;
+
+	bModbusReadStRE: R_TRIG;
+	bModbusWriteStRE: R_TRIG;
+	bStartRE: R_TRIG;
+
+	bModbusReadSt: BOOL;
+	bModbusWriteSt: BOOL;
+
+	iStep: INT;
+	iIDCounter: INT;
+	iAddCounter: INT;
+
+	iMFL: INT;
+	iSFL: INT;
+
+	bInternalTestPB : BOOL;
+
+	bInternalTestPBRE: R_TRIG;
+	ErrorId_Read: MODBUS_ERRORS;
+	ErrorId_Write: MODBUS_ERRORS;
+END_VAR
+VAR PERSISTENT
+
+	AR2SwModbusReadData: ARRAY [1..iUSGeneratorQty, 1..iModbusRWQty] OF WORD;
+(*	AR2SwModbusWriteData: ARRAY [1..iUSGeneratorQty, 1..iModbusRWQty] OF WORD;*)
+
+	AR2SwModbusReadDataBuffer: ARRAY [1..iUSGeneratorQty, 1..iModbusRWQty] OF WORD;
+	AR2SwModbusWriteDataBuffer: ARRAY [1..iUSGeneratorQty, 1..iModbusRWQty] OF WORD;
+
+	AR2SbWriteInProgress: ARRAY [1..iUSGeneratorQty, 1..iModbusRWQty] OF BOOL;
+
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* Min/Max Ctrl*)
+IF iIDCounter > iUSGeneratorQty THEN
+iIDCounter := iUSGeneratorQty;
+ELSIF iIDCounter < 1 THEN
+iIDCounter := 1;
+END_IF
+
+IF iAddCounter > iModbusRWQty THEN
+iAddCounter := iModbusRWQty;
+ELSIF iAddCounter < 1 THEN
+iAddCounter := 1;
+END_IF
+
+(*Address Mapping*)
+
+iMFL := 1;
+	FOR iMFL := 1 TO iUSGeneratorQty DO
+		IF iMFL >= 1 AND iMFL <= iUSGeneratorQty THEN
+			iSFL :=1;
+				FOR iSFL := 1 TO iModbusRWQty DO
+					IF iSFL >= 1 AND iSFL <= iModbusRWQty THEN
+						IF ( (AR2SwModbusReadData[iMFL,iSFL] <> AR2SwModbusReadDataBuffer[iMFL,iSFL])
+						AND NOT AR2SbWriteInProgress[iMFL,iSFL])
+						OR (NOT DSClangsonicGenerator[iMFL].bModbusWriteEn[iSFL])
+						THEN
+							DSClangsonicGenerator[iMFL].wModbusData[iSFL] 	:= AR2SwModbusReadData[iMFL,iSFL];
+							(*AR2SwModbusWriteData[iMFL,iSFL] 				:= AR2SwModbusReadData[iMFL,iSFL];*)
+							AR2SwModbusReadDataBuffer[iMFL,iSFL] 			:= AR2SwModbusReadData[iMFL,iSFL];
+							AR2SwModbusWriteDataBuffer[iMFL,iSFL] 			:= AR2SwModbusReadData[iMFL,iSFL];
+
+
+						END_IF
+
+						IF NOT DSClangsonicGenerator[iMFL].bModbusWriteEn[iSFL]
+						AND DSClangsonicGenerator[iMFL].wModbusData[iSFL] <> AR2SwModbusWriteDataBuffer[iMFL,iSFL]
+						THEN
+							(*AR2SwModbusReadData[iMFL,iSFL] 			 	:= DSClangsonicGenerator[iMFL].wModbusData[iSFL];*)
+							(*AR2SwModbusReadData[iMFL,iSFL] 			 	:= DSClangsonicGenerator[iMFL].wModbusData[iSFL];
+							AR2SwModbusReadDataBuffer[iMFL,iSFL] 			:= DSClangsonicGenerator[iMFL].wModbusData[iSFL];
+							*)AR2SwModbusWriteDataBuffer[iMFL,iSFL] 			:= DSClangsonicGenerator[iMFL].wModbusData[iSFL];
+
+							AR2SbWriteInProgress[iMFL,iSFL] := TRUE;
+						END_IF
+					END_IF
+				END_FOR
+		END_IF
+	END_FOR
+
+
+(*Read / Write*)
+bInternalTestPBRE(CLK:=bInternalTestPB , Q=> );
+bStartRE(CLK:=bStart , Q=> );
+IF bStartRE.Q OR bInternalTestPBRE.Q THEN
+iStep := 1;
+END_IF
+IF NOT bStart AND NOT bInternalTestPB THEN
+iStep := 0;
+END_IF
+
+bModbusReadStRE(CLK:=bModbusReadSt , Q=> );
+bModbusWriteStRE(CLK:=bModbusWriteSt , Q=> );
+
+
+ClangsonicModbus.ReadRegs(
+	UnitID:=ARbyUnitID[iIDCounter] ,
+	Quantity:= 1(*INT_TO_WORD(iModbusRWQty)*),
+	MBAddr:= wModbusStartAddress+iAddCounter-1,
+	cbLength:= SIZEOF(AR2SwModbusReadData[iIDCounter,iAddCounter]),
+	pMemoryAddr:= ADR(AR2SwModbusReadData[iIDCounter,iAddCounter]),
+	Execute:= bModbusReadStRE.Q,
+	Timeout:= t#2s,
+	BUSY=> bModbusBusy,
+	Error=> bModbusError,
+	ErrorId=>ErrorId_Read ,
+	cbRead=> );
+
+ClangsonicModbus.WriteSingleRegister(
+	UnitID:=ARbyUnitID[iIDCounter] ,
+	Quantity:= 1,
+	MBAddr:= wModbusStartAddress+iAddCounter-1,
+	cbLength:= SIZEOF(DSClangsonicGenerator[iIDCounter].wModbusData[iAddCounter]),
+	pMemoryAddr:= ADR((*AR2SwModbusWriteData[iIDCounter,iAddCounter]*)DSClangsonicGenerator[iIDCounter].wModbusData[iAddCounter]),
+	Execute:= bModbusWriteStRE.Q,
+	Timeout:= t#2s,
+	BUSY=> bModbusBusy,
+	Error=> bModbusError,
+	ErrorId=>ErrorId_Write ,
+	cbRead=> );
+
+
+CASE iStep OF
+0:
+bModbusReadSt := FALSE;
+bModbusWriteSt := FALSE;
+
+1: (*Read Data*)
+IF bModbusReadSt AND NOT bModbusBusy
+OR AR2SbWriteInProgress[iIDCounter,iAddCounter]
+THEN
+	IF iAddCounter < iModbusRWQty THEN
+
+		iAddCounter := iAddCounter + 1;
+
+	ELSIF iAddCounter >= iModbusRWQty THEN
+
+			IF iIDCounter < iUSGeneratorQty THEN
+				iIDCounter := iIDCounter + 1;
+			ELSIF iIDCounter >= iUSGeneratorQty THEN
+				iIDCounter := 1;
+			END_IF
+
+		iAddCounter := 1;
+	END_IF
+
+
+(*DSClangsonicGenerator[iIDCounter].wModbusData[iAddCounter] := AR2SwModbusReadData[iIDCounter,iAddCounter];*)
+iStep := 2;
+
+END_IF
+
+IF NOT AR2SbWriteInProgress[iIDCounter,iAddCounter]  THEN
+bModbusReadSt := TRUE;
+bModbusWriteSt := FALSE;
+END_IF
+
+2: (*Write Data*)
+IF (bModbusWriteSt AND NOT bModbusBusy)
+OR (AR2SwModbusReadData[iIDCounter,iAddCounter] = DSClangsonicGenerator[iIDCounter].wModbusData[iAddCounter])
+OR NOT DSClangsonicGenerator[iIDCounter].bModbusWriteEn[iAddCounter]
+ THEN
+iStep := 1;
+AR2SbWriteInProgress[iIDCounter,iAddCounter] := FALSE;
+
+bModbusReadSt := FALSE;
+bModbusWriteSt := FALSE;
+END_IF
+
+IF (AR2SwModbusReadData[iIDCounter,iAddCounter] <> DSClangsonicGenerator[iIDCounter].wModbusData[iAddCounter])
+AND DSClangsonicGenerator[iIDCounter].bModbusWriteEn[iAddCounter]
+THEN
+(*DSClangsonicGenerator[iIDCounter].wModbusData[iAddCounter] := AR2SwModbusReadData[iIDCounter,iAddCounter];*)
+
+bModbusReadSt := FALSE;
+bModbusWriteSt := TRUE;
+END_IF
+
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="fbClangsonicUltrasonic">
+      <LineId Id="54" Count="146" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSV3_TempCtrlParameter" Id="{25f6c06b-1d20-4468-a762-0a83bacf683f}">
+    <Declaration><![CDATA[TYPE DSV3_TempCtrlParameter :
+STRUCT
+
+	rProTankHighTempSV				:  REAL;
+	rProTank1stLimitTempSV			:  REAL;
+	rProTankProcessTempSV			:  REAL;
+	rProTankRdyTempSV				:  REAL;
+	rProTankHysTempSV				:  REAL;
+	iProTankRdyTempDelayTime		:  INT;
+
+	rSubTankHighTempSV			:  REAL;
+	rSubTank1stLimitTempSV			:  REAL;
+	rSubTankProcessTempSV			:  REAL;
+	rSubTankRdyTempSV				:  REAL;
+	rSubTankHysTempSV				:  REAL;
+	iSubTankRdyTempDelayTime		:  INT;
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

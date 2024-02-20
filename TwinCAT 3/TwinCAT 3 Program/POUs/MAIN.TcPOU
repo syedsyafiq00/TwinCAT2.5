@@ -1,0 +1,265 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <POU Name="MAIN" Id="{87a186ca-2969-476e-9e4b-8bc2f17811f8}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+		tPowerOnDelayOn: TON;
+		tPowerOnDelayOff: TON;
+dummy: BOOL;
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// NodeRed_BasketLog(); 
+
+// ARwActualMapDI[2].6;
+ArbDI[eX10106_GeneralPhaseSequenceRelayMcb_Trip];
+Bootup_Shutdown_ctrl();
+XML_PersistentCtrl();
+//UpsSignal();
+//PID_Ctrl_Test(); //LKT Basic PID
+SerialCom();
+
+//IF bMainCtrl THEN
+
+OPC_UA_MAP();
+	
+Modbus_test();
+Manual_ImportExport_Others();
+
+Barcode_Reg();
+	
+Internal_Mapping();
+IO_Mapping();
+
+(*zAutoMode*)
+(*============================*)
+AutoMain();
+AutoMain_AddON();
+AutoOriginCtrl();
+AutoPreparationCtrl();
+AutoPreparationCtrl_ST();
+AutoStartCtrl();
+HMI_Page_Control();
+
+(*A_StandardStructureProgram*)
+(*============================*)
+
+stClockPulseBlink();
+stGetCurrentTime();
+stUPSStatusMonitoring();
+stWritePersistentData();
+
+(*Aa_HmiVariableCtrl*)
+(*============================*)
+HMIValueKeyInCtrl();
+
+(*AgitationMechanismCtrl*)
+(*============================*)
+AgitationMechanismCtrl();
+
+(*AlarmCtrl*)
+(*============================*)
+//AlarmCtrl();
+Alarm_IO();
+Alarm_Others();
+MisshookSensorCtrl();
+(*Arm2MisshookSensorCtrl();*)
+DeactivateCtrl();
+
+(*AnalogCtrl*)
+(*============================*)
+(*BrensonGen_AnalogDigitalCtrl();*)
+(*BrensonMultiFreq_Main();*)
+(*USFeedbackCtrl();*)
+ClangsonicUSCommCtrl();
+ClangsonicUSCtrl();
+ModbusControl_ST();
+MegasonicModbusProgram_ST();
+ClangsonicUSModbusFeedbackCtrl();
+ConductivityCtrl();
+FilterPressureCtrl();
+TempChillerCtrl();
+TempCtrl();
+PID_TempCtrl();
+//PIDCtrl();
+
+(*AutoArmCtrl*)
+(*============================*)
+VertCoERead();
+HorzCoeRead();
+SlowpullCoeRead();
+OmronServoEnable();
+AxisHorzAdditionalInterlock_Arm1();
+AxisServoCtrl_SlowPull();
+oArmSlowPullHomingCtrl();
+oArmSlowPullOutputCtrl();
+PosConfirmBitCtrl_SlowPull();
+
+AxisHorzMovementOutputCtrl_Arm1();
+AxisServoCtrl_Arm1();
+AxisServoCtrlMapping_Arm1();
+AxisVertMovementOutputCtrl_Arm1();
+PnpCtrl_Arm1();
+PnpMapping_Arm1();
+PnPstorageMemory_Arm();
+PosConfirmBitCtrl_Arm1();
+
+(*PosConfirmBitCtrl_SlowPull();*)
+(*AxisHorzAdditionalInterlock_Arm1();*)
+(*AxisHorzOutputCtrlInterlockingST_Arm1();*)
+(*AxisMovementOutputCtrl_SlowPull();*)
+(*AxisServoCtrl_SlowPull();*)
+(*AutoProcessCtrl*)
+
+(*============================*)
+LdBasketMissingCtrl();
+LdPrcs();
+LdPrcs_General();
+Stn1();
+Stn2();
+Stn3();
+Stn4();
+Stn5();
+Stn6();
+Stn7();
+Stn7ReturnPumpCtrl();
+Stn8();
+Stn9();
+Stn9SlowPullCalculation();
+Stn10();
+//Lift_N_Shuttle();
+BarcodeCtrl_Utac();
+BarcodeScanner();
+Cascading();
+StnOverflowValveCtrl();
+
+(*AutoSevenDayOnOffCtrl*)
+(*============================*)
+SevenDayCtrl();
+SevenDayOnOffConf();
+
+(*BaseWork*)
+(*============================*)
+TowerLightCtrl();
+UserCtrl();
+
+(*BasketMemory_RecipeCtrl*)
+(*============================*)
+BasketBadCtrl();
+BasketMemoryCtrl();
+BasketToleranceCtrl();
+BskMemoryCtrl();
+CvMotorREFE();
+
+(*BlowerCtrl*)
+(*============================*)
+//BlowerCtrl();
+
+(*DataManagement*)
+(*============================*)
+ArmPickTransferCtrl_General();
+BasketTotalizer();
+MacOperationTimeCtrl();
+RTClockCtrl();
+StnBasketTotalizer();
+
+(* CSV *)
+Batch_Number_counter();
+Csv_Report_Ctrl();
+Csv_Report_Mapping();
+
+(*DataManagement_Barcode*)
+(*============================*)
+//Batch_Number_counter();
+//GeneratorComparison();
+Log_BasketTimeInOut();
+Log_Configuration();
+Log_Management();
+
+(*DosingPumpCtrl*)
+(*============================*)
+ManualDosingSTreset();
+Stn1DosingPumpCtrl();
+(*Stn2DosingPumpCtrl();*)
+Stn3DosingPumpCtrl();
+(*Stn4DosingPumpCtrl();*)
+Stn5DosingPumpCtrl();
+
+(*ManualCtrl*)
+(*============================*)
+ManualButtonCtrl();
+ManualCtrl();
+ManualCtrl_Arm();
+ManualLifterJog();
+
+(*Other*)
+(*============================*)
+ArmXYPosAdjust();
+BeckhoffHMIMapping();
+HMI_Function();
+HoldingBit_DoorTransfer();
+HoldingBitCtrl();
+(*IndusoftBeckhoffMapping();*)
+ProHMIMapping();
+TactTime();
+zHMIMaxMinLimit();
+ClockPulse10ms();
+
+(*OutputCtrl*)
+(*============================*)
+MAIN_Arm_Mapping();
+MP_1_Y100();
+MP_2_Y101();
+MP_3_Y102();
+MP_4_Y103();
+SP1_1_Y110();
+SP1_2_Y111();
+SP2_1_Y120();
+SP3_1_Y130();
+SP3_2_Y131();
+SP3_3_Y132();
+STN_TopUpCtrl();
+
+
+(*TimeOptimize*)
+(*============================*)
+Optimizer_Monitor();
+TimeOptimizeCtrl();
+TimeTrackerCtrl();
+
+(*HMI*)
+HMI_Ctrl();
+StartStop();
+
+HMI_CKK();
+
+
+(*xml_Function*)
+(*============================*)
+//Xml_AddressMapping();
+//XML_Program();
+pouXMLRecipeTest();
+
+
+
+
+	tPowerOnDelayOn(IN:=TRUE , PT:=T#5S , Q=> , ET=> );
+	tPowerOnDelayOff(IN:=tPowerOnDelayOn.Q , PT:=t#2s , Q=> , ET=> );
+	
+	IF bRecipeLoadPB OR (tPowerOnDelayOn.Q AND NOT tPowerOnDelayOff.Q) THEN
+	bRecipeLoadInternal := TRUE;
+	bRecipeLoadPB := FALSE;
+	ELSE
+	bRecipeLoadInternal := FALSE;
+	END_IF
+
+//END_IF
+]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="12" Count="244" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

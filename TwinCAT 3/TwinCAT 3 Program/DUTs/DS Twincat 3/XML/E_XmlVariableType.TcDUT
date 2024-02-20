@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_XmlVariableType" Id="{c46dfe58-2ff6-422a-992f-dbb2d19b6964}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+{attribute 'strict'}
+TYPE E_XmlVariableType :
+(
+	eXmlSSMR := 1,
+	eXmlSSUR := 2,
+	eXmlSSER := 3,
+	eXmlProductRecipe := 4
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

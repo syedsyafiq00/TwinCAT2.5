@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_DeclarationOnly" Id="{3a12882f-696e-49a4-a7db-a37319dd2396}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Weber Ultrasonic Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	DSWeberGenerator 									: ARRAY [1..iUSGeneratorQty] OF DS_WeberGenerator;
+	DSWeberEnclosure 									: ARRAY [1..iUSEnclosureQty] OF DS_WeberEnclosure;
+	iWeberStepDelaySVns									: INT;
+
+	ARfbWeberMultiFreq_Main								: ARRAY [1..4] OF fbWeberMultiFreqCtrl;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Brenson Ultrasonic Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	DSBrensonGenerator 									: ARRAY [1..iUSGeneratorQty] OF DS_BrensonGenerator;
+	DSBrensonEnclosure 									: ARRAY [1..iUSEnclosureQty] OF DS_BrensonEnclosure;
+	iBrensonStepDelaySVns								: INT;
+
+	ARfbBrensonMultiFreq_Main							: ARRAY [1..4] OF fbBrensonMultiFreqCtrl;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxx Clangsonic Ultrasonic Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	bClang_ModbusReadBusy								: BOOL;
+	bClang_ModbusReadError								: BOOL;
+	bClang_ModbusWriteBusy								: BOOL;
+	bClang_ModbusWriteError								: BOOL;
+
+	ErrorId_Read										: MODBUS_ERRORS;
+	ErrorId_Write										: MODBUS_ERRORS;
+
+	bClang_ModbusReadBusy2								: BOOL;
+	bClang_ModbusReadError2								: BOOL;
+	bClang_ModbusWriteBusy2								: BOOL;
+	bClang_ModbusWriteError2							: BOOL;
+
+	ErrorId_Read2										: MODBUS_ERRORS;
+	ErrorId_Write2										: MODBUS_ERRORS;
+	
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxx Generic  Modbus Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+	
+	bModbusReadBusy										: BOOL;
+	bModbusReadError									: BOOL;
+	bModbusWriteBusy									: BOOL;
+	bModbusWriteError									: BOOL;
+	
+	bModbusReadBusy2									: BOOL;
+	bModbusReadError2									: BOOL;
+	bModbusWriteBusy2									: BOOL;
+	bModbusWriteError2									: BOOL;
+
+END_VAR
+
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

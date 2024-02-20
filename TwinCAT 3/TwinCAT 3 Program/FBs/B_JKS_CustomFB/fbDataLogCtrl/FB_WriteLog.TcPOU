@@ -1,0 +1,449 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_WriteLog" Id="{22a30c0f-da0a-4ff6-bdcc-3d2f88629ce4}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_WriteLog
+VAR_INPUT
+	sFolderDirectory: T_MaxString;
+	sTittle : T_MaxString;
+	aDataLog: ARRAY [1..100] OF ST_DataLog;
+	sSeperator: STRING;
+	tsTimeMoment: TIMESTRUCT;
+	tsTimeNow: TIMESTRUCT;
+	bStartWri: BOOL;		(*Been triggered when want start to write log*)
+	nNumOfData: INT;
+	enFileType: En_LogFileType;
+	sFileName: STRING;
+	nCurrWrite3: INT;
+END_VAR
+VAR_OUTPUT
+	sErrMsg: STRING;
+END_VAR
+VAR
+	sPath: T_MaxString;
+	FB_FileOpen_Log: FB_FileOpen;
+	nWriState: INT;
+	sHeadline: T_MaxString;
+	sHeadline2: T_MaxString;
+	i: INT;
+	FB_FilePuts_Log: FB_FilePuts;
+	sValueLine: T_MaxString;
+	FB_FileSeek_Log: FB_FileSeek;
+	FB_FileClose_Log: FB_FileClose;
+	nCurrWrite: INT := 1;
+	bHeadLineDone: BOOL;
+	bHeadlineDT: BOOL;
+	bHeadlineDT2: BOOL;
+	bHeadlineDT3: BOOL;
+	bHeadlineDT4: BOOL;
+	bDataDT: BOOL;
+	bDataDone: BOOL;
+	nCurDataWri: INT;
+	i_1: INT;
+	i_2: INT;
+	i_3: INT;
+	nCurrWrite2: INT;
+	i_4: INT;
+	i_5: INT;
+	nCurrWrite4: INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[sPath:=CONCAT(sFolderDirectory,'\');
+sPath:=CONCAT(sPath,sFileName);
+sPath:=CONCAT(sPath,'_');
+sPath:=CONCAT(sPath,F_jx_TS_TO_DATE_STRING_1(tsTimeNow, '_'));
+IF enFileType = CSV THEN
+	sPath:=CONCAT(sPath,'.csv');
+ELSIF enFileType = TXT THEN
+	sPath:=CONCAT(sPath,'.cs_');
+END_IF
+
+FB_FileOpen_Log(
+	sNetId:= ,
+	sPathName:= sPath,
+	nMode:= ,
+	ePath:= PATH_GENERIC,
+	bExecute:= ,
+	tTimeout:= ,
+	bBusy=> ,
+	bError=> ,
+	nErrId=> ,
+	hFile=> );
+
+FB_FilePuts_Log(
+	sNetId:= ,
+	hFile:= ,
+	sLine:= ,
+	bExecute:= ,
+	tTimeout:= ,
+	bBusy=> ,
+	bError=> ,
+	nErrId=> );
+
+FB_FileSeek_Log(
+	sNetId:= ,
+	hFile:= ,
+	nSeekPos:= ,
+	eOrigin:= ,
+	bExecute:= ,
+	tTimeout:= ,
+	bBusy=> ,
+	bError=> ,
+	nErrId=> );
+
+FB_FileClose_Log(
+	sNetId:= ,
+	hFile:= ,
+	bExecute:= ,
+	tTimeout:= ,
+	bBusy=> ,
+	bError=> ,
+	nErrId=> );
+
+Act_WriLogSEQ();]]></ST>
+    </Implementation>
+    <Action Name="act_PreapreDataValue" Id="{d0d57209-048b-46cc-96b7-8c5ad0144525}">
+      <Implementation>
+        <ST><![CDATA[IF bDataDT THEN
+	sValueLine:=F_jx_TS_TO_TIME_STRING(tsTimeMoment);
+	sValueLine:=CONCAT(sValueLine,sSeperator);
+	(*sValueLine:=CONCAT(sValueLine,F_jx_TS_TO_TIME_STRING(tsTimeMoment));
+	sValueLine:=CONCAT(sValueLine,sSeperator);*)
+	bDataDT:=FALSE;
+	nCurDataWri:=1;
+
+END_IF
+
+FOR i_1:= nCurDataWri TO 1000 DO
+	IF i_1 > nNumOfData THEN
+		sValueLine:=CONCAT(sValueLine,'$N');
+		bDataDone:=TRUE;
+EXIT;
+	END_IF
+
+	IF ((LEN(sValueLine)+LEN(sSeperator)+LEN(aDataLog[i_1].sValue))<240) THEN		(*T_MaxString is 250, 10 as buffer. the T-MaxString not full yet*)
+		sValueLine:=CONCAT(sValueLine,aDataLog[i_1].sValue);
+		sValueLine:=CONCAT(sValueLine,sSeperator);
+	ELSE		(*T_MaxString is full*)
+		bDataDone:=FALSE;
+		nCurDataWri:=i_1;
+EXIT;	(*T_MaxString is full, write 1st to CSV 1st*)
+	END_IF
+
+	IF (i_1 = 1000) THEN	(*Wrtie headline complete*)
+		sValueLine:=CONCAT(sValueLine,'$N');
+		bDataDone:=TRUE;
+EXIT;	(*Write complete*)
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="act_PreparingHeadline" Id="{fd470085-7190-4a89-9e0e-c2dd0aa92d11}">
+      <Implementation>
+        <ST><![CDATA[IF bHeadlineDT THEN		(*new day, need to prepare headline, just come from state 22*)
+	(*sHeadline:=sTittle;
+	sHeadline:=CONCAT(sHeadline,'$N'); *)
+
+
+		nCurrWrite4:=1;
+
+		FOR i_5:= nCurrWrite4 TO 7 DO
+			IF i_5 > nNumOfData THEN
+				sHeadline:=CONCAT(sHeadline,'$N');
+				bHeadlineDT:=FALSE;
+
+			EXIT;	(*Write complete*)
+			END_IF
+
+			IF ((LEN(sHeadline) + LEN(sSeperator) + LEN(aDataLog[i_5].sName4)) < 240 ) THEN		(*T_MaxString is 250, 10 as buffer. the T-MaxString not full yet*)
+				sHeadline:=CONCAT(sHeadline, aDataLog[i_5].sName4);
+				sHeadline:=CONCAT(sHeadline,sSeperator);
+			ELSE		(*T_MaxString is full*)
+				bHeadLineDone:=FALSE;
+				nCurrWrite4:=i_5;
+			EXIT;	(*T_MaxString is full, write 1st to CSV 1st*)
+			END_IF
+
+			IF (i_5 = 7) THEN	(*Wrtie headline complete*)
+				sHeadline:=CONCAT(sHeadline,'$N');
+				bHeadlineDT:=FALSE;
+				bHeadlineDT2:=TRUE;
+				nCurrWrite3:=1;
+			EXIT;	(*Write complete*)
+			END_IF
+		END_FOR
+END_IF
+
+IF bHeadlineDT2 THEN
+
+		FOR i_4:= nCurrWrite3 TO 7 DO
+			IF i_4 > nNumOfData THEN
+				sHeadline:=CONCAT(sHeadline,'$N');
+				bHeadlineDT2:=FALSE;
+
+			EXIT;	(*Write complete*)
+			END_IF
+
+			IF ((LEN(sHeadline) + LEN(sSeperator) + LEN(aDataLog[i_4].sName3)) < 240 ) THEN		(*T_MaxString is 250, 10 as buffer. the T-MaxString not full yet*)
+				sHeadline:=CONCAT(sHeadline, aDataLog[i_4].sName3);
+				sHeadline:=CONCAT(sHeadline,sSeperator);
+			ELSE		(*T_MaxString is full*)
+				bHeadLineDone:=FALSE;
+				nCurrWrite3:=i_4;
+			EXIT;	(*T_MaxString is full, write 1st to CSV 1st*)
+			END_IF
+
+			IF (i_4 = 7) THEN	(*Wrtie headline complete*)
+				sHeadline:=CONCAT(sHeadline,'$N');
+				bHeadlineDT2:=FALSE;
+				bHeadlineDT3:=TRUE;
+				nCurrWrite2:=1;
+			EXIT;	(*Write complete*)
+			END_IF
+		END_FOR
+END_IF
+
+(*sHeadline:=CONCAT(sHeadline,'$N');*)
+
+IF bHeadlineDT3 THEN
+
+		FOR i_3:= nCurrWrite2 TO 50 DO
+			IF i_3 > nNumOfData THEN
+				sHeadline:=CONCAT(sHeadline,'$N');
+				bHeadlineDT3:=FALSE;
+
+			EXIT;	(*Write complete*)
+			END_IF
+
+			IF ((LEN(sHeadline) + LEN(sSeperator) + LEN(aDataLog[i_3].sName2)) < 240 ) THEN		(*T_MaxString is 250, 10 as buffer. the T-MaxString not full yet*)
+				sHeadline:=CONCAT(sHeadline, aDataLog[i_3].sName2);
+				sHeadline:=CONCAT(sHeadline,sSeperator);
+			ELSE		(*T_MaxString is full*)
+				bHeadLineDone:=FALSE;
+				nCurrWrite2:=i_3;
+			EXIT;	(*T_MaxString is full, write 1st to CSV 1st*)
+			END_IF
+
+			IF (i_3 = 50) THEN	(*Wrtie headline complete*)
+				sHeadline:=CONCAT(sHeadline,'$N');
+				bHeadlineDT3:=FALSE;
+				nCurrWrite:=1;
+			EXIT;	(*Write complete*)
+			END_IF
+		END_FOR
+
+(*sHeadline:=CONCAT(sHeadline,'$N');*)(*comment by syafiq 190418*)
+
+IF NOT (nCurrWrite2=i_3) THEN
+	sHeadline:=CONCAT(sHeadline,'Time ');
+	sHeadline:=CONCAT(sHeadline,sSeperator);
+	bHeadlineDT:=FALSE;
+	nCurrWrite:=1;
+END_IF
+
+END_IF
+
+FOR i_2:= nCurrWrite TO 1000 DO
+	IF i_2 > nNumOfData THEN
+		sHeadline:=CONCAT(sHeadline,'$N');
+		bHeadLineDone:=TRUE;
+EXIT;	(*Write complete*)
+	END_IF
+
+	IF ((LEN(sHeadline) + LEN(sSeperator) + LEN(aDataLog[i_2].sName)) < 240 ) THEN		(*T_MaxString is 250, 10 as buffer. the T-MaxString not full yet*)
+		sHeadline:=CONCAT(sHeadline, aDataLog[i_2].sName);
+		sHeadline:=CONCAT(sHeadline,sSeperator);
+	ELSE		(*T_MaxString is full*)
+		bHeadLineDone:=FALSE;
+		nCurrWrite:=i_2;
+EXIT;	(*T_MaxString is full, write 1st to CSV 1st*)
+	END_IF
+
+	IF (i_2 = 1000) THEN	(*Wrtie headline complete*)
+		sHeadline:=CONCAT(sHeadline,'$N');
+		bHeadLineDone:=TRUE;
+EXIT;	(*Write complete*)
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="Act_WriLogSEQ" Id="{4e38e028-0802-4d3f-9134-069fa1d50a48}">
+      <Implementation>
+        <ST><![CDATA[CASE nWriState OF
+0:		(*Iinitial State*)
+	FB_FileOpen_Log(bExecute:= FALSE);
+	FB_FileSeek_Log(bExecute:= FALSE);
+	FB_FilePuts_Log(bExecute:= FALSE);
+	FB_FileClose_Log(bExecute:= FALSE);
+	
+	IF bStartWri THEN
+		sErrMsg:='';		(*clear error message*)
+(*		bStartWri:=FALSE;*)
+		nWriState:=10;
+	END_IF
+
+10:		(*Try to write as normal, file already exists*)
+	FB_FileOpen_Log(bExecute:= FALSE);
+	FB_FileOpen_Log(
+		nMode:= FOPEN_MODEREAD OR FOPEN_MODEPLUS OR FOPEN_MODETEXT,
+		ePath:= PATH_GENERIC,
+		bExecute:= TRUE);
+
+	IF FB_FileOpen_Log.bBusy THEN
+		nWriState:=12;
+	END_IF
+
+12:		(*Determine whether got error, if error 1804 mean file not exist, need to create a new file*)
+	IF NOT FB_FileOpen_Log.bBusy THEN
+		IF NOT FB_FileOpen_Log.bError THEN
+			nWriState:=14;		(*proceed to write data value*)
+		ELSE
+			IF (FB_FileOpen_Log.nErrId = 16#70C) THEN		(*no file, need to create a new one*)
+			nWriState:=20;
+			ELSE
+			sErrMsg:='File Open Error [12]';
+			nWriState:=0;
+			END_IF
+		END_IF
+	END_IF
+
+
+14:		(*File Seek, point to the end of file*)
+	FB_FileSeek_Log(bExecute:= FALSE);
+	FB_FileSeek_Log(
+		hFile:= FB_FileOpen_Log.hFile,
+		eOrigin:= SEEK_END,
+		bExecute:= TRUE);
+	
+	IF FB_FileSeek_Log.bBusy THEN	(*Seek Fb start to run*)
+	nWriState:=16;
+	END_IF
+
+16:
+	IF NOT FB_FileSeek_Log.bBusy THEN
+		IF NOT FB_FileSeek_Log.bError THEN	(*no error*)
+bDataDT:=TRUE;
+			nWriState:=40;		(*proceed to write *)
+		ELSE	(*error*)
+			sErrMsg:='File Seek error [16]';
+			nWriState:=0;
+		END_IF
+	END_IF
+
+
+20:		(*Open a new file, going to write the headline*)
+	FB_FileOpen_Log(bExecute:= FALSE);
+	FB_FileOpen_Log(
+		nMode:= FOPEN_MODEAPPEND OR FOPEN_MODETEXT,
+		ePath:= PATH_GENERIC,
+		bExecute:= TRUE);
+	IF FB_FileOpen_Log.bBusy THEN
+		nWriState:=22;
+	END_IF
+
+22:		(*check whether got error*)
+	IF NOT FB_FileOpen_Log.bBusy  THEN
+		IF FB_FileOpen_Log.bError THEN		(*Error*)
+			sErrMsg:='File Open error [22]';
+			nWriState:=0;
+		ELSE		(*no error, go to state 30*)
+			nWriState:=30;
+bHeadlineDT:=TRUE;
+		END_IF
+
+	END_IF
+
+
+30:		(*Write Headline to Csv	|| Preparing Headline*)
+sHeadline:='';
+	act_PreparingHeadline();
+	FB_FilePuts_Log(bExecute:= FALSE);
+	FB_FilePuts_Log(
+		hFile:= FB_FileOpen_Log.hFile,
+		sLine:= sHeadline,
+		bExecute:= TRUE);
+	IF FB_FilePuts_Log.bBusy THEN		(*FB start to work*)
+		nWriState:=32;
+	END_IF
+
+32:
+	IF NOT FB_FilePuts_Log.bBusy THEN	(*Fb Done*)
+		IF NOT FB_FilePuts_Log.bError THEN	(*no error*)
+
+IF bHeadLineDone THEN	(*Writing headline is complete, can go to write data state*)
+nWriState:=40;		(*proceed to write value*)
+bDataDT:=TRUE;
+ELSE
+nWriState:=30;		(*continue to write headline*)
+END_IF
+
+		ELSE		(*got error*)
+		sErrMsg:='Write Headline Error[32]';
+		nWriState:=0;
+		END_IF
+	END_IF
+
+40:		(*Write data value into csv*)
+sValueLine:='';
+	act_PreapreDataValue();
+	FB_FilePuts_Log(bExecute:= FALSE);
+	FB_FilePuts_Log(
+		hFile:= FB_FileOpen_Log.hFile,
+		sLine:= sValueLine,
+		bExecute:= TRUE);
+	IF FB_FilePuts_Log.bBusy THEN		(*FB start to work*)
+		nWriState:=42;
+	END_IF
+
+42:
+	IF NOT FB_FilePuts_Log.bBusy THEN
+		IF NOT FB_FilePuts_Log.bError THEN	(*no error*)
+
+IF bDataDone THEN		(*write data complete, proceed to close state*)
+nWriState:=50;		(*proceed to close file*)
+ELSE		(*data not finish write*)
+nWriState:=40;		(*continue write data*)
+END_IF
+
+		ELSE		(*error*)
+			sErrMsg:='Write Value Error[42]';
+			nWriState:=0;
+		END_IF
+	END_IF
+
+50:		(*Close file state*)
+	FB_FileClose_Log(bExecute:= FALSE);
+	FB_FileClose_Log(
+		hFile:= FB_FileOpen_Log.hFile,
+		bExecute:= TRUE);
+	IF FB_FileClose_Log.bBusy THEN
+		nWriState:=52;
+	END_IF
+
+52:
+	IF NOT FB_FileClose_Log.bBusy THEN
+		IF FB_FileClose_Log.bError THEN	(*error*)
+		sErrMsg:='File CloseError[52]';
+		nWriState:=0;	(*no matter how will goes back to initial state*)
+		ELSE	(*no error*)
+		nWriState:=0;	(*no matter how will goes back to initial state*)
+		END_IF
+	END_IF
+
+END_CASE]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="FB_WriteLog">
+      <LineId Id="46" Count="52" />
+    </LineIds>
+    <LineIds Name="FB_WriteLog.act_PreapreDataValue">
+      <LineId Id="0" Count="31" />
+    </LineIds>
+    <LineIds Name="FB_WriteLog.act_PreparingHeadline">
+      <LineId Id="0" Count="124" />
+    </LineIds>
+    <LineIds Name="FB_WriteLog.Act_WriLogSEQ">
+      <LineId Id="0" Count="161" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

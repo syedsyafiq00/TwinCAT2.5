@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSA21_UpDownPatternCall" Id="{cdada8c8-6d36-470d-8feb-a803d2b132bc}">
+    <Declaration><![CDATA[TYPE DSA21_UpDownPatternCall : (*Full Occupied Byte = 500*)
+STRUCT
+	bCallPB: BOOL; (* Byte "n" *)
+	bCallCompleted : BOOL; (* Byte "n+1" *)
+	bInvalidCallUpDownPatternNoHold : BOOL; (* Byte "n+2" *)
+	bInvalidCallUpDownPatternNoPulse : BOOL; (* Byte "n+3" *)
+	sReservedBool : STRING(95); (* Byte "n+4~n+99" *)
+
+
+	Call_iUpDownPatternNo : INT; (* Byte "n+100, n+101" *)
+	sReservedInt : STRING(97); (* Byte "n+102~n+199" *)
+
+
+(*	Call_sSequenceRecipeDescription : STRING(50); (* Byte "n+200~n+299" *)*)
+
+
+	Call_DsUpDownPattern : DSA21_UpDownPatternMemory; (* Byte "n+200 onward" *)
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

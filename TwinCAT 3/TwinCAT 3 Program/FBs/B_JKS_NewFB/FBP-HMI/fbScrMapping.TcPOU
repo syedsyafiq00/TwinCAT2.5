@@ -1,0 +1,192 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbScrMapping" Id="{22f38ce2-b837-481e-98d4-4d537df5d45d}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbScrMapping
+
+VAR_INPUT
+	iCurrentScrNo : INT;
+	bLoadInd : BOOL;
+END_VAR
+
+VAR_OUTPUT
+END_VAR
+
+
+VAR
+
+	ScrMapCallSelfCheckRE : R_TRIG;
+	iPreviousScrNo : INT;
+	ScrMapCallSelfCheckHR : BOOL;
+	bInvalidScrMapCallStationSequenceNo : BOOL;
+	feScrMapbInvalidCallStationSequenceNo : F_TRIG;
+	ScrMapCallStep : INT;
+	bScrMapCallCompleted: BOOL;
+	InternalTest: BOOL;
+	iPreviousScrMapStnSeqRecipeNo: INT;
+	ScrMapCallStepSUB: INT;
+	iPreviousScrMapStnSubRecipeNo: INT;
+	ScrMapCallSelfCheckHRSEQ: BOOL;
+	ScrMapCallSelfCheckHRSUB: BOOL;
+	iSSERFL: INT;
+END_VAR
+
+
+VAR_IN_OUT PERSISTENT
+	ScrMapStnSeqRecipe : DS_fbStationSequenceRecipeStore;
+	ScrMapStnSubRecipe : DS_fbStationSubRecipeStore;
+	ARStationStnSeqRecipe : ARRAY [0..iStnQty] OF DS_fbStationSequenceRecipeStore;
+	ARStationStnSubRecipe : ARRAY [0..iStnQty] OF DS_fbStationSubRecipeStore;
+
+
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* Screen Mapping Program*)
+
+
+ScrMapCallSelfCheckRE(CLK:=iCurrentScrNo <> iPreviousScrNo , Q=> );
+
+
+
+
+
+IF (*ScrMapCallSelfCheckRE.Q*) iCurrentScrNo <> iPreviousScrNo AND NOT ScrMapCallSelfCheckHR  THEN
+ScrMapCallSelfCheckHRSEQ := TRUE;
+ScrMapCallSelfCheckHRSUB := TRUE;
+
+END_IF
+
+IF iCurrentScrNo <= 0 OR iCurrentScrNo > iStnQty THEN
+bInvalidScrMapCallStationSequenceNo := TRUE;
+ELSE
+bInvalidScrMapCallStationSequenceNo := FALSE;
+END_IF
+
+feScrMapbInvalidCallStationSequenceNo(CLK:=bInvalidScrMapCallStationSequenceNo , Q=> );
+
+(* Mapping for Station SEQUENCE Recipe *)
+IF( ScrMapCallSelfCheckRE.Q AND NOT bInvalidScrMapCallStationSequenceNo) OR feScrMapbInvalidCallStationSequenceNo.Q THEN
+ScrMapCallStep:= 1;
+END_IF
+
+
+CASE ScrMapCallStep OF
+
+1:
+ScrMapStnSeqRecipe := ARStationStnSeqRecipe[iCurrentScrNo];
+IF NOT ScrMapCallSelfCheckHRSUB THEN
+iPreviousScrNo := iCurrentScrNo;
+END_IF
+iPreviousScrMapStnSeqRecipeNo := ScrMapStnSeqRecipe.iStationSequenceRecipeNo;
+ScrMapCallSelfCheckHRSEQ := FALSE;
+ScrMapCallStep := 2;
+
+2:
+ARStationStnSeqRecipe[iCurrentScrNo] := ScrMapStnSeqRecipe;
+
+IF iPreviousScrMapStnSeqRecipeNo <> ScrMapStnSeqRecipe.iStationSequenceRecipeNo THEN
+ScrMapCallSelfCheckHRSEQ := TRUE;
+ScrMapCallStep:= 1;
+END_IF
+
+END_CASE
+
+
+(* Mapping for Station SUB Recipe *)
+IF( ScrMapCallSelfCheckRE.Q AND NOT bInvalidScrMapCallStationSequenceNo) OR feScrMapbInvalidCallStationSequenceNo.Q THEN
+ScrMapCallStepSUB:= 1;
+END_IF
+
+
+CASE ScrMapCallStepSUB OF
+
+1:
+ScrMapStnSubRecipe := ARStationStnSubRecipe[iCurrentScrNo];
+
+iPreviousScrNo := iCurrentScrNo;
+iPreviousScrMapStnSubRecipeNo := ScrMapStnSubRecipe.iSubRecipeNo;
+ScrMapCallSelfCheckHRSUB := FALSE;
+ScrMapCallStepSUB := 2;
+
+2:
+ARStationStnSubRecipe[iCurrentScrNo] := ScrMapStnSubRecipe;
+
+IF iPreviousScrMapStnSubRecipeNo <> ScrMapStnSubRecipe.iSubRecipeNo THEN
+ScrMapCallSelfCheckHRSUB := TRUE;
+ScrMapCallStepSUB:= 1;
+END_IF
+
+END_CASE
+
+(*Max and Min Limit*) (*SSER*)
+iSSERFL := 1;
+FOR iSSERFL := 1 TO iProductRecipeStepArrayQty DO
+	IF iSSERFL >= 1 AND iSSERFL <= iProductRecipeStepArrayQty THEN
+
+		IF  ScrMapStnSeqRecipe.DsStationSequenceRecipeMemory.AR10iRepeatFromStepNo[iSSERFL] > iProductRecipeStepArrayQty
+		THEN ScrMapStnSeqRecipe.DsStationSequenceRecipeMemory.AR10iRepeatFromStepNo[iSSERFL] := iProductRecipeStepArrayQty;
+		ELSIF ScrMapStnSeqRecipe.DsStationSequenceRecipeMemory.AR10iRepeatFromStepNo[iSSERFL] < 1
+		THEN ScrMapStnSeqRecipe.DsStationSequenceRecipeMemory.AR10iRepeatFromStepNo[iSSERFL] := 1; END_IF
+
+		IF  ScrMapStnSeqRecipe.DsStationSequenceRecipeMemory.AR10iCycle[iSSERFL] > 99
+		THEN ScrMapStnSeqRecipe.DsStationSequenceRecipeMemory.AR10iCycle[iSSERFL] := 99;
+		ELSIF ScrMapStnSeqRecipe.DsStationSequenceRecipeMemory.AR10iCycle[iSSERFL] < 1
+		THEN ScrMapStnSeqRecipe.DsStationSequenceRecipeMemory.AR10iCycle[iSSERFL] := 1; END_IF
+
+		IF  ScrMapStnSeqRecipe.DsStationSequenceRecipeMemory.AR10iStationSubProNo[iSSERFL] > IStationSubRecipeArrayQty
+		THEN ScrMapStnSeqRecipe.DsStationSequenceRecipeMemory.AR10iStationSubProNo[iSSERFL] := IStationSubRecipeArrayQty;
+		ELSIF ScrMapStnSeqRecipe.DsStationSequenceRecipeMemory.AR10iStationSubProNo[iSSERFL] < 0
+		THEN ScrMapStnSeqRecipe.DsStationSequenceRecipeMemory.AR10iStationSubProNo[iSSERFL] := 0; END_IF
+
+	END_IF
+END_FOR
+
+
+
+(*Max and Min Limit*) (*SSUR*)
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iStCon1TargetVacuumLevel > 101 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iStCon1TargetVacuumLevel := 101; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iStCon1TargetVacuumLevel < -101 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iStCon1TargetVacuumLevel := -101; END_IF
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iStCon2TargetPressureLevel > 101 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iStCon2TargetPressureLevel := 101; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iStCon2TargetPressureLevel < -101 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iStCon2TargetPressureLevel := -101; END_IF
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iStCon3TargetProTankTempLevel > 200 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iStCon3TargetProTankTempLevel := 200; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iStCon3TargetProTankTempLevel < 20 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iStCon3TargetProTankTempLevel := 20; END_IF
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iStCon4TargetSubTankTempLevel > 200 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iStCon4TargetSubTankTempLevel := 200; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iStCon4TargetSubTankTempLevel < 20 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iStCon4TargetSubTankTempLevel := 20; END_IF
+
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iComCon1TargetVacuumLevel > 101 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iComCon1TargetVacuumLevel := 101; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iComCon1TargetVacuumLevel < -101 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iComCon1TargetVacuumLevel := -101; END_IF
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iComCon2TargetPressureLevel > 101 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iComCon2TargetPressureLevel := 101; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iComCon2TargetPressureLevel < -101 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iComCon2TargetPressureLevel := -101; END_IF
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iComCon3TargetProTankTempLevel > 200 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iComCon3TargetProTankTempLevel := 200; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iComCon3TargetProTankTempLevel < 20 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iComCon3TargetProTankTempLevel := 20; END_IF
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iComCon4TargetSubTankTempLevel > 200 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iComCon4TargetSubTankTempLevel := 200; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iComCon4TargetSubTankTempLevel < 20 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iComCon4TargetSubTankTempLevel := 20; END_IF
+
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iComCon5ProcessTimer > 9999 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iComCon5ProcessTimer := 9999; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iComCon5ProcessTimer < 0 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iComCon5ProcessTimer := 0; END_IF
+
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iOut1ProTankPumpLPM > 999 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut1ProTankPumpLPM := 999; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iOut1ProTankPumpLPM < 0 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut1ProTankPumpLPM := 0; END_IF
+
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iOut2ProTankPumpHz > 300 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut2ProTankPumpHz := 300; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iOut2ProTankPumpHz < 0 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut2ProTankPumpHz := 0; END_IF
+
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iOut3ProTankBtmUsAPwrPercent > 100 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut3ProTankBtmUsAPwrPercent := 100; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iOut3ProTankBtmUsAPwrPercent < 10 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut3ProTankBtmUsAPwrPercent := 10; END_IF
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iOut4ProTankBtmUsBPwrPercent > 100 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut4ProTankBtmUsBPwrPercent := 100; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iOut4ProTankBtmUsBPwrPercent < 10 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut4ProTankBtmUsBPwrPercent := 10; END_IF
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iOut5ProTankBtmUsCPwrPercent > 100 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut5ProTankBtmUsCPwrPercent := 100; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iOut5ProTankBtmUsCPwrPercent < 10 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut5ProTankBtmUsCPwrPercent := 10; END_IF
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iOut6ProTankSideUsAPwrPercent > 100 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut6ProTankSideUsAPwrPercent := 100; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iOut6ProTankSideUsAPwrPercent < 10 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut6ProTankSideUsAPwrPercent := 10; END_IF
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iOut7ProTankSideUsBPwrPercent > 100 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut7ProTankSideUsBPwrPercent := 100; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iOut7ProTankSideUsBPwrPercent < 10 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut7ProTankSideUsBPwrPercent := 10; END_IF
+(*
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iOut8ProTankBtmUsAkHz > 500 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut8ProTankBtmUsAkHz := 500; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iOut8ProTankBtmUsAkHz < 25 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut8ProTankBtmUsAkHz := 25; END_IF
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iOut9ProTankBtmUsBkHz > 500 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut9ProTankBtmUsBkHz := 500; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iOut9ProTankBtmUsBkHz < 25 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut9ProTankBtmUsBkHz := 25; END_IF
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iOut10ProTankBtmUsCkHz > 500 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut10ProTankBtmUsCkHz := 500; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iOut10ProTankBtmUsCkHz < 25 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut10ProTankBtmUsCkHz := 25; END_IF
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iOut11ProTankSideUsAkHz > 500 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut11ProTankSideUsAkHz := 500; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iOut11ProTankSideUsAkHz < 25 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut11ProTankSideUsAkHz := 25; END_IF
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iOut12ProTankSideUsBkHz > 500 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut12ProTankSideUsBkHz := 500; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iOut12ProTankSideUsBkHz < 25 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut12ProTankSideUsBkHz := 25; END_IF
+*)
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iOut13ProTankBlowerHz > 300 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut13ProTankBlowerHz := 300; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iOut13ProTankBlowerHz < 40 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut13ProTankBlowerHz := 40; END_IF
+
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.rOut14ProTankChangeTemperatureDegC > 200 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.rOut14ProTankChangeTemperatureDegC := 200; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.rOut14ProTankChangeTemperatureDegC < 20 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.rOut14ProTankChangeTemperatureDegC := 20; END_IF
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.rOut15SubTankChangeTemperatureDegC > 200 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.rOut15SubTankChangeTemperatureDegC := 200; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.rOut15SubTankChangeTemperatureDegC < 20 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.rOut15SubTankChangeTemperatureDegC := 20; END_IF
+
+
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iOut16SubTankPumpLPM > 999 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut16SubTankPumpLPM := 999; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iOut16SubTankPumpLPM < 0 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut16SubTankPumpLPM := 0; END_IF
+
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iOut17SubTankPumpHz > 300 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut17SubTankPumpHz := 300; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iOut17SubTankPumpHz < 0 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut17SubTankPumpHz := 0; END_IF
+
+IF  ScrMapStnSubRecipe.DsSubRecipeMemory.iOut18SlowPullVelocity > 50 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut18SlowPullVelocity := 50; ELSIF ScrMapStnSubRecipe.DsSubRecipeMemory.iOut18SlowPullVelocity < 1 THEN ScrMapStnSubRecipe.DsSubRecipeMemory.iOut18SlowPullVelocity := 1; END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbScrMapping">
+      <LineId Id="40" Count="141" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

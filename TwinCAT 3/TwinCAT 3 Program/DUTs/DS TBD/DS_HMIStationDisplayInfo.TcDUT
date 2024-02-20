@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_HMIStationDisplayInfo" Id="{9df63511-6d4d-406d-b2cb-3b76a4fc76b9}">
+    <Declaration><![CDATA[TYPE DS_HMIStationDisplayInfo :
+STRUCT
+
+
+
+	iProductRecipeNo : INT; (*Product Recipe No*)
+	iProductRecipeStepNo : INT; (*Product Recipe Step No*)
+
+	iStationSeqenceRecipeNo : INT; (*Station Sequence Recipe No*)
+	iStationSequenceRecipeStepNo : INT; (*Current StationSequenceRecipe Step No*)
+
+	iSubRecipeNo : INT; (*Sub Recipe No*)
+
+	iSubRecipeTimeEV : INT; (*Sub recipe Time EV*)
+	iTotalProcessTimeEV : INT;(*Process Total Time EV*)
+
+
+	bStationSequenceProcessStart : BOOL; (*Indicator*)
+	bStationSequenceProcessInProgressFlag : BOOL; (*Indicator*)
+	bStationSequenceProcessCompleted : BOOL; (*Indicator*)
+
+	bCallStnSeqRecipeErr : BOOL; (*Error Message*)
+	bInvalidProcessStepErr : BOOL; (*Error Message*)
+
+
+	bCallArmSpeedProfileMemoryErr : BOOL; (*Error Message*)
+
+	bCallPickStationNoErr				: BOOL; (*New Error Message*)
+	bCallTransferStationNoErr			: BOOL; (*New Error Message*)
+	bCallUpDownPatternMemoryErr		: BOOL; (*New Error Message*)
+	bInvalidProductRecipeNoErr		: BOOL; (*New Error Message*)
+	bInvalidProductRecipeStepErr		: BOOL; (*New Error Message*)
+
+	sErrorMessage : STRING(50);
+	sProductRecipeDescription : STRING(50); (*Product Recipe Description*)
+	sStationSequenceRecipeDescription : STRING(50); (*StationSequenceRecipeDescription*)
+	sStationSubDescription : STRING(50); (*Station Sub Recipe Description*)
+
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

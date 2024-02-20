@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="LIB_GVL_GENERAL_CONSTANT" Id="{66f58286-ed5c-422b-9b8d-650d53027156}" ParameterList="True">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL CONSTANT
+
+	
+	
+	C_iLanguageQty					: INT := 5;			// Quantity of Language to managed 
+	C_iModbusRS485ChannelQty		: INT := 1;			// Total Quantity of Modbus RS485 Channel
+
+	// Arm
+						C_iArmModuleQty 				: INT := 1; 								(* Total quantity of Single Arm + Multiple Arm Module - ex: 1x Multiple Arm (with 5 Vertical Axis) + 2x Single Arm = 3 Modules = Value: 3 *)
+//						C_ARiArmModuleVertAxisQty		: ARRAY [1..C_iArmModuleQty]OF INT := [1];	(* Total quantity of Veritical Axis per Arm Module *)
+(* E_LocationID *)		C_iMcArmHookQty					: INT := 5;		(* Total quantity of Hook per Machine, ex: 2x Arm Module, 1st Module with 1x Hook, 2nd Module is Multiple arm with 7x Hook, so thev value is add together = value: 8 *)
+
+	// Station , Loading, Unloading	
+(* E_LocationID *)		C_iProcessStnQty				: INT := 12;		// Number of Process Station on this specified machine 
+
+(* E_LocationID *)		C_iLdModuleQty					: INT := 1;		(* To Define Loading Group Set - How many module of Loading Conveyor*)
+(* E_LocationID *)		C_iUldModuleQty					: INT := 1;		(* To Define Unloading Group Set - How many module of Unloading Conveyor*)
+		
+//(* E_LocationID *)		C_ARiLdModuleTrfZoneQty			: ARRAY [1..C_iLdModuleQty] OF INT := [1,1,1];		(* Number of *TRANSFER* Zone ONLY on each of the Loading Conveyor Module (Module seperated by Array), the Pick up Zone cover by ARM is NOT INCLUDED *)
+//(* E_LocationID *)		C_ARiUldModuleTrfZoneQty		: ARRAY [1..C_iUldModuleQty] OF INT := [1,1,1];		(* Number of *TRANSFER* Zone ONLY on each of the Unloading Conveyor Module (Module seperated by Array), the Unload Zone cover by ARM is NOT INCLUDED *)
+
+(* E_LocationID *)		C_iTotalLdTrfZoneQty			: INT := 3-1;		(* TotalNumber of TRANFER Zone ONLY. ex: 2x Loading Conveyor Module, 1st Module with 5 Zones, means 4 Transfer zone. 2nd Module with 10x Zones, means 9 tranfer zone. So the Value will be (4+9 = 13) *)
+(* E_LocationID *)		C_iTotalUldTrfZoneQty			: INT := 3;		(* TotalNumber of TRANFER Zone ONLY. ex: 2x Unloading Conveyor Module, 1st Module with 5 Zones, means 4 Transfer zone. 2nd Module with 10x Zones, means 9 tranfer zone. So the Value will be (4+9 = 13) *)
+
+						C_iXMLSrvMultiGVLQty			: INT := 20;	(* Qty of Declared variable that required to Read From to XML as initial Parameter used. *)
+						C_iXMLMultipleGVLVerQty			: INT := 15;	(* Qty of Backup Version - XML MultipleGVL *)
+						C_iCsvDataBlockQty				: INT := 100;	(* Qty of CSV Datablock per Row *)
+//						C_iCsvBufferLogQty				: INT := 50;	(* Qty of CSV Buffer String to allow temperory store the requset and sort out gradually *)
+						C_udiCsvBufferByteQty			: UDINT := 1000000;	(* Qty of CSV Buffer String to allow temperory store the requset and sort out gradually *)
+						C_iCsvErrorLogQty				: INT := 100;	(* Qty of DS_CsvErrorLog to keep Error info when error happened during CsvHandler process *)
+
+
+(*
+	MISSING	MISSING	MISSING	MISSING	MISSING	MISSING	MISSING	MISSING	MISSING	MISSING	MISSING	MISSING	MISSING	MISSING	MISSING	MISSING	MISSING	MISSING	MISSING	MISSING	MISSING	
+	
+
+
+			iArmSlowPullQty				: INT := 1;	
+			iRecipeBlockQty 			: INT := 100;	(* To change the Qty of Array*)
+			iMasterBlockQty 			: INT := 100;	(* To change the Qty of Array*)
+			iArmSpeedProfileArrayQty	: INT := 20;	(* To change the Qty of Array*)
+			iArmUpDownPatternArrayQty	: INT := 20;	(* To change the Qty of Array*)
+			iHorzArmPosArrayQty 		: INT := 10; 	(*To change the Qty of Array*) (*For old version*)
+			
+			iBarcodeRegQty				: INT := 100;	(*To change the Qty of Array*) (*For Barcode Registration Qty*)
+			iBarcodeRegSecDisplayQty 	: INT := 25;	(*To change the Qty of Array*) (*For Barcode Section Display Qty*)
+			
+			iAlternateStnQty			: INT := 2;		(*To change the Qty of Array*)
+			iAlternateSetQty			: INT := 2;		(*To change the Qty of Array*)
+			
+			iBusyLinkUpSetQty			: INT := 2;		(*To change the Qty of Array*)
+			iBusyLinkUpStnQty			: INT := 2;		(*To change the Qty of Array*)
+			
+			iDeactivateQty				: INT := 100;	(* To change the Qty of Array*)
+			
+		
+			iArm1n2InterchangeStnNo		: INT := 5 ;	
+			
+			iArmStnQty					: INT := 12;	(*External Use*)
+			iArmAxis					: INT := 3;		(*External Use*)
+			
+			iUSGeneratorQty 			: INT := 7;		(*Instrument*)
+			iModbusRWQty				: INT := 12;	(*Instrument*)
+			iUSEnclosureQty 			: INT := 2;		(*Instrument*)
+			iUSModbusRWQty				: INT := 100;	(*Instrument*)
+*)	
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

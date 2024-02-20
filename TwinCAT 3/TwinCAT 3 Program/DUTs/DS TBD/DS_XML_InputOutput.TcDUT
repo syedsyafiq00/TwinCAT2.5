@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_XML_InputOutput" Id="{7af88865-2e51-4c1b-baf7-36f4423ab495}">
+    <Declaration><![CDATA[TYPE DS_XML_InputOutput :
+STRUCT
+
+(*	var1									: ARRAY [1..iStnQty] OF BOOL;
+	ARrStnTempSV_map					: ARRAY [1..iStnQty] OF REAL;
+	ARrStnTempPV_map					: ARRAY [1..iStnQty] OF REAL;
+	ARrStnTempHALsv_map				: ARRAY [1..iStnQty] OF REAL;
+	ARrStnTempRDYsv_map				: ARRAY [1..iStnQty] OF REAL;
+	ARrStnTempHYSsv_map				: ARRAY [1..iStnQty] OF REAL;
+	ARrStnTemp1stLimitSv_map			: ARRAY [1..iStnQty] OF REAL;
+	ARiStnPreparationTempSv_map		: ARRAY [1..iStnQty] OF INT;
+
+	ARrStnSubTankTempSV_map			: ARRAY [1..iStnQty] OF REAL;
+	ARrStnSubTankTempPV_map			: ARRAY [1..iStnQty] OF REAL;
+	ARrStnSubTankTempHALsv_map		: ARRAY [1..iStnQty] OF REAL;
+	ARrStnSubTankTempRDYsv_map		: ARRAY [1..iStnQty] OF REAL;
+	ARrStnSubTankTempHYSsv_map		: ARRAY [1..iStnQty] OF REAL;
+	ARrStnSubTankTemp1stLimitSv_map	: ARRAY [1..iStnQty] OF REAL;
+	ARiStnSubTankPreparationTempSv_map: ARRAY [1..iStnQty] OF INT;
+
+
+	ARiStnDippingTimeSV_map			: ARRAY [1..iStnQty] OF INT;
+	ARiStnToleranceTimeSV_map			: ARRAY [0..iStnQty] OF INT;
+	ARiStnTopUpDelayOffTimeSV_map		: ARRAY [1..iStnQty] OF INT;
+*)
+	ARrStnConductivityPV_map 			: ARRAY [1..iStnQty] OF REAL;
+	ARrStnConductivity1stLimitSv_map		: ARRAY [1..iStnQty] OF REAL;
+	ARrStnConductivity2ndLimitSv_map		: ARRAY [1..iStnQty] OF REAL;
+(*
+	ARrStnPhPV_map						: ARRAY [1..iStnQty] OF REAL;
+	ARrStnLowPHSv_map					: ARRAY [1..iStnQty] OF REAL;
+	ARrStnHighPHSv_map					: ARRAY [1..iStnQty] OF REAL;
+
+	ARrStnFilterPressurePV_map 			: ARRAY [1..iStnQty] OF REAL;
+	ARrStnLowFilterPressureSv_map		: ARRAY [1..iStnQty] OF REAL;
+	ARrStnHighFilterPressureSv_map		: ARRAY [1..iStnQty] OF REAL;
+*)
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,199 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSV3_JRS_HMI" Id="{3f227adc-0af7-4b52-8707-036456d976f9}">
+    <Declaration><![CDATA[TYPE DSV3_JRS_HMI :
+STRUCT
+
+
+	bTarget_JRSZeroVacuumLvlSavePB 					: BOOL;
+	bTarget_JRSHighVacuumLvlSavePB 					: BOOL;
+	lrTarget_JRSHighVacuumRefReading 					: LREAL;
+	rTarget_JRSVacuumLevelPV_kPa 						: REAL;
+	rTarget_JRSVacuumLevelSV_kPa 						: REAL;
+
+	rTarget_ThermalOilTempPV 							: REAL;
+	rTarget_ThermalOilTempHighAlarmSV 					: REAL;
+	rTarget_ThermalOilTempReadySV 						: REAL;
+	rTarget_ThermalOilTempOnOffSV 						: REAL;
+	rTarget_ThermalOilTempOnOffHysSV 					: REAL;
+	rTarget_ThermalOilAnalogInputFineTuneRatio				: REAL;
+
+	rTarget_TopDistillatorTempPV 							: REAL;
+	rTarget_TopDistillatorTempHighAlarmSV 					: REAL;
+	rTarget_TopDistillatorTempReadySV 					: REAL;
+	rTarget_TopDistillatorTempOnOffSV 						: REAL;
+	rTarget_TopDistillatorTempOnOffHysSV 					: REAL;
+	rTarget_TopDistillatorAnalogInputFineTuneRatio			: REAL;
+
+	rTarget_BottomDistillatorTempPV 						: REAL;
+	rTarget_BottomDistillatorTempHighAlarmSV 				: REAL;
+	rTarget_BottomDistillatorTempReadySV 					: REAL;
+	rTarget_BottomDistillatorTempOnOffSV 					: REAL;
+	rTarget_BottomDistillatorTempOnOffHysSV 				: REAL;
+	rTarget_BottomDistillatorAnalogInputFineTuneRatio		: REAL;
+
+	rTarget_VaporGenerationTempPV 						: REAL;
+	rTarget_VaporGenerationTempHighAlarmSV 				: REAL;
+	rTarget_VaporGenerationTempReadySV 				: REAL;
+	rTarget_VaporGenerationTempOnOffSV 					: REAL;
+	rTarget_VaporGenerationTempOnOffHysSV 				: REAL;
+	rTarget_VaporGenerationAnalogInputFineTuneRatio		: REAL;
+
+	rTarget_ColdWaterTankTempPV 						: REAL;
+	rTarget_ColdWaterTankTempHighAlarmSV 				: REAL;
+	rTarget_ColdWaterTankTempReadySV 					: REAL;
+	rTarget_ColdWaterTankTempOnOffSV 					: REAL;
+	rTarget_ColdWaterTankTempOnOffHysSV 				: REAL;
+	rTarget_ColdWaterAnalogInputFineTuneRatio				: REAL;
+
+	b1000_00_AutoModeOnOffPB 							: BOOL;
+	b1000_01_AutoOriginOnOffPB 							: BOOL;
+	b1000_02_AutoPreparationOnOffPB 						: BOOL;
+	b1000_03_AutoModeStartStopPB 						: BOOL;
+	b1000_04_Reserved 									: BOOL;
+	b1000_05_AutoCycleStopPB 							: BOOL;
+	b1000_06_AutoBoilingStart 								: BOOL;
+	b1000_07_AutoBoilingDownCompletedFlag 				: BOOL;
+	b1000_08_AutoBoilingSludgeDrainCompletedFlag 			: BOOL;
+	b1000_09_AutoBoilingDistrillatorDrainCompletedFlag 		: BOOL;
+	b1000_10_Reserved 									: BOOL;
+	b1000_11_Reserved 									: BOOL;
+	b1000_12_Reserved 									: BOOL;
+	b1000_13_AutoProgressStopRE 						: BOOL;
+	b1000_14_AlarmResetPB 								: BOOL;
+	b1000_15_BuzzerResetPB 								: BOOL;
+
+	b9000_09_AutoBoilSludgeDrainCoolingCompletedFlag 		: BOOL;    (************* New extra request by customer - YCH************)
+	b9000_15_AutoBoilingCompletedFlag 					: BOOL;    (************* New extra request by customer - YCH************)
+
+	b1001_01_AutoOriginCompletedFlag 						: BOOL;
+	b1001_02_AutoPreparationCompletedFlag 				: BOOL;
+	b1001_03_Reserved 									: BOOL;
+	b1001_04_Reserved 									: BOOL;
+	b1001_05_Reserved 									: BOOL;
+	b1001_06_ManualBoilingPageInRangeFlag 				: BOOL;
+	b1001_07_Reserved 									: BOOL;
+	b1001_08_Reserved 									: BOOL;
+	b1001_09_ManualPageInRangeFlag 						: BOOL;
+	b1001_10_AutoProgressFlag 							: BOOL;
+	b1001_11_Reserved 									: BOOL;
+	b1001_12_Reserved 									: BOOL;
+	b1001_13_Reserved 									: BOOL;
+	b1001_14_EmergencyStopAlarm 						: BOOL;
+	b1001_15_AlarmOccur 									: BOOL;
+
+	b1020_00_ManualBoilingCycleCompleteFlag 				: BOOL;
+
+	b1030_00_ManualBoilingStartStopPB 					: BOOL;
+	b1030_01_ManualBoilingProgressHR 					: BOOL;
+	b1030_02_ManualBoilDownCompletedFlag 				: BOOL;
+	b1030_03_ManualBoilSludgeCoolingCompletedFlag 		: BOOL;
+	b1030_04_ManualBoilSludgeDrainCompletedFlag 			: BOOL;
+	b1030_05_Reserved 									: BOOL;
+	b1030_06_ChillerOn 									: BOOL;
+	b1030_07_ManualChillerOn 								: BOOL;
+	b1030_08_ManualBoilingStop 							: BOOL;
+	b1030_09_ManualBoilingStartHR 						: BOOL;
+	b1030_10_Reserved 									: BOOL;
+	b1030_11_Reserved 									: BOOL;
+	b1030_12_Reserved 									: BOOL;
+	b1030_13_Reserved 									: BOOL;
+	b1030_14_Reserved 									: BOOL;
+	b1030_15_ManualBoilingStartStopPB 					: BOOL;
+
+	b1040_00_ThermalOilChangeHMeterAlarm 				: BOOL;
+	b1040_01_ThermalOilChangeHMeterResetPB 				: BOOL;
+	b1040_02_ThermalOiChangeWarning 					: BOOL;
+
+	b1200_00_VaporRequestStartHR 						: BOOL;
+	b1200_01_VaporRequestStopHR 						: BOOL;
+
+	bH130_00_AutoBoilingModeOff 							: BOOL; (*Add New*)
+	b1300_00_ManualBoilDownStartMode 					: BOOL;
+	b1300_01_ManualBoilingDownStartPBTS 					: BOOL;
+
+	bRecycleStartStopPB									: BOOL;
+	bChillerSelectorOnOff									: BOOL;
+
+	iD0_HMICurrentPage 									: INT;
+
+	sD100_MessageDisplay 								: STRING;
+	iD100_MessageDisplay 								: INT;
+	iD200_AutoBoilProcessTimeSV_Min 						: INT;
+	iD201_AutoBoilDownTimeSV_Min 						: INT;
+	iD202_AutoBoilDistillatorDrainTimeSV_Sec 				: INT;
+	iD203_AutoBoilSludgeDrainTimeSV_Sec 					: INT;
+(*	iD204_60SecDelayTime 								: INT;*)
+	iD205_5SecDelayTime 								: INT;
+
+	iD890_AutoBoilSludgeDrainCoolingProcessTimeSV_Min 	: INT;    (************* New extra request by customer - YCH************)
+
+	iD210_ManualBoilDownTimeSV_Min 						: INT;
+	iD211_ManualBoilSludgeCoolingTimeSV_Min 				: INT;
+	iD212_ManualBoilSludgeDrainSV_Sec 					: INT;
+
+	iD220_AutoBoilProcessTimePV_Min 						: INT;
+	iD225_AutoBoilProcessTimePV_Sec 					: INT;
+
+	iD221_AutoBoilDownTimePV_Min 						: INT;
+	iD226_AutoBoilDownTimePV_Sec 						: INT;
+
+	iD222_AutoBoilDistillatorDrainTimePV_Sec 				: INT;
+	iD223_AutoBoilSludgeDrainTimePV_Sec 					: INT;
+
+	iD990_AutoBoilSludgeDrainCoolingProcessTimePV_Min 	: INT;    (************* New extra request by customer - YCH************)
+	iD991_AutoBoilSludgeDrainCoolingProcessTimePV_Sec 	: INT;    (************* New extra request by customer - YCH************)
+
+	iD230_ManualBoilDownTimePV_Min 						: INT;
+	iD231_ManualBoilSludgeCoolingTimePV_Min 				: INT;
+	iD232_ManualBoilSludgeDrainPV_Sec 					: INT;
+
+	iD235_ManualBoilDownTimePV_Sec 					: INT;
+	iD236_ManualBoilSludgeCoolingTimePV_Sec 			: INT;
+
+	iD240_ThermalOilChangeHMeterPV_Hour 				: INT;
+	iD241_ThermalOilChangeHMeterPV_Min 					: INT;
+	iD242_ThermalOilChangeHMeterPV_Sec 					: INT;
+
+	iD250_ThermalOilChangeWarningSV_Hour 				: INT;
+	iD251_ThermalOilChangeAlarmSV_Hour 					: INT;
+
+	iD300_AutoModeTimeValue 							: INT;
+
+	iD400_0SecDelayAlarm 								: INT;
+	iD401_3SecDelayAlarm 								: INT;
+	iD402_10SecDelayAlarm 								: INT;
+	iD403_30SecDelayAlarm 								: INT;
+	iD404_60SecDelayAlarm 								: INT;
+	iD405_5SecDelayAlarm 								: INT;
+
+	iD480_ManualBoilingDrainCyclePV 						: INT;
+
+	iD490_ManualBoilCycleSV 								: INT;
+
+	iJRS_AlarmDaysSV_Routine							: INT ;
+         iJRS_AlarmDaysSV_Major							         : INT ;
+         iJRS_WarningDaysSV_Routine						         : INT ;
+	iJRS_WarningDaysSV_Major							: INT ;
+	iJRS_RunDaysPV_Routine								: INT;
+ 	iJRS_RunDaysPV_Major								: INT;
+
+	bJRS_ServiceAlarm_Routine							: BOOL;
+	bJRS_ServiceAlarm_Major							     	: BOOL;
+	bJRS_ServiceWarning_Routine							: BOOL;
+	bJRS_ServiceWarning_Major							: BOOL;
+
+	bJRS_DaysPvReset_Routine							: BOOL;
+	bJRS_DaysPvReset_Major								: BOOL;
+	sJRS_PreviousDateJRS_Routine						: STRING ;
+	sJRS_PreviousDateJRS_Major							: STRING ;
+
+ 	sJRS_CurrentDate										: STRING;
+	bPowerDelay											: BOOL;
+
+END_STRUCT
+
+
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

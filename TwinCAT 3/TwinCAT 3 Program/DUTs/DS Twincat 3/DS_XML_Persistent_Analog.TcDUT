@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_XML_Persistent_Analog" Id="{e91078aa-eadb-42ef-9a81-5e400f23300b}">
+    <Declaration><![CDATA[TYPE DS_XML_Persistent_Analog :
+STRUCT
+	(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Temperature Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARfbStnTempControl									: ARRAY [1..iStnQty] OF fbV2_TempControl;
+
+	ARrAnalogInputFineTuneRatio							: ARRAY [1..iStnQty] OF REAL;
+
+	ARrStnTempHYSsv										: ARRAY [1..iStnQty] OF REAL;
+	ARrStnTempHALsv										: ARRAY [1..iStnQty] OF REAL;
+	ARrStnTempSV										: ARRAY [1..iStnQty] OF REAL;
+	ARrStnTempRDYsv										: ARRAY [1..iStnQty] OF REAL;
+	ARrStnTemp1stLimitSv								: ARRAY [1..iStnQty] OF REAL;
+	ARrStnTemp2ndLimitSv								: ARRAY [1..iStnQty] OF REAL;
+	ARiStnPreparationTempSv								: ARRAY [1..iStnQty] OF INT;
+	
+	fbChillerSystemTempControl							: fbV2_TempControl;
+	
+	rChillerSystemAnalogInputFineTuneRatio				: REAL;
+
+	rChillerSystemTempHYSsv								: REAL;
+	rChillerSystemTempHALsv								: REAL;
+	rChillerSystemTempSV								: REAL;
+	rChillerSystemTempRDYsv								: REAL;
+	rChillerSystemTemp1stLimitSv						: REAL;
+	rChillerSystemTemp2ndLimitSv						: REAL;
+	iChillerSystemPreparationTempSv						: INT;
+
+	ARrStnChillerValueTempSetpoint						: ARRAY [1..iStnQty] OF REAL;
+	
+(*****Temperature Changed Based on Recipe Ctrl *****)
+
+	fbTemperatureParaRecipe								: fbV3_TemperatureParaRecipe;
+
+	DSTempCtrlParameter_Min 							: DSV3_TempCtrlParameter;
+	DSTempCtrlParameter_Max 							: DSV3_TempCtrlParameter;
+
+	HMI_DSTempCtrlParameter_Input 						: DSV3_TempCtrlParameter;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Conductivity Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARfbStnConductivity 								: ARRAY [1..iStnQty] OF fbRawRatioConversionReal;
+
+	ARrStnLowConductivitySv								: ARRAY [1..iStnQty] OF REAL;
+	ARrStnHighConductivitySv							: ARRAY [1..iStnQty] OF REAL;
+	ARrStnConductivity1stLimitSv						: ARRAY [1..iStnQty] OF REAL;
+	ARrStnConductivity2ndLimitSv						: ARRAY [1..iStnQty] OF REAL;
+
+	bStnConductivityMaxLimitReach						: ARRAY [1..iStnQty] OF BOOL;
+	ARsConductivityMsgStatus							: ARRAY [1..iStnQty] OF STRING;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Filter Pressure Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARfbStnFilterPressure 								: ARRAY [1..iStnQty] OF fbRawRatioConversionReal;
+                                                    
+	ARrStnLowFilterPressureSv							: ARRAY [1..iStnQty] OF REAL;
+	ARrStnHighFilterPressureSv							: ARRAY [1..iStnQty] OF REAL;
+	ARrStnFilterPressure1stLimitSv						: ARRAY [1..iStnQty] OF REAL;
+	ARrStnFilterPressure2ndLimitSv						: ARRAY [1..iStnQty] OF REAL;
+                                                    
+	ARfbIncFilterPressure								: ARRAY [1..iStnQty] OF fbRawRatioConversionReal;
+	ARrIncLowFilterPressureSv							: ARRAY [1..iStnQty] OF REAL;
+	ARrIncHighFilterPressureSv							: ARRAY [1..iStnQty] OF REAL;
+	ARrIncFilterPressure1stLimitSv						: ARRAY [1..iStnQty] OF REAL;
+	ARrIncFilterPressure2ndLimitSv						: ARRAY [1..iStnQty] OF REAL;
+
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxx Clangsonic Ultrasonic Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	DSClangGenerator 									: ARRAY [1..iUSGeneratorQty] OF DS_ClangsonicGenerator;
+	DSClangGenerator2 									: ARRAY [1..iUSGeneratorQty] OF DS_ClangsonicGenerator;
+	iClangStepDelaySVns									: INT := 50;
+	iClangStepDelaySVns2								: INT := 50;
+
+	iClangTolerance										: INT;
+	iUSTolerance										: INT;
+	ARlrUsMaxData_Watt									: ARRAY [1..12] OF LREAL;
+
+	DSClangsonicGenerator 								: DSV2_ClangsonicGenerator;
+	DSClangsonicGenerator2 								: DSV2_ClangsonicGenerator;
+
+	
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxx Modbus Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+	DSV2ModbusControl									: DSV2_ModbusControl;
+	DSV2ModbusControl2 									: DSV2_ModbusControl;
+	
+	IStepDelaySVns										: INT := 50;
+	IStepDelaySVns2										: INT := 50;
+
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

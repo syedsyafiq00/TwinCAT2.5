@@ -1,0 +1,2143 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="ManualButtonCtrl" Id="{3db8e637-6808-47e2-ba90-39520b3fe9b5}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM ManualButtonCtrl
+VAR
+bResetMegasonicPower_RE	: ARRAY [1..20] OF R_TRIG;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[MegasonicButtonReset();
+
+// STN 3 MEGASONIC CONTROL
+IF bStn3MegasonicOnOffLevel[1] THEN
+	ARwDO[eY11104_Stn03MegasonicGenerator01Power01].15 := TRUE;
+	ARwDO[eY11110_Stn03MegasonicGenerator02Power01].15 := TRUE;
+ELSE
+	ARwDO[eY11104_Stn03MegasonicGenerator01Power01].15 := FALSE;
+	ARwDO[eY11110_Stn03MegasonicGenerator02Power01].15 := FALSE;	
+END_IF
+
+IF bStn3MegasonicOnOffLevel[2] THEN
+	ARwDO[eY11105_Stn03MegasonicGenerator01Power02].15 := TRUE;
+	ARwDO[eY11111_Stn03MegasonicGenerator02Power02].15 := TRUE;
+ELSE
+	ARwDO[eY11105_Stn03MegasonicGenerator01Power02].15 := FALSE;
+	ARwDO[eY11111_Stn03MegasonicGenerator02Power02].15 := FALSE;	
+END_IF
+
+IF bStn3MegasonicOnOffLevel[3] THEN
+	ARwDO[eY11106_Stn03MegasonicGenerator01Power03].15 :=TRUE;
+	ARwDO[eY11112_Stn03MegasonicGenerator02Power03].15 :=TRUE;
+ELSE
+	ARwDO[eY11106_Stn03MegasonicGenerator01Power03].15 :=FALSE;
+	ARwDO[eY11112_Stn03MegasonicGenerator02Power03].15 :=FALSE;	
+END_IF
+
+IF bStn3MegasonicOnOffLevel[4] THEN
+	ARwDO[eY11107_Stn03MegasonicGenerator01Power04].15 := TRUE;
+	ARwDO[eY11113_Stn03MegasonicGenerator02Power04].15 := TRUE;
+ELSE
+	ARwDO[eY11107_Stn03MegasonicGenerator01Power04].15 := FALSE;
+	ARwDO[eY11113_Stn03MegasonicGenerator02Power04].15 := FALSE;	
+END_IF
+
+IF bStn3MegasonicOnOffLevel[5] THEN
+	ARwDO[eY11108_Stn03MegasonicGenerator01Power05].15 :=TRUE;
+	ARwDO[eY11114_Stn03MegasonicGenerator02Power05].15 :=TRUE;
+ELSE
+	ARwDO[eY11108_Stn03MegasonicGenerator01Power05].15 :=FALSE;
+	ARwDO[eY11114_Stn03MegasonicGenerator02Power05].15 :=FALSE;	
+END_IF
+
+
+// STN 6 MEGASONIC CONTROL
+IF bStn6MegasonicOnOffLevel[1] THEN
+	ARwDO[eY12003_Stn06MegasonicGenerator01Power01].15 := TRUE;
+	ARwDO[eY12009_Stn06MegasonicGenerator02Power01].15 := TRUE;
+ELSE
+	ARwDO[eY12003_Stn06MegasonicGenerator01Power01].15 := FALSE;
+	ARwDO[eY12009_Stn06MegasonicGenerator02Power01].15 := FALSE;	
+END_IF
+
+IF bStn6MegasonicOnOffLevel[2] THEN
+	ARwDO[eY12004_Stn06MegasonicGenerator01Power02].15 := TRUE;
+	ARwDO[eY12010_Stn06MegasonicGenerator02Power02].15 := TRUE;
+ELSE
+	ARwDO[eY12004_Stn06MegasonicGenerator01Power02].15 := FALSE;
+	ARwDO[eY12010_Stn06MegasonicGenerator02Power02].15 := FALSE;	
+END_IF
+
+IF bStn6MegasonicOnOffLevel[3] THEN
+	ARwDO[eY12005_Stn06MegasonicGenerator01Power03].15 :=TRUE;
+	ARwDO[eY12011_Stn06MegasonicGenerator02Power03].15 :=TRUE;
+ELSE
+	ARwDO[eY12005_Stn06MegasonicGenerator01Power03].15 :=FALSE;
+	ARwDO[eY12011_Stn06MegasonicGenerator02Power03].15 :=FALSE;	
+END_IF
+
+IF bStn6MegasonicOnOffLevel[4] THEN
+	ARwDO[eY12006_Stn06MegasonicGenerator01Power04].15 := TRUE;
+	ARwDO[eY12012_Stn06MegasonicGenerator02Power04].15 := TRUE;
+ELSE
+	ARwDO[eY12006_Stn06MegasonicGenerator01Power04].15 := FALSE;
+	ARwDO[eY12012_Stn06MegasonicGenerator02Power04].15 := FALSE;	
+END_IF
+
+IF bStn6MegasonicOnOffLevel[5] THEN
+	ARwDO[eY12007_Stn06MegasonicGenerator01Power05].15 :=TRUE;
+	ARwDO[eY12013_Stn06MegasonicGenerator02Power05].15 :=TRUE;
+ELSE
+	ARwDO[eY12007_Stn06MegasonicGenerator01Power05].15 :=FALSE;
+	ARwDO[eY12013_Stn06MegasonicGenerator02Power05].15 :=FALSE;	
+END_IF
+
+
+(*
+(*Manual Drain All Tank*)
+
+ARtStnDrainLowLevelDelayTimer[1](IN:= bManualAllTankDrainEn AND NOT X106_06 AND Y116_08, PT:=INT_TO_TIME(iAllTankLowLevelDelayTimeSV*1000) , Q=> , ET=>ARtStnDrainDelayEV[1] );
+ARtStnDrainLowLevelDelayTimer[2](IN:= bManualAllTankDrainEn AND NOT X106_09 AND Y116_09, PT:=INT_TO_TIME(iAllTankLowLevelDelayTimeSV*1000) , Q=> , ET=>ARtStnDrainDelayEV[2] );
+ARtStnDrainLowLevelDelayTimer[3](IN:= bManualAllTankDrainEn AND NOT X106_12 AND Y116_10, PT:=INT_TO_TIME(iAllTankLowLevelDelayTimeSV*1000) , Q=> , ET=>ARtStnDrainDelayEV[3] );
+ARtStnDrainLowLevelDelayTimer[4](IN:= bManualAllTankDrainEn AND NOT X110_02 AND Y116_11, PT:=INT_TO_TIME(iAllTankLowLevelDelayTimeSV*1000) , Q=> , ET=>ARtStnDrainDelayEV[4] );
+ARtStnDrainLowLevelDelayTimer[5](IN:= bManualAllTankDrainEn AND NOT X110_05 AND Y116_12, PT:=INT_TO_TIME(iAllTankLowLevelDelayTimeSV*1000) , Q=> , ET=>ARtStnDrainDelayEV[5] );
+ARtStnDrainLowLevelDelayTimer[6](IN:= bManualAllTankDrainEn AND NOT X110_06 AND Y116_13, PT:=INT_TO_TIME(iAllTankLowLevelDelayTimeSV*1000) , Q=> , ET=>ARtStnDrainDelayEV[6] );
+ARtStnDrainLowLevelDelayTimer[7](IN:= bManualAllTankDrainEn AND NOT X115_01 AND Y116_14, PT:=INT_TO_TIME(iAllTankLowLevelDelayTimeSV*1000) , Q=> , ET=>ARtStnDrainDelayEV[7] );
+ARtStnDrainLowLevelDelayTimer[8](IN:= bManualAllTankDrainEn AND NOT X115_02 AND Y116_15, PT:=INT_TO_TIME(iAllTankLowLevelDelayTimeSV*1000) , Q=> , ET=>ARtStnDrainDelayEV[8] );
+
+IF ManualPageEnable AND bManualAllTankDrainEn THEN
+
+	IF X106_06 THEN
+	WY11608_08 		 := TRUE;
+	END_IF
+
+	IF ARtStnDrainLowLevelDelayTimer[1].Q THEN
+	WY11608_08 		:= FALSE;
+	WY11609_08 		:= TRUE;
+	END_IF
+
+	IF ARtStnDrainLowLevelDelayTimer[2].Q THEN
+	WY11608_08 		:= FALSE;
+	WY11609_08 		:= FALSE;
+	WY11610_08 		:= TRUE;
+	END_IF
+
+	IF ARtStnDrainLowLevelDelayTimer[3].Q THEN
+	WY11608_08 		:= FALSE;
+	WY11609_08 		:= FALSE;
+	WY11610_08 		:= FALSE;
+	WY11611_08 		:= TRUE;
+	END_IF
+
+	IF ARtStnDrainLowLevelDelayTimer[4].Q THEN
+	WY11608_08 		:= FALSE;
+	WY11609_08 		:= FALSE;
+	WY11610_08 		:= FALSE;
+	WY11611_08 		:= FALSE;
+	WY11612_08 		:= TRUE;
+	END_IF
+
+	IF ARtStnDrainLowLevelDelayTimer[5].Q THEN
+	WY11608_08 		:= FALSE;
+	WY11609_08 		:= FALSE;
+	WY11610_08 		:= FALSE;
+	WY11611_08 		:= FALSE;
+	WY11612_08 		:= FALSE;
+	WY11613_08 		:= TRUE;
+	END_IF
+
+	IF ARtStnDrainLowLevelDelayTimer[6].Q THEN
+	WY11608_08 		:= FALSE;
+	WY11609_08 		:= FALSE;
+	WY11610_08 		:= FALSE;
+	WY11611_08 		:= FALSE;
+	WY11612_08 		:= FALSE;
+	WY11613_08 		:= FALSE;
+	WY11614_08 		:= TRUE;
+	END_IF
+
+	IF ARtStnDrainLowLevelDelayTimer[7].Q THEN
+	WY11608_08 		:= FALSE;
+	WY11609_08 		:= FALSE;
+	WY11610_08 		:= FALSE;
+	WY11611_08 		:= FALSE;
+	WY11612_08 		:= FALSE;
+	WY11613_08 		:= FALSE;
+	WY11614_08 		:= FALSE;
+	WY11615_08 		:= TRUE;
+	END_IF
+
+	IF ARtStnDrainLowLevelDelayTimer[8].Q THEN
+	bManualAllTankDrainCompletedFlag := TRUE;
+	END_IF
+
+END_IF
+
+IF NOT bManualAllTankDrainEn OR NOT ManualPageEnable THEN
+WY11608_08 := FALSE; (*STN 1 DRAIN AV*)
+WY11609_08 := FALSE; (*STN 2 DRAIN AV*)
+WY11610_08 := FALSE; (*STN 3 DRAIN AV*)
+WY11611_08 := FALSE; (*STN 4 DRAIN AV*)
+WY11612_08 := FALSE; (*STN 5 DRAIN AV*)
+WY11613_08 := FALSE; (*STN 6 DRAIN AV*)
+WY11614_08 := FALSE; (*STN 7 DRAIN AV*)
+WY11615_08 := FALSE; (*STN 8 DRAIN AV*)
+END_IF
+*)
+
+IF EmergencyStop OR NOT ManualPageEnable THEN
+
+ARwDO[eY10000_EMERGENCYSTOPSAFETYRELAY_RESET].15 := FALSE;
+ARwDO[eY10001_Stn01UltrasonicGeneratorFrequencyChange].15 := FALSE;
+ARwDO[eY10002_Stn02UltrasonicGeneratorFrequencyChange].15 := FALSE;
+ARwDO[eY10003_Stn04UltrasonicGeneratorFrequencyChange].15 := FALSE;
+ARwDO[eY10004_Stn05UltrasonicGeneratorFrequencyChange].15 := FALSE;
+ARwDO[eY10005_Stn07UltrasonicGeneratorFrequencyChange].15 := FALSE;
+ARwDO[eY10006_Stn08UltrasonicGeneratorFrequencyChange].15 := FALSE;
+ARwDO[eY10007_Stn09SlowPullMechanismServoMotor_ErrorStop].15 := FALSE;
+ARwDO[eY10008_Arm01HorizontalServoMotor_ErrorStop].15 := FALSE;
+ARwDO[eY10009_Arm01VerticalServoMotor_ErrorStop].15 := FALSE;
+ARwDO[eY10010_UnloadingGeneralBuzzerTone01].15 := FALSE;
+ARwDO[eY10011_UnloadingGeneralBuzzerTone02].15 := FALSE;
+ARwDO[eY10012_Stn10HeaterPIDController_Reset].15 := FALSE;
+ARwDO[eY10013_Reserved].15 := FALSE;
+ARwDO[eY10014_Reserved].15 := FALSE;
+ARwDO[eY10015_Reserved].15 := FALSE;
+
+ARwDO[eY10100_Stn01UltrasonicGeneratorOn_Off].15 := FALSE;
+ARwDO[eY10101_Stn02UltrasonicGeneratorOn_Off].15 := FALSE;
+ARwDO[eY10102_Stn04UltrasonicGeneratorOn_Off].15 := FALSE;
+ARwDO[eY10103_Stn05UltrasonicGeneratorOn_Off].15 := FALSE;
+ARwDO[eY10104_Stn07UltrasonicGeneratorOn_Off].15 := FALSE;
+ARwDO[eY10105_Stn08UltrasonicGeneratorOn_Off].15 := FALSE;
+ARwDO[eY10106_Stn07DiWaterReturnTankPumpOn_Off].15 := FALSE;
+ARwDO[eY10107_Stn01ProcessTankPumpOn_Off].15 := FALSE;
+ARwDO[eY10108_Stn02ProcessTankPumpOn_Off].15 := FALSE;
+ARwDO[eY10109_Stn03ProcessTankPumpOn_Off].15 := FALSE;
+ARwDO[eY10110_Stn04ProcessTankPumpOn_Off].15 := FALSE;
+ARwDO[eY10111_Stn05ProcessTankPumpOn_Off].15 := FALSE;
+ARwDO[eY10112_Stn06ProcessTankPumpOn_Off].15 := FALSE;
+ARwDO[eY10113_Stn07ProcessTankPumpOn_Off].15 := FALSE;
+ARwDO[eY10114_Stn08ProcessTankPumpOn_Off].15 := FALSE;
+ARwDO[eY10115_Stn01ProcessTankHeaterOn_Off].15 := FALSE;
+
+ARwDO[eY10200_Stn02ProcessTankHeaterOn_Off].15 := FALSE;
+ARwDO[eY10201_Stn03ProcessTankHeaterOn_Off].15 := FALSE;
+ARwDO[eY10202_Stn04ProcessTankHeaterOn_Off].15 := FALSE;
+ARwDO[eY10203_Stn05ProcessTankHeaterOn_Off].15 := FALSE;
+ARwDO[eY10204_Stn06ProcessTankHeaterOn_Off].15 := FALSE;
+ARwDO[eY10205_Stn07ProcessTankHeaterOn_Off].15 := FALSE;
+ARwDO[eY10206_Stn08ProcessTankHeaterOn_Off].15 := FALSE;
+ARwDO[eY10207_Stn10ProcessTankHeaterOn_Off].15 := FALSE;
+ARwDO[eY10208_Stn09_Stn10FfuUnitOn_Off].15 := FALSE;
+ARwDO[eY10209_UnloadingFfuUnitOn_Off].15 := FALSE;
+ARwDO[eY10210_UnloadingConveyorFfuUnitOn_Off].15 := FALSE;
+ARwDO[eY10211_Stn09ProcessTankPumpOn_Off].15 := FALSE;
+ARwDO[eY10212_Reserved].15 := FALSE;
+ARwDO[eY10213_Reserved].15 := FALSE;
+ARwDO[eY10214_Reserved].15 := FALSE;
+ARwDO[eY10215_Reserved].15 := FALSE;
+
+ARwDO[eY10300_Stn01_08AgitationMotorOn_Off].15 := FALSE;
+ARwDO[eY10301_LoadingConveyor01On_Off].15 := FALSE;
+ARwDO[eY10302_LoadingConveyor02On_Off].15 := FALSE;
+ARwDO[eY10303_LoadingConveyor03On_Off].15 := FALSE;
+ARwDO[eY10304_LoadingConveyor04On_Off].15 := FALSE;
+ARwDO[eY10305_UnloadingConveyor01On_Off].15 := FALSE;
+ARwDO[eY10306_UnloadingConveyor02On_Off].15 := FALSE;
+ARwDO[eY10307_UnloadingConveyor03On_Off].15 := FALSE;
+ARwDO[eY10308_UnloadingConveyor04On_Off].15 := FALSE;
+ARwDO[eY10309_Reserved].15 := FALSE;
+ARwDO[eY10310_Reserved].15 := FALSE;
+ARwDO[eY10311_Reserved].15 := FALSE;
+ARwDO[eY10312_Reserved].15 := FALSE;
+ARwDO[eY10313_Reserved].15 := FALSE;
+ARwDO[eY10314_Reserved].15 := FALSE;
+ARwDO[eY10315_Reserved].15 := FALSE;
+
+ARwDO[eY11000_GeneralAlarmResetInd].15 := FALSE;
+ARwDO[eY11001_GeneralBuzzerResetInd].15 := FALSE;
+ARwDO[eY11002_GeneralBuzzerTone01].15 := FALSE;
+ARwDO[eY11003_GeneralBuzzerTone02].15 := FALSE;
+ARwDO[eY11004_GeneralTowerLightInd_Red].15 := FALSE;
+ARwDO[eY11005_GeneralTowerLightInd_Yellow].15 := FALSE;
+ARwDO[eY11006_GeneralTowerLightInd_Green].15 := FALSE;
+ARwDO[eY11007_IpcDcOnHoldingRelay].15 := FALSE;
+ARwDO[eY11008_Reserved].15 := FALSE;
+ARwDO[eY11009_Reserved].15 := FALSE;
+ARwDO[eY11010_Reserved].15 := FALSE;
+ARwDO[eY11011_Reserved].15 := FALSE;
+ARwDO[eY11012_Reserved].15 := FALSE;
+ARwDO[eY11013_Reserved].15 := FALSE;
+ARwDO[eY11014_Reserved].15 := FALSE;
+ARwDO[eY11015_Reserved].15 := FALSE;
+
+ARwDO[eY11100_Stn03MegasonicGenerator01On_Off].15 := FALSE;
+ARwDO[eY11101_Stn03MegasonicGenerator02On_Off].15 := FALSE;
+ARwDO[eY11102_Stn01DosingPumpOn_Off].15 := FALSE;
+ARwDO[eY11103_Stn03DosingPumpOn_Off].15 := FALSE;
+ARwDO[eY11104_Stn03MegasonicGenerator01Power01].15 := FALSE;
+ARwDO[eY11105_Stn03MegasonicGenerator01Power02].15 := FALSE;
+ARwDO[eY11106_Stn03MegasonicGenerator01Power03].15 := FALSE;
+ARwDO[eY11107_Stn03MegasonicGenerator01Power04].15 := FALSE;
+ARwDO[eY11108_Stn03MegasonicGenerator01Power05].15 := FALSE;
+ARwDO[eY11109_Reserved].15 := FALSE;
+ARwDO[eY11110_Stn03MegasonicGenerator02Power01].15 := FALSE;
+ARwDO[eY11111_Stn03MegasonicGenerator02Power02].15 := FALSE;
+ARwDO[eY11112_Stn03MegasonicGenerator02Power03].15 := FALSE;
+ARwDO[eY11113_Stn03MegasonicGenerator02Power04].15 := FALSE;
+ARwDO[eY11114_Stn03MegasonicGenerator02Power05].15 := FALSE;
+ARwDO[eY11115_Reserved].15 := FALSE;
+
+ARwDO[eY12000_Stn05DosingPumpOn_Off].15 := FALSE;
+ARwDO[eY12001_Stn06MegasonicGenerator01On_Off].15 := FALSE;
+ARwDO[eY12002_Stn06MegasonicGenerator02On_Off].15 := FALSE;
+ARwDO[eY12003_Stn06MegasonicGenerator01Power01].15 := FALSE;
+ARwDO[eY12004_Stn06MegasonicGenerator01Power02].15 := FALSE;
+ARwDO[eY12005_Stn06MegasonicGenerator01Power03].15 := FALSE;
+ARwDO[eY12006_Stn06MegasonicGenerator01Power04].15 := FALSE;
+ARwDO[eY12007_Stn06MegasonicGenerator01Power05].15 := FALSE;
+ARwDO[eY12008_Reserved].15 := FALSE;
+ARwDO[eY12009_Stn06MegasonicGenerator02Power01].15 := FALSE;
+ARwDO[eY12010_Stn06MegasonicGenerator02Power02].15 := FALSE;
+ARwDO[eY12011_Stn06MegasonicGenerator02Power03].15 := FALSE;
+ARwDO[eY12012_Stn06MegasonicGenerator02Power04].15 := FALSE;
+ARwDO[eY12013_Stn06MegasonicGenerator02Power05].15 := FALSE;
+ARwDO[eY12014_Reserved].15 := FALSE;
+ARwDO[eY12015_Reserved].15 := FALSE;
+
+ARwDO[eY13000_Stn01DiwIncomingSupplyAv1_1].15 := FALSE;
+ARwDO[eY13001_Stn01OverflowSuctionAv1_2].15 := FALSE;
+ARwDO[eY13002_Stn02RowIncomingSupplyAv2_1].15 := FALSE;
+ARwDO[eY13003_Stn03DiwIncomingSupplyAv3_1].15 := FALSE;
+ARwDO[eY13004_Stn03OverflowSuctionAv3_2].15 := FALSE;
+ARwDO[eY13005_Stn03ChilledWaterSupplyAv3_3].15 := FALSE;
+ARwDO[eY13006_Stn04RowIncomingSupplyAv4_1].15 := FALSE;
+ARwDO[eY13007_Stn05DiwIncomingSupplyAv5_1].15 := FALSE;
+ARwDO[eY13008_Stn05OverflowSuctionAv5_2].15 := FALSE;
+ARwDO[eY13009_Stn06RowIncomingSupplyAv6_1].15 := FALSE;
+ARwDO[eY13010_Stn06ChilledWaterSupplyAv6_2].15 := FALSE;
+ARwDO[eY13011_Stn07DiwIncomingSupplyAv7_1].15 := FALSE;
+ARwDO[eY13012_Stn08DiwIncomingSupplyAv8_1].15 := FALSE;
+ARwDO[eY13013_Stn09DiwIncomingSupplyAv9_1].15 := FALSE;
+ARwDO[eY13014_DiwMainIncomingSupplyAvinc_1].15 := FALSE;
+ARwDO[eY13015_RowMainIncomingSupplyAvinc_2].15 := FALSE;
+
+ARwDO[eY13100_UnloadingShutterDoor_Open].15 := FALSE;
+ARwDO[eY13101_UnloadingShutterDoor_Close].15 := FALSE;
+ARwDO[eY13102_UnloadingConveyorShutterDoor_Open].15 := FALSE;
+ARwDO[eY13103_UnloadingConveyorShutterDoor_Close].15 := FALSE;
+ARwDO[eY13104_Reserved].15 := FALSE;
+ARwDO[eY13105_Reserved].15 := FALSE;
+ARwDO[eY13106_Reserved].15 := FALSE;
+ARwDO[eY13107_Reserved].15 := FALSE;
+ARwDO[eY13108_Reserved].15 := FALSE;
+ARwDO[eY13109_Reserved].15 := FALSE;
+ARwDO[eY13110_Reserved].15 := FALSE;
+ARwDO[eY13111_Reserved].15 := FALSE;
+ARwDO[eY13112_Reserved].15 := FALSE;
+ARwDO[eY13113_Reserved].15 := FALSE;
+ARwDO[eY13114_Reserved].15 := FALSE;
+ARwDO[eY13115_Reserved].15 := FALSE;
+
+ARwDO[eY13200_Stn10ProcessTankLeftTopHeaterOn_Off].15 := FALSE;
+ARwDO[eY13201_Stn10ProcessTankLeftBottomHeaterOn_Off].15 := FALSE;
+ARwDO[eY13202_Stn10ProcessTankRightTopHeaterOn_Off].15 := FALSE;
+ARwDO[eY13203_Stn10ProcessTankRightBottomHeaterOn_Off].15 := FALSE;
+ARwDO[eY13204_Reserved].15 := FALSE;
+ARwDO[eY13205_Reserved].15 := FALSE;
+ARwDO[eY13206_Reserved].15 := FALSE;
+ARwDO[eY13207_Reserved].15 := FALSE;
+ARwDO[eY13208_Reserved].15 := FALSE;
+ARwDO[eY13209_Reserved].15 := FALSE;
+ARwDO[eY13210_Reserved].15 := FALSE;
+ARwDO[eY13211_Reserved].15 := FALSE;
+ARwDO[eY13212_Reserved].15 := FALSE;
+ARwDO[eY13213_Reserved].15 := FALSE;
+ARwDO[eY13214_Reserved].15 := FALSE;
+ARwDO[eY13215_Reserved].15 := FALSE;
+
+bStn3MegasonicOnOffLevel[1]:=FALSE;
+bStn3MegasonicOnOffLevel[2]:=FALSE;
+bStn3MegasonicOnOffLevel[3]:=FALSE;
+bStn3MegasonicOnOffLevel[4]:=FALSE;
+bStn3MegasonicOnOffLevel[5]:=FALSE;
+
+bStn6MegasonicOnOffLevel[1]:=FALSE;
+bStn6MegasonicOnOffLevel[2]:=FALSE;
+bStn6MegasonicOnOffLevel[3]:=FALSE;
+bStn6MegasonicOnOffLevel[4]:=FALSE;
+bStn6MegasonicOnOffLevel[5]:=FALSE;
+
+
+
+
+(*	WY10000_15:= FALSE;
+	WY10001_15:= FALSE;
+	WY10002_15:= FALSE;
+	WY10003_15:= FALSE;
+	WY10004_15:= FALSE;
+	WY10005_15:= FALSE;
+	WY10006_15:= FALSE;
+	WY10007_15:= FALSE;
+	WY10008_15:= FALSE;
+	WY10009_15:= FALSE;
+	WY10010_15:= FALSE;
+	WY10011_15:= FALSE;
+	WY10012_15:= FALSE;
+	WY10013_15:= FALSE;
+	WY10014_15:= FALSE;
+	WY10015_15:= FALSE;
+
+	WY10100_15:= FALSE;
+	WY10101_15:= FALSE;
+	WY10102_15:= FALSE;
+	WY10103_15:= FALSE;
+	WY10104_15:= FALSE;
+	WY10105_15:= FALSE;
+	WY10106_15:= FALSE;
+	WY10107_15:= FALSE;
+	WY10108_15:= FALSE;
+	WY10109_15:= FALSE;
+	WY10110_15:= FALSE;
+	WY10111_15:= FALSE;
+	WY10112_15:= FALSE;
+	WY10113_15:= FALSE;
+	WY10114_15:= FALSE;
+	WY10115_15:= FALSE;
+
+	WY10200_15:= FALSE;
+	WY10201_15:= FALSE;
+	WY10202_15:= FALSE;
+	WY10203_15:= FALSE;
+	WY10204_15:= FALSE;
+	WY10205_15:= FALSE;
+	WY10206_15:= FALSE;
+	WY10207_15:= FALSE;
+	WY10208_15:= FALSE;
+	WY10209_15:= FALSE;
+	WY10210_15:= FALSE;
+	WY10211_15:= FALSE;
+	WY10212_15:= FALSE;
+	WY10213_15:= FALSE;
+	WY10214_15:= FALSE;
+	WY10215_15:= FALSE;
+
+	WY10300_15:= FALSE;
+	WY10301_15:= FALSE;
+	WY10302_15:= FALSE;
+	WY10303_15:= FALSE;
+	WY10304_15:= FALSE;
+	WY10305_15:= FALSE;
+	WY10306_15:= FALSE;
+	WY10307_15:= FALSE;
+	WY10308_15:= FALSE;
+	WY10309_15:= FALSE;
+	WY10310_15:= FALSE;
+	WY10311_15:= FALSE;
+	WY10312_15:= FALSE;
+	WY10313_15:= FALSE;
+	WY10314_15:= FALSE;
+	WY10315_15:= FALSE;
+
+	WY10400_15:= FALSE;
+	WY10401_15:= FALSE;
+	WY10402_15:= FALSE;
+	WY10403_15:= FALSE;
+	WY10404_15:= FALSE;
+	WY10405_15:= FALSE;
+	WY10406_15:= FALSE;
+	WY10407_15:= FALSE;
+	WY10408_15:= FALSE;
+	WY10409_15:= FALSE;
+	WY10410_15:= FALSE;
+	WY10411_15:= FALSE;
+	WY10412_15:= FALSE;
+	WY10413_15:= FALSE;
+	WY10414_15:= FALSE;
+	WY10415_15:= FALSE;
+
+	WY11000_15:= FALSE;
+	WY11001_15:= FALSE;
+	WY11002_15:= FALSE;
+	WY11003_15:= FALSE;
+	WY11004_15:= FALSE;
+	WY11005_15:= FALSE;
+	WY11006_15:= FALSE;
+	WY11007_15:= FALSE;
+	WY11008_15:= FALSE;
+	WY11009_15:= FALSE;
+	WY11010_15:= FALSE;
+	WY11011_15:= FALSE;
+	WY11012_15:= FALSE;
+	WY11013_15:= FALSE;
+	WY11014_15:= FALSE;
+	WY11015_15:= FALSE;
+
+	WY11100_15:= FALSE;
+	WY11101_15:= FALSE;
+	WY11102_15:= FALSE;
+	WY11103_15:= FALSE;
+	WY11104_15:= FALSE;
+	WY11105_15:= FALSE;
+	WY11106_15:= FALSE;
+	WY11107_15:= FALSE;
+	WY11108_15:= FALSE;
+	WY11109_15:= FALSE;
+	WY11110_15:= FALSE;
+	WY11111_15:= FALSE;
+	WY11112_15:= FALSE;
+	WY11113_15:= FALSE;
+	WY11114_15:= FALSE;
+	WY11115_15:= FALSE;
+
+	WY11200_15:= FALSE;
+	WY11201_15:= FALSE;
+	WY11202_15:= FALSE;
+	WY11203_15:= FALSE;
+	WY11204_15:= FALSE;
+	WY11205_15:= FALSE;
+	WY11206_15:= FALSE;
+	WY11207_15:= FALSE;
+	WY11208_15:= FALSE;
+	WY11209_15:= FALSE;
+	WY11210_15:= FALSE;
+	WY11211_15:= FALSE;
+	WY11212_15:= FALSE;
+	WY11213_15:= FALSE;
+	WY11214_15:= FALSE;
+	WY11215_15:= FALSE;
+
+	WY11500_15:= FALSE;
+	WY11501_15:= FALSE;
+	WY11502_15:= FALSE;
+	WY11503_15:= FALSE;
+	WY11504_15:= FALSE;
+	WY11505_15:= FALSE;
+	WY11506_15:= FALSE;
+	WY11507_15:= FALSE;
+	WY11508_15:= FALSE;
+	WY11509_15:= FALSE;
+	WY11510_15:= FALSE;
+	WY11511_15:= FALSE;
+	WY11512_15:= FALSE;
+	WY11513_15:= FALSE;
+	WY11514_15:= FALSE;
+	WY11515_15:= FALSE;
+
+	WY11600_15:= FALSE;
+	WY11601_15:= FALSE;
+	WY11602_15:= FALSE;
+	WY11603_15:= FALSE;
+	WY11604_15:= FALSE;
+	WY11605_15:= FALSE;
+	WY11606_15:= FALSE;
+	WY11607_15:= FALSE;
+	WY11608_15:= FALSE;
+	WY11609_15:= FALSE;
+	WY11610_15:= FALSE;
+	WY11611_15:= FALSE;
+	WY11612_15:= FALSE;
+	WY11613_15:= FALSE;
+	WY11614_15:= FALSE;
+	WY11615_15:= FALSE;
+
+	WY11700_15:= FALSE;
+	WY11701_15:= FALSE;
+	WY11702_15:= FALSE;
+	WY11703_15:= FALSE;
+	WY11704_15:= FALSE;
+	WY11705_15:= FALSE;
+	WY11706_15:= FALSE;
+	WY11707_15:= FALSE;
+	WY11708_15:= FALSE;
+	WY11709_15:= FALSE;
+	WY11710_15:= FALSE;
+	WY11711_15:= FALSE;
+	WY11712_15:= FALSE;
+	WY11713_15:= FALSE;
+	WY11714_15:= FALSE;
+	WY11715_15:= FALSE;
+
+	WY12000_15:= FALSE;
+	WY12001_15:= FALSE;
+	WY12002_15:= FALSE;
+	WY12003_15:= FALSE;
+	WY12004_15:= FALSE;
+	WY12005_15:= FALSE;
+	WY12006_15:= FALSE;
+	WY12007_15:= FALSE;
+	WY12008_15:= FALSE;
+	WY12009_15:= FALSE;
+	WY12010_15:= FALSE;
+	WY12011_15:= FALSE;
+	WY12012_15:= FALSE;
+	WY12013_15:= FALSE;
+	WY12014_15:= FALSE;
+	WY12015_15:= FALSE;
+
+	WY15000_15:= FALSE;
+	WY15001_15:= FALSE;
+	WY15002_15:= FALSE;
+	WY15003_15:= FALSE;
+	WY15004_15:= FALSE;
+	WY15005_15:= FALSE;
+	WY15006_15:= FALSE;
+	WY15007_15:= FALSE;
+	WY15008_15:= FALSE;
+	WY15009_15:= FALSE;
+	WY15010_15:= FALSE;
+	WY15011_15:= FALSE;
+	WY15012_15:= FALSE;
+	WY15013_15:= FALSE;
+	WY15014_15:= FALSE;
+	WY15015_15:= FALSE;
+*)
+	bStnCylinderReciprocating		:= FALSE;
+
+	bLdDoorOpen_15					:= FALSE;
+	bLdDoorClose_15					:= FALSE;
+
+	bStn1DoorOpen_15				:= FALSE;
+	bStn1DoorClose_15				:= FALSE;
+
+	bStn2DoorOpen_15				:= FALSE;
+	bStn2DoorClose_15				:= FALSE;
+
+	bStn3DoorOpen_15				:= FALSE;
+	bStn3DoorClose_15				:= FALSE;
+
+	bStn4DoorOpen_15				:= FALSE;
+	bStn4DoorClose_15				:= FALSE;
+
+	bStn5DoorOpen_15				:= FALSE;
+	bStn5DoorClose_15				:= FALSE;
+
+	bStn6DoorOpen_15				:= FALSE;
+	bStn6DoorClose_15				:= FALSE;
+
+	bStn7DoorOpen_15				:= FALSE;
+	bStn7DoorClose_15				:= FALSE;
+
+	bStn8DoorOpen_15				:= FALSE;
+	bStn8DoorClose_15				:= FALSE;
+
+	bStn9DoorOpen_15				:= FALSE;
+	bStn9DoorClose_15				:= FALSE;
+
+	bStn10DoorOpen_15				:= FALSE;
+	bStn10DoorClose_15				:= FALSE;
+
+	bStn11DoorOpen_15				:= FALSE;
+	bStn11DoorClose_15				:= FALSE;
+
+	bStn12DoorOpen_15				:= FALSE;
+	bStn12DoorClose_15				:= FALSE;
+
+	bUldDoorOpen_15					:= FALSE;
+	bUldDoorClose_15				:= FALSE;
+
+	bUldConveyorOpen_15				:= FALSE;
+	bUldConveyorClose_15			:= FALSE;
+
+	wLdDoorOpen.15					:= FALSE;
+	wLdDoorClose.15					:= FALSE;
+
+	wStn1DoorOpen.15				:= FALSE;
+	wStn1DoorClose.15				:= FALSE;
+
+	wStn2DoorOpen.15				:= FALSE;
+	wStn2DoorClose.15				:= FALSE;
+
+	wStn3DoorOpen.15				:= FALSE;
+	wStn3DoorClose.15				:= FALSE;
+
+	wStn4DoorOpen.15				:= FALSE;
+	wStn4DoorClose.15				:= FALSE;
+
+	wStn5DoorOpen.15				:= FALSE;
+	wStn5DoorClose.15				:= FALSE;
+
+	wStn6DoorOpen.15				:= FALSE;
+	wStn6DoorClose.15				:= FALSE;
+
+	wStn7DoorOpen.15				:= FALSE;
+	wStn7DoorClose.15				:= FALSE;
+
+	wStn8DoorOpen.15				:= FALSE;
+	wStn8DoorClose.15				:= FALSE;
+
+	wStn9DoorOpen.15				:= FALSE;
+	wStn9DoorClose.15				:= FALSE;
+
+	wStn10DoorOpen.15				:= FALSE;
+	wStn10DoorClose.15				:= FALSE;
+
+	wStn11DoorOpen.15				:= FALSE;
+	wStn11DoorClose.15				:= FALSE;
+
+	wStn12DoorOpen.15				:= FALSE;
+	wStn12DoorClose.15				:= FALSE;
+
+	wUldDoorOpen.15					:= FALSE;
+	wUldDoorClose.15				:= FALSE;
+	
+	wUldConveyorOpen.15				:= FALSE;
+	wUldConveyorClose.15			:= FALSE;
+	
+	bManualAllTankDrainEn			:= FALSE;
+	bManualClearWaterTrap			:= FALSE;
+
+(*	bLdDoorSwitchCancel_TS 			:= FALSE;*)
+(*	bLdDoorSwitchForceOn_TS 		:= FALSE;*)
+(*	bUldDoorSwitchForceOn_TS 		:= FALSE;*)
+END_IF
+
+wLdDoorOpen.0 := bLdDoorOpen_00 ;
+wLdDoorOpen.1 := bLdDoorOpen_01 ;
+wLdDoorOpen.2 := bLdDoorOpen_02 ;
+wLdDoorOpen.3 := bLdDoorOpen_03 ;
+wLdDoorOpen.4 := bLdDoorOpen_04 ;
+wLdDoorOpen.5 := bLdDoorOpen_05 ;
+wLdDoorOpen.6 := bLdDoorOpen_06 ;
+wLdDoorOpen.7 := bLdDoorOpen_07 ;
+wLdDoorOpen.8 := bLdDoorOpen_08 ;
+wLdDoorOpen.9 := bLdDoorOpen_09 ;
+wLdDoorOpen.10 := bLdDoorOpen_10 ;
+wLdDoorOpen.11 := bLdDoorOpen_11 ;
+wLdDoorOpen.12 := bLdDoorOpen_12 ;
+wLdDoorOpen.13 := bLdDoorOpen_13 ;
+wLdDoorOpen.14 := bLdDoorOpen_14 ;
+wLdDoorOpen.15 := bLdDoorOpen_15 ;
+
+wLdDoorClose.0 := bLdDoorClose_00 ;
+wLdDoorClose.1 := bLdDoorClose_01 ;
+wLdDoorClose.2 := bLdDoorClose_02 ;
+wLdDoorClose.3 := bLdDoorClose_03 ;
+wLdDoorClose.4 := bLdDoorClose_04 ;
+wLdDoorClose.5 := bLdDoorClose_05 ;
+wLdDoorClose.6 := bLdDoorClose_06 ;
+wLdDoorClose.7 := bLdDoorClose_07 ;
+wLdDoorClose.8 := bLdDoorClose_08 ;
+wLdDoorClose.9 := bLdDoorClose_09 ;
+wLdDoorClose.10 := bLdDoorClose_10 ;
+wLdDoorClose.11 := bLdDoorClose_11 ;
+wLdDoorClose.12 := bLdDoorClose_12 ;
+wLdDoorClose.13 := bLdDoorClose_13 ;
+wLdDoorClose.14 := bLdDoorClose_14 ;
+wLdDoorClose.15 := bLdDoorClose_15 ;
+
+wStn1DoorOpen.0 := bStn1DoorOpen_00 ;
+wStn1DoorOpen.1 := bStn1DoorOpen_01 ;
+wStn1DoorOpen.2 := bStn1DoorOpen_02 ;
+wStn1DoorOpen.3 := bStn1DoorOpen_03 ;
+wStn1DoorOpen.4 := bStn1DoorOpen_04 ;
+wStn1DoorOpen.5 := bStn1DoorOpen_05 ;
+wStn1DoorOpen.6 := bStn1DoorOpen_06 ;
+wStn1DoorOpen.7 := bStn1DoorOpen_07 ;
+wStn1DoorOpen.8 := bStn1DoorOpen_08 ;
+wStn1DoorOpen.9 := bStn1DoorOpen_09 ;
+wStn1DoorOpen.10 := bStn1DoorOpen_10 ;
+wStn1DoorOpen.11 := bStn1DoorOpen_11 ;
+wStn1DoorOpen.12 := bStn1DoorOpen_12 ;
+wStn1DoorOpen.13 := bStn1DoorOpen_13 ;
+wStn1DoorOpen.14 := bStn1DoorOpen_14 ;
+wStn1DoorOpen.15 := bStn1DoorOpen_15 ;
+
+wStn1DoorClose.0 := bStn1DoorClose_00 ;
+wStn1DoorClose.1 := bStn1DoorClose_01 ;
+wStn1DoorClose.2 := bStn1DoorClose_02 ;
+wStn1DoorClose.3 := bStn1DoorClose_03 ;
+wStn1DoorClose.4 := bStn1DoorClose_04 ;
+wStn1DoorClose.5 := bStn1DoorClose_05 ;
+wStn1DoorClose.6 := bStn1DoorClose_06 ;
+wStn1DoorClose.7 := bStn1DoorClose_07 ;
+wStn1DoorClose.8 := bStn1DoorClose_08 ;
+wStn1DoorClose.9 := bStn1DoorClose_09 ;
+wStn1DoorClose.10 := bStn1DoorClose_10 ;
+wStn1DoorClose.11 := bStn1DoorClose_11 ;
+wStn1DoorClose.12 := bStn1DoorClose_12 ;
+wStn1DoorClose.13 := bStn1DoorClose_13 ;
+wStn1DoorClose.14 := bStn1DoorClose_14 ;
+wStn1DoorClose.15 := bStn1DoorClose_15 ;
+
+wStn2DoorOpen.0 := bStn2DoorOpen_00 ;
+wStn2DoorOpen.1 := bStn2DoorOpen_01 ;
+wStn2DoorOpen.2 := bStn2DoorOpen_02 ;
+wStn2DoorOpen.3 := bStn2DoorOpen_03 ;
+wStn2DoorOpen.4 := bStn2DoorOpen_04 ;
+wStn2DoorOpen.5 := bStn2DoorOpen_05 ;
+wStn2DoorOpen.6 := bStn2DoorOpen_06 ;
+wStn2DoorOpen.7 := bStn2DoorOpen_07 ;
+wStn2DoorOpen.8 := bStn2DoorOpen_08 ;
+wStn2DoorOpen.9 := bStn2DoorOpen_09 ;
+wStn2DoorOpen.10 := bStn2DoorOpen_10 ;
+wStn2DoorOpen.11 := bStn2DoorOpen_11 ;
+wStn2DoorOpen.12 := bStn2DoorOpen_12 ;
+wStn2DoorOpen.13 := bStn2DoorOpen_13 ;
+wStn2DoorOpen.14 := bStn2DoorOpen_14 ;
+wStn2DoorOpen.15 := bStn2DoorOpen_15 ;
+
+wStn2DoorClose.0 := bStn2DoorClose_00 ;
+wStn2DoorClose.1 := bStn2DoorClose_01 ;
+wStn2DoorClose.2 := bStn2DoorClose_02 ;
+wStn2DoorClose.3 := bStn2DoorClose_03 ;
+wStn2DoorClose.4 := bStn2DoorClose_04 ;
+wStn2DoorClose.5 := bStn2DoorClose_05 ;
+wStn2DoorClose.6 := bStn2DoorClose_06 ;
+wStn2DoorClose.7 := bStn2DoorClose_07 ;
+wStn2DoorClose.8 := bStn2DoorClose_08 ;
+wStn2DoorClose.9 := bStn2DoorClose_09 ;
+wStn2DoorClose.10 := bStn2DoorClose_10 ;
+wStn2DoorClose.11 := bStn2DoorClose_11 ;
+wStn2DoorClose.12 := bStn2DoorClose_12 ;
+wStn2DoorClose.13 := bStn2DoorClose_13 ;
+wStn2DoorClose.14 := bStn2DoorClose_14 ;
+wStn2DoorClose.15 := bStn2DoorClose_15 ;
+
+wStn3DoorOpen.0 := bStn3DoorOpen_00 ;
+wStn3DoorOpen.1 := bStn3DoorOpen_01 ;
+wStn3DoorOpen.2 := bStn3DoorOpen_02 ;
+wStn3DoorOpen.3 := bStn3DoorOpen_03 ;
+wStn3DoorOpen.4 := bStn3DoorOpen_04 ;
+wStn3DoorOpen.5 := bStn3DoorOpen_05 ;
+wStn3DoorOpen.6 := bStn3DoorOpen_06 ;
+wStn3DoorOpen.7 := bStn3DoorOpen_07 ;
+wStn3DoorOpen.8 := bStn3DoorOpen_08 ;
+wStn3DoorOpen.9 := bStn3DoorOpen_09 ;
+wStn3DoorOpen.10 := bStn3DoorOpen_10 ;
+wStn3DoorOpen.11 := bStn3DoorOpen_11 ;
+wStn3DoorOpen.12 := bStn3DoorOpen_12 ;
+wStn3DoorOpen.13 := bStn3DoorOpen_13 ;
+wStn3DoorOpen.14 := bStn3DoorOpen_14 ;
+wStn3DoorOpen.15 := bStn3DoorOpen_15 ;
+
+wStn3DoorClose.0 := bStn3DoorClose_00 ;
+wStn3DoorClose.1 := bStn3DoorClose_01 ;
+wStn3DoorClose.2 := bStn3DoorClose_02 ;
+wStn3DoorClose.3 := bStn3DoorClose_03 ;
+wStn3DoorClose.4 := bStn3DoorClose_04 ;
+wStn3DoorClose.5 := bStn3DoorClose_05 ;
+wStn3DoorClose.6 := bStn3DoorClose_06 ;
+wStn3DoorClose.7 := bStn3DoorClose_07 ;
+wStn3DoorClose.8 := bStn3DoorClose_08 ;
+wStn3DoorClose.9 := bStn3DoorClose_09 ;
+wStn3DoorClose.10 := bStn3DoorClose_10 ;
+wStn3DoorClose.11 := bStn3DoorClose_11 ;
+wStn3DoorClose.12 := bStn3DoorClose_12 ;
+wStn3DoorClose.13 := bStn3DoorClose_13 ;
+wStn3DoorClose.14 := bStn3DoorClose_14 ;
+wStn3DoorClose.15 := bStn3DoorClose_15 ;
+
+wStn4DoorOpen.0 := bStn4DoorOpen_00 ;
+wStn4DoorOpen.1 := bStn4DoorOpen_01 ;
+wStn4DoorOpen.2 := bStn4DoorOpen_02 ;
+wStn4DoorOpen.3 := bStn4DoorOpen_03 ;
+wStn4DoorOpen.4 := bStn4DoorOpen_04 ;
+wStn4DoorOpen.5 := bStn4DoorOpen_05 ;
+wStn4DoorOpen.6 := bStn4DoorOpen_06 ;
+wStn4DoorOpen.7 := bStn4DoorOpen_07 ;
+wStn4DoorOpen.8 := bStn4DoorOpen_08 ;
+wStn4DoorOpen.9 := bStn4DoorOpen_09 ;
+wStn4DoorOpen.10 := bStn4DoorOpen_10 ;
+wStn4DoorOpen.11 := bStn4DoorOpen_11 ;
+wStn4DoorOpen.12 := bStn4DoorOpen_12 ;
+wStn4DoorOpen.13 := bStn4DoorOpen_13 ;
+wStn4DoorOpen.14 := bStn4DoorOpen_14 ;
+wStn4DoorOpen.15 := bStn4DoorOpen_15 ;
+
+wStn4DoorClose.0 := bStn4DoorClose_00 ;
+wStn4DoorClose.1 := bStn4DoorClose_01 ;
+wStn4DoorClose.2 := bStn4DoorClose_02 ;
+wStn4DoorClose.3 := bStn4DoorClose_03 ;
+wStn4DoorClose.4 := bStn4DoorClose_04 ;
+wStn4DoorClose.5 := bStn4DoorClose_05 ;
+wStn4DoorClose.6 := bStn4DoorClose_06 ;
+wStn4DoorClose.7 := bStn4DoorClose_07 ;
+wStn4DoorClose.8 := bStn4DoorClose_08 ;
+wStn4DoorClose.9 := bStn4DoorClose_09 ;
+wStn4DoorClose.10 := bStn4DoorClose_10 ;
+wStn4DoorClose.11 := bStn4DoorClose_11 ;
+wStn4DoorClose.12 := bStn4DoorClose_12 ;
+wStn4DoorClose.13 := bStn4DoorClose_13 ;
+wStn4DoorClose.14 := bStn4DoorClose_14 ;
+wStn4DoorClose.15 := bStn4DoorClose_15 ;
+
+wStn5DoorOpen.0 := bStn5DoorOpen_00 ;
+wStn5DoorOpen.1 := bStn5DoorOpen_01 ;
+wStn5DoorOpen.2 := bStn5DoorOpen_02 ;
+wStn5DoorOpen.3 := bStn5DoorOpen_03 ;
+wStn5DoorOpen.4 := bStn5DoorOpen_04 ;
+wStn5DoorOpen.5 := bStn5DoorOpen_05 ;
+wStn5DoorOpen.6 := bStn5DoorOpen_06 ;
+wStn5DoorOpen.7 := bStn5DoorOpen_07 ;
+wStn5DoorOpen.8 := bStn5DoorOpen_08 ;
+wStn5DoorOpen.9 := bStn5DoorOpen_09 ;
+wStn5DoorOpen.10 := bStn5DoorOpen_10 ;
+wStn5DoorOpen.11 := bStn5DoorOpen_11 ;
+wStn5DoorOpen.12 := bStn5DoorOpen_12 ;
+wStn5DoorOpen.13 := bStn5DoorOpen_13 ;
+wStn5DoorOpen.14 := bStn5DoorOpen_14 ;
+wStn5DoorOpen.15 := bStn5DoorOpen_15 ;
+
+wStn5DoorClose.0 := bStn5DoorClose_00 ;
+wStn5DoorClose.1 := bStn5DoorClose_01 ;
+wStn5DoorClose.2 := bStn5DoorClose_02 ;
+wStn5DoorClose.3 := bStn5DoorClose_03 ;
+wStn5DoorClose.4 := bStn5DoorClose_04 ;
+wStn5DoorClose.5 := bStn5DoorClose_05 ;
+wStn5DoorClose.6 := bStn5DoorClose_06 ;
+wStn5DoorClose.7 := bStn5DoorClose_07 ;
+wStn5DoorClose.8 := bStn5DoorClose_08 ;
+wStn5DoorClose.9 := bStn5DoorClose_09 ;
+wStn5DoorClose.10 := bStn5DoorClose_10 ;
+wStn5DoorClose.11 := bStn5DoorClose_11 ;
+wStn5DoorClose.12 := bStn5DoorClose_12 ;
+wStn5DoorClose.13 := bStn5DoorClose_13 ;
+wStn5DoorClose.14 := bStn5DoorClose_14 ;
+wStn5DoorClose.15 := bStn5DoorClose_15 ;
+
+wStn6DoorOpen.0 := bStn6DoorOpen_00 ;
+wStn6DoorOpen.1 := bStn6DoorOpen_01 ;
+wStn6DoorOpen.2 := bStn6DoorOpen_02 ;
+wStn6DoorOpen.3 := bStn6DoorOpen_03 ;
+wStn6DoorOpen.4 := bStn6DoorOpen_04 ;
+wStn6DoorOpen.5 := bStn6DoorOpen_05 ;
+wStn6DoorOpen.6 := bStn6DoorOpen_06 ;
+wStn6DoorOpen.7 := bStn6DoorOpen_07 ;
+wStn6DoorOpen.8 := bStn6DoorOpen_08 ;
+wStn6DoorOpen.9 := bStn6DoorOpen_09 ;
+wStn6DoorOpen.10 := bStn6DoorOpen_10 ;
+wStn6DoorOpen.11 := bStn6DoorOpen_11 ;
+wStn6DoorOpen.12 := bStn6DoorOpen_12 ;
+wStn6DoorOpen.13 := bStn6DoorOpen_13 ;
+wStn6DoorOpen.14 := bStn6DoorOpen_14 ;
+wStn6DoorOpen.15 := bStn6DoorOpen_15 ;
+
+wStn6DoorClose.0 := bStn6DoorClose_00 ;
+wStn6DoorClose.1 := bStn6DoorClose_01 ;
+wStn6DoorClose.2 := bStn6DoorClose_02 ;
+wStn6DoorClose.3 := bStn6DoorClose_03 ;
+wStn6DoorClose.4 := bStn6DoorClose_04 ;
+wStn6DoorClose.5 := bStn6DoorClose_05 ;
+wStn6DoorClose.6 := bStn6DoorClose_06 ;
+wStn6DoorClose.7 := bStn6DoorClose_07 ;
+wStn6DoorClose.8 := bStn6DoorClose_08 ;
+wStn6DoorClose.9 := bStn6DoorClose_09 ;
+wStn6DoorClose.10 := bStn6DoorClose_10 ;
+wStn6DoorClose.11 := bStn6DoorClose_11 ;
+wStn6DoorClose.12 := bStn6DoorClose_12 ;
+wStn6DoorClose.13 := bStn6DoorClose_13 ;
+wStn6DoorClose.14 := bStn6DoorClose_14 ;
+wStn6DoorClose.15 := bStn6DoorClose_15 ;
+
+wStn7DoorOpen.0 := bStn7DoorOpen_00 ;
+wStn7DoorOpen.1 := bStn7DoorOpen_01 ;
+wStn7DoorOpen.2 := bStn7DoorOpen_02 ;
+wStn7DoorOpen.3 := bStn7DoorOpen_03 ;
+wStn7DoorOpen.4 := bStn7DoorOpen_04 ;
+wStn7DoorOpen.5 := bStn7DoorOpen_05 ;
+wStn7DoorOpen.6 := bStn7DoorOpen_06 ;
+wStn7DoorOpen.7 := bStn7DoorOpen_07 ;
+wStn7DoorOpen.8 := bStn7DoorOpen_08 ;
+wStn7DoorOpen.9 := bStn7DoorOpen_09 ;
+wStn7DoorOpen.10 := bStn7DoorOpen_10 ;
+wStn7DoorOpen.11 := bStn7DoorOpen_11 ;
+wStn7DoorOpen.12 := bStn7DoorOpen_12 ;
+wStn7DoorOpen.13 := bStn7DoorOpen_13 ;
+wStn7DoorOpen.14 := bStn7DoorOpen_14 ;
+wStn7DoorOpen.15 := bStn7DoorOpen_15 ;
+
+wStn7DoorClose.0 := bStn7DoorClose_00 ;
+wStn7DoorClose.1 := bStn7DoorClose_01 ;
+wStn7DoorClose.2 := bStn7DoorClose_02 ;
+wStn7DoorClose.3 := bStn7DoorClose_03 ;
+wStn7DoorClose.4 := bStn7DoorClose_04 ;
+wStn7DoorClose.5 := bStn7DoorClose_05 ;
+wStn7DoorClose.6 := bStn7DoorClose_06 ;
+wStn7DoorClose.7 := bStn7DoorClose_07 ;
+wStn7DoorClose.8 := bStn7DoorClose_08 ;
+wStn7DoorClose.9 := bStn7DoorClose_09 ;
+wStn7DoorClose.10 := bStn7DoorClose_10 ;
+wStn7DoorClose.11 := bStn7DoorClose_11 ;
+wStn7DoorClose.12 := bStn7DoorClose_12 ;
+wStn7DoorClose.13 := bStn7DoorClose_13 ;
+wStn7DoorClose.14 := bStn7DoorClose_14 ;
+wStn7DoorClose.15 := bStn7DoorClose_15 ;
+
+wStn8DoorOpen.0 := bStn8DoorOpen_00 ;
+wStn8DoorOpen.1 := bStn8DoorOpen_01 ;
+wStn8DoorOpen.2 := bStn8DoorOpen_02 ;
+wStn8DoorOpen.3 := bStn8DoorOpen_03 ;
+wStn8DoorOpen.4 := bStn8DoorOpen_04 ;
+wStn8DoorOpen.5 := bStn8DoorOpen_05 ;
+wStn8DoorOpen.6 := bStn8DoorOpen_06 ;
+wStn8DoorOpen.7 := bStn8DoorOpen_07 ;
+wStn8DoorOpen.8 := bStn8DoorOpen_08 ;
+wStn8DoorOpen.9 := bStn8DoorOpen_09 ;
+wStn8DoorOpen.10 := bStn8DoorOpen_10 ;
+wStn8DoorOpen.11 := bStn8DoorOpen_11 ;
+wStn8DoorOpen.12 := bStn8DoorOpen_12 ;
+wStn8DoorOpen.13 := bStn8DoorOpen_13 ;
+wStn8DoorOpen.14 := bStn8DoorOpen_14 ;
+wStn8DoorOpen.15 := bStn8DoorOpen_15 ;
+
+wStn8DoorClose.0 := bStn8DoorClose_00 ;
+wStn8DoorClose.1 := bStn8DoorClose_01 ;
+wStn8DoorClose.2 := bStn8DoorClose_02 ;
+wStn8DoorClose.3 := bStn8DoorClose_03 ;
+wStn8DoorClose.4 := bStn8DoorClose_04 ;
+wStn8DoorClose.5 := bStn8DoorClose_05 ;
+wStn8DoorClose.6 := bStn8DoorClose_06 ;
+wStn8DoorClose.7 := bStn8DoorClose_07 ;
+wStn8DoorClose.8 := bStn8DoorClose_08 ;
+wStn8DoorClose.9 := bStn8DoorClose_09 ;
+wStn8DoorClose.10 := bStn8DoorClose_10 ;
+wStn8DoorClose.11 := bStn8DoorClose_11 ;
+wStn8DoorClose.12 := bStn8DoorClose_12 ;
+wStn8DoorClose.13 := bStn8DoorClose_13 ;
+wStn8DoorClose.14 := bStn8DoorClose_14 ;
+wStn8DoorClose.15 := bStn8DoorClose_15 ;
+
+wStn9DoorOpen.0 := bStn9DoorOpen_00 ;
+wStn9DoorOpen.1 := bStn9DoorOpen_01 ;
+wStn9DoorOpen.2 := bStn9DoorOpen_02 ;
+wStn9DoorOpen.3 := bStn9DoorOpen_03 ;
+wStn9DoorOpen.4 := bStn9DoorOpen_04 ;
+wStn9DoorOpen.5 := bStn9DoorOpen_05 ;
+wStn9DoorOpen.6 := bStn9DoorOpen_06 ;
+wStn9DoorOpen.7 := bStn9DoorOpen_07 ;
+wStn9DoorOpen.8 := bStn9DoorOpen_08 ;
+wStn9DoorOpen.9 := bStn9DoorOpen_09 ;
+wStn9DoorOpen.10 := bStn9DoorOpen_10 ;
+wStn9DoorOpen.11 := bStn9DoorOpen_11 ;
+wStn9DoorOpen.12 := bStn9DoorOpen_12 ;
+wStn9DoorOpen.13 := bStn9DoorOpen_13 ;
+wStn9DoorOpen.14 := bStn9DoorOpen_14 ;
+wStn9DoorOpen.15 := bStn9DoorOpen_15 ;
+
+wStn9DoorClose.0 := bStn9DoorClose_00 ;
+wStn9DoorClose.1 := bStn9DoorClose_01 ;
+wStn9DoorClose.2 := bStn9DoorClose_02 ;
+wStn9DoorClose.3 := bStn9DoorClose_03 ;
+wStn9DoorClose.4 := bStn9DoorClose_04 ;
+wStn9DoorClose.5 := bStn9DoorClose_05 ;
+wStn9DoorClose.6 := bStn9DoorClose_06 ;
+wStn9DoorClose.7 := bStn9DoorClose_07 ;
+wStn9DoorClose.8 := bStn9DoorClose_08 ;
+wStn9DoorClose.9 := bStn9DoorClose_09 ;
+wStn9DoorClose.10 := bStn9DoorClose_10 ;
+wStn9DoorClose.11 := bStn9DoorClose_11 ;
+wStn9DoorClose.12 := bStn9DoorClose_12 ;
+wStn9DoorClose.13 := bStn9DoorClose_13 ;
+wStn9DoorClose.14 := bStn9DoorClose_14 ;
+wStn9DoorClose.15 := bStn9DoorClose_15 ;
+
+wStn10DoorOpen.0 := bStn10DoorOpen_00 ;
+wStn10DoorOpen.1 := bStn10DoorOpen_01 ;
+wStn10DoorOpen.2 := bStn10DoorOpen_02 ;
+wStn10DoorOpen.3 := bStn10DoorOpen_03 ;
+wStn10DoorOpen.4 := bStn10DoorOpen_04 ;
+wStn10DoorOpen.5 := bStn10DoorOpen_05 ;
+wStn10DoorOpen.6 := bStn10DoorOpen_06 ;
+wStn10DoorOpen.7 := bStn10DoorOpen_07 ;
+wStn10DoorOpen.8 := bStn10DoorOpen_08 ;
+wStn10DoorOpen.9 := bStn10DoorOpen_09 ;
+wStn10DoorOpen.10 := bStn10DoorOpen_10 ;
+wStn10DoorOpen.11 := bStn10DoorOpen_11 ;
+wStn10DoorOpen.12 := bStn10DoorOpen_12 ;
+wStn10DoorOpen.13 := bStn10DoorOpen_13 ;
+wStn10DoorOpen.14 := bStn10DoorOpen_14 ;
+wStn10DoorOpen.15 := bStn10DoorOpen_15 ;
+
+wStn10DoorClose.0 := bStn10DoorClose_00 ;
+wStn10DoorClose.1 := bStn10DoorClose_01 ;
+wStn10DoorClose.2 := bStn10DoorClose_02 ;
+wStn10DoorClose.3 := bStn10DoorClose_03 ;
+wStn10DoorClose.4 := bStn10DoorClose_04 ;
+wStn10DoorClose.5 := bStn10DoorClose_05 ;
+wStn10DoorClose.6 := bStn10DoorClose_06 ;
+wStn10DoorClose.7 := bStn10DoorClose_07 ;
+wStn10DoorClose.8 := bStn10DoorClose_08 ;
+wStn10DoorClose.9 := bStn10DoorClose_09 ;
+wStn10DoorClose.10 := bStn10DoorClose_10 ;
+wStn10DoorClose.11 := bStn10DoorClose_11 ;
+wStn10DoorClose.12 := bStn10DoorClose_12 ;
+wStn10DoorClose.13 := bStn10DoorClose_13 ;
+wStn10DoorClose.14 := bStn10DoorClose_14 ;
+wStn10DoorClose.15 := bStn10DoorClose_15 ;
+
+wStn11DoorOpen.0 := bStn11DoorOpen_00 ;
+wStn11DoorOpen.1 := bStn11DoorOpen_01 ;
+wStn11DoorOpen.2 := bStn11DoorOpen_02 ;
+wStn11DoorOpen.3 := bStn11DoorOpen_03 ;
+wStn11DoorOpen.4 := bStn11DoorOpen_04 ;
+wStn11DoorOpen.5 := bStn11DoorOpen_05 ;
+wStn11DoorOpen.6 := bStn11DoorOpen_06 ;
+wStn11DoorOpen.7 := bStn11DoorOpen_07 ;
+wStn11DoorOpen.8 := bStn11DoorOpen_08 ;
+wStn11DoorOpen.9 := bStn11DoorOpen_09 ;
+wStn11DoorOpen.10 := bStn11DoorOpen_10 ;
+wStn11DoorOpen.11 := bStn11DoorOpen_11 ;
+wStn11DoorOpen.12 := bStn11DoorOpen_12 ;
+wStn11DoorOpen.13 := bStn11DoorOpen_13 ;
+wStn11DoorOpen.14 := bStn11DoorOpen_14 ;
+wStn11DoorOpen.15 := bStn11DoorOpen_15 ;
+
+wStn11DoorClose.0 := bStn11DoorClose_00 ;
+wStn11DoorClose.1 := bStn11DoorClose_01 ;
+wStn11DoorClose.2 := bStn11DoorClose_02 ;
+wStn11DoorClose.3 := bStn11DoorClose_03 ;
+wStn11DoorClose.4 := bStn11DoorClose_04 ;
+wStn11DoorClose.5 := bStn11DoorClose_05 ;
+wStn11DoorClose.6 := bStn11DoorClose_06 ;
+wStn11DoorClose.7 := bStn11DoorClose_07 ;
+wStn11DoorClose.8 := bStn11DoorClose_08 ;
+wStn11DoorClose.9 := bStn11DoorClose_09 ;
+wStn11DoorClose.10 := bStn11DoorClose_10 ;
+wStn11DoorClose.11 := bStn11DoorClose_11 ;
+wStn11DoorClose.12 := bStn11DoorClose_12 ;
+wStn11DoorClose.13 := bStn11DoorClose_13 ;
+wStn11DoorClose.14 := bStn11DoorClose_14 ;
+wStn11DoorClose.15 := bStn11DoorClose_15 ;
+
+wStn12DoorOpen.0 := bStn12DoorOpen_00 ;
+wStn12DoorOpen.1 := bStn12DoorOpen_01 ;
+wStn12DoorOpen.2 := bStn12DoorOpen_02 ;
+wStn12DoorOpen.3 := bStn12DoorOpen_03 ;
+wStn12DoorOpen.4 := bStn12DoorOpen_04 ;
+wStn12DoorOpen.5 := bStn12DoorOpen_05 ;
+wStn12DoorOpen.6 := bStn12DoorOpen_06 ;
+wStn12DoorOpen.7 := bStn12DoorOpen_07 ;
+wStn12DoorOpen.8 := bStn12DoorOpen_08 ;
+wStn12DoorOpen.9 := bStn12DoorOpen_09 ;
+wStn12DoorOpen.10 := bStn12DoorOpen_10 ;
+wStn12DoorOpen.11 := bStn12DoorOpen_11 ;
+wStn12DoorOpen.12 := bStn12DoorOpen_12 ;
+wStn12DoorOpen.13 := bStn12DoorOpen_13 ;
+wStn12DoorOpen.14 := bStn12DoorOpen_14 ;
+wStn12DoorOpen.15 := bStn12DoorOpen_15 ;
+
+wStn12DoorClose.0 := bStn12DoorClose_00 ;
+wStn12DoorClose.1 := bStn12DoorClose_01 ;
+wStn12DoorClose.2 := bStn12DoorClose_02 ;
+wStn12DoorClose.3 := bStn12DoorClose_03 ;
+wStn12DoorClose.4 := bStn12DoorClose_04 ;
+wStn12DoorClose.5 := bStn12DoorClose_05 ;
+wStn12DoorClose.6 := bStn12DoorClose_06 ;
+wStn12DoorClose.7 := bStn12DoorClose_07 ;
+wStn12DoorClose.8 := bStn12DoorClose_08 ;
+wStn12DoorClose.9 := bStn12DoorClose_09 ;
+wStn12DoorClose.10 := bStn12DoorClose_10 ;
+wStn12DoorClose.11 := bStn12DoorClose_11 ;
+wStn12DoorClose.12 := bStn12DoorClose_12 ;
+wStn12DoorClose.13 := bStn12DoorClose_13 ;
+wStn12DoorClose.14 := bStn12DoorClose_14 ;
+wStn12DoorClose.15 := bStn12DoorClose_15 ;
+
+wUldDoorOpen.0 := bUldDoorOpen_00 ;
+wUldDoorOpen.1 := bUldDoorOpen_01 ;
+wUldDoorOpen.2 := bUldDoorOpen_02 ;
+wUldDoorOpen.3 := bUldDoorOpen_03 ;
+wUldDoorOpen.4 := bUldDoorOpen_04 ;
+wUldDoorOpen.5 := bUldDoorOpen_05 ;
+wUldDoorOpen.6 := bUldDoorOpen_06 ;
+wUldDoorOpen.7 := bUldDoorOpen_07 ;
+wUldDoorOpen.8 := bUldDoorOpen_08 ;
+wUldDoorOpen.9 := bUldDoorOpen_09 ;
+wUldDoorOpen.10 := bUldDoorOpen_10 ;
+wUldDoorOpen.11 := bUldDoorOpen_11 ;
+wUldDoorOpen.12 := bUldDoorOpen_12 ;
+wUldDoorOpen.13 := bUldDoorOpen_13 ;
+wUldDoorOpen.14 := bUldDoorOpen_14 ;
+wUldDoorOpen.15 := bUldDoorOpen_15 ;
+
+wUldDoorClose.0 := bUldDoorClose_00 ;
+wUldDoorClose.1 := bUldDoorClose_01 ;
+wUldDoorClose.2 := bUldDoorClose_02 ;
+wUldDoorClose.3 := bUldDoorClose_03 ;
+wUldDoorClose.4 := bUldDoorClose_04 ;
+wUldDoorClose.5 := bUldDoorClose_05 ;
+wUldDoorClose.6 := bUldDoorClose_06 ;
+wUldDoorClose.7 := bUldDoorClose_07 ;
+wUldDoorClose.8 := bUldDoorClose_08 ;
+wUldDoorClose.9 := bUldDoorClose_09 ;
+wUldDoorClose.10 := bUldDoorClose_10 ;
+wUldDoorClose.11 := bUldDoorClose_11 ;
+wUldDoorClose.12 := bUldDoorClose_12 ;
+wUldDoorClose.13 := bUldDoorClose_13 ;
+wUldDoorClose.14 := bUldDoorClose_14 ;
+wUldDoorClose.15 := bUldDoorClose_15 ;
+
+wUldConveyorOpen.0 := bUldConveyorOpen_00 ;
+wUldConveyorOpen.1 := bUldConveyorOpen_01 ;
+wUldConveyorOpen.2 := bUldConveyorOpen_02 ;
+wUldConveyorOpen.3 := bUldConveyorOpen_03 ;
+wUldConveyorOpen.4 := bUldConveyorOpen_04 ;
+wUldConveyorOpen.5 := bUldConveyorOpen_05 ;
+wUldConveyorOpen.6 := bUldConveyorOpen_06 ;
+wUldConveyorOpen.7 := bUldConveyorOpen_07 ;
+wUldConveyorOpen.8 := bUldConveyorOpen_08 ;
+wUldConveyorOpen.9 := bUldConveyorOpen_09 ;
+wUldConveyorOpen.10 := bUldConveyorOpen_10 ;
+wUldConveyorOpen.11 := bUldConveyorOpen_11 ;
+wUldConveyorOpen.12 := bUldConveyorOpen_12 ;
+wUldConveyorOpen.13 := bUldConveyorOpen_13 ;
+wUldConveyorOpen.14 := bUldConveyorOpen_14 ;
+wUldConveyorOpen.15 := bUldConveyorOpen_15 ;
+
+wUldConveyorClose.0 := bUldConveyorClose_00 ;
+wUldConveyorClose.1 := bUldConveyorClose_01 ;
+wUldConveyorClose.2 := bUldConveyorClose_02 ;
+wUldConveyorClose.3 := bUldConveyorClose_03 ;
+wUldConveyorClose.4 := bUldConveyorClose_04 ;
+wUldConveyorClose.5 := bUldConveyorClose_05 ;
+wUldConveyorClose.6 := bUldConveyorClose_06 ;
+wUldConveyorClose.7 := bUldConveyorClose_07 ;
+wUldConveyorClose.8 := bUldConveyorClose_08 ;
+wUldConveyorClose.9 := bUldConveyorClose_09 ;
+wUldConveyorClose.10 := bUldConveyorClose_10 ;
+wUldConveyorClose.11 := bUldConveyorClose_11 ;
+wUldConveyorClose.12 := bUldConveyorClose_12 ;
+wUldConveyorClose.13 := bUldConveyorClose_13 ;
+wUldConveyorClose.14 := bUldConveyorClose_14 ;
+wUldConveyorClose.15 := bUldConveyorClose_15 ;
+
+(*
+(*ALL IR HEATER OPEN WHEN ONE BUTTON TRIGGERRED*)
+IF ARwDO[eY10207_Stn10ProcessTankHeaterOn_Off].15 THEN
+	ARwDO[eY13200_Stn10ProcessTankLeftTopHeaterOn_Off].15 		:= TRUE;
+	ARwDO[eY13201_Stn10ProcessTankLeftBottomHeaterOn_Off].15 	:= TRUE;
+	ARwDO[eY13202_Stn10ProcessTankRightTopHeaterOn_Off].15 		:= TRUE;
+	ARwDO[eY13203_Stn10ProcessTankRightBottomHeaterOn_Off].15 	:= TRUE;
+ELSE	
+	ARwDO[eY13200_Stn10ProcessTankLeftTopHeaterOn_Off].15 		:= FALSE;
+	ARwDO[eY13201_Stn10ProcessTankLeftBottomHeaterOn_Off].15 	:= FALSE;
+	ARwDO[eY13202_Stn10ProcessTankRightTopHeaterOn_Off].15 		:= FALSE;
+	ARwDO[eY13203_Stn10ProcessTankRightBottomHeaterOn_Off].15 	:= FALSE;
+END_IF
+*)
+
+(*
+(*StnCylinderReciprocating*) (*When play recipracating bit it will reset the individual cylinder output in Manual Bit*)
+IF bStnCylinderReciprocating THEN
+	WY11700_15 						:= FALSE;
+	WY11701_15 						:= FALSE;
+END_IF
+*)
+(*
+(***************LD UP/DOWN  AV*****************)
+(*LD UP*)
+IF X120_04 AND X120_06 THEN
+	WY11508_15 						:= FALSE;
+END_IF
+
+(*LD DOWN*)
+IF X120_05 AND X120_07 THEN
+	WY11509_15						:= FALSE;
+END_IF
+
+(*LD FORWARD*)
+IF X120_08 THEN
+	WY11510_15 						:= FALSE;
+END_IF
+
+(*LD REVERSE*)
+IF X120_09 THEN
+	WY11511_15						:= FALSE;
+END_IF
+*)
+(*
+(***************LD IN/OUT  AV*****************)
+(*LD IN*)
+IF X101_10 THEN
+	WY11102_15 						:= FALSE;
+END_IF
+
+(*LD OUT*)
+IF X101_11 THEN
+	WY11103_15						:= FALSE;
+END_IF
+*)
+(***************ULD UP/DOWN  AV*****************)
+(*ULD UP*)
+(*
+IF X117_00 AND X117_02 THEN
+	WY11512_15 						:= FALSE;
+END_IF
+
+(*ULD DOWN*)
+IF X117_01 AND X117_03 THEN
+	WY11513_15						:= FALSE;
+END_IF
+
+(*ULD FORWARD*)
+IF X117_04 THEN
+	WY11514_15 						:= FALSE;
+END_IF
+
+(*ULD REVERSE*)
+IF X117_05 THEN
+	WY11515_15						:= FALSE;
+END_IF
+*)
+(*
+(***************ULD IN/OUT  AV*****************)
+(*ULD IN*)
+IF X131_02 THEN
+	WY11202_15 						:= FALSE;
+END_IF
+
+(*ULD OUT*)
+IF X131_03 THEN
+	WY11203_15						:= FALSE;
+END_IF
+
+(***************LD SHUTTLE DOOR*****************)
+(*LD SHUTTLE DOOR OPEN*)
+IF X101_12 THEN
+	WY11100_15 						:= FALSE;
+	bLdDoorOpen_15 					:= FALSE;
+END_IF
+
+(*LD SHUTTLE DOOR CLOSE*)
+IF X101_13 THEN
+	WY11101_15						:= FALSE;
+	bLdDoorClose_15 				:= FALSE;
+END_IF
+
+(*LD SHUTTLE DOOR*)
+IF WY11100_15 THEN
+	WY11101_15 						:= FALSE;
+END_IF
+*)
+(***************STN 1 DOOR OPEN/CLOSE*****************)
+(*STN1 DOOR OPEN*)
+(*
+IF X101_00 THEN
+	WY11500_15 						:= FALSE;
+	bStn1DoorOpen_15 				:= FALSE;
+END_IF
+
+(*STN1 DOOR CLOSE*)
+IF X101_01 THEN
+	WY11501_15						:= FALSE;
+	bStn1DoorClose_15 				:= FALSE;
+END_IF
+
+(*STN1 DOOR*)
+IF WY11500_15 THEN
+	WY11501_15 						:= FALSE;
+END_IF
+*)
+(*
+(***************STN 2 DOOR OPEN/CLOSE*****************)
+(*STN2 DOOR OPEN*)
+IF X115_03 THEN
+	WY16204_15 						:= FALSE;
+	bStn2DoorOpen_15 				:= FALSE;
+END_IF
+
+(*STN2 DOOR CLOSE*)
+IF X115_04 THEN
+	WY16205_15						:= FALSE;
+	bStn2DoorClose_15 				:= FALSE;
+END_IF
+
+(*STN2 DOOR*)
+IF WY16204_15 THEN
+	WY16205_15 						:= FALSE;
+END_IF
+
+(***************STN 3 DOOR OPEN/CLOSE*****************)
+(*STN3 DOOR OPEN*)
+IF X115_14 THEN
+	WY11110_15 						:= FALSE;
+	bStn3DoorOpen_15 				:= FALSE;
+END_IF
+
+(*STN3 DOOR CLOSE*)
+IF X115_15 THEN
+	WY11111_15						:= FALSE;
+	bStn3DoorClose_15 				:= FALSE;
+END_IF
+
+(*STN3 DOOR OPEN/CLOSE*)
+IF WY11110_15 THEN
+	WY11111_15 						:= FALSE;
+END_IF
+*)
+(***************STN 4 DOOR OPEN/CLOSE*****************)
+(*STN4 DOOR OPEN*)
+(*
+IF X115_05 THEN
+	WY11502_15 						:= FALSE;
+	bStn4DoorOpen_15 				:= FALSE;
+END_IF
+
+(*STN4 DOOR CLOSE*)
+IF X115_06 THEN
+	WY11503_15						:= FALSE;
+	bStn4DoorClose_15 				:= FALSE;
+END_IF
+
+(*STN4 DOOR OPEN/CLOSE*)
+IF WY11502_15 THEN
+	WY11503_15 						:= FALSE;
+END_IF
+
+(***************STN 5 DOOR OPEN/CLOSE*****************)
+(*STN5 DOOR OPEN*)
+IF X115_07 THEN
+	WY11504_15 						:= FALSE;
+	bStn5DoorOpen_15 				:= FALSE;
+END_IF
+
+(*STN5 DOOR CLOSE*)
+IF X115_08 THEN
+	WY11505_15						:= FALSE;
+	bStn5DoorClose_15 				:= FALSE;
+END_IF
+
+(*STN5 DOOR OPEN/CLOSE*)
+IF WY11504_15 THEN
+	WY11505_15 						:= FALSE;
+END_IF
+*)
+(*
+(***************STN 6 DOOR OPEN/CLOSE*****************)
+(*STN6 DOOR OPEN*)
+IF X120_00 THEN
+	WY11100_15 						:= FALSE;
+	bStn6DoorOpen_15 				:= FALSE;
+END_IF
+
+(*STN6 DOOR CLOSE*)
+IF X120_01 THEN
+	WY11101_15						:= FALSE;
+	bStn6DoorClose_15 				:= FALSE;
+END_IF
+
+(*STN6 DOOR*)
+IF WY11100_15 THEN
+	WY11101_15 						:= FALSE;
+END_IF
+
+(***************STN 7 DOOR OPEN/CLOSE*****************)
+(*STN7 DOOR OPEN*)
+IF X120_02 THEN
+	WY11102_15 						:= FALSE;
+	bStn7DoorOpen_15 				:= FALSE;
+END_IF
+
+(*STN7 DOOR CLOSE*)
+IF X120_03 THEN
+	WY11103_15						:= FALSE;
+	bStn7DoorClose_15 				:= FALSE;
+END_IF
+
+(*STN7 DOOR*)
+IF WY11102_15 THEN
+	WY11103_15 						:= FALSE;
+END_IF
+
+(***************STN 8 DOOR OPEN/CLOSE*****************)
+(*STN8 DOOR OPEN*)
+IF X120_01 THEN
+	WY11104_15 						:= FALSE;
+	bStn8DoorOpen_15 				:= FALSE;
+END_IF
+
+(*STN8 DOOR CLOSE*)
+IF X120_02 THEN
+	WY11105_15						:= FALSE;
+	bStn8DoorClose_15 				:= FALSE;
+END_IF
+
+(*STN8 DOOR*)
+IF WY11104_15 THEN
+	WY11105_15 						:= FALSE;
+END_IF
+
+(***************STN 9 DOOR OPEN/CLOSE*****************)
+(*STN9 DOOR OPEN*)
+IF X125_02 THEN
+	WY11100_15 						:= FALSE;
+	bStn9DoorOpen_15 				:= FALSE;
+END_IF
+
+(*STN9 DOOR CLOSE*)
+IF X125_03 THEN
+	WY11101_15						:= FALSE;
+	bStn9DoorClose_15 				:= FALSE;
+END_IF
+
+(*STN9 DOOR*)
+IF WY11100_15 THEN
+	WY11101_15 						:= FALSE;
+END_IF
+
+(***************STN 10 DOOR OPEN/CLOSE*****************)
+(*STN10 DOOR OPEN*)
+IF X125_04 THEN
+	WY11102_15 						:= FALSE;
+	bStn10DoorOpen_15 				:= FALSE;
+END_IF
+
+(*STN10 DOOR CLOSE*)
+IF X125_05 THEN
+	WY11103_15						:= FALSE;
+	bStn10DoorClose_15 				:= FALSE;
+END_IF
+
+(*STN10 DOOR*)
+IF WY11102_15 THEN
+	WY11103_15 						:= FALSE;
+END_IF
+
+(***************STN 11 DOOR OPEN/CLOSE*****************)
+(*STN11 DOOR OPEN*)
+IF X130_04 THEN
+	WY11110_15 						:= FALSE;
+	bStn11DoorOpen_15 				:= FALSE;
+END_IF
+
+(*STN11 DOOR CLOSE*)
+IF X130_05 THEN
+	WY11111_15						:= FALSE;
+	bStn11DoorClose_15 				:= FALSE;
+END_IF
+
+(*STN11 DOOR*)
+IF WY11110_15 THEN
+	WY11111_15 						:= FALSE;
+END_IF
+
+(***************STN 12 DOOR OPEN/CLOSE*****************)
+(*STN12 DOOR OPEN*)
+IF X130_04 THEN
+	WY12012_15 						:= FALSE;
+	bStn12DoorOpen_15 				:= FALSE;
+END_IF
+
+(*STN12 DOOR CLOSE*)
+IF X130_05 THEN
+	WY12013_15						:= FALSE;
+	bStn12DoorClose_15 				:= FALSE;
+END_IF
+
+(*STN12 DOOR*)
+IF WY12012_15 THEN
+	WY12013_15 						:= FALSE;
+END_IF
+*)
+(***************ULD SHUTTLE DOOR*****************)
+(*ULD SHUTTLE DOOR OPEN*)
+IF ARbDI[eX13006_UnloadingShutterDoorRs_Open] THEN
+	ARwDO[eY13100_UnloadingShutterDoor_Open].15 						:= FALSE;
+	bUldDoorOpen_15 													:= FALSE;
+END_IF
+
+(*ULD SHUTTLE DOOR CLOSE*)
+IF ARbDI[eX13007_UnloadingShutterDoorRs_Close] THEN
+	ARwDO[eY13101_UnloadingShutterDoor_Close].15						:= FALSE;
+	bUldDoorClose_15 													:= FALSE;
+END_IF
+
+(*ULD SHUTTLE DOOR*)
+IF ARwDO[eY13100_UnloadingShutterDoor_Open].15 THEN
+	ARwDO[eY13101_UnloadingShutterDoor_Close].15 						:= FALSE;
+END_IF
+
+
+(***************ULD CONVEYOR SHUTTER DOOR*****************)
+(*ULD CONVEYOR DOOR OPEN*)
+IF ARbDI[eX15005_UnloadingConveyorShutterDoorRs_Open] THEN
+	ARwDO[eY13102_UnloadingConveyorShutterDoor_Open].15 					:= FALSE;
+	bUldConveyorOpen_15 													:= FALSE;
+END_IF
+
+(*ULD CONVEYOR DOOR CLOSE*)
+IF ARbDI[eX15006_UnloadingConveyorShutterDoorRs_Close] THEN
+	ARwDO[eY13103_UnloadingConveyorShutterDoor_Close].15					:= FALSE;
+	bUldConveyorClose_15 													:= FALSE;
+END_IF
+
+(*ULD SHUTTLE DOOR*)
+IF ARwDO[eY13102_UNLOADINGCONVEYORSHUTTERDOOR_OPEN].15 THEN
+	ARwDO[eY13103_UNLOADINGCONVEYORSHUTTERDOOR_CLOSE].15 					:= FALSE;
+END_IF
+
+
+(*
+(***************STN 1 DOOR CLAMP/UNCLAMP*****************)
+(*STN1 DOOR CLAMP*)
+IF X110_05 AND X110_07 THEN
+	WY16202_15 						:= FALSE;
+END_IF
+
+(*STN1 DOOR UNCLAMP*)
+IF X110_06 AND X110_08 THEN
+	WY16203_15 						:= FALSE;
+END_IF
+
+(*STN1 DOOR CLAMP/UNCLAMP*)
+IF WY16202_15 THEN
+	WY16203_15 						:= FALSE;
+END_IF
+
+(***************STN 2 DOOR CLAMP/UNCLAMP*****************)
+(*STN2 DOOR CLAMP*)
+IF X115_05 AND X115_07 THEN
+	WY16206_15 						:= FALSE;
+END_IF
+
+(*STN2 DOOR UNCLAMP*)
+IF X115_06 AND X115_08 THEN
+	WY16207_15 						:= FALSE;
+END_IF
+
+(*STN2 DOOR CLAMP/UNCLAMP*)
+IF WY16206_15 THEN
+	WY16207_15 						:= FALSE;
+END_IF
+
+(***************STN 3 DOOR CLAMP/UNCLAMP*****************)
+(*STN3 DOOR CLAMP*)
+IF X116_00 AND X116_01 THEN
+	WY11200_15 						:= FALSE;
+END_IF
+
+(*STN3 DOOR UNCLAMP*)
+IF X116_02 AND X116_03 THEN
+	WY11201_15 						:= FALSE;
+END_IF
+
+(*STN3 DOOR CLAMP/UNCLAMP*)
+IF WY11200_15 THEN
+	WY11201_15 						:= FALSE;
+END_IF
+
+(***************STN 4 DOOR CLAMP/UNCLAMP*****************)
+(*STN4 DOOR CLAMP*)
+IF X116_06 AND X116_07 THEN
+	WY11114_15 						:= FALSE;
+END_IF
+
+(*STN4 DOOR UNCLAMP*)
+IF X116_08 AND X116_09 THEN
+	WY11115_15 						:= FALSE;
+END_IF
+
+(*STN4 DOOR CLAMP/UNCLAMP*)
+IF WY11114_15 THEN
+	WY11115_15 						:= FALSE;
+END_IF
+*)
+(***************STN 5 DOOR CLAMP/UNCLAMP*****************)
+(*STN5 DOOR CLAMP*)
+(*
+IF X115_09 AND X115_11 THEN
+	WY11506_15 						:= FALSE;
+END_IF
+
+(*STN5 DOOR UNCLAMP*)
+IF X115_10 AND X115_12 THEN
+	WY11507_15 						:= FALSE;
+END_IF
+
+(*STN5 DOOR CLAMP/UNCLAMP*)
+IF WY11506_15 THEN
+	WY11507_15 						:= FALSE;
+END_IF
+*)
+(*
+(***************STN 6 DOOR CLAMP/UNCLAMP*****************)
+(*STN6 DOOR CLAMP*)
+IF X130_05 AND X130_07 THEN
+	WY17102_15 						:= FALSE;
+END_IF
+
+(*STN6 DOOR UNCLAMP*)
+IF X130_06 AND X130_08 THEN
+	WY17103_15 						:= FALSE;
+END_IF
+
+(*STN6 DOOR CLAMP/UNCLAMP*)
+IF WY17102_15 THEN
+	WY17103_15 						:= FALSE;
+END_IF
+
+(***************STN 7 DOOR CLAMP/UNCLAMP*****************)
+(*STN7 DOOR CLAMP*)
+IF X135_05 AND X135_07 THEN
+	WY17106_15 						:= FALSE;
+END_IF
+
+(*STN7 DOOR UNCLAMP*)
+IF X135_06 AND X135_08 THEN
+	WY17107_15 						:= FALSE;
+END_IF
+
+(*STN7 DOOR CLAMP/UNCLAMP*)
+IF WY17106_15 THEN
+	WY17107_15 						:= FALSE;
+END_IF
+
+(***************STN 9 DOOR CLAMP/UNCLAMP*****************)
+(*STN9 DOOR CLAMP*)
+IF X125_06 AND X125_07 THEN
+	WY12010_15 						:= FALSE;
+END_IF
+
+(*STN9 DOOR UNCLAMP*)
+IF X125_08 AND X125_09 THEN
+	WY12011_15 						:= FALSE;
+END_IF
+
+(*STN9 DOOR CLAMP/UNCLAMP*)
+IF WY12010_15 THEN
+	WY12011_15 						:= FALSE;
+END_IF
+
+(***************STN 11 DOOR CLAMP/UNCLAMP*****************)
+(*STN11 DOOR CLAMP*)
+IF X130_06 AND X130_08 THEN
+	WY11112_15 						:= FALSE;
+END_IF
+
+(*STN11 DOOR UNCLAMP*)
+IF X130_07 AND X130_09 THEN
+	WY11113_15 						:= FALSE;
+END_IF
+
+(*STN11 DOOR CLAMP/UNCLAMP*)
+IF WY11112_15 THEN
+	WY11113_15 						:= FALSE;
+END_IF
+
+(***************STN 12 DOOR CLAMP/UNCLAMP*****************)
+(*STN12 DOOR CLAMP*)
+IF X130_06 AND X130_07 THEN
+	WY12014_15 						:= FALSE;
+END_IF
+
+(*STN12 DOOR UNCLAMP*)
+IF X130_08 AND X130_09 THEN
+	WY12015_15 						:= FALSE;
+END_IF
+
+(*STN12 DOOR CLAMP/UNCLAMP*)
+IF WY12014_15 THEN
+	WY12015_15 						:= FALSE;
+END_IF
+*)
+
+(***************STN 4 CDA CYLINDER IN/OUT*****************)
+(*STN4 CDA CYLINDER IN*)
+(*
+IF X117_06 THEN
+	WY11700_15 						:= FALSE;
+END_IF
+
+(*STN4 CDA CYLINDER OUT*)
+IF X117_07 THEN
+	WY11701_15 						:= FALSE;
+END_IF
+
+(*STN 4 CDA CYLINDER IN/OUT*)
+IF WY11700_15 THEN
+	WY11701_15 						:= FALSE;
+END_IF
+*)
+bMainOnOffRE(CLK:=  bMainOnOff, Q=> );
+bMainOnOffFE(CLK:=  bMainOnOff, Q=> );
+bAutoOriginFE(CLK:= bAutoOriginPb  , Q=> );
+bAutoStartFE(CLK:= bAutoStartPb  , Q=> );
+bAutoStartRE(CLK:= bAutoStartPb  , Q=> );
+]]></ST>
+    </Implementation>
+    <Action Name="MegasonicButtonReset" Id="{a1b0b202-0302-4931-b528-57f1e541b824}">
+      <Implementation>
+        <ST><![CDATA[// Megasonic Button
+
+//////// Station 3 Megasonic 
+bResetMegasonicPower_RE[1](CLK:=bStn3MegasonicOnOffLevel[1]  , Q=> );	
+IF bResetMegasonicPower_RE[1].Q THEN
+	ARwDO[eY11105_Stn03MegasonicGenerator01Power02].15 :=FALSE;
+	ARwDO[eY11106_Stn03MegasonicGenerator01Power03].15 :=FALSE;
+	ARwDO[eY11107_Stn03MegasonicGenerator01Power04].15 :=FALSE;
+	ARwDO[eY11108_Stn03MegasonicGenerator01Power05].15 :=FALSE;
+	
+	ARwDO[eY11111_Stn03MegasonicGenerator02Power02].15 :=FALSE;
+	ARwDO[eY11112_Stn03MegasonicGenerator02Power03].15 :=FALSE;
+	ARwDO[eY11113_Stn03MegasonicGenerator02Power04].15 :=FALSE;
+	ARwDO[eY11114_Stn03MegasonicGenerator02Power05].15 :=FALSE;
+	
+	bStn3MegasonicOnOffLevel[2]:=FALSE;
+	bStn3MegasonicOnOffLevel[3]:=FALSE;
+	bStn3MegasonicOnOffLevel[4]:=FALSE;
+	bStn3MegasonicOnOffLevel[5]:=FALSE;
+END_IF
+
+bResetMegasonicPower_RE[2](CLK:=bStn3MegasonicOnOffLevel[2]  , Q=> );	
+IF bResetMegasonicPower_RE[2].Q THEN
+	ARwDO[eY11104_Stn03MegasonicGenerator01Power01].15 :=FALSE;
+	ARwDO[eY11106_Stn03MegasonicGenerator01Power03].15 :=FALSE;
+	ARwDO[eY11107_Stn03MegasonicGenerator01Power04].15 :=FALSE;
+	ARwDO[eY11108_Stn03MegasonicGenerator01Power05].15 :=FALSE;
+	
+	ARwDO[eY11110_Stn03MegasonicGenerator02Power01].15 :=FALSE;
+	ARwDO[eY11112_Stn03MegasonicGenerator02Power03].15 :=FALSE;
+	ARwDO[eY11113_Stn03MegasonicGenerator02Power04].15 :=FALSE;
+	ARwDO[eY11114_Stn03MegasonicGenerator02Power05].15 :=FALSE;
+	
+	bStn3MegasonicOnOffLevel[1]:=FALSE;
+	bStn3MegasonicOnOffLevel[3]:=FALSE;
+	bStn3MegasonicOnOffLevel[4]:=FALSE;
+	bStn3MegasonicOnOffLevel[5]:=FALSE;
+END_IF
+
+bResetMegasonicPower_RE[3](CLK:=bStn3MegasonicOnOffLevel[3]  , Q=> );	
+IF bResetMegasonicPower_RE[3].Q THEN
+	ARwDO[eY11104_Stn03MegasonicGenerator01Power01].15 :=FALSE;
+	ARwDO[eY11105_Stn03MegasonicGenerator01Power02].15 :=FALSE;
+	ARwDO[eY11107_Stn03MegasonicGenerator01Power04].15 :=FALSE;
+	ARwDO[eY11108_Stn03MegasonicGenerator01Power05].15 :=FALSE;
+	
+	ARwDO[eY11110_Stn03MegasonicGenerator02Power01].15 :=FALSE;
+	ARwDO[eY11111_Stn03MegasonicGenerator02Power02].15 :=FALSE;
+	ARwDO[eY11113_Stn03MegasonicGenerator02Power04].15 :=FALSE;
+	ARwDO[eY11114_Stn03MegasonicGenerator02Power05].15 :=FALSE;
+	
+	bStn3MegasonicOnOffLevel[1]:=FALSE;
+	bStn3MegasonicOnOffLevel[2]:=FALSE;
+	bStn3MegasonicOnOffLevel[4]:=FALSE;
+	bStn3MegasonicOnOffLevel[5]:=FALSE;
+END_IF
+
+bResetMegasonicPower_RE[4](CLK:=bStn3MegasonicOnOffLevel[4]  , Q=> );	
+IF bResetMegasonicPower_RE[4].Q THEN
+	ARwDO[eY11104_Stn03MegasonicGenerator01Power01].15 :=FALSE;
+	ARwDO[eY11105_Stn03MegasonicGenerator01Power02].15 :=FALSE;
+	ARwDO[eY11106_Stn03MegasonicGenerator01Power03].15 :=FALSE;
+	ARwDO[eY11108_Stn03MegasonicGenerator01Power05].15 :=FALSE;
+	
+	ARwDO[eY11110_Stn03MegasonicGenerator02Power01].15 :=FALSE;
+	ARwDO[eY11111_Stn03MegasonicGenerator02Power02].15 :=FALSE;
+	ARwDO[eY11112_Stn03MegasonicGenerator02Power03].15 :=FALSE;
+	ARwDO[eY11114_Stn03MegasonicGenerator02Power05].15 :=FALSE;
+	
+	bStn3MegasonicOnOffLevel[1]:=FALSE;
+	bStn3MegasonicOnOffLevel[2]:=FALSE;
+	bStn3MegasonicOnOffLevel[3]:=FALSE;
+	bStn3MegasonicOnOffLevel[5]:=FALSE;
+END_IF
+
+bResetMegasonicPower_RE[5](CLK:=bStn3MegasonicOnOffLevel[5]  , Q=> );	
+IF bResetMegasonicPower_RE[5].Q THEN
+	ARwDO[eY11104_Stn03MegasonicGenerator01Power01].15 :=FALSE;
+	ARwDO[eY11105_Stn03MegasonicGenerator01Power02].15 :=FALSE;
+	ARwDO[eY11106_Stn03MegasonicGenerator01Power03].15 :=FALSE;
+	ARwDO[eY11107_Stn03MegasonicGenerator01Power04].15 :=FALSE;
+	
+	ARwDO[eY11110_Stn03MegasonicGenerator02Power01].15 :=FALSE;
+	ARwDO[eY11111_Stn03MegasonicGenerator02Power02].15 :=FALSE;
+	ARwDO[eY11112_Stn03MegasonicGenerator02Power03].15 :=FALSE;
+	ARwDO[eY11107_Stn03MegasonicGenerator01Power04].15 :=FALSE;
+	
+	bStn3MegasonicOnOffLevel[1]:=FALSE;
+	bStn3MegasonicOnOffLevel[2]:=FALSE;
+	bStn3MegasonicOnOffLevel[3]:=FALSE;
+	bStn3MegasonicOnOffLevel[4]:=FALSE;
+END_IF	
+
+
+//////// Station 6 Megasonic 
+bResetMegasonicPower_RE[6](CLK:=bStn6MegasonicOnOffLevel[1]  , Q=> );	
+IF bResetMegasonicPower_RE[6].Q THEN
+	ARwDO[eY12004_Stn06MegasonicGenerator01Power02].15 :=FALSE;
+	ARwDO[eY12005_Stn06MegasonicGenerator01Power03].15 :=FALSE;
+	ARwDO[eY12006_Stn06MegasonicGenerator01Power04].15 :=FALSE;
+	ARwDO[eY12007_Stn06MegasonicGenerator01Power05].15 :=FALSE;
+	
+	ARwDO[eY12010_Stn06MegasonicGenerator02Power02].15 :=FALSE;
+	ARwDO[eY12011_Stn06MegasonicGenerator02Power03].15 :=FALSE;
+	ARwDO[eY12012_Stn06MegasonicGenerator02Power04].15 :=FALSE;
+	ARwDO[eY12013_Stn06MegasonicGenerator02Power05].15 :=FALSE;
+	
+	bStn6MegasonicOnOffLevel[2] := FALSE;
+	bStn6MegasonicOnOffLevel[3] := FALSE;
+	bStn6MegasonicOnOffLevel[4] := FALSE;
+	bStn6MegasonicOnOffLevel[5] := FALSE;
+	
+END_IF
+
+bResetMegasonicPower_RE[7](CLK:=bStn6MegasonicOnOffLevel[2]  , Q=> );	
+IF bResetMegasonicPower_RE[7].Q THEN
+	ARwDO[eY12003_Stn06MegasonicGenerator01Power01].15 :=FALSE;
+	ARwDO[eY12005_Stn06MegasonicGenerator01Power03].15 :=FALSE;
+	ARwDO[eY12006_Stn06MegasonicGenerator01Power04].15 :=FALSE;
+	ARwDO[eY12007_Stn06MegasonicGenerator01Power05].15 :=FALSE;
+	
+	ARwDO[eY12009_Stn06MegasonicGenerator02Power01].15 :=FALSE;
+	ARwDO[eY12011_Stn06MegasonicGenerator02Power03].15 :=FALSE;
+	ARwDO[eY12012_Stn06MegasonicGenerator02Power04].15 :=FALSE;
+	ARwDO[eY12013_Stn06MegasonicGenerator02Power05].15 :=FALSE;
+	
+	bStn6MegasonicOnOffLevel[1] := FALSE;
+	bStn6MegasonicOnOffLevel[3] := FALSE;
+	bStn6MegasonicOnOffLevel[4] := FALSE;
+	bStn6MegasonicOnOffLevel[5] := FALSE;
+END_IF
+	
+	
+
+
+bResetMegasonicPower_RE[8](CLK:=bStn6MegasonicOnOffLevel[3]  , Q=> );	
+IF bResetMegasonicPower_RE[8].Q THEN
+	ARwDO[eY12003_Stn06MegasonicGenerator01Power01].15 :=FALSE;
+	ARwDO[eY12004_Stn06MegasonicGenerator01Power02].15 :=FALSE;
+	ARwDO[eY12006_Stn06MegasonicGenerator01Power04].15 :=FALSE;
+	ARwDO[eY12007_Stn06MegasonicGenerator01Power05].15 :=FALSE;
+	
+	ARwDO[eY12009_Stn06MegasonicGenerator02Power01].15 :=FALSE;
+	ARwDO[eY12010_Stn06MegasonicGenerator02Power02].15 :=FALSE;
+	ARwDO[eY12012_Stn06MegasonicGenerator02Power04].15 :=FALSE;
+	ARwDO[eY12013_Stn06MegasonicGenerator02Power05].15 :=FALSE;
+	
+	bStn6MegasonicOnOffLevel[1] := FALSE;
+	bStn6MegasonicOnOffLevel[2] := FALSE;
+	bStn6MegasonicOnOffLevel[4] := FALSE;
+	bStn6MegasonicOnOffLevel[5] := FALSE;
+END_IF
+
+	
+
+bResetMegasonicPower_RE[9](CLK:=bStn6MegasonicOnOffLevel[4]  , Q=> );	
+IF bResetMegasonicPower_RE[9].Q THEN
+	ARwDO[eY12003_Stn06MegasonicGenerator01Power01].15 :=FALSE;
+	ARwDO[eY12004_Stn06MegasonicGenerator01Power02].15 :=FALSE;
+	ARwDO[eY12005_Stn06MegasonicGenerator01Power03].15 :=FALSE;
+	ARwDO[eY12007_Stn06MegasonicGenerator01Power05].15 :=FALSE;
+	
+	ARwDO[eY12009_Stn06MegasonicGenerator02Power01].15 :=FALSE;
+	ARwDO[eY12010_Stn06MegasonicGenerator02Power02].15 :=FALSE;
+	ARwDO[eY12011_Stn06MegasonicGenerator02Power03].15 :=FALSE;
+	ARwDO[eY12013_Stn06MegasonicGenerator02Power05].15 :=FALSE;
+	
+	bStn6MegasonicOnOffLevel[1] := FALSE;
+	bStn6MegasonicOnOffLevel[2] := FALSE;
+	bStn6MegasonicOnOffLevel[3] := FALSE;
+	bStn6MegasonicOnOffLevel[5] := FALSE;
+END_IF
+
+bResetMegasonicPower_RE[10](CLK:=bStn6MegasonicOnOffLevel[5]  , Q=> );	
+IF bResetMegasonicPower_RE[10].Q THEN
+	ARwDO[eY12003_Stn06MegasonicGenerator01Power01].15 :=FALSE;
+	ARwDO[eY12004_Stn06MegasonicGenerator01Power02].15 :=FALSE;
+	ARwDO[eY12005_Stn06MegasonicGenerator01Power03].15 :=FALSE;
+	ARwDO[eY12006_Stn06MegasonicGenerator01Power04].15 :=FALSE;
+	
+	ARwDO[eY12009_Stn06MegasonicGenerator02Power01].15 :=FALSE;
+	ARwDO[eY12010_Stn06MegasonicGenerator02Power02].15 :=FALSE;
+	ARwDO[eY12011_Stn06MegasonicGenerator02Power03].15 :=FALSE;
+	ARwDO[eY12012_Stn06MegasonicGenerator02Power04].15 :=FALSE;
+	
+	bStn6MegasonicOnOffLevel[1] := FALSE;
+	bStn6MegasonicOnOffLevel[2] := FALSE;
+	bStn6MegasonicOnOffLevel[3] := FALSE;
+	bStn6MegasonicOnOffLevel[4] := FALSE;
+END_IF	
+]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="ManualButtonCtrl">
+      <LineId Id="1741" Count="0" />
+      <LineId Id="1862" Count="0" />
+      <LineId Id="1749" Count="0" />
+      <LineId Id="1748" Count="0" />
+      <LineId Id="1750" Count="0" />
+      <LineId Id="1755" Count="3" />
+      <LineId Id="1751" Count="0" />
+      <LineId Id="1768" Count="0" />
+      <LineId Id="1770" Count="5" />
+      <LineId Id="1769" Count="0" />
+      <LineId Id="1804" Count="0" />
+      <LineId Id="1777" Count="5" />
+      <LineId Id="1776" Count="0" />
+      <LineId Id="1806" Count="0" />
+      <LineId Id="1784" Count="5" />
+      <LineId Id="1783" Count="0" />
+      <LineId Id="1805" Count="0" />
+      <LineId Id="1791" Count="5" />
+      <LineId Id="1790" Count="0" />
+      <LineId Id="1861" Count="0" />
+      <LineId Id="1860" Count="0" />
+      <LineId Id="1811" Count="38" />
+      <LineId Id="1810" Count="0" />
+      <LineId Id="1850" Count="0" />
+      <LineId Id="1742" Count="0" />
+      <LineId Id="4" Count="92" />
+      <LineId Id="1473" Count="9" />
+      <LineId Id="1486" Count="1" />
+      <LineId Id="1489" Count="4" />
+      <LineId Id="1495" Count="15" />
+      <LineId Id="1494" Count="0" />
+      <LineId Id="1512" Count="15" />
+      <LineId Id="1511" Count="0" />
+      <LineId Id="1618" Count="15" />
+      <LineId Id="1617" Count="0" />
+      <LineId Id="1529" Count="15" />
+      <LineId Id="1528" Count="0" />
+      <LineId Id="1546" Count="15" />
+      <LineId Id="1545" Count="0" />
+      <LineId Id="1564" Count="15" />
+      <LineId Id="1563" Count="0" />
+      <LineId Id="1581" Count="15" />
+      <LineId Id="1580" Count="0" />
+      <LineId Id="1599" Count="15" />
+      <LineId Id="1598" Count="0" />
+      <LineId Id="1648" Count="15" />
+      <LineId Id="1597" Count="0" />
+      <LineId Id="1562" Count="0" />
+      <LineId Id="1679" Count="0" />
+      <LineId Id="1863" Count="3" />
+      <LineId Id="1868" Count="0" />
+      <LineId Id="1867" Count="0" />
+      <LineId Id="1869" Count="3" />
+      <LineId Id="1681" Count="0" />
+      <LineId Id="1471" Count="1" />
+      <LineId Id="1470" Count="0" />
+      <LineId Id="98" Count="261" />
+      <LineId Id="1637" Count="1" />
+      <LineId Id="1641" Count="0" />
+      <LineId Id="1639" Count="1" />
+      <LineId Id="362" Count="41" />
+      <LineId Id="1642" Count="0" />
+      <LineId Id="1644" Count="0" />
+      <LineId Id="404" Count="0" />
+      <LineId Id="1643" Count="0" />
+      <LineId Id="405" Count="482" />
+      <LineId Id="1430" Count="0" />
+      <LineId Id="1433" Count="32" />
+      <LineId Id="1431" Count="0" />
+      <LineId Id="1682" Count="13" />
+      <LineId Id="888" Count="43" />
+      <LineId Id="1401" Count="0" />
+      <LineId Id="932" Count="17" />
+      <LineId Id="1402" Count="0" />
+      <LineId Id="950" Count="31" />
+      <LineId Id="1403" Count="0" />
+      <LineId Id="982" Count="14" />
+      <LineId Id="1404" Count="0" />
+      <LineId Id="997" Count="38" />
+      <LineId Id="1405" Count="0" />
+      <LineId Id="1036" Count="32" />
+      <LineId Id="1406" Count="0" />
+      <LineId Id="1069" Count="143" />
+      <LineId Id="1407" Count="17" />
+      <LineId Id="1213" Count="0" />
+      <LineId Id="1426" Count="0" />
+      <LineId Id="1425" Count="0" />
+      <LineId Id="1214" Count="66" />
+      <LineId Id="1427" Count="0" />
+      <LineId Id="1281" Count="12" />
+      <LineId Id="1428" Count="0" />
+      <LineId Id="1294" Count="83" />
+      <LineId Id="1429" Count="0" />
+      <LineId Id="1378" Count="19" />
+    </LineIds>
+    <LineIds Name="ManualButtonCtrl.MegasonicButtonReset">
+      <LineId Id="2" Count="0" />
+      <LineId Id="54" Count="0" />
+      <LineId Id="3" Count="6" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="233" Count="2" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="301" Count="4" />
+      <LineId Id="10" Count="3" />
+      <LineId Id="41" Count="2" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="236" Count="0" />
+      <LineId Id="238" Count="2" />
+      <LineId Id="237" Count="0" />
+      <LineId Id="306" Count="0" />
+      <LineId Id="308" Count="2" />
+      <LineId Id="307" Count="0" />
+      <LineId Id="18" Count="3" />
+      <LineId Id="44" Count="2" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="243" Count="2" />
+      <LineId Id="242" Count="0" />
+      <LineId Id="311" Count="0" />
+      <LineId Id="313" Count="2" />
+      <LineId Id="312" Count="0" />
+      <LineId Id="26" Count="2" />
+      <LineId Id="268" Count="0" />
+      <LineId Id="47" Count="2" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="246" Count="0" />
+      <LineId Id="248" Count="2" />
+      <LineId Id="247" Count="0" />
+      <LineId Id="316" Count="0" />
+      <LineId Id="318" Count="2" />
+      <LineId Id="317" Count="0" />
+      <LineId Id="34" Count="3" />
+      <LineId Id="50" Count="2" />
+      <LineId Id="1" Count="0" />
+      <LineId Id="251" Count="0" />
+      <LineId Id="253" Count="2" />
+      <LineId Id="252" Count="0" />
+      <LineId Id="321" Count="0" />
+      <LineId Id="323" Count="2" />
+      <LineId Id="322" Count="0" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="137" Count="3" />
+      <LineId Id="142" Count="2" />
+      <LineId Id="218" Count="0" />
+      <LineId Id="262" Count="0" />
+      <LineId Id="265" Count="1" />
+      <LineId Id="263" Count="0" />
+      <LineId Id="267" Count="0" />
+      <LineId Id="326" Count="1" />
+      <LineId Id="329" Count="2" />
+      <LineId Id="328" Count="0" />
+      <LineId Id="145" Count="3" />
+      <LineId Id="219" Count="0" />
+      <LineId Id="270" Count="6" />
+      <LineId Id="152" Count="0" />
+      <LineId Id="358" Count="0" />
+      <LineId Id="360" Count="2" />
+      <LineId Id="359" Count="0" />
+      <LineId Id="153" Count="0" />
+      <LineId Id="332" Count="0" />
+      <LineId Id="334" Count="0" />
+      <LineId Id="333" Count="0" />
+      <LineId Id="154" Count="2" />
+      <LineId Id="277" Count="7" />
+      <LineId Id="160" Count="0" />
+      <LineId Id="353" Count="0" />
+      <LineId Id="355" Count="2" />
+      <LineId Id="354" Count="0" />
+      <LineId Id="161" Count="0" />
+      <LineId Id="339" Count="0" />
+      <LineId Id="338" Count="0" />
+      <LineId Id="162" Count="2" />
+      <LineId Id="285" Count="7" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="343" Count="0" />
+      <LineId Id="345" Count="2" />
+      <LineId Id="344" Count="0" />
+      <LineId Id="169" Count="3" />
+      <LineId Id="293" Count="7" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="348" Count="0" />
+      <LineId Id="350" Count="2" />
+      <LineId Id="349" Count="0" />
+      <LineId Id="177" Count="0" />
+      <LineId Id="55" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

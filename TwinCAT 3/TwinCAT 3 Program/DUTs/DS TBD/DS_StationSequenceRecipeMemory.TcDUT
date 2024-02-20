@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_StationSequenceRecipeMemory" Id="{39301cf0-62ec-4ea3-9a1d-495e2d61ea8d}">
+    <Declaration><![CDATA[TYPE DS_StationSequenceRecipeMemory : (*Full Occupied Byte = 200*)
+STRUCT
+
+	sReservedBool 				: STRING(50); (* Byte "n+0 ~ n+99" *)
+
+	AR10iStationSubProNo 		: ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n100~n+121" *) (* 10 units of SubProcessProgramNo / Steps *)
+	AR10iCycle 					: ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+122~n+143" *) (* 10 units of Integer to Store the Cycle needed on the specified Steps. at least "1" *)
+	AR10iRepeatFromStepNo 	: ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+144~n+165" *) (* 10 units of Integer to when Cycle repeat, it will repeat from Which Steps  *)
+	sReservedInt 					: STRING(50); (* Byte "n+166~n+199" *)
+
+
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

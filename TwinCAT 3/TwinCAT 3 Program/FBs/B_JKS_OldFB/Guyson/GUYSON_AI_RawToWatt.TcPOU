@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="GUYSON_AI_RawToWatt" Id="{04a4bb3a-af3d-4750-a164-14e2ab80e194}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK GUYSON_AI_RawToWatt
+VAR_INPUT
+
+	iAI1raw : INT;				(* 1st Raw Data From Analog Input*)
+	iAI2raw : INT;				(* 2nd Raw Data From Analog Input*)
+	iAI3raw : INT;				(* 3rd Raw Data From Analog Input*)
+	iAI4raw : INT;				(* 4th Raw Data From Analog Input*)
+	iAI5raw : INT;				(* 5th Raw Data From Analog Input*)
+	iAI6raw : INT;				(* 6th Raw Data From Analog Input*)
+	PercentBase : BOOL;		(* The PV will shown Percentage if this Bit is "ON"*)
+	WattBase : BOOL;			(* The PV will shown Wattage if this Bit is "ON"*)
+	MaxWatt : INT;			(* Defined Max Watt of Generator, Usually is 700W*)
+
+END_VAR
+VAR_OUTPUT
+
+	iAI1Value : INT;			(*PV for 1st Data, either Watt or Percent is depend on Base Setting*)
+	iAI2Value : INT;			(*PV for 2nd Data, either Watt or Percent is depend on Base Setting*)
+	iAI3Value : INT;			(*PV for 3rd Data, either Watt or Percent is depend on Base Setting*)
+	iAI4Value : INT;			(*PV for 4th Data, either Watt or Percent is depend on Base Setting*)
+	iAI5Value : INT;			(*PV for 5th Data, either Watt or Percent is depend on Base Setting*)
+	iAI6Value : INT;			(*PV for 6th Data, either Watt or Percent is depend on Base Setting*)
+
+END_VAR
+VAR
+	iAI1f: LREAL;
+	iAI2f: LREAL;
+	iAI3f: LREAL;
+	iAI4f: LREAL;
+	iAI5f: LREAL;
+	iAI6f: LREAL;
+
+	iAI1_Wf: LREAL;
+	iAI2_Wf: LREAL;
+	iAI3_Wf: LREAL;
+	iAI4_Wf: LREAL;
+	iAI5_Wf: LREAL;
+	iAI6_Wf: LREAL;
+
+	n : INT;
+
+	WRatio: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[iAI1f := INT_TO_LREAL (iAI1raw);
+iAI2f := INT_TO_LREAL (iAI2raw);
+iAI3f := INT_TO_LREAL (iAI3raw);
+iAI4f := INT_TO_LREAL (iAI4raw);
+iAI5f := INT_TO_LREAL (iAI5raw);
+iAI6f := INT_TO_LREAL (iAI6raw);
+
+
+(*Program to select Watt Base or Percent Base*)
+
+IF PercentBase AND NOT WattBase THEN
+n := 11;
+END_IF
+
+IF WattBase AND NOT PercentBase THEN
+n := 10;
+END_IF
+
+IF NOT PercentBase AND NOT WattBase THEN
+n := 0;
+END_IF
+
+IF PercentBase AND WattBase THEN
+n:= 0;
+END_IF
+
+CASE n OF
+
+0:; (*No Calculation*)
+
+
+10: (*Watt Base Calculation *)
+
+iAI1_Wf	:= (iAI1f / 3276.7) * (iAI1f / 3276.7) *20;
+iAI2_Wf	:= (iAI2f / 3276.7) * (iAI2f / 3276.7) *20;
+iAI3_Wf	:= (iAI3f / 3276.7) * (iAI3f / 3276.7) *20;
+iAI4_Wf	:= (iAI4f / 3276.7) * (iAI4f / 3276.7) *20;
+iAI5_Wf	:= (iAI5f / 3276.7) * (iAI5f / 3276.7) *20;
+iAI6_Wf	:= (iAI6f / 3276.7) * (iAI6f / 3276.7) *20;
+
+
+11: (*Percent Base Calculation*)
+
+
+WRatio := MaxWatt/100;
+
+
+iAI1_Wf	:= ((iAI1f / 3276.7) * (iAI1f / 3276.7) *20)/WRatio;
+iAI2_Wf	:= ((iAI2f / 3276.7) * (iAI2f / 3276.7) *20)/WRatio;
+iAI3_Wf	:= ((iAI3f / 3276.7) * (iAI3f / 3276.7) *20)/WRatio;
+iAI4_Wf	:= ((iAI4f / 3276.7) * (iAI4f / 3276.7) *20)/WRatio;
+iAI5_Wf	:= ((iAI5f / 3276.7) * (iAI5f / 3276.7) *20)/WRatio;
+iAI6_Wf	:= ((iAI6f / 3276.7) * (iAI6f / 3276.7) *20)/WRatio;
+
+END_CASE
+
+iAI1Value := LREAL_TO_INT (iAI1_Wf);
+iAI2Value := LREAL_TO_INT (iAI2_Wf);
+iAI3Value := LREAL_TO_INT (iAI3_Wf);
+iAI4Value := LREAL_TO_INT (iAI4_Wf);
+iAI5Value := LREAL_TO_INT (iAI5_Wf);
+iAI6Value := LREAL_TO_INT (iAI6_Wf);]]></ST>
+    </Implementation>
+    <LineIds Name="GUYSON_AI_RawToWatt">
+      <LineId Id="43" Count="61" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

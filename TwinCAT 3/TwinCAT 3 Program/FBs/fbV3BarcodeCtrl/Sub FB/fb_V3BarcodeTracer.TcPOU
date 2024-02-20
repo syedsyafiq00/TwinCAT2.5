@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fb_V3BarcodeTracer" Id="{0521b201-04f0-4501-a3b2-3298cf3a015c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fb_V3BarcodeTracer
+VAR_INPUT
+	bEn : BOOL;
+(*	bfbV3En : BOOL;*)
+	sTargetBarcode : STRING;
+(*	ARsBarCodeRaw_V2 : ARRAY [0..99] OF STRING;
+	ARsBarcodeDescrip_V2 : ARRAY [0..99] OF STRING;
+*)
+
+END_VAR
+VAR_OUTPUT
+	bBarcodeTraceSuccess : BOOL;
+	bBarcodeTraceFail : BOOL;
+	iBarcodeRecipeNo : INT;
+	sBarcodeDescrip : STRING;
+
+END_VAR
+VAR
+	i: INT;
+	(*TracerRE : R_TRIG;*)
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*TracerRE(CLK:=bTracerST,Q=>);*)
+IF NOT bEn THEN
+	bBarcodeTraceSuccess := FALSE;
+	bBarcodeTraceFail := FALSE;
+	iBarcodeRecipeNo := 0;
+	sBarcodeDescrip := '';
+	i := 1;
+END_IF
+
+(* For V2 used*)
+(*
+IF NOT bfbV3En THEN
+
+			IF bTracerST AND sTargetBarcode <> '' THEN
+			bBarcodeTraceSuccess := FALSE;
+
+					FOR i := 1 TO iProductRecipeArrayQty DO
+
+					IF sTargetBarcode = ARsBarCodeRaw_V2[i] THEN
+					sBarcodeInDescrip := ARsBarcodeDescrip_V2[i];
+					iBarcodeInRecipeNo := i;
+					bBarcodeTraceSuccess := TRUE;
+					i := iProductRecipeArrayQty+1;
+					END_IF
+			
+					END_FOR
+			
+			END_IF
+			IF (i > iProductRecipeArrayQty AND bTracerST AND NOT bBarcodeTraceSuccess )THEN
+			bBarcodeTraceFail := TRUE;
+			ELSE
+			bBarcodeTraceFail := FALSE;
+			END_IF
+END_IF
+*)
+
+(* For V3 used*)
+
+IF TRUE(*bfbV3En*) THEN
+
+			IF bEn AND sTargetBarcode <> '' THEN
+			bBarcodeTraceSuccess := FALSE;
+
+					FOR i := 1 TO iBarcodeRegQty DO
+
+					IF sTargetBarcode = DsAr1sG_BarcodeRegistration[i].sBarcodeRegistered THEN
+					sBarcodeDescrip := DsAr1sG_BarcodeRegistration[i].sLinkProductRecipeDescription ;
+					iBarcodeRecipeNo := DsAr1sG_BarcodeRegistration[i].iLinkProductRecipeNo;
+					bBarcodeTraceSuccess := TRUE;
+					i := iBarcodeRegQty+1;
+					END_IF
+
+					END_FOR
+
+			END_IF
+			IF (i > iProductRecipeArrayQty AND bEn AND NOT bBarcodeTraceSuccess )THEN
+			bBarcodeTraceFail := TRUE;
+			ELSE
+			bBarcodeTraceFail := FALSE;
+			END_IF
+END_IF
+
+IF bBarcodeTraceFail THEN
+iBarcodeRecipeNo := 0;
+sBarcodeDescrip := '';
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fb_V3BarcodeTracer">
+      <LineId Id="22" Count="65" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

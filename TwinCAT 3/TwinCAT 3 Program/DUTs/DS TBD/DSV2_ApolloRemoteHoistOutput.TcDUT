@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSV2_ApolloRemoteHoistOutput" Id="{a579e26f-a827-4de0-9d55-af883940617e}">
+    <Declaration><![CDATA[TYPE DSV2_ApolloRemoteHoistOutput :
+STRUCT
+
+
+	bArmJogUp										: BOOL;
+	bArmJogDown									: BOOL;
+	bArmJogLeft										: BOOL;
+	bArmJogRight									: BOOL;
+
+	bArmJogVert1stSpeedEn							: BOOL;
+	bArmJogVert2ndSpeedEn							: BOOL;
+
+	bArmJogHorz1stSpeedEn							: BOOL;
+	bArmJogHorz2ndSpeedEn							: BOOL;
+
+	ARbArmLdVertTopPos								: ARRAY [0..iLdStnQty] OF BOOL;
+	ARbArmLdVertBottomPos							: ARRAY [0..iLdStnQty] OF BOOL;
+	ARbArmLdHorzHookPos							: ARRAY [0..iLdStnQty] OF BOOL;
+	ARbArmLdHorzUnhookPos							: ARRAY [0..iLdStnQty] OF BOOL;
+
+	ARbArmStnVertTopPos							: ARRAY [0..iStnQty] OF BOOL;
+	ARbArmStnVertBottomPos							: ARRAY [0..iStnQty] OF BOOL;
+	ARbArmStnHorzHookPos							: ARRAY [0..iStnQty] OF BOOL;
+	ARbArmStnHorzUnhookPos						: ARRAY [0..iStnQty] OF BOOL;
+
+	ARbArmUldVertTopPos							: ARRAY [0..iUldStnQty] OF BOOL;
+	ARbArmUldVertBottomPos							: ARRAY [0..iUldStnQty] OF BOOL;
+	ARbArmUldHorzHookPos							: ARRAY [0..iUldStnQty] OF BOOL;
+	ARbArmUldHorzUnhookPos						: ARRAY [0..iUldStnQty] OF BOOL;
+
+	ARbStnSlidingDoorOpen							: ARRAY [0..iStnQty] OF BOOL;
+	ARbStnSlidingDoorClose							: ARRAY [0..iStnQty] OF BOOL;
+	ARbStnSlidingDoorClamp							: ARRAY [0..iStnQty] OF BOOL;
+	ARbStnSlidingDoorUnclamp						: ARRAY [0..iStnQty] OF BOOL;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

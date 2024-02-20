@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSV2_A1_PnpSequenceMemory" Id="{9ea4b83b-b257-4b97-bab0-08a59c87faa0}">
+    <Declaration><![CDATA[TYPE DSV2_A1_PnpSequenceMemory : (*Full Occupied Byte = 800*)
+STRUCT
+
+	bZone1RepeatUpDnEnable : BOOL; (* Byte "n+0 *)
+	bZone2RepeatUpDnEnable : BOOL; (* Byte "n+1 *)
+	bZone3RepeatUpDnEnable : BOOL; (* Byte "n+2 *)
+	bZone4RepeatUpDnEnable : BOOL; (* Byte "n+3 *)
+
+	iLdGroupNo : INT;
+	iUldGroupNo : INT;
+
+	sReservedBool : STRING(95); (* Byte "n+4 ~ n+99" *)
+
+	ARiCallArmNo : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+100~n+161" *)
+
+	ARiPickStationNo : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+162~n+223" *)
+	ARiTransferStationNo : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+224~n+285" *)
+
+	ARiDownPickPatternNo : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+286~n+347" *)
+	ARiUpPickPatternNo : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+348~n+409" *)
+	ARiDownTransferPatternNo : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+410~n+471" *)
+	ARiUpTransferPatternNo : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+472~n+533" *)
+
+	ARiRepeatUpDownCycle : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+534~n+595" *)
+
+	ARiStnSeqRepNo : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+596~n+657" *)
+
+	sReservedInt : STRING(41); (* Byte "n+658~n+699" *)
+
+	sDescription : STRING(50); (* Byte "n+700 ~ n+799" *)
+	
+	bArmRotaryBarrelEnable	: BOOL;
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

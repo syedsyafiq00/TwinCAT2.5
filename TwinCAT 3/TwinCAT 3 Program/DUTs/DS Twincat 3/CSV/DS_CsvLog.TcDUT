@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_CsvLog" Id="{6fca39a8-72f0-40d0-ad0e-864d410c6374}">
+    <Declaration><![CDATA[TYPE DS_CsvLog :
+STRUCT
+		eLogAction			: E_CsvActionType; 
+		sPathAndFilename	: STRING(255);
+		sLogString			: STRING(255);
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

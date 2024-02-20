@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="LIB_GVL_IO" Id="{dd10c9ca-a897-47bc-80e8-2d5e37643c15}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+
+// Digital Input
+
+	ARbDI						: ARRAY [0..C_iDigitalInputQty] OF BOOL;
+	ARwMapDI					: ARRAY [100..C_iDigitalInputMappingChannelMaxID] OF WORD;
+	ARwActualMapDI	AT %I* 		: ARRAY [1..10] OF WORD;
+
+	
+// Digital Output
+	ARbDO						: ARRAY [0..C_iDigitalOutputQty] OF BOOL;
+	ARwDO						: ARRAY [0..C_iDigitalOutputQty] OF WORD;
+	ARwMapDO	 				: ARRAY [100..C_iDigitalOutputMappingChannelMaxID] OF WORD;
+	ARwActualMapDO	AT %Q* 		: ARRAY [1..8] OF WORD;
+	
+// Deactivated
+
+	ARbDeactivated				: ARRAY [0..C_iDigitalOutputQty] OF BOOL;
+
+END_VAR
+
+//VAR_GLOBAL CONSTANT
+
+//	C_iDigitalInputQty					: INT := 220;		// Total Number of Digital Input Points
+//	C_iDigitalOutputQty					: INT := 220;		// Total Number of Digital Output Points
+
+//	C_iDigitalInputMappingChannelMaxID	: INT := 150;	// Max Channel ID of Digital Input Channel for Mapping Used (Ex: WX100 ~ WX116 ---> Value: 116
+//	C_iDigitalOutputMappingChannelMaxID	: INT := 140; 	// Max Channel ID of Digital Output Channel for Mapping Used (Ex: WY100 ~ WY113 ---> Value: 113
+	
+//END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

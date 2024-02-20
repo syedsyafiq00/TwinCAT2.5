@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSA31_ArmSpeedProfileMemory" Id="{059319ac-329a-4b7f-91d4-532a030f753a}">
+    <Declaration><![CDATA[TYPE DSA31_ArmSpeedProfileMemory : (*Full Occupied Byte = 300*)
+STRUCT
+
+	sReservedBool : STRING(50); (* Byte "n+0 ~ n+99" *)
+
+(*	sReservedInt : STRING(49); (* Byte "n+100~n+149" *)*)
+
+	lrSpeedVelo : LREAL; (* Byte "n+100~n+107" *)
+	lrAcc : LREAL; (* Byte "n+108~n+115" *)
+	lrDcc : LREAL; (* Byte "n+116~n+123" *)
+
+	sReservedLreal : STRING(75); (* Byte "n+124~n+199" *)
+
+	sDescription : STRING(50); (* Byte "n+200 ~ n+299" *)
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

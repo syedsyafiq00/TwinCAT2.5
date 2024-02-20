@@ -1,0 +1,1368 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="SerialCom" Id="{9be08231-d0f7-4c10-8f73-c2c448510bec}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM SerialCom
+VAR
+	fbSerialControl : SerialLineControlADS;
+	fbSendString	: SendString;
+	fbReceiveString	: ReceiveString;
+	
+	bBarcodeReceivedReset_FE: F_TRIG;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <NWL>
+        <XmlArchive>
+          <Data>
+            <o xml:space="preserve" t="NWLImplementationObject">
+              <v n="NetworkListComment">""</v>
+              <v n="DefaultViewMode">"Ld"</v>
+              <l2 n="NetworkList" cet="Network">
+                <o>
+                  <v n="ILActive">false</v>
+                  <v n="FBDValid">false</v>
+                  <v n="ILValid">false</v>
+                  <l2 n="ILLines" />
+                  <v n="Comment">""</v>
+                  <v n="Title">""</v>
+                  <v n="Label">""</v>
+                  <v n="OutCommented">false</v>
+                  <l2 n="NetworkItems" cet="BoxTreeBox">
+                    <o>
+                      <v n="BoxType">"MOVE"</v>
+                      <o n="Instance" t="Operand">
+                        <n n="Operand" />
+                        <v n="Type">""</v>
+                        <v n="Comment">""</v>
+                        <v n="SymbolComment">""</v>
+                        <v n="Address">""</v>
+                        <o n="Flags" t="Flags">
+                          <v n="Flags">0</v>
+                          <v n="Fixed">false</v>
+                          <v n="Extensible">false</v>
+                        </o>
+                        <v n="LValue">false</v>
+                        <v n="Boolean">false</v>
+                        <v n="IsInstance">true</v>
+                        <v n="Id">38L</v>
+                      </o>
+                      <o n="OutputItems" t="OutputItemList">
+                        <l2 n="OutputItems" cet="Operand">
+                          <n />
+                          <o>
+                            <v n="Operand">"dsSerialCom.SerialCfg.ComPort"</v>
+                            <v n="Type">"UDINT"</v>
+                            <v n="Comment">""</v>
+                            <v n="SymbolComment">""</v>
+                            <v n="Address">""</v>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">false</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <v n="LValue">true</v>
+                            <v n="Boolean">false</v>
+                            <v n="IsInstance">false</v>
+                            <v n="Id">40L</v>
+                          </o>
+                        </l2>
+                      </o>
+                      <o n="Flags" t="Flags">
+                        <v n="Flags">0</v>
+                        <v n="Fixed">false</v>
+                        <v n="Extensible">false</v>
+                      </o>
+                      <n n="InputFlags" />
+                      <l2 n="InputItems" cet="BoxTreeOperand">
+                        <o>
+                          <o n="Operand" t="Operand">
+                            <v n="Operand">"TRUE"</v>
+                            <v n="Type">"BOOL"</v>
+                            <v n="Comment">""</v>
+                            <v n="SymbolComment">""</v>
+                            <v n="Address">""</v>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">false</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <v n="LValue">false</v>
+                            <v n="Boolean">true</v>
+                            <v n="IsInstance">false</v>
+                            <v n="Id">42L</v>
+                          </o>
+                          <v n="Id">41L</v>
+                        </o>
+                        <o>
+                          <o n="Operand" t="Operand">
+                            <v n="Operand">"3"</v>
+                            <v n="Type">"INT"</v>
+                            <v n="Comment">""</v>
+                            <v n="SymbolComment">""</v>
+                            <v n="Address">""</v>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">false</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <v n="LValue">false</v>
+                            <v n="Boolean">false</v>
+                            <v n="IsInstance">false</v>
+                            <v n="Id">44L</v>
+                          </o>
+                          <v n="Id">43L</v>
+                        </o>
+                      </l2>
+                      <o n="InputParam" t="ParamList">
+                        <l2 n="Names" cet="String">
+                          <v>EN</v>
+                        </l2>
+                        <l2 n="Types" cet="String">
+                          <v>BOOL</v>
+                        </l2>
+                      </o>
+                      <o n="OutputParam" t="ParamList">
+                        <l2 n="Names" cet="String">
+                          <v>ENO</v>
+                          <v></v>
+                        </l2>
+                        <l2 n="Types" cet="String">
+                          <v>BOOL</v>
+                          <v></v>
+                        </l2>
+                      </o>
+                      <v n="CallType" t="Operator">Move</v>
+                      <v n="EN">true</v>
+                      <v n="ENO">true</v>
+                      <n n="STSnippet" />
+                      <v n="ContainsExtensibleInputs">false</v>
+                      <v n="ProvidesSTSnippet">false</v>
+                      <v n="Id">39L</v>
+                    </o>
+                  </l2>
+                  <l2 n="Connectors" />
+                  <v n="Id">37L</v>
+                </o>
+                <o>
+                  <v n="ILActive">false</v>
+                  <v n="FBDValid">false</v>
+                  <v n="ILValid">false</v>
+                  <l2 n="ILLines" />
+                  <v n="Comment">""</v>
+                  <v n="Title">""</v>
+                  <v n="Label">""</v>
+                  <v n="OutCommented">false</v>
+                  <l2 n="NetworkItems" cet="BoxTreeBox">
+                    <o>
+                      <v n="BoxType">"MOVE"</v>
+                      <o n="Instance" t="Operand">
+                        <n n="Operand" />
+                        <v n="Type">""</v>
+                        <v n="Comment">""</v>
+                        <v n="SymbolComment">""</v>
+                        <v n="Address">""</v>
+                        <o n="Flags" t="Flags">
+                          <v n="Flags">0</v>
+                          <v n="Fixed">false</v>
+                          <v n="Extensible">false</v>
+                        </o>
+                        <v n="LValue">false</v>
+                        <v n="Boolean">false</v>
+                        <v n="IsInstance">true</v>
+                        <v n="Id">83L</v>
+                      </o>
+                      <o n="OutputItems" t="OutputItemList">
+                        <l2 n="OutputItems" cet="Operand">
+                          <n />
+                          <o>
+                            <v n="Operand">"dsSerialCom.SerialCfg.Baudrate"</v>
+                            <v n="Type">"UDINT"</v>
+                            <v n="Comment">""</v>
+                            <v n="SymbolComment">""</v>
+                            <v n="Address">""</v>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">false</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <v n="LValue">true</v>
+                            <v n="Boolean">false</v>
+                            <v n="IsInstance">false</v>
+                            <v n="Id">85L</v>
+                          </o>
+                        </l2>
+                      </o>
+                      <o n="Flags" t="Flags">
+                        <v n="Flags">0</v>
+                        <v n="Fixed">false</v>
+                        <v n="Extensible">false</v>
+                      </o>
+                      <n n="InputFlags" />
+                      <l2 n="InputItems" cet="BoxTreeOperand">
+                        <o>
+                          <o n="Operand" t="Operand">
+                            <v n="Operand">"TRUE"</v>
+                            <v n="Type">"BOOL"</v>
+                            <v n="Comment">""</v>
+                            <v n="SymbolComment">""</v>
+                            <v n="Address">""</v>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">false</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <v n="LValue">false</v>
+                            <v n="Boolean">true</v>
+                            <v n="IsInstance">false</v>
+                            <v n="Id">87L</v>
+                          </o>
+                          <v n="Id">86L</v>
+                        </o>
+                        <o>
+                          <o n="Operand" t="Operand">
+                            <v n="Operand">"9600"</v>
+                            <v n="Type">"INT"</v>
+                            <v n="Comment">""</v>
+                            <v n="SymbolComment">""</v>
+                            <v n="Address">""</v>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">false</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <v n="LValue">false</v>
+                            <v n="Boolean">false</v>
+                            <v n="IsInstance">false</v>
+                            <v n="Id">89L</v>
+                          </o>
+                          <v n="Id">88L</v>
+                        </o>
+                      </l2>
+                      <o n="InputParam" t="ParamList">
+                        <l2 n="Names" cet="String">
+                          <v>EN</v>
+                        </l2>
+                        <l2 n="Types" cet="String">
+                          <v>BOOL</v>
+                        </l2>
+                      </o>
+                      <o n="OutputParam" t="ParamList">
+                        <l2 n="Names" cet="String">
+                          <v>ENO</v>
+                          <v></v>
+                        </l2>
+                        <l2 n="Types" cet="String">
+                          <v>BOOL</v>
+                          <v></v>
+                        </l2>
+                      </o>
+                      <v n="CallType" t="Operator">Move</v>
+                      <v n="EN">true</v>
+                      <v n="ENO">true</v>
+                      <n n="STSnippet" />
+                      <v n="ContainsExtensibleInputs">false</v>
+                      <v n="ProvidesSTSnippet">false</v>
+                      <v n="Id">84L</v>
+                    </o>
+                  </l2>
+                  <l2 n="Connectors" />
+                  <v n="Id">82L</v>
+                </o>
+                <o>
+                  <v n="ILActive">false</v>
+                  <v n="FBDValid">false</v>
+                  <v n="ILValid">false</v>
+                  <l2 n="ILLines" />
+                  <v n="Comment">""</v>
+                  <v n="Title">""</v>
+                  <v n="Label">""</v>
+                  <v n="OutCommented">false</v>
+                  <l2 n="NetworkItems" cet="BoxTreeBox">
+                    <o>
+                      <v n="BoxType">"MOVE"</v>
+                      <o n="Instance" t="Operand">
+                        <n n="Operand" />
+                        <v n="Type">""</v>
+                        <v n="Comment">""</v>
+                        <v n="SymbolComment">""</v>
+                        <v n="Address">""</v>
+                        <o n="Flags" t="Flags">
+                          <v n="Flags">0</v>
+                          <v n="Fixed">false</v>
+                          <v n="Extensible">false</v>
+                        </o>
+                        <v n="LValue">false</v>
+                        <v n="Boolean">false</v>
+                        <v n="IsInstance">true</v>
+                        <v n="Id">98L</v>
+                      </o>
+                      <o n="OutputItems" t="OutputItemList">
+                        <l2 n="OutputItems" cet="Operand">
+                          <n />
+                          <o>
+                            <v n="Operand">"dsSerialCom.SerialCfg.DTR"</v>
+                            <v n="Type">"ComDTRCtrl_t"</v>
+                            <v n="Comment">""</v>
+                            <v n="SymbolComment">""</v>
+                            <v n="Address">""</v>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">false</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <v n="LValue">true</v>
+                            <v n="Boolean">false</v>
+                            <v n="IsInstance">false</v>
+                            <v n="Id">100L</v>
+                          </o>
+                        </l2>
+                      </o>
+                      <o n="Flags" t="Flags">
+                        <v n="Flags">0</v>
+                        <v n="Fixed">false</v>
+                        <v n="Extensible">false</v>
+                      </o>
+                      <n n="InputFlags" />
+                      <l2 n="InputItems" cet="BoxTreeOperand">
+                        <o>
+                          <o n="Operand" t="Operand">
+                            <v n="Operand">"TRUE"</v>
+                            <v n="Type">"BOOL"</v>
+                            <v n="Comment">""</v>
+                            <v n="SymbolComment">""</v>
+                            <v n="Address">""</v>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">false</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <v n="LValue">false</v>
+                            <v n="Boolean">true</v>
+                            <v n="IsInstance">false</v>
+                            <v n="Id">102L</v>
+                          </o>
+                          <v n="Id">101L</v>
+                        </o>
+                        <o>
+                          <o n="Operand" t="Operand">
+                            <v n="Operand">"ComDTRCtrl_t.DTR_CTRL_DISABLE"</v>
+                            <v n="Type">"COMDTRCTRL_T"</v>
+                            <v n="Comment">""</v>
+                            <v n="SymbolComment">""</v>
+                            <v n="Address">""</v>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">false</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <v n="LValue">false</v>
+                            <v n="Boolean">false</v>
+                            <v n="IsInstance">false</v>
+                            <v n="Id">104L</v>
+                          </o>
+                          <v n="Id">103L</v>
+                        </o>
+                      </l2>
+                      <o n="InputParam" t="ParamList">
+                        <l2 n="Names" cet="String">
+                          <v>EN</v>
+                        </l2>
+                        <l2 n="Types" cet="String">
+                          <v>BOOL</v>
+                        </l2>
+                      </o>
+                      <o n="OutputParam" t="ParamList">
+                        <l2 n="Names" cet="String">
+                          <v>ENO</v>
+                          <v></v>
+                        </l2>
+                        <l2 n="Types" cet="String">
+                          <v>BOOL</v>
+                          <v></v>
+                        </l2>
+                      </o>
+                      <v n="CallType" t="Operator">Move</v>
+                      <v n="EN">true</v>
+                      <v n="ENO">true</v>
+                      <n n="STSnippet" />
+                      <v n="ContainsExtensibleInputs">false</v>
+                      <v n="ProvidesSTSnippet">false</v>
+                      <v n="Id">99L</v>
+                    </o>
+                  </l2>
+                  <l2 n="Connectors" />
+                  <v n="Id">97L</v>
+                </o>
+                <o>
+                  <v n="ILActive">false</v>
+                  <v n="FBDValid">false</v>
+                  <v n="ILValid">false</v>
+                  <l2 n="ILLines" />
+                  <v n="Comment">""</v>
+                  <v n="Title">""</v>
+                  <v n="Label">""</v>
+                  <v n="OutCommented">false</v>
+                  <l2 n="NetworkItems" cet="BoxTreeBox">
+                    <o>
+                      <v n="BoxType">"MOVE"</v>
+                      <o n="Instance" t="Operand">
+                        <n n="Operand" />
+                        <v n="Type">""</v>
+                        <v n="Comment">""</v>
+                        <v n="SymbolComment">""</v>
+                        <v n="Address">""</v>
+                        <o n="Flags" t="Flags">
+                          <v n="Flags">0</v>
+                          <v n="Fixed">false</v>
+                          <v n="Extensible">false</v>
+                        </o>
+                        <v n="LValue">false</v>
+                        <v n="Boolean">false</v>
+                        <v n="IsInstance">true</v>
+                        <v n="Id">106L</v>
+                      </o>
+                      <o n="OutputItems" t="OutputItemList">
+                        <l2 n="OutputItems" cet="Operand">
+                          <n />
+                          <o>
+                            <v n="Operand">"dsSerialCom.SerialCfg.RTS"</v>
+                            <v n="Type">"ComRTSCtrl_t"</v>
+                            <v n="Comment">""</v>
+                            <v n="SymbolComment">""</v>
+                            <v n="Address">""</v>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">false</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <v n="LValue">true</v>
+                            <v n="Boolean">false</v>
+                            <v n="IsInstance">false</v>
+                            <v n="Id">108L</v>
+                          </o>
+                        </l2>
+                      </o>
+                      <o n="Flags" t="Flags">
+                        <v n="Flags">0</v>
+                        <v n="Fixed">false</v>
+                        <v n="Extensible">false</v>
+                      </o>
+                      <n n="InputFlags" />
+                      <l2 n="InputItems" cet="BoxTreeOperand">
+                        <o>
+                          <o n="Operand" t="Operand">
+                            <v n="Operand">"TRUE"</v>
+                            <v n="Type">"BOOL"</v>
+                            <v n="Comment">""</v>
+                            <v n="SymbolComment">""</v>
+                            <v n="Address">""</v>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">false</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <v n="LValue">false</v>
+                            <v n="Boolean">true</v>
+                            <v n="IsInstance">false</v>
+                            <v n="Id">110L</v>
+                          </o>
+                          <v n="Id">109L</v>
+                        </o>
+                        <o>
+                          <o n="Operand" t="Operand">
+                            <v n="Operand">"ComRTSCtrl_t.RTS_CTRL_DISABLE"</v>
+                            <v n="Type">"COMRTSCTRL_T"</v>
+                            <v n="Comment">""</v>
+                            <v n="SymbolComment">""</v>
+                            <v n="Address">""</v>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">false</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <v n="LValue">false</v>
+                            <v n="Boolean">false</v>
+                            <v n="IsInstance">false</v>
+                            <v n="Id">112L</v>
+                          </o>
+                          <v n="Id">111L</v>
+                        </o>
+                      </l2>
+                      <o n="InputParam" t="ParamList">
+                        <l2 n="Names" cet="String">
+                          <v>EN</v>
+                        </l2>
+                        <l2 n="Types" cet="String">
+                          <v>BOOL</v>
+                        </l2>
+                      </o>
+                      <o n="OutputParam" t="ParamList">
+                        <l2 n="Names" cet="String">
+                          <v>ENO</v>
+                          <v></v>
+                        </l2>
+                        <l2 n="Types" cet="String">
+                          <v>BOOL</v>
+                          <v></v>
+                        </l2>
+                      </o>
+                      <v n="CallType" t="Operator">Move</v>
+                      <v n="EN">true</v>
+                      <v n="ENO">true</v>
+                      <n n="STSnippet" />
+                      <v n="ContainsExtensibleInputs">false</v>
+                      <v n="ProvidesSTSnippet">false</v>
+                      <v n="Id">107L</v>
+                    </o>
+                  </l2>
+                  <l2 n="Connectors" />
+                  <v n="Id">105L</v>
+                </o>
+                <o>
+                  <v n="ILActive">false</v>
+                  <v n="FBDValid">false</v>
+                  <v n="ILValid">false</v>
+                  <l2 n="ILLines" />
+                  <v n="Comment">""</v>
+                  <v n="Title">""</v>
+                  <v n="Label">""</v>
+                  <v n="OutCommented">false</v>
+                  <l2 n="NetworkItems" cet="BoxTreeAssign">
+                    <o>
+                      <o n="OutputItems" t="OutputItemList">
+                        <l2 n="OutputItems" cet="Operand">
+                          <o>
+                            <v n="Operand">"dsSerialCom.PortOpened"</v>
+                            <v n="Type">"BOOL"</v>
+                            <v n="Comment">""</v>
+                            <v n="SymbolComment">""</v>
+                            <v n="Address">""</v>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">false</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <v n="LValue">true</v>
+                            <v n="Boolean">true</v>
+                            <v n="IsInstance">false</v>
+                            <v n="Id">35L</v>
+                          </o>
+                        </l2>
+                      </o>
+                      <o n="Flags" t="Flags">
+                        <v n="Flags">0</v>
+                        <v n="Fixed">false</v>
+                        <v n="Extensible">false</v>
+                      </o>
+                      <o n="RValue" t="BoxTreeBox">
+                        <v n="BoxType">"SerialLineControlADS"</v>
+                        <o n="Instance" t="Operand">
+                          <v n="Operand">"fbSerialControl"</v>
+                          <v n="Type">"SerialLineControlADS"</v>
+                          <v n="Comment">""</v>
+                          <v n="SymbolComment">""</v>
+                          <v n="Address">""</v>
+                          <o n="Flags" t="Flags">
+                            <v n="Flags">0</v>
+                            <v n="Fixed">false</v>
+                            <v n="Extensible">false</v>
+                          </o>
+                          <v n="LValue">false</v>
+                          <v n="Boolean">false</v>
+                          <v n="IsInstance">true</v>
+                          <v n="Id">20L</v>
+                        </o>
+                        <o n="OutputItems" t="OutputItemList">
+                          <l2 n="OutputItems" cet="Operand">
+                            <n />
+                            <o>
+                              <v n="Operand">"dsSerialCom.Error"</v>
+                              <v n="Type">"BOOL"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">22L</v>
+                            </o>
+                            <o>
+                              <v n="Operand">"dsSerialCom.ErrorID"</v>
+                              <v n="Type">"UDINT"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">23L</v>
+                            </o>
+                            <o>
+                              <v n="Operand">"dsSerialCom.Busy"</v>
+                              <v n="Type">"BOOL"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">24L</v>
+                            </o>
+                            <o>
+                              <v n="Operand">"dsSerialCom.TxBufCount"</v>
+                              <v n="Type">"UDINT"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">25L</v>
+                            </o>
+                            <o>
+                              <v n="Operand">"dsSerialCom.RxBufCount"</v>
+                              <v n="Type">"UDINT"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">26L</v>
+                            </o>
+                          </l2>
+                        </o>
+                        <o n="Flags" t="Flags">
+                          <v n="Flags">0</v>
+                          <v n="Fixed">true</v>
+                          <v n="Extensible">false</v>
+                        </o>
+                        <n n="InputFlags" />
+                        <l2 n="InputItems" cet="BoxTreeOperand">
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"TRUE"</v>
+                              <v n="Type">"BOOL"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">17L</v>
+                            </o>
+                            <v n="Id">16L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"dsSerialCom.SerialCfg"</v>
+                              <v n="Type">"ComSerialConfig"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">19L</v>
+                            </o>
+                            <v n="Id">18L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"''"</v>
+                              <v n="Type">"STRING(INT#0)"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">28L</v>
+                            </o>
+                            <v n="Id">27L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"T#0.5s"</v>
+                              <v n="Type">"TIME"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">30L</v>
+                            </o>
+                            <v n="Id">29L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"dsSerialCom.TxBuffer"</v>
+                              <v n="Type">"ComBuffer"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">32L</v>
+                            </o>
+                            <v n="Id">31L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"dsSerialCom.RxBuffer"</v>
+                              <v n="Type">"ComBuffer"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">34L</v>
+                            </o>
+                            <v n="Id">33L</v>
+                          </o>
+                        </l2>
+                        <o n="InputParam" t="ParamList">
+                          <l2 n="Names" cet="String">
+                            <v>Connect</v>
+                            <v>SerialCfg</v>
+                            <v>NetId</v>
+                            <v>Timeout</v>
+                            <v>TxBuffer</v>
+                            <v>RxBuffer</v>
+                          </l2>
+                          <l2 n="Types" cet="String">
+                            <v>BOOL</v>
+                            <v>ComSerialConfig</v>
+                            <v>T_AmsNetId</v>
+                            <v>TIME</v>
+                            <v>ComBuffer[REF]</v>
+                            <v>ComBuffer[REF]</v>
+                          </l2>
+                        </o>
+                        <o n="OutputParam" t="ParamList">
+                          <l2 n="Names" cet="String">
+                            <v>PortOpened</v>
+                            <v>Error</v>
+                            <v>ErrorID</v>
+                            <v>Busy</v>
+                            <v>TxBufCount</v>
+                            <v>RxBufCount</v>
+                          </l2>
+                          <l2 n="Types" cet="String">
+                            <v>BOOL</v>
+                            <v>BOOL</v>
+                            <v>UDINT</v>
+                            <v>BOOL</v>
+                            <v>UDINT</v>
+                            <v>UDINT</v>
+                          </l2>
+                        </o>
+                        <v n="CallType" t="Operator">FunctionBlock</v>
+                        <v n="EN">false</v>
+                        <v n="ENO">false</v>
+                        <n n="STSnippet" />
+                        <v n="ContainsExtensibleInputs">false</v>
+                        <v n="ProvidesSTSnippet">false</v>
+                        <v n="Id">21L</v>
+                      </o>
+                      <v n="Id">36L</v>
+                    </o>
+                  </l2>
+                  <l2 n="Connectors" />
+                  <v n="Id">13L</v>
+                </o>
+                <o>
+                  <v n="ILActive">false</v>
+                  <v n="FBDValid">false</v>
+                  <v n="ILValid">false</v>
+                  <l2 n="ILLines" />
+                  <v n="Comment">""</v>
+                  <v n="Title">""</v>
+                  <v n="Label">""</v>
+                  <v n="OutCommented">false</v>
+                  <l2 n="NetworkItems" cet="BoxTreeAssign">
+                    <o>
+                      <o n="OutputItems" t="OutputItemList">
+                        <l2 n="OutputItems" cet="Operand">
+                          <o>
+                            <v n="Operand">"dsSerialCom.bSendStringBusy"</v>
+                            <v n="Type">"BOOL"</v>
+                            <v n="Comment">""</v>
+                            <v n="SymbolComment">""</v>
+                            <v n="Address">""</v>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">false</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <v n="LValue">true</v>
+                            <v n="Boolean">true</v>
+                            <v n="IsInstance">false</v>
+                            <v n="Id">53L</v>
+                          </o>
+                        </l2>
+                      </o>
+                      <o n="Flags" t="Flags">
+                        <v n="Flags">0</v>
+                        <v n="Fixed">false</v>
+                        <v n="Extensible">false</v>
+                      </o>
+                      <o n="RValue" t="BoxTreeBox">
+                        <v n="BoxType">"SendString"</v>
+                        <o n="Instance" t="Operand">
+                          <v n="Operand">"fbSendString"</v>
+                          <v n="Type">"SendString"</v>
+                          <v n="Comment">""</v>
+                          <v n="SymbolComment">""</v>
+                          <v n="Address">""</v>
+                          <o n="Flags" t="Flags">
+                            <v n="Flags">0</v>
+                            <v n="Fixed">false</v>
+                            <v n="Extensible">false</v>
+                          </o>
+                          <v n="LValue">false</v>
+                          <v n="Boolean">false</v>
+                          <v n="IsInstance">true</v>
+                          <v n="Id">46L</v>
+                        </o>
+                        <o n="OutputItems" t="OutputItemList">
+                          <l2 n="OutputItems" cet="Operand">
+                            <n />
+                            <o>
+                              <v n="Operand">"dsSerialCom.SendStringError"</v>
+                              <v n="Type">"ComError_t"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">48L</v>
+                            </o>
+                          </l2>
+                        </o>
+                        <o n="Flags" t="Flags">
+                          <v n="Flags">0</v>
+                          <v n="Fixed">false</v>
+                          <v n="Extensible">false</v>
+                        </o>
+                        <n n="InputFlags" />
+                        <l2 n="InputItems" cet="BoxTreeOperand">
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"dsSerialCom.sSendString"</v>
+                              <v n="Type">"STRING"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">50L</v>
+                            </o>
+                            <v n="Id">49L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"dsSerialCom.TxBuffer"</v>
+                              <v n="Type">"ComBuffer"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">52L</v>
+                            </o>
+                            <v n="Id">51L</v>
+                          </o>
+                        </l2>
+                        <o n="InputParam" t="ParamList">
+                          <l2 n="Names" cet="String">
+                            <v>SendString</v>
+                            <v>TXbuffer</v>
+                          </l2>
+                          <l2 n="Types" cet="String">
+                            <v>STRING</v>
+                            <v>COMbuffer[REF]</v>
+                          </l2>
+                        </o>
+                        <o n="OutputParam" t="ParamList">
+                          <l2 n="Names" cet="String">
+                            <v>Busy</v>
+                            <v>Error</v>
+                          </l2>
+                          <l2 n="Types" cet="String">
+                            <v>BOOL</v>
+                            <v>ComError_t</v>
+                          </l2>
+                        </o>
+                        <v n="CallType" t="Operator">FunctionBlock</v>
+                        <v n="EN">false</v>
+                        <v n="ENO">false</v>
+                        <n n="STSnippet" />
+                        <v n="ContainsExtensibleInputs">false</v>
+                        <v n="ProvidesSTSnippet">false</v>
+                        <v n="Id">47L</v>
+                      </o>
+                      <v n="Id">54L</v>
+                    </o>
+                  </l2>
+                  <l2 n="Connectors" />
+                  <v n="Id">45L</v>
+                </o>
+                <o>
+                  <v n="ILActive">false</v>
+                  <v n="FBDValid">false</v>
+                  <v n="ILValid">false</v>
+                  <l2 n="ILLines" />
+                  <v n="Comment">""</v>
+                  <v n="Title">""</v>
+                  <v n="Label">""</v>
+                  <v n="OutCommented">false</v>
+                  <l2 n="NetworkItems" cet="BoxTreeAssign">
+                    <o>
+                      <o n="OutputItems" t="OutputItemList">
+                        <l2 n="OutputItems" cet="Operand">
+                          <o>
+                            <v n="Operand">"dsSerialCom.bStringReceived"</v>
+                            <v n="Type">"BOOL"</v>
+                            <v n="Comment">""</v>
+                            <v n="SymbolComment">""</v>
+                            <v n="Address">""</v>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">false</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <v n="LValue">true</v>
+                            <v n="Boolean">true</v>
+                            <v n="IsInstance">false</v>
+                            <v n="Id">73L</v>
+                          </o>
+                        </l2>
+                      </o>
+                      <o n="Flags" t="Flags">
+                        <v n="Flags">0</v>
+                        <v n="Fixed">false</v>
+                        <v n="Extensible">false</v>
+                      </o>
+                      <o n="RValue" t="BoxTreeBox">
+                        <v n="BoxType">"ReceiveString"</v>
+                        <o n="Instance" t="Operand">
+                          <v n="Operand">"fbReceiveString"</v>
+                          <v n="Type">"ReceiveString"</v>
+                          <v n="Comment">""</v>
+                          <v n="SymbolComment">""</v>
+                          <v n="Address">""</v>
+                          <o n="Flags" t="Flags">
+                            <v n="Flags">0</v>
+                            <v n="Fixed">false</v>
+                            <v n="Extensible">false</v>
+                          </o>
+                          <v n="LValue">false</v>
+                          <v n="Boolean">false</v>
+                          <v n="IsInstance">true</v>
+                          <v n="Id">56L</v>
+                        </o>
+                        <o n="OutputItems" t="OutputItemList">
+                          <l2 n="OutputItems" cet="Operand">
+                            <n />
+                            <o>
+                              <v n="Operand">"dsSerialCom.bReceivedStringBusy"</v>
+                              <v n="Type">"BOOL"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">58L</v>
+                            </o>
+                            <o>
+                              <v n="Operand">"dsSerialCom.ReceivedStringError"</v>
+                              <v n="Type">"ComError_t"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">59L</v>
+                            </o>
+                            <o>
+                              <v n="Operand">"dsSerialCom.bReceivedStringTimeout"</v>
+                              <v n="Type">"BOOL"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">60L</v>
+                            </o>
+                          </l2>
+                        </o>
+                        <o n="Flags" t="Flags">
+                          <v n="Flags">0</v>
+                          <v n="Fixed">false</v>
+                          <v n="Extensible">false</v>
+                        </o>
+                        <n n="InputFlags" />
+                        <l2 n="InputItems" cet="BoxTreeOperand">
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"dsSerialCom.sRSPrefix"</v>
+                              <v n="Type">"STRING"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">62L</v>
+                            </o>
+                            <v n="Id">61L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"dsSerialCom.sRSSuffix"</v>
+                              <v n="Type">"STRING"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">64L</v>
+                            </o>
+                            <v n="Id">63L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"t#0.5s"</v>
+                              <v n="Type">"TIME"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">66L</v>
+                            </o>
+                            <v n="Id">65L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"dsSerialCom.bReceivedStringReset"</v>
+                              <v n="Type">"BOOL"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">true</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">68L</v>
+                            </o>
+                            <v n="Id">67L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"dsSerialCom.sReceivedString"</v>
+                              <v n="Type">"STRING"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">70L</v>
+                            </o>
+                            <v n="Id">69L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"dsSerialCom.RxBuffer"</v>
+                              <v n="Type">"ComBuffer"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">72L</v>
+                            </o>
+                            <v n="Id">71L</v>
+                          </o>
+                        </l2>
+                        <o n="InputParam" t="ParamList">
+                          <l2 n="Names" cet="String">
+                            <v>Prefix</v>
+                            <v>Suffix</v>
+                            <v>Timeout</v>
+                            <v>Reset</v>
+                            <v>ReceivedString</v>
+                            <v>RXbuffer</v>
+                          </l2>
+                          <l2 n="Types" cet="String">
+                            <v>STRING</v>
+                            <v>STRING</v>
+                            <v>TIME</v>
+                            <v>BOOL</v>
+                            <v>STRING[REF]</v>
+                            <v>COMbuffer[REF]</v>
+                          </l2>
+                        </o>
+                        <o n="OutputParam" t="ParamList">
+                          <l2 n="Names" cet="String">
+                            <v>StringReceived</v>
+                            <v>Busy</v>
+                            <v>Error</v>
+                            <v>RxTimeout</v>
+                          </l2>
+                          <l2 n="Types" cet="String">
+                            <v>BOOL</v>
+                            <v>BOOL</v>
+                            <v>ComError_t</v>
+                            <v>BOOL</v>
+                          </l2>
+                        </o>
+                        <v n="CallType" t="Operator">FunctionBlock</v>
+                        <v n="EN">false</v>
+                        <v n="ENO">false</v>
+                        <n n="STSnippet" />
+                        <v n="ContainsExtensibleInputs">false</v>
+                        <v n="ProvidesSTSnippet">false</v>
+                        <v n="Id">57L</v>
+                      </o>
+                      <v n="Id">74L</v>
+                    </o>
+                  </l2>
+                  <l2 n="Connectors" />
+                  <v n="Id">55L</v>
+                </o>
+                <o>
+                  <v n="ILActive">false</v>
+                  <v n="FBDValid">false</v>
+                  <v n="ILValid">false</v>
+                  <l2 n="ILLines" />
+                  <v n="Comment">""</v>
+                  <v n="Title">""</v>
+                  <v n="Label">""</v>
+                  <v n="OutCommented">false</v>
+                  <l2 n="NetworkItems" cet="BoxTreeBox">
+                    <o>
+                      <v n="BoxType">"ACT_BarcodeReceived"</v>
+                      <o n="Instance" t="Operand">
+                        <n n="Operand" />
+                        <v n="Type">""</v>
+                        <v n="Comment">""</v>
+                        <v n="SymbolComment">""</v>
+                        <v n="Address">""</v>
+                        <o n="Flags" t="Flags">
+                          <v n="Flags">0</v>
+                          <v n="Fixed">false</v>
+                          <v n="Extensible">false</v>
+                        </o>
+                        <v n="LValue">false</v>
+                        <v n="Boolean">false</v>
+                        <v n="IsInstance">true</v>
+                        <v n="Id">130L</v>
+                      </o>
+                      <o n="OutputItems" t="OutputItemList">
+                        <l2 n="OutputItems">
+                          <n />
+                        </l2>
+                      </o>
+                      <o n="Flags" t="Flags">
+                        <v n="Flags">0</v>
+                        <v n="Fixed">false</v>
+                        <v n="Extensible">false</v>
+                      </o>
+                      <n n="InputFlags" />
+                      <l2 n="InputItems" />
+                      <o n="InputParam" t="ParamList">
+                        <l2 n="Names" />
+                        <l2 n="Types" />
+                      </o>
+                      <o n="OutputParam" t="ParamList">
+                        <l2 n="Names" />
+                        <l2 n="Types" />
+                      </o>
+                      <v n="CallType" t="Operator">Action</v>
+                      <v n="EN">false</v>
+                      <v n="ENO">false</v>
+                      <n n="STSnippet" />
+                      <v n="ContainsExtensibleInputs">false</v>
+                      <v n="ProvidesSTSnippet">false</v>
+                      <v n="Id">131L</v>
+                    </o>
+                  </l2>
+                  <l2 n="Connectors" />
+                  <v n="Id">123L</v>
+                </o>
+              </l2>
+              <v n="BranchCounter">0</v>
+              <v n="ValidIds">true</v>
+            </o>
+          </Data>
+          <TypeList>
+            <Type n="Boolean">System.Boolean</Type>
+            <Type n="BoxTreeAssign">{9873c309-1f09-4ebf-9078-42d8057ef11b}</Type>
+            <Type n="BoxTreeBox">{acfc6f68-8e3a-4af5-bf81-3dd512095a46}</Type>
+            <Type n="BoxTreeOperand">{9de7f100-1b87-424c-a62e-45b0cfc85ed2}</Type>
+            <Type n="Flags">{668066f2-6069-46b3-8962-8db8d13d7db2}</Type>
+            <Type n="Int32">System.Int32</Type>
+            <Type n="Int64">System.Int64</Type>
+            <Type n="Network">{d9a99d73-b633-47db-b876-a752acb25871}</Type>
+            <Type n="NWLImplementationObject">{25e509de-33d4-4447-93f8-c9e4ea381c8b}</Type>
+            <Type n="Operand">{c9b2f165-48a2-4a45-8326-3952d8a3d708}</Type>
+            <Type n="Operator">{bffb3c53-f105-4e85-aba2-e30df579d75f}</Type>
+            <Type n="OutputItemList">{f40d3e09-c02c-4522-a88c-dac23558cfc4}</Type>
+            <Type n="ParamList">{71496971-9e0c-4677-a832-b9583b571130}</Type>
+            <Type n="String">System.String</Type>
+          </TypeList>
+        </XmlArchive>
+      </NWL>
+    </Implementation>
+    <Action Name="ACT_BarcodeReceived" Id="{4d8a6311-89a5-4813-b482-904c19279a94}">
+      <Implementation>
+        <ST><![CDATA[
+bBarcodeReceivedReset_FE(CLK:=((bAutoStartPb AND ARbDI[eX14000_LoadingConveyorSensor_Feed]) OR bBarcodeRegPage), Q=> );
+
+IF bBarcodeReceivedReset_FE.Q THEN
+dsSerialCom.sReceivedString:='';
+END_IF
+
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="SerialCom.ACT_BarcodeReceived">
+      <LineId Id="2" Count="1" />
+      <LineId Id="10" Count="1" />
+      <LineId Id="1" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="8" Count="1" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSV3_JRS_Output" Id="{cf2d6ea5-9ee3-4a97-a7b2-258f0f94d4af}">
+    <Declaration><![CDATA[TYPE DSV3_JRS_Output :
+STRUCT
+
+(*Channel 100*)
+	b100_00_FreshHCTankCircPumpOnOff 											: BOOL;
+	b100_01_CircTankCircPumpOnOff												: BOOL;
+	b100_02_ThermalOilPumpOnOff													: BOOL;
+	b100_03_ThermalOilHeaterOnOff												: BOOL;
+	b100_04_Buzzer																: BOOL;
+	b100_05_RecycleStartStopIndicator												: BOOL;
+	b100_06_Reserved															: BOOL;
+	b100_07_UFOVacuumRelease32WayAV											: BOOL;
+
+(*Channel 101*)
+	b101_00_CondenserTankVacuumReleaseAV										: BOOL;
+	b101_01_WasteSludgeCollectionDrumAV 											: BOOL;
+	b101_02_DistillationTankDrainAV												: BOOL;
+	b101_03_EconomizerAV														: BOOL;
+	b101_04_Reserved															: BOOL;
+	b101_05_Reserved															: BOOL;
+	b101_06_VaporGenerationAV			 										: BOOL;
+	b101_07_VacuumSharingAV													: BOOL;
+
+(*Channel 102*)
+	b102_00_RecycleReadySignal													: BOOL;
+	b102_01_VaporNotAvailableForRequestSignal									: BOOL;
+	b102_02_ToMainMachineSignal3												: BOOL;
+	b102_03_ToMainMachineSignal4												: BOOL;
+	b102_04_ToMainMachineSignal5												: BOOL;
+	b102_05_Reserved															: BOOL;
+	b102_06_Reserved															: BOOL;
+	b102_07_Reserved															: BOOL;
+
+(*Channel 103*)
+	b103_00_ChillerPumpOnOff														: BOOL;
+	b103_01_Reserved															: BOOL;
+	b103_02_Reserved															: BOOL;
+	b103_03_Reserved															: BOOL;
+	b103_04_ChillerSelectorOnOffIndicator											: BOOL;
+	b103_05_ChillerReadySignal													: BOOL;
+	b103_06_ChillerCompressorOnOff												: BOOL;
+	b103_07_Reserved															: BOOL;
+
+
+
+(*Channel 100*)
+	i100_00_FreshHCTankCircPumpOnOff 											: INT;
+	i100_01_CircTankCircPumpOnOff												: INT;
+	i100_02_ThermalOilPumpOnOff													: INT;
+	i100_03_ThermalOilHeaterOnOff													: INT;
+	i100_04_Buzzer																: INT;
+	i100_05_RecycleStartStopIndicator												: INT;
+	i100_06_Reserved															: INT;
+	i100_07_UFOVacuumRelease32WayAV											: INT;
+
+(*Channel 101*)
+	i101_00_CondenserTankVacuumReleaseAV										: INT;
+	i101_01_WasteSludgeCollectionDrumAV 											: INT;
+	i101_02_DistillationTankDrainAV													: INT;
+	i101_03_EconomizerAV														: INT;
+	i101_04_Reserved															: INT;
+	i101_05_Reserved															: INT;
+	i101_06_VaporGenerationAV		 											: INT;
+	i101_07_VacuumSharingAV														: INT;
+
+(*Channel 102*)
+	i102_00_RecycleReadySignal													: INT;
+	i102_01_VaporNotAvailableForRequestSignal										: INT;
+	i102_02_ToMainMachineSignal3													: INT;
+	i102_03_ToMainMachineSignal4													: INT;
+	i102_04_ToMainMachineSignal5													: INT;
+	i102_05_Reserved															: INT;
+	i102_06_Reserved															: INT;
+	i102_07_Reserved															: INT;
+
+(*Channel 103*)
+	i103_00_ChillerPumpOnOff														: INT;
+	i103_01_Reserved															: INT;
+	i103_02_Reserved															: INT;
+	i103_03_Reserved															: INT;
+	i103_04_ChillerSelectorOnOffIndicator												: INT;
+	i103_05_ChillerReadySignal													: INT;
+	i103_06_ChillerCompressorOnOff												: INT;
+	i103_07_Reserved															: INT;
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

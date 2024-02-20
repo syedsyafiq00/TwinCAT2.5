@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_BasketInfoManager" Id="{ea20bf76-977d-4601-b1f0-6fcefb3af21e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_BasketInfoManager
+VAR_INPUT
+	iRecipeChangeFlagDelayTime_Sec : REAL;
+END_VAR
+VAR_OUTPUT
+	bRecipeChangedFlag : BOOL;
+	bMinMaxEffChangeFlag : BOOL;
+
+END_VAR
+VAR_IN_OUT
+	DSV2BasketInfo : DSV2_BasketInfo;
+END_VAR
+
+VAR
+	tRecipeChangeFlagDelayOffTimer: TON;
+	DSV2BasketInfoEmpty : DSV2_BasketInfo;
+
+	iPRNBuffer: INT;
+	tMinMaxEffChangeDelayOffTimer: TON;
+	iFL: INT;
+END_VAR
+
+VAR PERSISTENT
+	iPreviousProductRecipeNo: INT;
+	ARiCurrentData : ARRAY [1..20] OF INT;
+	ARiPreviousData : ARRAY [1..20] OF INT;
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*bMinMaxEffChangeFlag Control*)
+ARiCurrentData[1] := DSV2BasketInfo.iCurrentStationNo;
+ARiCurrentData[2] := DSV2BasketInfo.iPreviousStationNo;
+ARiCurrentData[3] := DSV2BasketInfo.iProductRecipeStepNo;
+ARiCurrentData[4] := DSV2BasketInfo.iStationSeqenceRecipeNo;
+ARiCurrentData[5] := 0;
+
+ARiCurrentData[6] := DSV2BasketInfo.DSV2MinMaxEffTime.ARiEffTime[1];
+ARiCurrentData[7] := DSV2BasketInfo.DSV2MinMaxEffTime.ARiMaxTime[1];
+ARiCurrentData[8] := DSV2BasketInfo.DSV2MinMaxEffTime.ARiMinTime[1];
+ARiCurrentData[9] := DSV2BasketInfo.DSV2MinMaxEffTime.ARiStnSeqRepNo[1];
+ARiCurrentData[10] := DSV2BasketInfo.DSV2MinMaxEffTime.ARiTransferStationNo[1];
+
+ARiCurrentData[11] := DSV2BasketInfo.DSV2MinMaxEffTime.ARiEffTime[2];
+ARiCurrentData[12] := DSV2BasketInfo.DSV2MinMaxEffTime.ARiMaxTime[2];
+ARiCurrentData[13] := DSV2BasketInfo.DSV2MinMaxEffTime.ARiMinTime[2];
+ARiCurrentData[14] := DSV2BasketInfo.DSV2MinMaxEffTime.ARiStnSeqRepNo[2];
+ARiCurrentData[15] := DSV2BasketInfo.DSV2MinMaxEffTime.ARiTransferStationNo[2];
+
+ARiCurrentData[16] := DSV2BasketInfo.DSV2MinMaxEffTime.ARiEffTime[3];
+ARiCurrentData[17] := DSV2BasketInfo.DSV2MinMaxEffTime.ARiMaxTime[3];
+ARiCurrentData[18] := DSV2BasketInfo.DSV2MinMaxEffTime.ARiMinTime[3];
+ARiCurrentData[19] := DSV2BasketInfo.DSV2MinMaxEffTime.ARiStnSeqRepNo[3];
+ARiCurrentData[20] := DSV2BasketInfo.DSV2MinMaxEffTime.ARiTransferStationNo[3];
+
+
+
+iFL := 1;
+	FOR iFL := 1 TO 20 DO
+		IF iFL > 0 AND iFL <= 20 THEN
+			IF ARiCurrentData[iFL] <> ARiPreviousData[iFL] THEN
+			bMinMaxEffChangeFlag := TRUE;
+			ARiPreviousData[iFL] := ARiCurrentData[iFL];
+			END_IF
+		END_IF
+	END_FOR
+
+IF DSV2BasketInfo.iProductRecipeNo <= 0 THEN
+bMinMaxEffChangeFlag := FALSE;
+END_IF
+
+tMinMaxEffChangeDelayOffTimer(IN:=bMinMaxEffChangeFlag , PT:=REAL_TO_TIME(iRecipeChangeFlagDelayTime_Sec*1000) , Q=> , ET=> );
+
+IF tMinMaxEffChangeDelayOffTimer.Q THEN
+bMinMaxEffChangeFlag := FALSE;
+END_IF
+
+
+
+(*bRecipeChangedFlag Control*)
+tRecipeChangeFlagDelayOffTimer(IN:=bRecipeChangedFlag , PT:=REAL_TO_TIME(iRecipeChangeFlagDelayTime_Sec*1000) , Q=> , ET=> );
+
+	IF tRecipeChangeFlagDelayOffTimer.Q THEN
+	bRecipeChangedFlag := FALSE;
+	END_IF
+
+
+	IF DSV2BasketInfo.iProductRecipeNo <> iPreviousProductRecipeNo AND DSV2BasketInfo.iProductRecipeNo > 0 AND DSV2BasketInfo.iProductRecipeNo <= iProductRecipeArrayQty  THEN
+	bRecipeChangedFlag := TRUE;
+	END_IF
+
+	IF DSV2BasketInfo.iProductRecipeNo <> iPreviousProductRecipeNo THEN
+	iPRNBuffer := DSV2BasketInfo.iProductRecipeNo;
+
+		IF NOT bMinMaxEffChangeFlag THEN
+			DSV2BasketInfo := DSV2BasketInfoEmpty;
+		END_IF
+
+	DSV2BasketInfo.iProductRecipeNo := iPRNBuffer;
+	iPRNBuffer := 0;
+
+	iPreviousProductRecipeNo := DSV2BasketInfo.iProductRecipeNo;
+	END_IF
+
+
+
+(*ProductRecipeNo Move and Availibility Control*)
+DSV2BasketInfo.DSV2MinMaxEffTime.iProductRecipeNo := DSV2BasketInfo.iProductRecipeNo;
+
+IF DSV2BasketInfo.iProductRecipeNo > 0 AND DSV2BasketInfo.iProductRecipeNo <= iProductRecipeArrayQty THEN
+DSV2BasketInfo.bAvailibility := TRUE;
+ELSE
+DSV2BasketInfo.bAvailibility := FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_BasketInfoManager">
+      <LineId Id="29" Count="83" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

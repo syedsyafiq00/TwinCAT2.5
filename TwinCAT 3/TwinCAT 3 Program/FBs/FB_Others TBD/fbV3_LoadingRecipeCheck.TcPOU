@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV3_LoadingRecipeCheck" Id="{65b28cdc-579e-4a47-becd-a68f297b969c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV3_LoadingRecipeCheck
+VAR_INPUT
+
+	iLoadingRecipeNo : INT;
+	ARsProductRecipeDescription: ARRAY [0..iProductRecipeArrayQty] OF STRING(50);
+
+END_VAR
+VAR_OUTPUT
+
+	bRecipeAvailable : BOOL;
+	bRecipeNotAvailable : BOOL;
+END_VAR
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+	IF iLoadingRecipeNo > 0 THEN
+
+		IF ARsProductRecipeDescription[iLoadingRecipeNo] = '' THEN
+		bRecipeNotAvailable := TRUE;
+		bRecipeAvailable := FALSE;
+		ELSE
+		bRecipeNotAvailable := FALSE;
+		bRecipeAvailable := TRUE;
+		END_IF
+
+	ELSE
+
+		bRecipeNotAvailable := FALSE;
+		bRecipeAvailable := FALSE;
+
+	END_IF
+]]></ST>
+    </Implementation>
+    <LineIds Name="fbV3_LoadingRecipeCheck">
+      <LineId Id="14" Count="17" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

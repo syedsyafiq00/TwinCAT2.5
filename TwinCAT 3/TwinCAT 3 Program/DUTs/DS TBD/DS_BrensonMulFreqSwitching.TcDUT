@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_BrensonMulFreqSwitching" Id="{b4219dfb-2cfb-44c7-bc81-966e8c5f78a0}">
+    <Declaration><![CDATA[TYPE DS_BrensonMulFreqSwitching :
+STRUCT
+	bFreqSwitchingPB_TS : BOOL;
+	bFreqRange4080120En : BOOL;
+	bFreqRange2550En : BOOL;
+	bDisableMultiFreq80kHz : BOOL;
+	iFreqOutput_TS : INT;
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

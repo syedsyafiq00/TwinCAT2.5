@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="TempChillerCtrl" Id="{46a1d1b1-8d81-4299-bd24-7a5c4e10f8b7}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM TempChillerCtrl
+VAR
+	ARrStnChillerValueTempSetpointFinal: ARRAY [1..iStnQty] OF REAL;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+(*Stn 3 Chiller Value Ctrl*)
+IF bAutoPreparationPb  THEN
+	ARrStnChillerValueTempSetpointFinal[3] := ARrStnTempSV[3] + ARrStnChillerValueTempSetpoint[3];
+	
+	IF ARrStnTempSV[3] >= ARrStnChillerValueTempSetpointFinal[3] THEN
+	ARbStnChillerValueOnOff[3] := TRUE;
+	ELSE 
+	ARbStnChillerValueOnOff[3] := FALSE;
+	END_IF
+
+END_IF
+
+
+ARwDO[eY13005_STN03CHILLEDWATERSUPPLYAV3_3].0 := ARbStnChillerValueOnOff[3];
+
+
+(*Stn 6 Chiller Value Ctrl*)
+IF bAutoPreparationPb  THEN
+	ARrStnChillerValueTempSetpointFinal[6] := ARrStnTempSV[6] + ARrStnChillerValueTempSetpoint[6];
+	
+	IF ARrStnTempSV[6] >= ARrStnChillerValueTempSetpointFinal[6] THEN
+	ARbStnChillerValueOnOff[6] := TRUE;
+	ELSE 
+	ARbStnChillerValueOnOff[6] := FALSE;
+	END_IF
+
+END_IF
+
+
+ARwDO[eY13010_STN06CHILLEDWATERSUPPLYAV6_2].0 := ARbStnChillerValueOnOff[6];
+
+
+
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="TempChillerCtrl">
+      <LineId Id="8" Count="4" />
+      <LineId Id="20" Count="1" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="28" Count="2" />
+      <LineId Id="37" Count="14" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="31" Count="3" />
+      <LineId Id="27" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

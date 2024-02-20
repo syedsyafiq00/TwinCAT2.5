@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSA1_ArmPnpSequenceCall" Id="{07da1d8d-176f-4a47-97ef-3d166bb1ae11}">
+    <Declaration><![CDATA[TYPE DSA1_ArmPnpSequenceCall : (*Full Occupied Byte = 1700*)
+STRUCT
+
+	bEnableCallArmNo 					: BOOL; (* Byte "n" *)
+	bCallSt								: BOOL; (* Byte "n+1" *)
+
+	bCallCompleted 						: BOOL; (* Byte "n+2" *)
+	bInvalidProductRecipeNoErrHold		: BOOL; (* Byte "n+3" *)
+	bInvalidProductRecipeNoErrPulse	: BOOL; (* Byte "n+4" *)
+	bInvalidProductRecipeStepErrHold 	: BOOL; (* Byte "n+5" *)
+	bInvalidProductRecipeStepErrPulse	: BOOL; (* Byte "n+6" *)
+	bCallUpDownPatternMemoryErr 		: BOOL; (* Byte "n+7" *)
+	bCallArmSpeedProfileMemoryErr 	: BOOL; (* Byte "n+8" *)
+	bCallPickStationNoErr 				: BOOL; (* Byte "n+9" *)
+	bCallTransferStationNoErr 			: BOOL; (* Byte "n+10" *)
+
+	sReservedBool 						: STRING(50); (* Byte "n+11~n+99" *)
+
+	iCallArmNo 							: INT; (* Byte "n+100~n+101" *)
+	iProductRecipeNoCall 				: INT; (* Byte "n+102~n+103" *)
+	iProductRecipeStepCall				: INT; (* Byte "n+104~n+105" *)
+	iCalledProductRecipeNo 				: INT; (* Byte "n+106~n+107" *) (*New*)
+	iCalledProductRecipeStep			: INT; (* Byte "n+108~n+109" *) (*New*)
+
+	sReservedInt 							: STRING(50); (* Byte "n+110~n+199" *)
+
+	sProductRecipeDescription 			: STRING(50);
+
+
+	DSGnrCalledArmPnpParameter 		: DSGnr_CalledArmPnpParameter;
+
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

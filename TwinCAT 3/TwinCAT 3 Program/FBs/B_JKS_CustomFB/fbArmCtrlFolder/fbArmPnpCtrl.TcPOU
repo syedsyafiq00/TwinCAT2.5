@@ -1,0 +1,593 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbArmPnpCtrl" Id="{a539aa0d-f874-4aa2-9cdb-8d532ada3746}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbArmPnpCtrl
+VAR_INPUT
+	bEN									:	BOOL;
+(*	bExternalCtrl							: 	BOOL;
+	bPnPStart							:	BOOL;
+	iPickStnNo							:	INT;
+	iTransferStnNo						:	INT;
+*)	bReset								:	BOOL;
+	bMovingHalt							:	BOOL;
+	iArmNo								:	INT;
+	iCurrentHorzZoneNo					:	INT;
+	bDownPickCondition					:	BOOL;
+	bDownTransferCondition				:	BOOL;
+	ARbPickMidDownStnEn				:	ARRAY [0..iStnQty] OF BOOL;
+	ARbTransferMidDownStnEn			:	ARRAY [0..iStnQty] OF BOOL;
+	ARiStationDippingTime				:	ARRAY [0..iStnQty] OF INT;
+	AR3sbArmPositionCFM				:	ARRAY [0..iArmQty,0..iArmStnQty,0..6] OF BOOL; (*1 = UNHOOK,2 = DOWN,3 = HOOK, 4= TOP*)
+	iStepDelayTime						:	INT;
+END_VAR
+VAR_OUTPUT
+	bPnpCompleted						:	BOOL;
+	bPnPbusy								:	BOOL;
+	bArmReady							:  BOOL;
+	bMoveTop								:	BOOL;
+	bMoveLdDown						:	BOOL;
+	bMoveUldDown						:	BOOL;
+	ARbMoveStnMidDown				:	ARRAY [0..iStnQty] OF BOOL;
+	ARbMoveStnDown					:	ARRAY [0..iStnQty] OF BOOL;
+	bMoveLdHook							:	BOOL;
+	bMoveUldHook						:	BOOL;
+	ARbMoveStnHook						:	ARRAY [0..iStnQty] OF BOOL;
+	bMoveLdUnhook						:	BOOL;
+	bMoveUldUnhook						:	BOOL;
+	ARbMoveStnUnhook					:	ARRAY [0..iStnQty] OF BOOL;
+	iPnpStep								: INT;
+	tStepDelayTimeEV					: TIME;
+	tStationDrippingTimeEV				: TIME;
+	sStatusMessage						: STRING(50);
+
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+	DSArmBasketInfo	 						: DS_BasketInfo;
+	ARiStnNoToCalledArm_Uni					: ARRAY [0..iArmQty] OF INT; 									(*Universal*) (* Output - Link with fbArmPnP, Array based on Arm No, The Int will store which Station that calling the Arm*)
+	ARDSGnrFeedArmPnpParameter_Uni		: ARRAY [0..iArmQty] OF DSGnr_CalledArmPnpParameter; 	(*Universal*) (* Output - Link with fbArmPnP, Array based on Current Station No, Arm should move based on this DataStructure Info*)
+
+END_VAR
+
+VAR
+	DSEmptyGnrCalledArmPnpParameter : DSGnr_CalledArmPnpParameter;
+	bPnpStart_Read_RE: R_TRIG;
+	bPnpStart_Read_FE: F_TRIG;
+	iResetFL: INT;
+	tStepDelay: TON;
+	bStepDelayEn: BOOL;
+	iPickStnNoInt: INT;
+	iTransferStnNoInt: INT;
+	iCurrentHorzZoneNoint: INT;
+	bDownPickConditionHR: BOOL;
+	bDownTransferConditionHR: BOOL;
+	bStationDrippingTimeST: BOOL;
+	tStationDrippingTime: TON;
+	iStationDrippingTimeInt: INT;
+	bPnpStart_Read : BOOL;
+	iPickStnNo_Read: INT;
+	iPickStnNo_ReadInt: INT;
+	iTransferStnNo_Read: INT;
+	iTransferStnNo_ReadInt: INT;
+	iPnpStep5RE: R_TRIG;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Mapping*)
+
+iPickStnNo_Read 			:= ARDSGnrFeedArmPnpParameter_Uni[iArmNo].iPickStationNo;
+iTransferStnNo_Read 		:= ARDSGnrFeedArmPnpParameter_Uni[iArmNo].iTransferStationNo;
+
+IF ARiStnNoToCalledArm_Uni[iArmNo] <> 0 THEN
+bPnpStart_Read := TRUE;
+ELSE
+bPnpStart_Read := FALSE;
+END_IF
+
+
+
+
+
+(*R_TRIG*)
+bPnpStart_Read_RE(CLK:=bPnpStart_Read , Q=> );
+
+(*F_TRIG*)
+bPnpStart_Read_FE(CLK:=bPnpStart_Read , Q=> );
+
+(******Station No Conversion******)
+(*Pick StnNoConversion*)
+
+IF iPickStnNo_Read = iLdStnID THEN
+iPickStnNo_ReadInt := 1;
+ELSIF
+iPickStnNo_Read = iUldStnID THEN
+iPickStnNo_ReadInt := iStnQty+2;
+ELSIF
+iPickStnNo_Read >= 1 AND iPickStnNo_Read <= iStnQty THEN
+iPickStnNo_ReadInt := iPickStnNo_Read+1;
+ELSE
+iPickStnNo_ReadInt := 0;
+END_IF
+
+(*Transfer StnNoConversion*)
+
+IF iTransferStnNo_Read = iLdStnID THEN
+iTransferStnNo_ReadInt := 1;
+ELSIF
+iTransferStnNo_Read = iUldStnID THEN
+iTransferStnNo_ReadInt := iStnQty+2;
+ELSIF
+iTransferStnNo_Read >= 1 AND iTransferStnNo_Read <= iStnQty THEN
+iTransferStnNo_ReadInt := iTransferStnNo_Read+1;
+ELSE
+iTransferStnNo_ReadInt := 0;
+END_IF
+
+
+(*iCurrentHorzZoneNo StnNoConversion*)
+
+IF iCurrentHorzZoneNo = iLdStnID THEN
+iCurrentHorzZoneNoint := 1;
+ELSIF
+iCurrentHorzZoneNo = iUldStnID THEN
+iCurrentHorzZoneNoint := iStnQty+2;
+ELSIF
+iCurrentHorzZoneNo >= 1 AND iCurrentHorzZoneNo <= iStnQty THEN
+iCurrentHorzZoneNoint := iCurrentHorzZoneNo+1;
+ELSE
+iCurrentHorzZoneNoint := 0;
+END_IF
+
+
+
+
+(******Sequence Start******)
+(*PnpStep Rising Edge*)
+iPnpStep5RE(CLK:=iPnpStep = 5 , Q=> );
+(*Step Delay Timer*)
+tStepDelay(IN:=bEN AND bPnpStart_Read AND bStepDelayEn , PT:=INT_TO_TIME(iStepDelayTime*1000) , Q=> , ET=>tStepDelayTimeEV );
+
+(*Station Dripping Timer*)
+IF iPickStnNo_Read >= 1 AND iPickStnNo_Read <= iStnQty THEN
+iStationDrippingTimeInt := ARiStationDippingTime[iPickStnNo_Read];
+ELSE
+iStationDrippingTimeInt := 0;
+END_IF
+
+tStationDrippingTime(IN:=bEN AND bPnpStart_Read AND bStationDrippingTimeST , PT:=INT_TO_TIME(iStationDrippingTimeInt*1000) , Q=> , ET=>tStationDrippingTimeEV );
+
+
+(*Waiting Start Signal and Condition*)
+IF bEN THEN
+
+		IF bPnpStart_Read_RE.Q AND iPickStnNo_Read > 0 AND iTransferStnNo_Read > 0 THEN
+		iPnpStep := 1;
+		bPnPbusy := TRUE;
+		END_IF
+
+
+		CASE iPnpStep OF
+		
+		10: (*Completed*)
+		bPnpCompleted:= TRUE;
+		bPnPbusy := FALSE;
+
+
+		9: (*Move Vertical Top Pos*)
+		
+			IF NOT AR3sbArmPositionCFM[iArmNo,iTransferStnNo_ReadInt,4] THEN
+			bMoveTop := TRUE;
+			ELSE
+			bMoveTop := FALSE;
+			bStepDelayEn := TRUE;
+			END_IF
+		
+			IF AR3sbArmPositionCFM[iArmNo,iTransferStnNo_ReadInt,4] AND tStepDelay.Q AND NOT bMovingHalt THEN
+			bStepDelayEn := FALSE;
+			iPnpStep := 10;
+			END_IF
+		
+		
+		8: (*At Transfer Station - Unhook*)
+		
+			IF NOT AR3sbArmPositionCFM[iArmNo,iTransferStnNo_ReadInt,1] THEN
+		
+				IF iTransferStnNo_Read = iLdStnID THEN
+				bMoveLdUnhook := TRUE;
+				END_IF
+		
+				IF iTransferStnNo_Read = iUldStnID THEN
+				bMoveUldUnhook := TRUE;
+				END_IF
+		
+				IF iTransferStnNo_Read >= 1 AND  iTransferStnNo_Read <= iStnQty THEN
+				ARbMoveStnUnhook[iTransferStnNo_Read] := TRUE;
+				END_IF
+		
+			ELSE
+		
+				IF iTransferStnNo_Read >= 1 AND  iTransferStnNo_Read <= iStnQty THEN
+				ARbMoveStnUnhook[iTransferStnNo_Read] := FALSE;
+				ELSIF iTransferStnNo_Read = iLdStnID THEN
+				bMoveLdUnhook := FALSE;
+				ELSIF iTransferStnNo_Read = iUldStnID THEN
+				bMoveUldUnhook := FALSE;
+				END_IF
+		
+				bStepDelayEn := TRUE;
+		
+			END_IF
+		
+			IF AR3sbArmPositionCFM[iArmNo,iTransferStnNo_ReadInt,1] AND tStepDelay.Q AND NOT bMovingHalt THEN
+			bStepDelayEn := FALSE;
+			iPnpStep := 9;
+			END_IF
+		
+		
+		7: (*Move Vertical Down Pos*)
+
+		IF bDownTransferCondition THEN
+		bDownTransferConditionHR := TRUE;
+		END_IF
+
+			IF bDownTransferConditionHR AND NOT ARbTransferMidDownStnEn[iTransferStnNo_Read] AND NOT AR3sbArmPositionCFM[iArmNo,iTransferStnNo_ReadInt,2] THEN
+
+				IF iTransferStnNo_Read = iLdStnID THEN
+				bMoveLdDown := TRUE;
+				END_IF
+		
+				IF iTransferStnNo_Read = iUldStnID THEN
+				bMoveUldDown := TRUE;
+				END_IF
+		
+				IF iTransferStnNo_Read >= 1 AND  iTransferStnNo_Read <= iStnQty  THEN
+				ARbMoveStnDown[iTransferStnNo_Read] := TRUE;
+				END_IF
+
+			ELSIF bDownTransferConditionHR AND ARbTransferMidDownStnEn[iTransferStnNo_Read] AND NOT AR3sbArmPositionCFM[iArmNo,iTransferStnNo_ReadInt,5] THEN
+
+				IF iTransferStnNo_Read >= 1 AND  iTransferStnNo_Read <= iStnQty  THEN
+				ARbMoveStnMidDown[iTransferStnNo_Read] := TRUE;
+				END_IF
+
+			END_IF
+
+			IF
+			(*bDownTransferConditionHR AND*) NOT ARbTransferMidDownStnEn[iTransferStnNo_Read] AND AR3sbArmPositionCFM[iArmNo,iTransferStnNo_ReadInt,2]
+			OR
+			(*bDownTransferConditionHR AND*) ARbTransferMidDownStnEn[iTransferStnNo_Read] AND AR3sbArmPositionCFM[iArmNo,iTransferStnNo_ReadInt,5]
+			THEN
+				IF iTransferStnNo_Read >= 1 AND  iTransferStnNo_Read <= iStnQty THEN
+				ARbMoveStnMidDown[iTransferStnNo_Read] := FALSE;
+				ARbMoveStnDown[iTransferStnNo_Read] := FALSE;
+				ELSIF iTransferStnNo_Read = iLdStnID THEN
+				bMoveLdDown := FALSE;
+				ELSIF iTransferStnNo_Read = iUldStnID THEN
+				bMoveUldDown := FALSE;
+				END_IF
+
+				bStepDelayEn := TRUE;
+
+				IF tStepDelay.Q AND NOT bMovingHalt THEN
+				bStepDelayEn := FALSE;
+				bDownTransferConditionHR := FALSE;
+				iPnpStep := 8;
+				END_IF
+
+			END_IF
+
+		6: (*Move to Transfer Station - Horizontal Hook Movement*)
+		
+			IF NOT AR3sbArmPositionCFM[iArmNo,iTransferStnNo_ReadInt,3] THEN
+		
+				IF iTransferStnNo_Read = iLdStnID THEN
+				bMoveLdHook := TRUE;
+				END_IF
+
+				IF iTransferStnNo_Read = iUldStnID THEN
+				bMoveUldHook := TRUE;
+				END_IF
+		
+				IF iTransferStnNo_Read >= 1 AND  iTransferStnNo_Read <= iStnQty THEN
+				ARbMoveStnHook[iTransferStnNo_Read] := TRUE;
+				END_IF
+
+			ELSE
+		
+				IF iTransferStnNo_Read >= 1 AND  iTransferStnNo_Read <= iStnQty THEN
+				ARbMoveStnHook[iTransferStnNo_Read] := FALSE;
+				ELSIF iTransferStnNo_Read = iLdStnID THEN
+				bMoveLdHook := FALSE;
+				ELSIF iTransferStnNo_Read = iUldStnID THEN
+				bMoveUldHook := FALSE;
+				END_IF
+		
+				bStepDelayEn := TRUE;
+		
+			END_IF
+		
+			IF AR3sbArmPositionCFM[iArmNo,iTransferStnNo_ReadInt,3] AND tStepDelay.Q AND NOT bMovingHalt THEN
+			bStepDelayEn := FALSE;
+			iPnpStep := 7;
+			END_IF
+
+		
+		5: (*Move Vertical Top Pos*)
+		
+			(*Addtional Task - Push Station Sequence Recipe No from GnrPnpParameter to Basket Info*)
+			DSArmBasketInfo.iStationSeqenceRecipeNo := ARDSGnrFeedArmPnpParameter_Uni[iArmNo].iStnSeqRecipeNo;
+			IF iPnpStep5RE.Q THEN
+			DSArmBasketInfo.iProductRecipeStepNo := DSArmBasketInfo.iProductRecipeStepNo + 1;
+			END_IF
+
+
+			IF NOT AR3sbArmPositionCFM[iArmNo,iPickStnNo_ReadInt,4] THEN
+			bMoveTop := TRUE;
+			ELSE
+			bMoveTop := FALSE;
+			bStationDrippingTimeST := TRUE;
+			END_IF
+
+			IF bStationDrippingTimeST AND tStationDrippingTime.Q THEN
+			bStepDelayEn := TRUE;
+			END_IF
+
+			IF AR3sbArmPositionCFM[iArmNo,iPickStnNo_ReadInt,4] AND bStationDrippingTimeST AND tStationDrippingTime.Q AND tStepDelay.Q AND NOT bMovingHalt THEN
+			bStepDelayEn := FALSE;
+			bStationDrippingTimeST := FALSE;
+			iPnpStep := 6;
+			END_IF
+
+		
+		4: (*At Pick Station - Hook*)
+		
+			IF NOT AR3sbArmPositionCFM[iArmNo,iPickStnNo_ReadInt,3] THEN
+		
+				IF iPickStnNo_Read = iLdStnID THEN
+				bMoveLdHook := TRUE;
+				END_IF
+		
+				IF iPickStnNo_Read = iUldStnID THEN
+				bMoveUldHook := TRUE;
+				END_IF
+
+				IF iPickStnNo_Read >= 1 AND  iPickStnNo_Read <= iStnQty THEN
+				ARbMoveStnHook[iPickStnNo_Read] := TRUE;
+				END_IF
+		
+			ELSE
+		
+				IF iPickStnNo_Read >= 1 AND  iPickStnNo_Read <= iStnQty THEN
+				ARbMoveStnHook[iPickStnNo_Read] := FALSE;
+				ELSIF iPickStnNo_Read = iLdStnID THEN
+				bMoveLdHook := FALSE;
+				ELSIF iPickStnNo_Read = iUldStnID THEN
+				bMoveUldHook := FALSE;
+				END_IF
+		
+				bStepDelayEn := TRUE;
+		
+			END_IF
+
+			IF AR3sbArmPositionCFM[iArmNo,iPickStnNo_ReadInt,3] AND tStepDelay.Q AND NOT bMovingHalt THEN
+			bStepDelayEn := FALSE;
+			iPnpStep := 5;
+			END_IF
+		
+		
+		3: (*Move Vertical Down Pos*)
+		
+		IF bDownPickCondition THEN
+		bDownPickConditionHR := TRUE;
+		END_IF
+
+			IF bDownPickConditionHR AND NOT ARbPickMidDownStnEn[iPickStnNo_Read] AND NOT AR3sbArmPositionCFM[iArmNo,iPickStnNo_ReadInt,2] THEN
+
+				IF iPickStnNo_Read = iLdStnID THEN
+				bMoveLdDown := TRUE;
+				END_IF
+		
+				IF iPickStnNo_Read = iUldStnID THEN
+				bMoveUldDown := TRUE;
+				END_IF
+		
+				IF iPickStnNo_Read >= 1 AND  iPickStnNo_Read <= iStnQty  THEN
+				ARbMoveStnDown[iPickStnNo_Read] := TRUE;
+				END_IF
+
+			ELSIF bDownPickConditionHR AND ARbPickMidDownStnEn[iPickStnNo_Read] AND NOT AR3sbArmPositionCFM[iArmNo,iPickStnNo_ReadInt,5] THEN
+
+				IF iPickStnNo_Read >= 1 AND  iPickStnNo_Read <= iStnQty  THEN
+				ARbMoveStnMidDown[iPickStnNo_Read] := TRUE;
+				END_IF
+
+			END_IF
+
+			IF
+			(*bDownPickConditionHR AND*) NOT ARbPickMidDownStnEn[iPickStnNo_Read] AND AR3sbArmPositionCFM[iArmNo,iPickStnNo_ReadInt,2]
+			OR
+			(*bDownPickConditionHR AND*) ARbPickMidDownStnEn[iPickStnNo_Read] AND AR3sbArmPositionCFM[iArmNo,iPickStnNo_ReadInt,5]
+			THEN
+				IF iPickStnNo_Read >= 1 AND  iPickStnNo_Read <= iStnQty THEN
+				ARbMoveStnMidDown[iPickStnNo_Read] := FALSE;
+				ARbMoveStnDown[iPickStnNo_Read] := FALSE;
+				ELSIF iPickStnNo_Read = iLdStnID THEN
+				bMoveLdDown := FALSE;
+				ELSIF iPickStnNo_Read = iUldStnID THEN
+				bMoveUldDown := FALSE;
+				END_IF
+
+				bStepDelayEn := TRUE;
+
+				IF tStepDelay.Q AND NOT bMovingHalt THEN
+				bStepDelayEn := FALSE;
+				bDownPickConditionHR := FALSE;
+				iPnpStep := 4;
+				END_IF
+
+			END_IF
+
+
+		
+		
+		2: (*Move to Pick Station - Horizontal Unhook Movement*)
+
+			IF NOT AR3sbArmPositionCFM[iArmNo,iPickStnNo_ReadInt,1] THEN
+		
+				IF iPickStnNo_Read = iLdStnID THEN
+				bMoveLdUnhook := TRUE;
+				END_IF
+		
+				IF iPickStnNo_Read = iUldStnID THEN
+				bMoveUldUnhook := TRUE;
+				END_IF
+		
+				IF iPickStnNo_Read >= 1 AND  iPickStnNo_Read <= iStnQty THEN
+				ARbMoveStnUnhook[iPickStnNo_Read] := TRUE;
+				END_IF
+		
+			ELSE
+
+				IF iPickStnNo_Read >= 1 AND  iPickStnNo_Read <= iStnQty THEN
+				ARbMoveStnUnhook[iPickStnNo_Read] := FALSE;
+				ELSIF iPickStnNo_Read = iLdStnID THEN
+				bMoveLdUnhook := FALSE;
+				ELSIF iPickStnNo_Read = iUldStnID THEN
+				bMoveUldUnhook := FALSE;
+				END_IF
+		
+				bStepDelayEn := TRUE;
+		
+			END_IF
+		
+			IF AR3sbArmPositionCFM[iArmNo,iPickStnNo_ReadInt,1] AND tStepDelay.Q AND NOT bMovingHalt THEN
+			bStepDelayEn := FALSE;
+			iPnpStep := 3;
+			END_IF
+		
+		
+		1: (*Confirm Vertical Top Pos*)
+		
+			IF NOT AR3sbArmPositionCFM[iArmNo,iCurrentHorzZoneNoint,4] THEN
+			bMoveTop := TRUE;
+			ELSE
+			bMoveTop := FALSE;
+			bStepDelayEn := TRUE;
+			END_IF
+		
+			IF AR3sbArmPositionCFM[iArmNo,iCurrentHorzZoneNoint,4] AND tStepDelay.Q AND NOT bMovingHalt THEN
+			bStepDelayEn := FALSE;
+			iPnpStep := 2;
+			END_IF
+
+		0:;
+
+
+
+
+
+
+
+		END_CASE
+
+
+END_IF
+
+(*Message Display*)
+
+IF NOT bEN THEN
+sStatusMessage := 'Arm Not Ready - Homing Required';
+ELSIF NOT bPnpStart_Read THEN
+sStatusMessage := 'Standby';
+END_IF
+
+IF iPnpStep = 1 THEN
+sStatusMessage := 'Pnp In Progress - Step 1 - Vertical Up Position';
+
+ELSIF iPnpStep = 2 THEN
+sStatusMessage := 'Pnp In Progress - Step 2 - Horizontal Move - Pick Unhook Position';
+
+ELSIF iPnpStep = 3 AND NOT bDownPickCondition THEN
+sStatusMessage := 'Pnp In Progress - Step 3 - Waiting Down Pick Condition';
+
+ELSIF iPnpStep = 3 AND bDownPickCondition THEN
+sStatusMessage := 'Pnp In Progress - Step 3 - Pick Station Vertical Down Position';
+
+ELSIF iPnpStep = 4 THEN
+sStatusMessage := 'Pnp In Progress - Step 4 - Horizontal Move - Pick Hook Position';
+
+ELSIF iPnpStep = 5 AND NOT bStationDrippingTimeST THEN
+sStatusMessage := 'Pnp In Progress - Step 5 - Pick Station Vertical Up Position';
+
+ELSIF iPnpStep = 5 AND bStationDrippingTimeST THEN
+sStatusMessage := 'Pnp In Progress - Step 5 - Dripping Time Counting';
+
+ELSIF iPnpStep = 6 THEN
+sStatusMessage := 'Pnp In Progress - Step 6 - Horizontal Move - Transfer Hook Position';
+
+ELSIF iPnpStep = 7 AND NOT bDownTransferCondition THEN
+sStatusMessage := 'Pnp In Progress - Step 7 - Waiting Down Transfer Condition';
+
+ELSIF iPnpStep = 7 AND bDownTransferCondition THEN
+sStatusMessage := 'Pnp In Progress - Step 7 - Transfer Station Vertical Down Position';
+
+ELSIF iPnpStep = 8 THEN
+sStatusMessage := 'Pnp In Progress - Step 8 - Horizontal Move - Transfer Unhook Position';
+
+ELSIF iPnpStep = 9 THEN
+sStatusMessage := 'Pnp In Progress - Step 9 - Transfer Station Vertical Up Position';
+
+ELSIF iPnpStep = 10 THEN
+sStatusMessage := 'Pnp Completed';
+END_IF
+
+(*Arm Pnp Completed*)
+IF bPnpCompleted THEN
+	ARiStnNoToCalledArm_Uni[iArmNo] 					:= 0;
+	ARDSGnrFeedArmPnpParameter_Uni[iArmNo] 		:= DSEmptyGnrCalledArmPnpParameter;
+END_IF
+
+
+(*Arm Ready Bit*)
+IF bEN AND NOT bPnpBusy AND NOT bPnpStart_Read THEN
+bArmReady	:= TRUE;
+ELSE
+bArmReady 	:= FALSE;
+END_IF
+
+
+(*Reset Output*)
+IF NOT bEN OR bReset OR bPnpStart_Read_FE.Q THEN
+
+	bPnpCompleted 									:= FALSE;
+	bPnpBusy										:= FALSE;
+	bMoveTop										:= FALSE;
+	bMoveLdDown									:= FALSE;
+	bMoveUldDown									:= FALSE;
+	bMoveLdHook									:= FALSE;
+	bMoveLdUnhook									:= FALSE;
+	bMoveUldHook									:= FALSE;
+	bMoveUldUnhook									:= FALSE;
+	iPnpStep											:= 0;
+	bDownPickConditionHR 							:= FALSE;
+	bDownTransferConditionHR 						:= FALSE;
+	bStepDelayEn 									:= FALSE;
+	ARiStnNoToCalledArm_Uni[iArmNo] 					:= 0;
+	ARDSGnrFeedArmPnpParameter_Uni[iArmNo] 		:= DSEmptyGnrCalledArmPnpParameter;
+
+	iResetFL := 1;
+	FOR iResetFL := 1 TO iStnQty DO
+		IF iResetFL >= 1 AND iResetFL <= iStnQty THEN
+			ARbMoveStnMidDown[iResetFL]			:=	FALSE;
+			ARbMoveStnDown[iResetFL]				:=	FALSE;
+			ARbMoveStnHook[iResetFL]				:=	FALSE;
+			ARbMoveStnUnhook[iResetFL]				:=	FALSE;
+		END_IF
+	END_FOR
+
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbArmPnpCtrl">
+      <LineId Id="70" Count="512" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

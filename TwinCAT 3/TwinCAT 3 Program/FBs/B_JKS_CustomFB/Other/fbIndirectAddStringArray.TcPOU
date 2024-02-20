@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbIndirectAddStringArray" Id="{3c89c3b2-efa8-4744-a59a-a1ac272cbad3}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbIndirectAddStringArray
+VAR_INPUT
+	bSavePB : BOOL;
+	bLoadPB : BOOL;
+	iProgramNo : INT;
+
+END_VAR
+VAR_OUTPUT PERSISTENT
+
+	bSaveInd : BOOL;
+	bLoadInd : BOOL;
+	AR99sStringData1 : ARRAY[0..99] OF STRING;
+	AR99sStringData2 : ARRAY[0..99] OF STRING;
+
+END_VAR
+
+
+VAR_IN_OUT
+
+	sString1 : STRING;
+	sString2 : STRING;
+
+END_VAR
+
+VAR
+	SaveTimerDelay: TON;
+	SaveIndHR: BOOL;
+	LoadIndHR: BOOL;
+	LoadTimerDelay: TON;
+	SelfCheck: BOOL;
+	SelfCheckTimer: TON;
+	PreviousProgram: INT;
+	SelfCheckLoop: BOOL;
+	bLoadEN: BOOL;
+	LoadDF: R_TRIG;
+	LoadENDF: R_TRIG;
+	SaveDF: R_TRIG;
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Save Indicator*)
+IF bSavePB THEN
+SaveIndHR := TRUE;
+END_IF
+
+SaveTimerDelay(IN:=SaveIndHR, PT:=T#1s, Q=>, ET=> );
+IF SaveTimerDelay.Q THEN
+SaveIndHR := FALSE;
+END_IF
+
+IF SaveIndHR AND NOT SaveTimerDelay.Q THEN
+bSaveInd := TRUE;
+ELSE
+bSaveInd := FALSE;
+END_IF
+
+(*Load Indicator*)
+IF bLoadPB THEN
+LoadIndHR := TRUE;
+END_IF
+
+LoadTimerDelay(IN:=LoadIndHR, PT:=T#1s, Q=>, ET=> );
+IF LoadTimerDelay.Q THEN
+LoadIndHR := FALSE;
+END_IF
+
+IF LoadIndHR AND NOT LoadTimerDelay.Q THEN
+bLoadInd := TRUE;
+ELSE
+bLoadInd := FALSE;
+END_IF
+
+(*Self Check of Program No Change*)
+
+SelfCheckTimer(IN:=NOT SelfCheckLoop, PT:=T#0.5s, Q=>, ET=> );
+
+	IF SelfCheckTimer.Q THEN
+	PreviousProgram := iProgramNo ;
+	SelfCheckLoop := TRUE;
+	ELSE
+	SelfCheckLoop := FALSE;
+	END_IF
+
+IF iProgramNo <> PreviousProgram THEN
+bLoadEN := TRUE;
+ELSE
+bLoadEN := FALSE;
+END_IF
+
+(*Recipe Load*)
+LoadDF(CLK:=bLoadPB, Q=> );
+LoadENDF (CLK:=bLoadEN, Q=> );
+
+IF LoadDF.Q OR LoadENDF.Q THEN
+sString1 := AR99sStringData1[iProgramNo];
+sString2 := AR99sStringData2[iProgramNo];
+END_IF
+
+(*Recipe Save*)
+SaveDF(CLK:=bSavePB, Q=> );
+
+IF SaveDF.Q THEN
+AR99sStringData1[iProgramNo] := sString1;
+AR99sStringData2[iProgramNo] := sString2;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbIndirectAddStringArray">
+      <LineId Id="40" Count="64" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

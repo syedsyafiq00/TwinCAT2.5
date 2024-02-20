@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="CheckDivByte" Id="{78bd2019-7a26-444f-bd20-4f050ebbf05f}" SpecialFunc="CheckDivInt32">
+    <Declaration><![CDATA[FUNCTION CheckDivByte : BYTE
+VAR_INPUT
+	divisor			 	: BYTE;
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF divisor = 0 THEN
+	CheckByteZeroDiv_ErrCnt := CheckByteZeroDiv_ErrCnt + 1;
+	CheckDivByte := 1;
+ELSE
+	CheckDivByte := divisor;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="CheckDivByte">
+      <LineId Id="7" Count="5" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

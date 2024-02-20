@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="SlowpullCoERead" Id="{5fdbfe67-3346-4352-98e6-9d967e9d378a}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM SlowpullCoERead
+VAR
+	fbCoERead_Slowpull_TopOT 	: FB_EcCoESdoRead;
+	fbCoERead_Slowpull_BtmOT 	: FB_EcCoESdoRead;
+	fbCoERead_Slowpull_Home 	: FB_EcCoESdoRead;
+	fbCoERead_ErrStop 			: FB_EcCoESdoRead;
+	nUpOT						: PVOID;
+	nDownOT						: PVOID;
+	nHome						: PVOID;
+	nErrStop					: PVOID;	
+	bSlowpullTopOTReadError				: BOOL;
+	bSlowpullBtmOTReadError 			: BOOL;
+	bSlowpullHomeReadError				: BOOL;
+	bSlowpullErrStopReadError			: BOOL;
+
+	
+	
+	bSlowpullVertUpOT		: BOOL;
+	bSlowpullVertDownOT		: BOOL;
+	bSlowpullVertHome		: BOOL;
+	bSlowpullErrStop		: BOOL;
+	bSlowpullCoEReadError	: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//IF bMainCtrl THEN
+	
+	fbCoERead_Slowpull_TopOT(
+		sNetId:= '169.254.184.40.4.1:1033', 
+		nSlaveAddr:= 1033, 
+		nSubIndex:= 16#81, 
+		nIndex:= 16#4630, 
+		pDstBuf:= ADR(nUpOT), 
+		cbBufLen:= SIZEOF(nUpOT), 
+		bExecute:= bClockPulse_10ms, 
+		tTimeout:= , 
+		bBusy=> , 
+		bError=> bSlowpullTopOTReadError, 
+		nErrId=> , 
+		cbRead=> );
+	
+	fbCoERead_Slowpull_BtmOT(
+		sNetId:= '169.254.184.40.4.1:1033', 
+		nSlaveAddr:= 1033, 
+		nSubIndex:= 16#81, 
+		nIndex:= 16#4631, 
+		pDstBuf:= ADR(nDownOT), 
+		cbBufLen:= SIZEOF(nDownOT), 
+		bExecute:= bClockPulse_10ms, 
+		tTimeout:= , 
+		bBusy=> , 
+		bError=> bSlowpullBtmOTReadError, 
+		nErrId=> , 
+		cbRead=> );
+		
+	fbCoERead_Slowpull_Home(
+		sNetId:= '169.254.184.40.4.1:1033', 
+		nSlaveAddr:= 1033, 
+		nSubIndex:= 16#81, 
+		nIndex:= 16#4634, 
+		pDstBuf:= ADR(nHome), 
+		cbBufLen:= SIZEOF(nHome), 
+		bExecute:= bClockPulse_10ms, 
+		tTimeout:= , 
+		bBusy=> , 
+		bError=> bSlowpullHomeReadError, 
+		nErrId=> , 
+		cbRead=> );	
+	
+	// servo ready output	
+	fbCoERead_ErrStop(
+		sNetId:= '169.254.184.40.4.1:1033', 
+		nSlaveAddr:= 1033, 
+		nSubIndex:= 16#81, 
+		nIndex:= 16#4651, 
+		pDstBuf:= ADR(nErrStop), 
+		cbBufLen:= SIZEOF(nErrStop), 
+		bExecute:= bClockPulse_10ms, 
+		tTimeout:= , 
+		bBusy=> , 
+		bError=> bSlowpullErrStopReadError, 
+		nErrId=> , 
+		cbRead=> ); 
+		
+	bSlowpullVertUpOT 				:= NOT TO_BOOL(nUpOT);	
+	bSlowpullVertDownOT 			:= NOT TO_BOOL(nDownOT);	
+	bSlowpullVertHome 				:= TO_BOOL(nHome);
+	bSlowpullErrStop				:= TO_BOOL(nErrStop);	
+	
+	bSlowpullCoEReadError := bSlowpullTopOTReadError OR bSlowpullBtmOTReadError OR bSlowpullHomeReadError OR bSlowpullErrStopReadError;
+//END_IF
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="SlowpullCoERead">
+      <LineId Id="82" Count="0" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="86" Count="41" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="128" Count="18" />
+      <LineId Id="84" Count="1" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

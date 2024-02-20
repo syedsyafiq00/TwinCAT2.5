@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Secs_Gem" Id="{8e224140-782f-4e96-84de-0d9bf66a0d8c}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+(*Machine Status & Control*)
+(*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*)
+
+	(*Remote Command*)
+	iRemote_Command_State : INT; (*Command from Secs/Gem to remote machine (Function only in Online Remote)
+								 0 - Idle, 1 - INIT, 2 - RESET, 3 - START, 4 - STOP, 5 - PP-SELECT*)
+
+	(*(*Control State-In Persisten Page*)
+	iSecs_Control_State :INT;	(* Determine in Gem Console. Machine react base on this setting
+							3 - Offline (Secs/GEM Offline - Remote Command disable)
+							4 - Online Local (Secs/GEM Online - Local Control - Remote Command disable)
+							5 - Online Remote (Secs/Gem Online - Host Control - Remote Command enable)*)*)
+
+	(*Machine Status/ Process Status*)
+	iMachine_Status :INT; 		(*Update Secs/Gem the Machine Status
+							1 - INIT, 2 - READY, 3 - RUNNING, 4 - ALARM, 5 - STOP*)
+
+	iSecGemStationNo	:INT; (*To refresh the station no for data (Constant Variable*)
+(*Control State*)
+
+
+
+(*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*)
+
+
+
+(*Production Info /Basket Info*)
+(*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*)
+
+	(*Input Basket ID*)
+	(*AR2sDSCv_LdConfirmBasketInfo[1,1].sProgramDescription		:STRING; (*Update Secs/Gem the Basket In ID UPH - Secs/Gem able to capture the start process
+																	  (Update Sequence - PPExecName -> Input Basket ID)*)
+	(*Output Basket ID*)
+	AR2sDSCv_UldConfirmBasketInfo[1,3].sProgramDescription		:STRING;  (*Update Secs/Gem the Basket Out ID, Result & Counter UPH - Secs/Gem able to capture the end process
+																	   (Update Sequence - Output Basket Result -> Output Basket Counter -> Output Basket ID)*)
+	(*Output Basket Result*)
+	AR2sDSCv_UldConfirmBasketInfo[1,3].bAvailibility				:BOOL;
+
+	(*Output Basket Counter*)*)
+	(*diTotalBasketQty_Customer								:INT;*)
+
+
+	bBasketQuality: BOOL;		(*Basket Quality identification- Good= True; Bad= False*)
+(*Alarm*)
+(*---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*)
+
+(*ARbAlarmOutput-using global alarm*)
+
+(*Recipe*)
+(*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*)
+
+	(*PPChangeStatus*)
+	iSecsGemPPchange 		:INT;		(*Update Secs/Gem that PLC already create/Edit/Delete the recipe
+											PPChangeStatus - Action done by PLC (0-Idle, 1-Created, 2-Edited, 3-Deleted)*)
+	iSecsGemPPchangeName	:INT;			(*PPChangeName - Selected recipe*)
+
+	(*PPExecName*)
+	(*AR2sDSCv_LdConfirmBasketInfo[1,1].iProductRecipeNo*)         (*Update Secs/Gem the selected recipe to run the current basket*)
+
+	(*PP-SelectName-server send Product No if the Remote Host is Enable/ON*)
+	iServerSecsGemProgNo		:INT;
+
+
+	(*HMI_Function.iRecipeNoFeed	-(Server Monitor), iServerSecsGemProgNo-(From server)  :INT;	(*During Online Remote Mode (PP-SELECT), Secs/Gem order machine to run this recipe*)*)
+
+	(*PPDirectory*)
+	sRecipeFileDirectory			:STRING(200);	(*Share folder for PLC to output all recipes. Collect the persistent data and configuration file from the Boot folder ?C:\TwinCAT\Boot*)
+
+	(*PPUpdateStatus*)
+	iSecsGemPPupdate		:INT;		(*Secs/Gem to inform PLC that specific recipe is already downloaded
+										PPUpdateStatus - (0-Idle, 1-Created, 2-Edited, 3-Deleted)-once the file overwite is complete, SecsGem will write '2' to the Address. Use the same address (iSecsGemWriteCompleted)*)
+	iSecsGemPPupdateName	:INT;		(*PPUpdateName - Selected recipe*)
+
+	(*PPLog*)
+	sSecsGemRecipeWriteLog		:ARRAY [0..4] OF STRING(200);	(*LabView will log 5 udated recipe event for PLC (to display at PLC)*)
+
+
+
+
+
+
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

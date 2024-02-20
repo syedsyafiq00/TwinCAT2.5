@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSA1_ArmHorzPosInput" Id="{37e7e671-8ef5-401e-969e-1b90e433a7ad}">
+    <Declaration><![CDATA[TYPE DSA1_ArmHorzPosInput : (*Full Occupied Byte = 500*)
+STRUCT
+
+	sReservedBool : STRING(50); (* Byte "n+0~n+99" *)
+
+	lrCurrentPos : LREAL; (* Byte "n+100~n+107" *)
+	lrTargetPos : LREAL; (* Byte "n+108~n+115" *)
+	lrPosConfirmToleranceSV  : LREAL; (* Byte "n+116~n+123" *)
+	lr2ndSpeedSV : LREAL; (* Byte "n+124~n+131" *)
+	lrLdHookPos : LREAL; (* Byte "n+132~n+139" *)
+	lrLdUnhookPos : LREAL; (* Byte "n+140~n+147" *)
+	lrUldHookPos : LREAL; (* Byte "n+148~n+155" *)
+	lrUldUnhookPos : LREAL; (* Byte "n+156~n+163" *)
+
+	ARlrStnHookPos : ARRAY [0..iHorzArmPosArrayQty] OF LREAL; (* Byte "n+164~n+331" *)
+	ARlrStnUnhookPos : ARRAY [0..iHorzArmPosArrayQty] OF LREAL; (* Byte "n+332~n+499" *)
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

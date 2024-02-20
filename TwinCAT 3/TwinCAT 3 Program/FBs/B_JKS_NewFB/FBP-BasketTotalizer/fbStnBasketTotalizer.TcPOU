@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbStnBasketTotalizer" Id="{100a235f-151d-4ac0-8022-ea598265d8f0}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbStnBasketTotalizer
+VAR_INPUT
+	bEnable : BOOL; (* Counting will take place if enable*)
+	bBasketAvailibility : BOOL;
+	bReset : BOOL; 				(*TRUE will reset the total Stn basket Qty*)
+
+END_VAR
+
+VAR_OUTPUT
+	b1stLimitStnBasketCounterReachedAlarm: BOOL;
+	b2ndLimitStnBasketCounterReachedAlarm: BOOL;
+
+END_VAR
+
+VAR_IN_OUT
+	di1stLimitStnBasketCounterSet : DINT;
+	di2ndLimitStnBasketCounterSet : DINT;
+END_VAR
+
+VAR_OUTPUT PERSISTENT
+	diTotalStnBasketQty : DINT;
+END_VAR
+
+VAR
+	bReset_RE: R_TRIG;
+	bCountEn_FE: F_TRIG;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF di1stLimitStnBasketCounterSet > 9999 THEN
+di1stLimitStnBasketCounterSet := 9999;
+END_IF
+
+IF di1stLimitStnBasketCounterSet < 1 THEN
+di1stLimitStnBasketCounterSet := 1;
+END_IF
+
+IF di2ndLimitStnBasketCounterSet > 9999 THEN
+di2ndLimitStnBasketCounterSet := 9999;
+END_IF
+
+IF di2ndLimitStnBasketCounterSet < 2 THEN
+di2ndLimitStnBasketCounterSet := 2;
+END_IF
+
+IF di2ndLimitStnBasketCounterSet = di1stLimitStnBasketCounterSet THEN
+di1stLimitStnBasketCounterSet := di2ndLimitStnBasketCounterSet - 1 ;
+END_IF
+
+IF di2ndLimitStnBasketCounterSet <= di1stLimitStnBasketCounterSet THEN
+di2ndLimitStnBasketCounterSet := di1stLimitStnBasketCounterSet + 1 ;
+END_IF
+
+
+bReset_RE(CLK:=bReset , Q=> );
+bCountEn_FE(CLK:=bBasketAvailibility , Q=> );
+
+IF bReset_RE.Q THEN
+diTotalStnBasketQty := 0;
+END_IF
+
+IF bCountEn_FE.Q AND bEnable THEN
+diTotalStnBasketQty := diTotalStnBasketQty +1;
+END_IF
+
+IF bEnable AND diTotalStnBasketQty >= di1stLimitStnBasketCounterSet THEN
+	b1stLimitStnBasketCounterReachedAlarm := TRUE;
+ELSE
+	b1stLimitStnBasketCounterReachedAlarm := FALSE;
+END_IF
+
+IF bEnable AND diTotalStnBasketQty >= di2ndLimitStnBasketCounterSet THEN
+	b2ndLimitStnBasketCounterReachedAlarm := TRUE;
+ELSE
+	b2ndLimitStnBasketCounterReachedAlarm := FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbStnBasketTotalizer">
+      <LineId Id="28" Count="46" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

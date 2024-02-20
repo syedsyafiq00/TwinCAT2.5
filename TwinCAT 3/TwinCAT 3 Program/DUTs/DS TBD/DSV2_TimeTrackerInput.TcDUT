@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSV2_TimeTrackerInput" Id="{9f60a266-d656-4710-9f4e-4b0a9ab27f3d}">
+    <Declaration><![CDATA[TYPE DSV2_TimeTrackerInput :
+STRUCT
+(* from DSA1_PnpSequenceMemory*)
+
+(*	bTimeTrackerEn : BOOL;*)
+	iTimeTrackerProductRecipeNo : INT;
+(*	iTimeTrackerStepNo : INT; (*Byte "n+110, n+111" *) (***************NEW******************)*)
+
+	iLdGroupNo : INT;
+	iUldGroupNo : INT;
+
+	ARiCallArmNo : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+100~n+161" *)
+
+	ARiPickStationNo : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+162~n+223" *)
+	ARiTransferStationNo : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+224~n+285" *)
+
+	ARiStnSeqRepNo : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+596~n+657" *)
+
+END_STRUCT
+
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

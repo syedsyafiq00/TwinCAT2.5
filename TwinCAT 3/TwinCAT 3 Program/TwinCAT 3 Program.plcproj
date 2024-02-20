@@ -1,0 +1,2316 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <FileVersion>1.0.0.0</FileVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{30f2c289-e167-4492-b1eb-b9a560637589}</ProjectGuid>
+    <SubObjectsSortedByName>True</SubObjectsSortedByName>
+    <DownloadApplicationInfo>true</DownloadApplicationInfo>
+    <WriteProductVersion>true</WriteProductVersion>
+    <GenerateTpy>false</GenerateTpy>
+    <Name>TwinCAT_3_Program</Name>
+    <ProgramVersion>3.1.4024.0</ProgramVersion>
+    <Application>{afd0a3d4-16e0-4544-99ea-165efb790d77}</Application>
+    <TypeSystem>{4f689ed8-b44e-4fc8-afee-d8b28eed8c72}</TypeSystem>
+    <Implicit_Task_Info>{84db4cd9-d8ce-47f5-be6d-c3bcf0ff6136}</Implicit_Task_Info>
+    <Implicit_KindOfTask>{51c4949b-30de-4757-8bd4-b9079bf43540}</Implicit_KindOfTask>
+    <Implicit_Jitter_Distribution>{a7b5ee28-05e8-40aa-98c5-c8a4c1a7e8da}</Implicit_Jitter_Distribution>
+    <LibraryReferences>{8a410ea0-df56-4eb0-9e2b-431616722e86}</LibraryReferences>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="DUTs\DS TBD\DSA1_ArmHorzPosInput.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSA1_ArmHorzPosOutput.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSA1_ArmPnpSequenceCall.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSA1_fbPnpSequenceMemoryCall.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSA1_fbPnpSequenceMemoryStore.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSA1_PnpSequenceMemory.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSA1_UpDownMovement.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSA21_UpDownPatternCall.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSA21_UpDownPatternMemory.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSA21_UpDownPatternStore.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSA31_ArmSpeedProfileCall.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSA31_ArmSpeedProfileMemory.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSA31_ArmSpeedProfileStore.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSA32_StationZoneHeight.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSA32_StationZoneHeightIntNotInUsed.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSA32_StationZonePosOut.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSChemicalWithoutDosingPump.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSGnr_CalledArmPnpParameter.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSPnpAgitationParameter.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_A1_ArmHorzPosInput.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_A1_ArmHorzPosOutput.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_A1_ArmPnpSequenceCall.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_A1_fbPnpSequenceMemoryCall.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_A1_fbPnpSequenceMemoryStore.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_A1_PnpSequenceMemory.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_ApolloRemoteHoistInput.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_ApolloRemoteHoistOutput.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_ArmPosition.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_BasketInfo.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_ClangsonicGenerator.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_fbGnrProductRecipeMemoryOut.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_fbStationSequenceRecipeCall.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_fbStationSequenceRecipeStore.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_Gnr_CalledArmPnpParameter.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_MinMaxEffTime.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_ModbusControl.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_SSERSourceMinMaxTime.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_StationSequenceRecipeMemory.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_StnMinMaxEffTIme.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV2_TimeTrackerInput.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV3_BarcodeRegistration.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV3_JRS_Alarm.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV3_JRS_HMI.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV3_JRS_Input.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV3_JRS_Output.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV3_StnInterlock.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV3_TempCtrlParameter.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV3_TempCtrlRecipe.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DSV3_XML_Recipe.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_ArmPnPInOut.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_BasketInfo.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_BrensonEnclosure.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_BrensonGenerator.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_BrensonMulFreqSwitching.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_ClangsonicGenerator.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_fbGnrProductRecipeMemoryOut.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_fbStationSequenceRecipeCall.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_fbStationSequenceRecipeStore.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_fbStationSubRecipeCall.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_fbStationSubRecipeStore.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_fbStnSeqProcessCtrl.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_HMIStationDisplayInfo.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_HomingSetting.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_Inverter.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_ProminentDosingHMI.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_SA_Movement.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_Servo.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_StationSequenceRecipeMemory.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_StnSeqProInput.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_StnSeqProOutput.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_SubRecipeMemory.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_TimeTrackerInput.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_WeberEnclosure.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_WeberGenerator.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_WeberMulFreqSwitching.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_XMLRW.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\DS_XML_InputOutput.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\En_LogFileType.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS TBD\En_TimeInterval.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\Barcode\DS_SerialCommunication.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\CSV\DS_CsvErrorLog.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\CSV\DS_CsvLog.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\CSV\DS_CsvReport.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\CSV\E_CsvActionType.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\DS_HMI_MappingVariable.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\DS_LocalSystemTime.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\DS_XML_Persistent_Analog.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\DS_XML_Persistent_Arm.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\DS_XML_Persistent_Barcode.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\DS_XML_Persistent_Deactivate.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\DS_XML_Persistent_Digital.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\DS_XML_Persistent_Memory.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\DS_XML_Persistent_Process.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\DS_XML_Persistent_SevenDay.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\DS_XML_Persistent_TimeOptimize.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\Enum\Digital_Input.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\Enum\Digital_Output.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\Enum\Enum_Alarm_Others.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\Event\DS_ActiveEventDisplay.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\Event\DS_Event.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\Event\DS_EventControl.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\Event\DS_EventDescriptionCausedRemedy.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\Event\DS_EventHistory.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\Event\DS_EventHistoryLogToFile.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\Event\DS_HistoryEventDisplay.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\Event\E_EventType.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\E_HmiLanguage.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\ST_DataLog.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\UserCtrl\DS_HmiUserReg.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\UserCtrl\DS_HmiUserStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\UserCtrl\DS_VisuElement.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\UserCtrl\eActorType.TcTLEO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\XML\E_XmlParType.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\XML\E_XmlRwMode.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DS Twincat 3\XML\E_XmlVariableType.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbArmCtrlFolder\AM_MoveAbsolute.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbArmCtrlFolder\fbArmMoveInterLock.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbArmCtrlFolder\fbArmPnpCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbArmCtrlFolder\fbAxisPosCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbArmCtrlFolder\fbGenerateArmPickTransferBit.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbArmCtrlFolder\fbIndMotDecCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbArmCtrlFolder\fbInverterHorzHome.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbArmCtrlFolder\fbInverterJogCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbArmCtrlFolder\fbInverterPosCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbArmCtrlFolder\fbInverterVertHome.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbArmCtrlFolder\fbMotorHomingAxis.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbArmCtrlFolder\fbMultipleArmAgiCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbArmCtrlFolder\fbServoPosCmp.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbArmCtrlFolder\fbSlowPullAxisCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbArmCtrlFolder\fb_AxisMovement_Down.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbArmCtrlFolder\fb_AxisMovement_Up.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbArmCtrlFolder\FB_DRIVE_STATUS_ONE_AX.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbBarcodeCtrl\fbBarcodeScanner.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbBarcodeCtrl\fbBarcodeSorting_10ML5575.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbBarcodeCtrl\fbBarcodeTracer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbBarcodeCtrl\fbBarcodeTrancerNoCode.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbBarcodeCtrl\fbPreSuffixEliminator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbConversionCtrl\AM_InverterConversionHz.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbConversionCtrl\fbKeyenceVacSensorTuningkPa.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbConversionCtrl\fbRawRatioConversionAllenINV.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbConversionCtrl\fbRawRatioConversionReal.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbConversionCtrl\fbRawRatioConversionUs.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbConversionCtrl\fbRawRatioConversionUsPercent.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbDataLogCtrl\FB_jx_DataLog.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbDataLogCtrl\FB_TimeTriggering.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbDataLogCtrl\FB_WriteLog.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbDataLogCtrl\F_jx_TS_TO_DATE_STRING.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbDataLogCtrl\F_jx_TS_TO_DATE_STRING_1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbDataLogCtrl\F_jx_TS_TO_TIME_STRING.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbGeneralfbFolder\fbAssignBadBstCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbGeneralfbFolder\fbSlidingDoorCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbGeneralfbFolder\fbToleranceTimeCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbGeneralfbFolder\UserlevelFB.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbStnDegassingCtrl\fbStnDegassCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbUltrasonicCtrl\BrensonFreqSelector.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbUltrasonicCtrl\fbUltrasonicFIFO.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbUltrasonicCtrl\fbWeberUS_AI_Conversion.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbUltrasonicCtrl\FB_WEBER.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\fbUltrasonicCtrl\WeberFreqSelector.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\Other\DoorOpenBasketTransfer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\Other\fbConveyorCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\Other\fbIndirectAddStringArray.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\Other\fbKeyConversionBarKpa.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\Other\fbLdConveyor3Zones.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\Other\fbLoadingConveyor3Zones.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\Other\fbMultipleArmBasketMemory.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\Other\fbPX3524ConversionBarKpa.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\Other\fbStnRecipeWithSubAndCall.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\Other\fbUld3ZoneConveyorCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\Other\fbUldConveyor3Zones.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\Other\fb_ArmBasketRotateCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\Other\fb_StnCylinderInOutCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\Other\HoldingBitSV.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\Other\ReservoirTankDrain.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\Other\ReservoirTankDrainNIL.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_CustomFB\Other\TactTimeFB.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-AlarmAndEvent\fbAlarmModule.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-ArmRelated\fbA1_ArmHorzPosMemory.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-ArmRelated\fbFBPArmHorzZoneConfirm.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-ArmRelated\fbFBPVertArmPosConfirm.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-ArmRelated\fbGnrProductRecipeMemory.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-BasketTotalizer\fbBasketTotalizer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-BasketTotalizer\fbStnBasketTotalizer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-EncoderIncrementalCtrl\fbEncoderConversion.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-HMIAddMapping\fbHMIAddMappingArrayBool.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-HMIAddMapping\fbHMIAddMappingArrayInt.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-HMIAddMapping\fbHMIAddMappingArrayLreal.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-HMIAddMapping\fbHMIAddMappingArrayReal.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-HMIAddMapping\fbHMIAddMappingArrayString.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-HMIAddMapping\fbHMIAddMappingBool.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-HMIAddMapping\fbHMIAddMappingBoolForManual.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-HMIAddMapping\fbHMIAddMappingDWordToBoolForManual.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-HMIAddMapping\fbHMIAddMappingInt.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-HMIAddMapping\fbHMIAddMappingInt_Word.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-HMIAddMapping\fbHMIAddMappingLreal.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-HMIAddMapping\fbHMIAddMappingReal.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-HMIAddMapping\fbHMIAddMappingReal_Int.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-HMIAddMapping\fbHMIAddMappingReal_Word.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-HMIAddMapping\fbHMIAddMappingString.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-HMI\fbHMISimulateArmMovement.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-HMI\fbScrMapping.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-Instrument\fbBrensonMultiFreqCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-Instrument\fbClangsonicUltrasonic.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-Instrument\fbClangsonicUltrasonic_test.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-Instrument\fbWeberMultiFreqCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-MachineOperationTimeCounter\fbMachineTimeCounter.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-MachineOperationTimeCounter\fbVacuumPumpTimeCounter.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-Memory_Sub\fbA1_PnpSequenceMemory.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-Memory_Sub\fbA21_UpDownPattern.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-Memory_Sub\fbA31_ArmSpeedProfileMemory.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-Memory_Sub\fbA32_MachineZoneHeight.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-Memory_Sub\fbA32_StationZoneHeight.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-Memory_Sub\fbCallStnSeqSubPro.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-Memory_Sub\fbGnrStationMasterController.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-Memory_Sub\fbSingleArmBasketMemoryV2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-Memory_Sub\fbStationSequenceRecipe.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-Memory_Sub\fbStationSubRecipe.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-Memory_Sub\fbStnSeqProcess.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-ProcessOptimisation\fbFBPTimeTrackerG2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-ProcessOptimisation\fbFBPTimeTrackerG3.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-ProcessOptimisation\fbMasterTimeBlockG2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-ProcessOptimisation\fbRecipeTimeBlockG2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-ProcessOptimisation\fbTimeBlockSimulatorG2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-ProminentDosingPumpCtrl\fbProminentDosingCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-SevenDayAutoOnOff\fbSevenDaySys.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-StationRelated\fbMainStationProcess.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-TempController\fbTempControl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB\FBP-TowerLightCtrl\fbTowerLightCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\fbArmCtrlFolder\fbV2_1_ArmPnpCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-ArmCtrlFolder\fbV2_ArmPnpCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-ArmCtrlFolder\fbV2_GenerateArmPickTransferBit.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-ArmRelated\fbV2_ArmPosSignalCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-ArmRelated\fbV2_FBPArmHorzZoneConfirm.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-ArmRelated\fbV2_GnrProductRecipeMemory.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-ArmRelated\NIUfbV2_FBPVertArmPosConfirm.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-BasketInfoRelated\fbV2_BasketInfoManager.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-Function_Sub\fbAgitationCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-Function_Sub\fbV2_BasketInfoFinder.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-Function_Sub\fbV2_DSMovementHandler.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-Function_Sub\fbV2_InvAnalogSpdCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-Function_Sub\fbV2_InvAxisHome.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-Function_Sub\fbV2_InvAxisJog.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-Function_Sub\fbV2_InvPosCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-HMI\fbV2_ScrMapping.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-Instrument\Dryer\fbV2_DryerCoolingCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-LdUldCVRelated\fbV2_Cv2zonewith2m2sCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-LdUldCVRelated\fbV2_Cv3zonewith3m3sCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-LdUldCVRelated\fbV2_Cv4zonewith4m4sCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-LdUldCVRelated\fbV2_Cv5zonewith5m5sCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-LdUldCVRelated\fbV2_LdUldCvCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-Memory_Sub\fbV2_A1_PnpSequenceMemory.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-Memory_Sub\fbV2_A32_MachineZoneHeight.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-Memory_Sub\fbV2_CallStnSeqSubPro.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-Memory_Sub\fbV2_GnrStationMasterController.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-Memory_Sub\fbV2_SingleArmBasketMemoryV2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-Memory_Sub\fbV2_StationSequenceRecipe.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-Memory_Sub\fbV2_StnSeqProcess.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-MTBSubFB\fbV2_HMIStnMinMaxEffTimeDisplay.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-MTBSubFB\fbV2_MinMaxExtShift.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-MTBSubFB\fbV2_SubAnalyzeRTBEffTime.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-MTBSubFB\fbV2_SubBusyRTBShifting.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-MTBSubFB\fbV2_SubFreeMTBShifting.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-MTBSubFB\fbV2_SubMTBFreeSlotGenerator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-MTBSubFB\fbV2_SubMTBRTBCrashCheck.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-MTBSubFB\fbV2_SubMTBRunningTime.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-MTBSubFB\fbV2_SubRTBBusyLinkMTSUpdate.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-MTBSubFB\fbV2_SubRTBEndStepFinder.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-MTBSubFB\fbV2_SubRTBGenerateNoCallArmTime.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-MTBSubFB\fbV2_SubRTBStnTypeAltIDFinder.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-MTBSubFB\fbV2_SubTimeBlockCompare.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-ProcessOptimisation\fbV2_FBPTimeTrackerG3.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-ProcessOptimisation\fbV2_MasterTimeBlockG2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-ProcessOptimisation\fbV2_TimeBlockSimulatorG2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-StationRelated\fbV2_MainStationProcess.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V2\FBP-TempController\fbV2_TempControl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V3\CSV\FB3_CsvHandler.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V3\Event\FB3_EventModule.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V3\FBP-Memory_Sub\fbV3_TemperatureParaRecipe.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V3\UserCtrl\FB3_HmiTF1800_UserlevelManagement.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V3\XML\FB3_XmlSvrRW_MultipleGVL.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_NewFB_V3\XML\FB3_XmlSvrRW_Recipe.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Compare\EQ_GT.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Compare\EQ_LT.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Compare\LT_GT.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Compare\MANUAL_PAGE.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Compare\SERVO_POS_CONFIRM.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Controller\GUYSON_PRG_SEL.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Controller\MOTION_ACC_DCC.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Controller\TEMP_CTRL_ON_OFF.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Controller\TEMP_CTRL_ON_OFF_EXT.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Converter\DC_PID_FB.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Converter\JOG_CONV.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Converter\MM_TO_PLS.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Guyson\GUYSON_AI_CTRL.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Guyson\GUYSON_AI_RawToWatt.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Guyson\GUYSON_AI_WattToRaw.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Memory\INDIRECT_FN.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Timer\CLOCK_PLS.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Timer\DOWN_COUNT_TIMER.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Timer\fbHoldingTimer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Timer\MOTION_COUNTER_RESET.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Timer\TIMER_ALARM.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Word to Bit\CMP_OC_DINT.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Word to Bit\CMP_OC_DW.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Word to Bit\CMP_OC_W1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Word to Bit\CMP_OC_W10.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Word to Bit\CMP_OC_W2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Word to Bit\CMP_OC_W3.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Word to Bit\CMP_OC_W4.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Word to Bit\CMP_OC_W5.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Word to Bit\CMP_OC_W6.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Word to Bit\CMP_OC_W7.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Word to Bit\CMP_OC_W8.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\B_JKS_OldFB\Word to Bit\CMP_OC_W9.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\b_JKS_RecycleFB\fb_V3JRSModuleWithChiller.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\fbV3BarcodeCtrl\Main FB\fb_V3BarcodeMasterCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\fbV3BarcodeCtrl\Sub FB\fb_V1BarcodeRegistration_UTAC.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\fbV3BarcodeCtrl\Sub FB\fb_V2BarcodeRegistration.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\fbV3BarcodeCtrl\Sub FB\fb_V3BarcodeRegSectionDisplayController.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\fbV3BarcodeCtrl\Sub FB\fb_V3BarcodeScanner.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\fbV3BarcodeCtrl\Sub FB\fb_V3BarcodeTracer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\fbV3BarcodeCtrl\Sub FB\fb_V3StringEliminator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\FB_Others TBD\fbArmSpecialFunctionStore.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\FB_Others TBD\fbChemicalMixingWithoutPump.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\FB_Others TBD\fbDetergent_BasketQuantityResetPB_PasswordControl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\FB_Others TBD\fbMapMobbusTCP.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\FB_Others TBD\fbOilSeperatorTankCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\FB_Others TBD\fbV3_ImportExportXML.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\FB_Others TBD\fbV3_LoadingRecipeCheck.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\FB_Others TBD\fbV3_TotalProcessTimeTracker.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\FB_Others TBD\fbV3_XML_Handler.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FBs\FB_Others TBD\PID_FB.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GlobalTextList.TcGTLO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Alarm_Ctrl\Global_Variables_Alarm.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Analog_Ctrl\Global_Variables_Analog_NoPersistent.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Analog_Ctrl\Global_Variables_Analog_Persistent.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Analog_Ctrl\Global_Variables_DeclarationOnly.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Arm_Ctrl\Global_Variables_Arm1BoolCtrl.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Arm_Ctrl\Global_Variables_Arm2BoolCtrl.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Arm_Ctrl\Global_Variables_Arm_NoPersistent.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Arm_Ctrl\Global_Variables_Arm_Persistent.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Barcode_Ctrl\Global_Variables_Barcode.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Barcode_Ctrl\Global_Variables_V3BarcodeScanner.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Constant_Ctrl\Constant_TC3\CONSTANT\LIB_GVL_EVENT_CONSTANT.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Constant_Ctrl\Constant_TC3\CONSTANT\LIB_GVL_GENERAL_CONSTANT.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Constant_Ctrl\Constant_TC3\CONSTANT\LIB_GVL_IO_CONSTANT.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Constant_Ctrl\Constant_TC3\CONSTANT\LIB_GVL_MEMORY_CONSTANT.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Constant_Ctrl\Global_Variables_Constant.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Digital_Ctrl\Global_Variables_DigitalBoolCtrl.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Digital_Ctrl\Global_Variables_DigitalMapping.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Digital_Ctrl\Global_Variables_Digital_Persistent.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\General_Ctrl\Global_Variables.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\General_Ctrl\Global_Variables_General_Fix.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\General_Ctrl\Global_Variables_General_Persistent.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\GVL3\GVL_Analog.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\GVL3\GVL_Deactivate_Persistent.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\GVL3\GVL_Event_Module.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\GVL3\LIB_GVL_EVENT.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\GVL3\LIB_GVL_GENERAL.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\GVL3\LIB_GVL_IO.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\GVL3\LIB_GVL_MEMORY.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\HMI_Ctrl\Global_Variables_CT12_HMIfunction.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\HMI_Ctrl\Global_Variables_HMI.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\HMI_Ctrl\Global_Variables_HMI_Function.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Internal Address\GVL_Internal_Variable.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
+    <Compile Include="GVLs\Memory_Ctrl\Global_Variables_Memory.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\ModbusTCP_Ctrl\Global_Variables_Modbus.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Others TBD\Globale_VarCheck.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Others TBD\Global_HMI.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Others TBD\Global_Variables_Lib_NonPresistent.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Others TBD\Global_Variables_Lib_Persistent.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Others TBD\Global_Variables_PID.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Others TBD\Global_Variables_PID_1.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Others TBD\GVL_HMI_CKK.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\PDF_Report\Global_Variables_PDF_Report.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Process_Ctrl\Global_Variables_Process_NoPersistent.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Process_Ctrl\Global_Variables_Process_Persistent.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\RecycleMachineJRSCtrl\Global_Variables_JRS_HMI.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\RecycleMachineJRSCtrl\Global_Variables_RecycleJRS.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Secs_Gem\Global_Secs_Gem.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Secs_Gem\Global_Variables_Secs_Gem_Persistent.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\SevenDay_Ctrl\Global_Variables_Process_Door.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\SevenDay_Ctrl\Global_Variables_SevenDay_NoPersistent.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\SevenDay_Ctrl\Global_Variables_SevenDay_Persistent.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Special_Ctrl\Global_Variables_Special_NoPersistent.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\Special_Ctrl\Global_Variables_Special_Persistent.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\TimeOptimize_Ctrl\Global_Variables_TimeOptimize.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\UserCtrl\GVL_UserCtrl.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\XML_Ctrl\XML.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PlcTask.TcTTO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MAIN.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\Aa_HmiVariableCtrl\HMIValueKeyInCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AgitationMechanismCtrl\AgitationMechanismCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AlertCtrl\Alarm_IO.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AlertCtrl\Alarm_Others.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AlertCtrl\DeactivateCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AlertCtrl\MisshookSensorCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AnalogCtrl\ClangsonicUltrasonicCtrl\ClangsonicUSCommCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AnalogCtrl\ClangsonicUltrasonicCtrl\ClangsonicUSCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AnalogCtrl\ClangsonicUltrasonicCtrl\ClangsonicUSModbusCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AnalogCtrl\ClangsonicUltrasonicCtrl\ClangsonicUSModbusFeedbackCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AnalogCtrl\ClangsonicUltrasonicCtrl\ModbusControl_ST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AnalogCtrl\ConductivityCtrl\ConductivityCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AnalogCtrl\FilterPressureCtrl\FilterPressureCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AnalogCtrl\MegasonicCtrl\MegasonicModbusProgram_ST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AnalogCtrl\Modbus_test.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AnalogCtrl\TemperatureCtrl\FBV4_PID.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AnalogCtrl\TemperatureCtrl\PID_ctrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AnalogCtrl\TemperatureCtrl\PID_ctrl_IR_Heater.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AnalogCtrl\TemperatureCtrl\PID_Ctrl_Test.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AnalogCtrl\TemperatureCtrl\PID_Difference_ctrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AnalogCtrl\TemperatureCtrl\PID_TempCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AnalogCtrl\TemperatureCtrl\TempChillerCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AnalogCtrl\TemperatureCtrl\TempCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoArmCtrl\AxisHorzMovementOutputCtrl_Arm1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoArmCtrl\AxisServoCtrlMapping_Arm1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoArmCtrl\AxisServoCtrl_Arm1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoArmCtrl\AxisVertMovementOutputCtrl_Arm1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoArmCtrl\CoeRead\HorzCoERead.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoArmCtrl\CoeRead\SlowpullCoERead.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoArmCtrl\CoeRead\VertCoERead.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoArmCtrl\OmronServoEnable.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoArmCtrl\PnpCtrl_Arm1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoArmCtrl\PnpMapping_Arm1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoArmCtrl\PnPstorageMemory_Arm.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoArmCtrl\PosConfirmBitCtrl_Arm1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoArmCtrl\Slowpull\AxisHorzAdditionalInterlock_Arm1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoArmCtrl\Slowpull\AxisServoCtrl_SlowPull.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoArmCtrl\Slowpull\oArmSlowPullHomingCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoArmCtrl\Slowpull\oArmSlowPullOutputCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoArmCtrl\Slowpull\PosConfirmBitCtrl_SlowPull.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Cascading.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Ld\LdBasketMissingCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Ld\LdPrcs.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Ld\LdPrcs_General.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn10\Stn10.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn1\Stn1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn2\Stn2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn3\Stn3.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn4\Stn4.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn5\Stn5.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn6\Stn6.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn7\Stn7.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn7\Stn7ReturnPumpCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn8\Stn8.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn9\Stn9.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn9\Stn9SlowPullCalculation.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\StnOverflowValveCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoProcessCtrl\BarcodeScanner.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoSevenDayOnOffCtrl\SevenDayCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\AutoSevenDayOnOffCtrl\SevenDayOnOffConf.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\A_StandardStructureProgram\stClockPulseBlink.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\A_StandardStructureProgram\stGetCurrentTime.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\A_StandardStructureProgram\stUPSStatusMonitoring.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\A_StandardStructureProgram\stWritePersistentData.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\Barcode\BarcodeCtrl_Utac.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\Barcode\Barcode_Reg.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\Barcode\SerialCom.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\BaseWork\TowerLightCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\BasketMemory_RecipeCtrl\BasketBadCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\BasketMemory_RecipeCtrl\BasketMemoryCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\BasketMemory_RecipeCtrl\BasketToleranceCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\BasketMemory_RecipeCtrl\BskMemoryCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\BasketMemory_RecipeCtrl\CvMotorREFE.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\CheckBound\CheckBounds.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\CheckBound\CheckDivByte.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\CheckBound\CheckDivDWord.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\CheckBound\CheckDivLreal.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\CheckBound\CheckDivReal.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\CheckBound\CheckRangeSigned.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\CheckBound\CheckRangeUnsigned.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\Csv\Batch_Number_counter.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\Csv\Csv_Report_Ctrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\Csv\Csv_Report_Mapping.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\DataManagement\ArmPickTransferCtrl_General.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\DataManagement\BasketTotalizer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\DataManagement\MacOperationTimeCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\DataManagement\RTClockCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\DataManagement\StnBasketTotalizer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\DataManagement_Barcode\GeneratorComparison.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\DataManagement_Barcode\Log_BasketTimeInOut.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\DataManagement_Barcode\Log_Configuration.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\DataManagement_Barcode\Log_Management.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\DosingPumpCtrl\ManualDosingSTreset.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\DosingPumpCtrl\Stn1DosingPumpCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\DosingPumpCtrl\Stn3DosingPumpCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\DosingPumpCtrl\Stn5DosingPumpCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\HMI\HMI_CKK.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\HMI\HMI_Ctrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\HMI\StartStop.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\ManualCtrl\ManualButtonCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\ManualCtrl\ManualCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\ManualCtrl\ManualCtrl_Arm.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\ManualCtrl\ManualLifterJog.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\Mapping\Internal_Mapping.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\Mapping\IO_Mapping.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\OPC_UA\OPC_UA_MAP.TcPOU">
+      <SubType>Code</SubType>
+      <ExcludeFromBuild>true</ExcludeFromBuild>
+    </Compile>
+    <Compile Include="POUs\MainProgram\Other\ArmXYPosAdjust.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\Other\BeckhoffHMIMapping.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\Other\ClockPulse10ms.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\Other\HMI_Function.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\Other\HMI_Invinsible_Ctrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\Other\HMI_Page_Control.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\Other\HoldingBitCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\Other\HoldingBit_DoorTransfer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\Other\ProHMIMapping.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\Other\TactTime.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\Other\zHMIMaxMinLimit.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\OutputCtrl\MAIN_Arm_Mapping.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\OutputCtrl\MP_1_Y100.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\OutputCtrl\MP_2_Y101.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\OutputCtrl\MP_3_Y102.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\OutputCtrl\MP_4_Y103.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\OutputCtrl\SP1_1_Y110.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\OutputCtrl\SP1_2_Y111.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\OutputCtrl\SP2_1_Y120.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\OutputCtrl\SP3_1_Y130.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\OutputCtrl\SP3_2_Y131.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\OutputCtrl\SP3_3_Y132.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\OutputCtrl\STN_TopUpCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\TimeOptimize\Optimizer_Monitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\TimeOptimize\TimeOptimizeCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\TimeOptimize\TimeTrackerCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\User\UserCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\XML\Additional\FBV4_SingleFileImportExport.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\XML\Additional\Manual_ImportExport_Others.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\XML\Bootup_Shutdown_ctrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\XML\pouXMLRecipeTest.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\XML\XML_PersistentCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\zAutoMode\AutoMain.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\zAutoMode\AutoMain_AddON.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\zAutoMode\AutoOriginCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\zAutoMode\AutoPreparationCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\zAutoMode\AutoPreparationCtrl_ST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainProgram\zAutoMode\AutoStartCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Visualization Manager.TcVMO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="VISUs\ALARM\Alarm_Page.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\AUTO\Auto all stn popup\Auto_General.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\AUTO\Auto all stn popup\Auto_Loading.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\AUTO\Auto all stn popup\Auto_Station01.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\AUTO\Auto all stn popup\Auto_Station02.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\AUTO\Auto all stn popup\Auto_Station03.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\AUTO\Auto all stn popup\Auto_Station04.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\AUTO\Auto all stn popup\Auto_Station05.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\AUTO\Auto all stn popup\Auto_Station06.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\AUTO\Auto all stn popup\Auto_Unloading.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\AUTO\Auto main popup\Popup_AllInfo.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\AUTO\Auto main popup\Popup_ArmInfo.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\AUTO\Auto main popup\Popup_OriginStatus.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\AUTO\Auto main popup\Popup_OtherInfo.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\AUTO\Auto main popup\Popup_PreparationStatus.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\AUTO\Auto main popup\Popup_ProcessStatus.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\AUTO\AutoMain_Page.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\AUTO\Auto_AllStation.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\BARCODE\Barcode_Page.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\BARCODE\Popup_Barcode.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\BARCODE\Popup_Ld_Warning.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\DEACTIVATED\Deactivated_Page.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\GlobalTextList_1.TcGTLO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="VISUs\ImagePool.TcIPO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="VISUs\IO MONITORING\IO_Monitoring.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\IO MONITORING\Popup_IO\Popup_IOinput.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\IO MONITORING\Popup_IO\Popup_IOoutput.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\MANUAL\Manual mode pop up\Manual_General.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\MANUAL\Manual mode pop up\Manual_Loading.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\MANUAL\Manual mode pop up\Manual_Station01.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\MANUAL\Manual mode pop up\Manual_Station02.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\MANUAL\Manual mode pop up\Manual_Station03.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\MANUAL\Manual mode pop up\Manual_Station04.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\MANUAL\Manual mode pop up\Manual_Station05.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\MANUAL\Manual mode pop up\Manual_Station06.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\MANUAL\Manual mode pop up\Manual_Unloading.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\MANUAL\Manual mode pop up\Popup_ArmControl.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\MANUAL\Manual mode pop up\Popup_SlowpullJog.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\MANUAL\Manual_AllStation.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\MANUAL\Manual_Page.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\POPUP\Manual_Exit_Popup.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\POPUP\Popup_Parameter.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\POPUP\Popup_Parameter_Saved.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\POPUP\Vacuum_Calibration.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\Popup_Machine.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\Popup_Machine_Manual.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\Popup_MenuPage.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\RecipeNo.TcTLO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="VISUs\RECIPE\Recipe Popup SSUR\Recipe_AllStation_SSUR.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\RECIPE\Recipe Popup SSUR\Recipe_Station01.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\RECIPE\Recipe Popup SSUR\Recipe_Station02.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\RECIPE\Recipe Popup SSUR\Recipe_Station03.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\RECIPE\Recipe Popup SSUR\Recipe_Station04.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\RECIPE\Recipe Popup SSUR\Recipe_Station05.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\RECIPE\Recipe Popup SSUR\Recipe_Station06.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\RECIPE\Recipe Popup SSUR\Recipe_Station10.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\RECIPE\Recipe Popup SSUR\Recipe_Station11.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\RECIPE\Recipe Popup SSUR\Recipe_Station12.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\RECIPE\Recipe Popup\Popup_RecipeConfiguration.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\RECIPE\Recipe Popup\Popup_RecipeSSER.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\RECIPE\RecipeConfiguration_Page.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\RECIPE\RecipeSSER_Page.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\RECIPE\RecipeSSUR_Page.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\RECIPE\Recipe_Page.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\SETTING\SettingArm_Page.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\SETTING\SettingProcess_Page.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\SETTING\Setting_Page.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\TextList_1_20.TcTLO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="VISUs\TextList_1_20_Speed.TcTLO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="VISUs\TextList_AccessLevel.TcTLO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="VISUs\TextList_Arm_Setting.TcTLO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="VISUs\TextList_ManualPage.TcTLO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="VISUs\TextList_Recipe.TcTLO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="VISUs\TextList_SettingPage.TcTLO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="VISUs\TextList_SettingPage_2.TcTLO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="VISUs\TextList_StationInfoPage.TcTLO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="VISUs\USER_LOGIN\Login_Page.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\USER_SETTING\AddNewUser_Page.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\USER_SETTING\Edit_User.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\USER_SETTING\UserSetting_Page.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\Vertical_Arm_Traveling_Zone.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\Visualization.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DUTs" />
+    <Folder Include="DUTs\DS TBD" />
+    <Folder Include="DUTs\DS Twincat 3" />
+    <Folder Include="DUTs\DS Twincat 3\Barcode" />
+    <Folder Include="DUTs\DS Twincat 3\CSV" />
+    <Folder Include="DUTs\DS Twincat 3\Enum" />
+    <Folder Include="DUTs\DS Twincat 3\Event" />
+    <Folder Include="DUTs\DS Twincat 3\UserCtrl" />
+    <Folder Include="DUTs\DS Twincat 3\XML" />
+    <Folder Include="FBs" />
+    <Folder Include="FBs\B_JKS_CustomFB" />
+    <Folder Include="FBs\B_JKS_CustomFB\fbArmCtrlFolder" />
+    <Folder Include="FBs\B_JKS_CustomFB\fbBarcodeCtrl" />
+    <Folder Include="FBs\B_JKS_CustomFB\fbConversionCtrl" />
+    <Folder Include="FBs\B_JKS_CustomFB\fbDataLogCtrl" />
+    <Folder Include="FBs\B_JKS_CustomFB\fbGeneralfbFolder" />
+    <Folder Include="FBs\B_JKS_CustomFB\fbStnDegassingCtrl" />
+    <Folder Include="FBs\B_JKS_CustomFB\fbUltrasonicCtrl" />
+    <Folder Include="FBs\B_JKS_CustomFB\Other" />
+    <Folder Include="FBs\B_JKS_NewFB" />
+    <Folder Include="FBs\B_JKS_NewFB\FBP-AlarmAndEvent" />
+    <Folder Include="FBs\B_JKS_NewFB\FBP-ArmRelated" />
+    <Folder Include="FBs\B_JKS_NewFB\FBP-BasketTotalizer" />
+    <Folder Include="FBs\B_JKS_NewFB\FBP-EncoderIncrementalCtrl" />
+    <Folder Include="FBs\B_JKS_NewFB\FBP-HMI" />
+    <Folder Include="FBs\B_JKS_NewFB\FBP-HMIAddMapping" />
+    <Folder Include="FBs\B_JKS_NewFB\FBP-Instrument" />
+    <Folder Include="FBs\B_JKS_NewFB\FBP-MachineOperationTimeCounter" />
+    <Folder Include="FBs\B_JKS_NewFB\FBP-Memory_Sub" />
+    <Folder Include="FBs\B_JKS_NewFB\FBP-ProcessOptimisation" />
+    <Folder Include="FBs\B_JKS_NewFB\FBP-ProminentDosingPumpCtrl" />
+    <Folder Include="FBs\B_JKS_NewFB\FBP-SevenDayAutoOnOff" />
+    <Folder Include="FBs\B_JKS_NewFB\FBP-StationRelated" />
+    <Folder Include="FBs\B_JKS_NewFB\FBP-TempController" />
+    <Folder Include="FBs\B_JKS_NewFB\FBP-TowerLightCtrl" />
+    <Folder Include="FBs\B_JKS_NewFB_V2" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\fbArmCtrlFolder" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-ArmCtrlFolder" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-ArmRelated" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-BasketInfoRelated" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-EncoderAbsoluteCtrl" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-Function_Sub" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-HMI" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-Instrument" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-Instrument\AgitationMechanism" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-Instrument\BlowerMechanism" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-Instrument\ClangsonicUltrasonic" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-Instrument\Dryer" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-Instrument\RemoteHoistController" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-Instrument\SingleArm" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-Instrument\SingleArm\InverterMovement" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-Instrument\SingleArm\ServoMovement" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-Instrument\SingleArm\ServoMovement\SubFB" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-Instrument\VacuumPump" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-LdUldCVRelated" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-Memory_Sub" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-MTBSubFB" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-ProcessOptimisation" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-StationRelated" />
+    <Folder Include="FBs\B_JKS_NewFB_V2\FBP-TempController" />
+    <Folder Include="FBs\B_JKS_NewFB_V3" />
+    <Folder Include="FBs\B_JKS_NewFB_V3\CSV" />
+    <Folder Include="FBs\B_JKS_NewFB_V3\Event" />
+    <Folder Include="FBs\B_JKS_NewFB_V3\FBP-Memory_Sub" />
+    <Folder Include="FBs\B_JKS_NewFB_V3\UserCtrl" />
+    <Folder Include="FBs\B_JKS_NewFB_V3\XML" />
+    <Folder Include="FBs\B_JKS_OldFB" />
+    <Folder Include="FBs\B_JKS_OldFB\Compare" />
+    <Folder Include="FBs\B_JKS_OldFB\Controller" />
+    <Folder Include="FBs\B_JKS_OldFB\Converter" />
+    <Folder Include="FBs\B_JKS_OldFB\Guyson" />
+    <Folder Include="FBs\B_JKS_OldFB\Memory" />
+    <Folder Include="FBs\B_JKS_OldFB\Timer" />
+    <Folder Include="FBs\B_JKS_OldFB\Word to Bit" />
+    <Folder Include="FBs\b_JKS_RecycleFB" />
+    <Folder Include="FBs\fbV3BarcodeCtrl" />
+    <Folder Include="FBs\fbV3BarcodeCtrl\Main FB" />
+    <Folder Include="FBs\fbV3BarcodeCtrl\Sub FB" />
+    <Folder Include="FBs\FB_Others TBD" />
+    <Folder Include="GVLs" />
+    <Folder Include="GVLs\Alarm_Ctrl" />
+    <Folder Include="GVLs\Analog_Ctrl" />
+    <Folder Include="GVLs\Arm_Ctrl" />
+    <Folder Include="GVLs\Barcode_Ctrl" />
+    <Folder Include="GVLs\Constant_Ctrl" />
+    <Folder Include="GVLs\Constant_Ctrl\Constant_TC3" />
+    <Folder Include="GVLs\Constant_Ctrl\Constant_TC3\CONSTANT" />
+    <Folder Include="GVLs\Digital_Ctrl" />
+    <Folder Include="GVLs\General_Ctrl" />
+    <Folder Include="GVLs\GVL3" />
+    <Folder Include="GVLs\HMI_Ctrl" />
+    <Folder Include="GVLs\Internal Address" />
+    <Folder Include="GVLs\Memory_Ctrl" />
+    <Folder Include="GVLs\ModbusTCP_Ctrl" />
+    <Folder Include="GVLs\Others TBD" />
+    <Folder Include="GVLs\PDF_Report" />
+    <Folder Include="GVLs\Process_Ctrl" />
+    <Folder Include="GVLs\RecycleMachineJRSCtrl" />
+    <Folder Include="GVLs\Secs_Gem" />
+    <Folder Include="GVLs\SevenDay_Ctrl" />
+    <Folder Include="GVLs\Special_Ctrl" />
+    <Folder Include="GVLs\TimeOptimize_Ctrl" />
+    <Folder Include="GVLs\UserCtrl" />
+    <Folder Include="GVLs\XML_Ctrl" />
+    <Folder Include="POUs\MainProgram" />
+    <Folder Include="POUs\MainProgram\Aa_HmiVariableCtrl" />
+    <Folder Include="POUs\MainProgram\AgitationMechanismCtrl" />
+    <Folder Include="POUs\MainProgram\AlertCtrl" />
+    <Folder Include="POUs\MainProgram\AnalogCtrl" />
+    <Folder Include="POUs\MainProgram\AnalogCtrl\ClangsonicUltrasonicCtrl" />
+    <Folder Include="POUs\MainProgram\AnalogCtrl\ConductivityCtrl" />
+    <Folder Include="POUs\MainProgram\AnalogCtrl\FilterPressureCtrl" />
+    <Folder Include="POUs\MainProgram\AnalogCtrl\MegasonicCtrl" />
+    <Folder Include="POUs\MainProgram\AnalogCtrl\TemperatureCtrl" />
+    <Folder Include="POUs\MainProgram\AutoArmCtrl" />
+    <Folder Include="POUs\MainProgram\AutoArmCtrl\CoeRead" />
+    <Folder Include="POUs\MainProgram\AutoArmCtrl\Slowpull" />
+    <Folder Include="POUs\MainProgram\AutoProcessCtrl" />
+    <Folder Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl" />
+    <Folder Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Ld" />
+    <Folder Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn1" />
+    <Folder Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn10" />
+    <Folder Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn2" />
+    <Folder Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn3" />
+    <Folder Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn4" />
+    <Folder Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn5" />
+    <Folder Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn6" />
+    <Folder Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn7" />
+    <Folder Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn8" />
+    <Folder Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Process_Stn9" />
+    <Folder Include="POUs\MainProgram\AutoProcessCtrl\AutoModeProcessCtrl\Uld" />
+    <Folder Include="POUs\MainProgram\AutoSevenDayOnOffCtrl" />
+    <Folder Include="POUs\MainProgram\A_StandardStructureProgram" />
+    <Folder Include="POUs\MainProgram\Barcode" />
+    <Folder Include="POUs\MainProgram\BaseWork" />
+    <Folder Include="POUs\MainProgram\BasketMemory_RecipeCtrl" />
+    <Folder Include="POUs\MainProgram\CheckBound" />
+    <Folder Include="POUs\MainProgram\Csv" />
+    <Folder Include="POUs\MainProgram\DataManagement" />
+    <Folder Include="POUs\MainProgram\DataManagement_Barcode" />
+    <Folder Include="POUs\MainProgram\DosingPumpCtrl" />
+    <Folder Include="POUs\MainProgram\HMI" />
+    <Folder Include="POUs\MainProgram\ManualCtrl" />
+    <Folder Include="POUs\MainProgram\Mapping" />
+    <Folder Include="POUs\MainProgram\OPC_UA" />
+    <Folder Include="POUs\MainProgram\Other" />
+    <Folder Include="POUs\MainProgram\OutputCtrl" />
+    <Folder Include="POUs\MainProgram\TimeOptimize" />
+    <Folder Include="POUs\MainProgram\User" />
+    <Folder Include="POUs\MainProgram\XML" />
+    <Folder Include="POUs\MainProgram\XML\Additional" />
+    <Folder Include="POUs\MainProgram\zAutoMode" />
+    <Folder Include="VISUs" />
+    <Folder Include="POUs" />
+    <Folder Include="VISUs\ALARM" />
+    <Folder Include="VISUs\AUTO" />
+    <Folder Include="VISUs\AUTO\Auto all stn popup" />
+    <Folder Include="VISUs\AUTO\Auto main popup" />
+    <Folder Include="VISUs\BARCODE" />
+    <Folder Include="VISUs\DEACTIVATED" />
+    <Folder Include="VISUs\IO MONITORING" />
+    <Folder Include="VISUs\IO MONITORING\Popup_IO" />
+    <Folder Include="VISUs\MANUAL" />
+    <Folder Include="VISUs\MANUAL\Manual mode pop up" />
+    <Folder Include="VISUs\POPUP" />
+    <Folder Include="VISUs\POPUP GENERAL" />
+    <Folder Include="VISUs\RECIPE" />
+    <Folder Include="VISUs\RECIPE\Recipe Popup" />
+    <Folder Include="VISUs\RECIPE\Recipe Popup SSUR" />
+    <Folder Include="VISUs\SETTING" />
+    <Folder Include="VISUs\USER_LOGIN" />
+    <Folder Include="VISUs\USER_SETTING" />
+  </ItemGroup>
+  <ItemGroup>
+    <PlaceholderReference Include="CmpBitmapPool">
+      <DefaultResolution>CmpBitmapPool, * (System)</DefaultResolution>
+      <Namespace>CmpBitmapPool</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="RecipeManagement">
+      <DefaultResolution>Recipe Management, * (System)</DefaultResolution>
+      <Namespace>Recipe_Management</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="System_VisuElemMeter">
+      <DefaultResolution>VisuElemMeter, 3.5.13.0 (System)</DefaultResolution>
+      <Namespace>VisuElemMeter</Namespace>
+      <SystemLibrary>true</SystemLibrary>
+      <ResolverGuid>2717eb6a-dd07-4c66-8d8d-cacebd7b18ae</ResolverGuid>
+    </PlaceholderReference>
+    <PlaceholderReference Include="System_VisuElems">
+      <DefaultResolution>VisuElems, 3.5.13.40 (System)</DefaultResolution>
+      <Namespace>VisuElems</Namespace>
+      <SystemLibrary>true</SystemLibrary>
+      <ResolverGuid>2717eb6a-dd07-4c66-8d8d-cacebd7b18ae</ResolverGuid>
+    </PlaceholderReference>
+    <PlaceholderReference Include="System_VisuElemsSpecialControls">
+      <DefaultResolution>VisuElemsSpecialControls, 3.5.13.0 (System)</DefaultResolution>
+      <Namespace>VisuElemsSpecialControls</Namespace>
+      <SystemLibrary>true</SystemLibrary>
+      <ResolverGuid>2717eb6a-dd07-4c66-8d8d-cacebd7b18ae</ResolverGuid>
+    </PlaceholderReference>
+    <PlaceholderReference Include="System_VisuElemsWinControls">
+      <DefaultResolution>VisuElemsWinControls, 3.5.13.20 (System)</DefaultResolution>
+      <Namespace>VisuElemsWinControls</Namespace>
+      <SystemLibrary>true</SystemLibrary>
+      <ResolverGuid>2717eb6a-dd07-4c66-8d8d-cacebd7b18ae</ResolverGuid>
+    </PlaceholderReference>
+    <PlaceholderReference Include="System_VisuElemTextEditor">
+      <DefaultResolution>VisuElemTextEditor, 3.5.13.0 (System)</DefaultResolution>
+      <Namespace>VisuElemTextEditor</Namespace>
+      <SystemLibrary>true</SystemLibrary>
+      <ResolverGuid>2717eb6a-dd07-4c66-8d8d-cacebd7b18ae</ResolverGuid>
+    </PlaceholderReference>
+    <PlaceholderReference Include="system_visuinputs">
+      <DefaultResolution>visuinputs, 3.5.13.0 (system)</DefaultResolution>
+      <Namespace>visuinputs</Namespace>
+      <SystemLibrary>true</SystemLibrary>
+      <ResolverGuid>2717eb6a-dd07-4c66-8d8d-cacebd7b18ae</ResolverGuid>
+    </PlaceholderReference>
+    <PlaceholderReference Include="System_VisuNativeControl">
+      <DefaultResolution>VisuNativeControl, 3.5.13.0 (System)</DefaultResolution>
+      <Namespace>VisuNativeControl</Namespace>
+      <SystemLibrary>true</SystemLibrary>
+      <ResolverGuid>2717eb6a-dd07-4c66-8d8d-cacebd7b18ae</ResolverGuid>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_ControllerToolbox">
+      <DefaultResolution>Tc2_ControllerToolbox, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_ControllerToolbox</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_Drive">
+      <DefaultResolution>Tc2_Drive, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_Drive</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_EtherCAT">
+      <DefaultResolution>Tc2_EtherCAT, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_EtherCAT</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_IoFunctions">
+      <DefaultResolution>Tc2_IoFunctions, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_IoFunctions</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_Math">
+      <DefaultResolution>Tc2_Math, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_Math</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_MC2">
+      <DefaultResolution>Tc2_MC2, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_MC2</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_MC2_Drive">
+      <DefaultResolution>Tc2_MC2_Drive, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_MC2_Drive</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_ModbusRTU">
+      <DefaultResolution>Tc2_ModbusRTU, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_ModbusRTU</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_ModbusSrv">
+      <DefaultResolution>Tc2_ModbusSrv, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_ModbusSrv</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_SerialCom">
+      <DefaultResolution>Tc2_SerialCom, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_SerialCom</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_Standard">
+      <DefaultResolution>Tc2_Standard, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_Standard</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_SUPS">
+      <DefaultResolution>Tc2_SUPS, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_SUPS</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_System">
+      <DefaultResolution>Tc2_System, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_System</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_Utilities">
+      <DefaultResolution>Tc2_Utilities, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_Utilities</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_XmlDataSrv">
+      <DefaultResolution>Tc2_XmlDataSrv, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_XmlDataSrv</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_Module">
+      <DefaultResolution>Tc3_Module, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc3_Module</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="VisuDialogs">
+      <DefaultResolution>VisuDialogs, * (System)</DefaultResolution>
+    </PlaceholderReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TwinCAT 3 Program.tmc">
+      <SubType>Content</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <LibraryReference Include="VisuSymbols,3.5.10.0,System">
+      <Namespace>VisuSymbols</Namespace>
+    </LibraryReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PinnedGlobalDataType Include="PVOID" />
+  </ItemGroup>
+  <ProjectExtensions>
+    <PlcProjectOptions>
+      <XmlArchive>
+        <Data>
+          <o xml:space="preserve" t="OptionKey">
+      <v n="Name">"&lt;ProjectRoot&gt;"</v>
+      <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
+        <v>{192FAD59-8248-4824-A8DE-9177C94C195A}</v>
+        <o>
+          <v n="Name">"{192FAD59-8248-4824-A8DE-9177C94C195A}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" />
+        </o>
+        <v>{246001F4-279D-43AC-B241-948EB31120E1}</v>
+        <o>
+          <v n="Name">"{246001F4-279D-43AC-B241-948EB31120E1}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" ckt="String" cvt="Boolean">
+            <v>UnicodeStrings</v>
+            <v>False</v>
+          </d>
+        </o>
+        <v>{29BD8D0C-3586-4548-BB48-497B9A01693F}</v>
+        <o>
+          <v n="Name">"{29BD8D0C-3586-4548-BB48-497B9A01693F}"</v>
+          <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
+            <v>Rules</v>
+            <o>
+              <v n="Name">"Rules"</v>
+              <d n="SubKeys" t="Hashtable" />
+              <d n="Values" t="Hashtable" />
+            </o>
+          </d>
+          <d n="Values" t="Hashtable" />
+        </o>
+        <v>{8F99A816-E488-41E4-9FA3-846536012284}</v>
+        <o>
+          <v n="Name">"{8F99A816-E488-41E4-9FA3-846536012284}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" />
+        </o>
+        <v>{40450F57-0AA3-4216-96F3-5444ECB29763}</v>
+        <o>
+          <v n="Name">"{40450F57-0AA3-4216-96F3-5444ECB29763}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" ckt="String" cvt="String">
+            <v>ActiveVisuProfile</v>
+            <v>IR0whWr8bwfwBwAAiD2qpQAAAABVAgAA37x72QAAAAABAAAAAAAAAAEaUwB5AHMAdABlAG0ALgBTAHQAcgBpAG4AZwACTHsAZgA5ADUAYgBiADQAMgA2AC0ANQA1ADIANAAtADQAYgA0ADUALQA5ADQAMAAwAC0AZgBiADAAZgAyAGUANwA3AGUANQAxAGIAfQADCE4AYQBtAGUABDBUAHcAaQBuAEMAQQBUACAAMwAuADEAIABCAHUAaQBsAGQAIAA0ADAAMgA0AC4ANwAFFlAAcgBvAGYAaQBsAGUARABhAHQAYQAGTHsAMQA2AGUANQA1AGIANgAwAC0ANwAwADQAMwAtADQAYQA2ADMALQBiADYANQBiAC0ANgAxADQANwAxADMAOAA3ADgAZAA0ADIAfQAHEkwAaQBiAHIAYQByAGkAZQBzAAhMewAzAGIAZgBkADUANAA1ADkALQBiADAANwBmAC0ANABkADYAZQAtAGEAZQAxAGEALQBhADgAMwAzADUANgBhADUANQAxADQAMgB9AAlMewA5AGMAOQA1ADgAOQA2ADgALQAyAGMAOAA1AC0ANAAxAGIAYgAtADgAOAA3ADEALQA4ADkANQBmAGYAMQBmAGUAZABlADEAYQB9AAoOVgBlAHIAcwBpAG8AbgALBmkAbgB0AAwKVQBzAGEAZwBlAA0KVABpAHQAbABlAA4aVgBpAHMAdQBFAGwAZQBtAE0AZQB0AGUAcgAPDkMAbwBtAHAAYQBuAHkAEAxTAHkAcwB0AGUAbQARElYAaQBzAHUARQBsAGUAbQBzABIwVgBpAHMAdQBFAGwAZQBtAHMAUwBwAGUAYwBpAGEAbABDAG8AbgB0AHIAbwBsAHMAEyhWAGkAcwB1AEUAbABlAG0AcwBXAGkAbgBDAG8AbgB0AHIAbwBsAHMAFCRWAGkAcwB1AEUAbABlAG0AVABlAHgAdABFAGQAaQB0AG8AcgAVIlYAaQBzAHUATgBhAHQAaQB2AGUAQwBvAG4AdAByAG8AbAAWFHYAaQBzAHUAaQBuAHAAdQB0AHMAFwxzAHkAcwB0AGUAbQAYGFYAaQBzAHUARQBsAGUAbQBCAGEAcwBlABkmRABlAHYAUABsAGEAYwBlAGgAbwBsAGQAZQByAHMAVQBzAGUAZAAaCGIAbwBvAGwAGyJQAGwAdQBnAGkAbgBDAG8AbgBzAHQAcgBhAGkAbgB0AHMAHEx7ADQAMwBkADUAMgBiAGMAZQAtADkANAAyAGMALQA0ADQAZAA3AC0AOQBlADkANAAtADEAYgBmAGQAZgAzADEAMABlADYAMwBjAH0AHRxBAHQATABlAGEAcwB0AFYAZQByAHMAaQBvAG4AHhRQAGwAdQBnAGkAbgBHAHUAaQBkAB8WUwB5AHMAdABlAG0ALgBHAHUAaQBkACBIYQBmAGMAZAA1ADQANAA2AC0ANAA5ADEANAAtADQAZgBlADcALQBiAGIANwA4AC0AOQBiAGYAZgBlAGIANwAwAGYAZAAxADcAIRRVAHAAZABhAHQAZQBJAG4AZgBvACJMewBiADAAMwAzADYANgBhADgALQBiADUAYwAwAC0ANABiADkAYQAtAGEAMAAwAGUALQBlAGIAOAA2ADAAMQAxADEAMAA0AGMAMwB9ACMOVQBwAGQAYQB0AGUAcwAkTHsAMQA4ADYAOABmAGYAYwA5AC0AZQA0AGYAYwAtADQANQAzADIALQBhAGMAMAA2AC0AMQBlADMAOQBiAGIANQA1ADcAYgA2ADkAfQAlTHsAYQA1AGIAZAA0ADgAYwAzAC0AMABkADEANwAtADQAMQBiADUALQBiADEANgA0AC0ANQBmAGMANgBhAGQAMgBiADkANgBiADcAfQAmFk8AYgBqAGUAYwB0AHMAVAB5AHAAZQAnVFUAcABkAGEAdABlAEwAYQBuAGcAdQBhAGcAZQBNAG8AZABlAGwARgBvAHIAQwBvAG4AdgBlAHIAdABpAGIAbABlAEwAaQBiAHIAYQByAGkAZQBzACgQTABpAGIAVABpAHQAbABlACkUTABpAGIAQwBvAG0AcABhAG4AeQAqHlUAcABkAGEAdABlAFAAcgBvAHYAaQBkAGUAcgBzACs4UwB5AHMAdABlAG0ALgBDAG8AbABsAGUAYwB0AGkAbwBuAHMALgBIAGEAcwBoAHQAYQBiAGwAZQAsEnYAaQBzAHUAZQBsAGUAbQBzAC1INgBjAGIAMQBjAGQAZQAxAC0AZAA1AGQAYwAtADQAYQAzAGIALQA5ADAANQA0AC0AMgAxAGYAYQA3ADUANgBhADMAZgBhADQALihJAG4AdABlAHIAZgBhAGMAZQBWAGUAcgBzAGkAbwBuAEkAbgBmAG8AL0x7AGMANgAxADEAZQA0ADAAMAAtADcAZgBiADkALQA0AGMAMwA1AC0AYgA5AGEAYwAtADQAZQAzADEANABiADUAOQA5ADYANAAzAH0AMBhNAGEAagBvAHIAVgBlAHIAcwBpAG8AbgAxGE0AaQBuAG8AcgBWAGUAcgBzAGkAbwBuADIMTABlAGcAYQBjAHkAMzBMAGEAbgBnAHUAYQBnAGUATQBvAGQAZQBsAFYAZQByAHMAaQBvAG4ASQBuAGYAbwA0MEwAbwBhAGQATABpAGIAcgBhAHIAaQBlAHMASQBuAHQAbwBQAHIAbwBqAGUAYwB0ADUaQwBvAG0AcABhAHQAaQBiAGkAbABpAHQAeQDQAAIaA9ADAS0E0AUGGgfQBwgaAUUHCQjQAAkaBEUKCwQDAAAABQAAAA0AAAAAAAAA0AwLrQIAAADQDQEtDtAPAS0Q0AAJGgRFCgsEAwAAAAUAAAANAAAAKAAAANAMC60BAAAA0A0BLRHQDwEtENAACRoERQoLBAMAAAAFAAAADQAAAAAAAADQDAutAgAAANANAS0S0A8BLRDQAAkaBEUKCwQDAAAABQAAAA0AAAAUAAAA0AwLrQIAAADQDQEtE9APAS0Q0AAJGgRFCgsEAwAAAAUAAAANAAAAAAAAANAMC60CAAAA0A0BLRTQDwEtENAACRoERQoLBAMAAAAFAAAADQAAAAAAAADQDAutAgAAANANAS0V0A8BLRDQAAkaBEUKCwQDAAAABQAAAA0AAAAAAAAA0AwLrQIAAADQDQEtFtAPAS0X0AAJGgRFCgsEAwAAAAUAAAANAAAAKAAAANAMC60EAAAA0A0BLRjQDwEtENAZGq0BRRscAdAAHBoCRR0LBAMAAAAFAAAADQAAAAAAAADQHh8tINAhIhoCRSMkAtAAJRoFRQoLBAMAAAADAAAAAAAAAAoAAADQJgutAAAAANADAS0n0CgBLRHQKQEtENAAJRoFRQoLBAMAAAADAAAAAAAAAAoAAADQJgutAQAAANADAS0n0CgBLRHQKQEtEJoqKwFFAAEC0AABLSzQAAEtF9AAHy0t0C4vGgPQMAutAQAAANAxC60XAAAA0DIarQDQMy8aA9AwC60CAAAA0DELrQMAAADQMhqtANA0Gq0A0DUarQA=</v>
+          </d>
+        </o>
+      </d>
+      <d n="Values" t="Hashtable" />
+    </o>
+        </Data>
+        <TypeList>
+          <Type n="Boolean">System.Boolean</Type>
+          <Type n="Hashtable">System.Collections.Hashtable</Type>
+          <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
+          <Type n="String">System.String</Type>
+        </TypeList>
+      </XmlArchive>
+    </PlcProjectOptions>
+  </ProjectExtensions>
+</Project>

@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Log_BasketTimeInOut" Id="{225d88ef-376a-4a5e-bd36-96a907731c59}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Log_BasketTimeInOut
+VAR
+	ARbLdBasketAvailibilityRE	: ARRAY [0..iLdStnQty] OF R_TRIG;
+	ARbUldBasketAvailibilityRE	: ARRAY [0..iUldStnQty] OF R_TRIG;
+	ARbStnBasketAvailibilityRE	: ARRAY [0..iStnQty] OF R_TRIG;
+
+	ARbLdBasketAvailibilityFE	: ARRAY [0..iLdStnQty] OF F_TRIG;
+	ARbUldBasketAvailibilityFE	: ARRAY [0..iUldStnQty] OF F_TRIG;
+	ARbStnBasketAvailibilityFE	: ARRAY [0..iStnQty] OF F_TRIG;
+
+	ARtStnNotBasketAvailibility	: ARRAY [0..iStnQty] OF TON;
+	ARtLdNotBasketAvailibility	: ARRAY [0..iLdStnQty] OF TON;
+	ARtUldNotBasketAvailibility	: ARRAY [0..iUldStnQty] OF TON;
+
+	ARbLdBasketInActivate		: ARRAY [0..iLdStnQty] OF BOOL;
+
+	ARbStnBasketInActivate		: ARRAY [0..iStnQty] OF BOOL;
+	ARbStnBasketOutActivate		: ARRAY [0..iStnQty] OF BOOL;
+	ARbUldBasketInActivate		: ARRAY [0..iUldStnQty] OF BOOL;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ARbLdBasketAvailibilityRE[1](CLK:= AR2sDSCv_LdConfirmBasketInfo[1,4].bAvailibility, Q=> );			ARbLdBasketAvailibilityFE[1](CLK:= AR2sDSCv_LdConfirmBasketInfo[1,4].bAvailibility, Q=> );
+ARbUldBasketAvailibilityRE[1](CLK:= AR2sDSCv_UldConfirmBasketInfo[1,1].bAvailibility, Q=> );		ARbUldBasketAvailibilityFE[1](CLK:= AR2sDSCv_UldConfirmBasketInfo[1,1].bAvailibility, Q=> );
+//ARbUldBasketAvailibilityRE[2](CLK:= AR2sDSCv_UldConfirmBasketInfo[2,1].bAvailibility, Q=> );		ARbUldBasketAvailibilityFE[2](CLK:= AR2sDSCv_UldConfirmBasketInfo[2,1].bAvailibility, Q=> );
+
+ARbStnBasketAvailibilityRE[1](CLK:= DSStnBasketInfo[1].bAvailibility, Q=> );				ARbStnBasketAvailibilityFE[1](CLK:= DSStnBasketInfo[1].bAvailibility, Q=> );
+ARbStnBasketAvailibilityRE[2](CLK:= DSStnBasketInfo[2].bAvailibility, Q=> );				ARbStnBasketAvailibilityFE[2](CLK:= DSStnBasketInfo[2].bAvailibility, Q=> );
+ARbStnBasketAvailibilityRE[3](CLK:= DSStnBasketInfo[3].bAvailibility, Q=> );				ARbStnBasketAvailibilityFE[3](CLK:= DSStnBasketInfo[3].bAvailibility, Q=> );
+ARbStnBasketAvailibilityRE[4](CLK:= DSStnBasketInfo[4].bAvailibility, Q=> );				ARbStnBasketAvailibilityFE[4](CLK:= DSStnBasketInfo[4].bAvailibility, Q=> );
+ARbStnBasketAvailibilityRE[5](CLK:= DSStnBasketInfo[5].bAvailibility, Q=> );				ARbStnBasketAvailibilityFE[5](CLK:= DSStnBasketInfo[5].bAvailibility, Q=> );
+ARbStnBasketAvailibilityRE[6](CLK:= DSStnBasketInfo[6].bAvailibility, Q=> );				ARbStnBasketAvailibilityFE[6](CLK:= DSStnBasketInfo[6].bAvailibility, Q=> );
+ARbStnBasketAvailibilityRE[7](CLK:= DSStnBasketInfo[7].bAvailibility, Q=> );				ARbStnBasketAvailibilityFE[7](CLK:= DSStnBasketInfo[7].bAvailibility, Q=> );
+ARbStnBasketAvailibilityRE[8](CLK:= DSStnBasketInfo[8].bAvailibility, Q=> );				ARbStnBasketAvailibilityFE[8](CLK:= DSStnBasketInfo[8].bAvailibility, Q=> );
+ARbStnBasketAvailibilityRE[9](CLK:= DSStnBasketInfo[9].bAvailibility, Q=> );				ARbStnBasketAvailibilityFE[9](CLK:= DSStnBasketInfo[9].bAvailibility, Q=> );
+ARbStnBasketAvailibilityRE[10](CLK:= DSStnBasketInfo[10].bAvailibility, Q=> );				ARbStnBasketAvailibilityFE[10](CLK:= DSStnBasketInfo[10].bAvailibility, Q=> );
+//ARbStnBasketAvailibilityRE[11](CLK:= DSStnBasketInfo[11].bAvailibility, Q=> );				ARbStnBasketAvailibilityFE[11](CLK:= DSStnBasketInfo[11].bAvailibility, Q=> );
+//ARbStnBasketAvailibilityRE[12](CLK:= DSStnBasketInfo[12].bAvailibility, Q=> );				ARbStnBasketAvailibilityFE[12](CLK:= DSStnBasketInfo[12].bAvailibility, Q=> );
+
+ARtLdNotBasketAvailibility[1](IN:=bAutoStartPb AND NOT AR2sDSCv_LdConfirmBasketInfo[1,4].bAvailibility , PT:=T#10S , Q=> , ET=> );
+
+ARtUldNotBasketAvailibility[1](IN:=bAutoStartPb AND NOT AR2sDSCv_UldConfirmBasketInfo[1,1].bAvailibility , PT:=T#10s , Q=> , ET=> );
+//ARtUldNotBasketAvailibility[2](IN:=bAutoStartPb AND NOT AR2sDSCv_UldConfirmBasketInfo[2,1].bAvailibility , PT:=T#10s , Q=> , ET=> );
+
+ARtStnNotBasketAvailibility[1](IN:=bAutoStartPb AND NOT DSStnBasketInfo[1].bAvailibility , PT:=T#10s , Q=> , ET=> );
+ARtStnNotBasketAvailibility[2](IN:=bAutoStartPb AND NOT DSStnBasketInfo[2].bAvailibility , PT:=T#10s , Q=> , ET=> );
+ARtStnNotBasketAvailibility[3](IN:=bAutoStartPb AND NOT DSStnBasketInfo[3].bAvailibility , PT:=T#10s , Q=> , ET=> );
+ARtStnNotBasketAvailibility[4](IN:=bAutoStartPb AND NOT DSStnBasketInfo[4].bAvailibility , PT:=T#10s , Q=> , ET=> );
+ARtStnNotBasketAvailibility[5](IN:=bAutoStartPb AND NOT DSStnBasketInfo[5].bAvailibility , PT:=T#10s , Q=> , ET=> );
+ARtStnNotBasketAvailibility[6](IN:=bAutoStartPb AND NOT DSStnBasketInfo[6].bAvailibility , PT:=T#10s , Q=> , ET=> );
+ARtStnNotBasketAvailibility[7](IN:=bAutoStartPb AND NOT DSStnBasketInfo[7].bAvailibility , PT:=T#10s , Q=> , ET=> );
+ARtStnNotBasketAvailibility[8](IN:=bAutoStartPb AND NOT DSStnBasketInfo[8].bAvailibility , PT:=T#10s , Q=> , ET=> );
+ARtStnNotBasketAvailibility[9](IN:=bAutoStartPb AND NOT DSStnBasketInfo[9].bAvailibility , PT:=T#10s , Q=> , ET=> );
+ARtStnNotBasketAvailibility[10](IN:=bAutoStartPb AND NOT DSStnBasketInfo[10].bAvailibility , PT:=T#10S , Q=> , ET=> );
+//ARtStnNotBasketAvailibility[11](IN:=bAutoStartPb AND NOT DSStnBasketInfo[11].bAvailibility , PT:=T#10s , Q=> , ET=> );
+//ARtStnNotBasketAvailibility[12](IN:=bAutoStartPb AND NOT DSStnBasketInfo[12].bAvailibility , PT:=T#10s , Q=> , ET=> );
+
+
+IF (bAutoStartPb AND ARbLdBasketAvailibilityRE[1].Q )	THEN ARbLdBasketInActivate[1] 	:= TRUE; ARsLdBasketInTime[1] := DSLocalSystemTimeML.sCurrentDateTime;
+ARiLdBasketProductRecipeBuffer[1] 	:= AR2sDSCv_LdConfirmBasketInfo[1,4].iProductRecipeNo; ARsLdBasketNoBuffer[1] 	:= AR2sDSCv_LdConfirmBasketInfo[1,4].sReservedInt; END_IF
+
+
+IF bAutoStartPb AND ARbUldBasketAvailibilityRE[1].Q 	THEN ARbUldBasketInActivate[1] 	:= TRUE;  ARsUldBasketInTime[1] := DSLocalSystemTimeML.sCurrentDateTime;
+ARiUldBasketProductRecipeBuffer[1] 	:= AR2sDSCv_UldConfirmBasketInfo[1,1].iProductRecipeNo; ARsUldBasketNoBuffer[1] 	:= AR2sDSCv_UldConfirmBasketInfo[1,1].sReservedInt; END_IF
+
+//IF bAutoStartPb AND ARbUldBasketAvailibilityRE[2].Q 	THEN ARbUldBasketInActivate[2] 	:= TRUE; ARsUldBasketInTime[2] := DSLocalSystemTimeML.sCurrentDateTime;
+//ARiUldBasketProductRecipeBuffer[2] 	:= AR2sDSCv_UldConfirmBasketInfo[2,1].iProductRecipeNo; ARsUldBasketNoBuffer[2] 	:= AR2sDSCv_UldConfirmBasketInfo[2,1].sReservedInt; END_IF
+
+
+IF bAutoStartPb AND ARbStnBasketAvailibilityRE[1].Q 	THEN ARbStnBasketInActivate[1] 	:= TRUE; ARsStnBasketInTime[1] := DSLocalSystemTimeML.sCurrentDateTime;
+ARiStnBasketProductRecipeBuffer[1] 	:= DSStnBasketInfo[1].iProductRecipeNo; ARsStnBasketNoBuffer[1] 	:= DSStnBasketInfo[1].sReservedInt; 	END_IF
+
+IF bAutoStartPb AND ARbStnBasketAvailibilityFE[1].Q 	THEN ARbStnBasketOutActivate[1] 	:= TRUE; ARsStnBasketOutTime[1] := DSLocalSystemTimeML.sCurrentDateTime; 	END_IF
+
+IF bAutoStartPb AND ARbStnBasketAvailibilityRE[2].Q 	THEN ARbStnBasketInActivate[2] 	:= TRUE; ARsStnBasketInTime[2] := DSLocalSystemTimeML.sCurrentDateTime;
+ARiStnBasketProductRecipeBuffer[2] 	:= DSStnBasketInfo[2].iProductRecipeNo; ARsStnBasketNoBuffer[2] 	:= DSStnBasketInfo[2].sReservedInt; 	END_IF
+
+IF bAutoStartPb AND ARbStnBasketAvailibilityFE[2].Q 	THEN ARbStnBasketOutActivate[2] 	:= TRUE; ARsStnBasketOutTime[2] := DSLocalSystemTimeML.sCurrentDateTime;	END_IF
+
+IF bAutoStartPb AND ARbStnBasketAvailibilityRE[3].Q 	THEN ARbStnBasketInActivate[3] 	:= TRUE; ARsStnBasketInTime[3] := DSLocalSystemTimeML.sCurrentDateTime;;
+ARiStnBasketProductRecipeBuffer[3] 	:= DSStnBasketInfo[3].iProductRecipeNo; ARsStnBasketNoBuffer[3] 	:= DSStnBasketInfo[3].sReservedInt; 	END_IF
+
+IF bAutoStartPb AND ARbStnBasketAvailibilityFE[3].Q 	THEN ARbStnBasketOutActivate[3] 	:= TRUE; ARsStnBasketOutTime[3] := DSLocalSystemTimeML.sCurrentDateTime; 	END_IF
+
+IF bAutoStartPb AND ARbStnBasketAvailibilityRE[4].Q 	THEN ARbStnBasketInActivate[4] 	:= TRUE; ARsStnBasketInTime[4] := DSLocalSystemTimeML.sCurrentDateTime;;
+ARiStnBasketProductRecipeBuffer[4] 	:= DSStnBasketInfo[4].iProductRecipeNo; ARsStnBasketNoBuffer[4] 	:= DSStnBasketInfo[4].sReservedInt; 	END_IF
+
+IF bAutoStartPb AND ARbStnBasketAvailibilityFE[4].Q 	THEN ARbStnBasketOutActivate[4] 	:= TRUE; ARsStnBasketOutTime[4] := DSLocalSystemTimeML.sCurrentDateTime; 	END_IF
+
+IF bAutoStartPb AND ARbStnBasketAvailibilityRE[5].Q 	THEN ARbStnBasketInActivate[5] 	:= TRUE; ARsStnBasketInTime[5] := DSLocalSystemTimeML.sCurrentDateTime;
+ARiStnBasketProductRecipeBuffer[5] 	:= DSStnBasketInfo[5].iProductRecipeNo; ARsStnBasketNoBuffer[5] 	:= DSStnBasketInfo[5].sReservedInt; 	END_IF
+
+IF bAutoStartPb AND ARbStnBasketAvailibilityFE[5].Q 	THEN ARbStnBasketOutActivate[5] 	:= TRUE; ARsStnBasketOutTime[5] := DSLocalSystemTimeML.sCurrentDateTime; 	END_IF
+
+IF bAutoStartPb AND ARbStnBasketAvailibilityRE[6].Q 	THEN ARbStnBasketInActivate[6] 	:= TRUE; ARsStnBasketInTime[6] := DSLocalSystemTimeML.sCurrentDateTime;
+ARiStnBasketProductRecipeBuffer[6] 	:= DSStnBasketInfo[6].iProductRecipeNo; ARsStnBasketNoBuffer[6] 	:= DSStnBasketInfo[6].sReservedInt; 	END_IF
+
+IF bAutoStartPb AND ARbStnBasketAvailibilityFE[6].Q 	THEN ARbStnBasketOutActivate[6] 	:= TRUE; ARsStnBasketOutTime[6] := DSLocalSystemTimeML.sCurrentDateTime; 	END_IF
+
+IF bAutoStartPb AND ARbStnBasketAvailibilityRE[7].Q 	THEN ARbStnBasketInActivate[7] 	:= TRUE; ARsStnBasketInTime[7] := DSLocalSystemTimeML.sCurrentDateTime;
+ARiStnBasketProductRecipeBuffer[7] 	:= DSStnBasketInfo[7].iProductRecipeNo; ARsStnBasketNoBuffer[7] 	:= DSStnBasketInfo[7].sReservedInt; 	END_IF
+
+IF bAutoStartPb AND ARbStnBasketAvailibilityFE[7].Q 	THEN ARbStnBasketOutActivate[7] 	:= TRUE; ARsStnBasketOutTime[7] := DSLocalSystemTimeML.sCurrentDateTime; 	END_IF
+
+IF bAutoStartPb AND ARbStnBasketAvailibilityRE[8].Q 	THEN ARbStnBasketInActivate[8] 	:= TRUE; ARsStnBasketInTime[8] := DSLocalSystemTimeML.sCurrentDateTime;
+ARiStnBasketProductRecipeBuffer[8] 	:= DSStnBasketInfo[8].iProductRecipeNo; ARsStnBasketNoBuffer[8] 	:= DSStnBasketInfo[8].sReservedInt; 	END_IF
+
+IF bAutoStartPb AND ARbStnBasketAvailibilityFE[8].Q 	THEN ARbStnBasketOutActivate[8] 	:= TRUE; ARsStnBasketOutTime[8] := DSLocalSystemTimeML.sCurrentDateTime; 	END_IF
+
+IF bAutoStartPb AND ARbStnBasketAvailibilityRE[9].Q 	THEN ARbStnBasketInActivate[9] 	:= TRUE; ARsStnBasketInTime[9] := DSLocalSystemTimeML.sCurrentDateTime;
+ARiStnBasketProductRecipeBuffer[9] 	:= DSStnBasketInfo[9].iProductRecipeNo; ARsStnBasketNoBuffer[9] 	:= DSStnBasketInfo[9].sReservedInt; 	END_IF
+
+IF bAutoStartPb AND ARbStnBasketAvailibilityFE[9].Q 	THEN ARbStnBasketOutActivate[9] 	:= TRUE; ARsStnBasketOutTime[9] := DSLocalSystemTimeML.sCurrentDateTime; 	END_IF
+
+IF bAutoStartPb AND ARbStnBasketAvailibilityRE[10].Q 	THEN ARbStnBasketInActivate[10] 	:= TRUE; ARsStnBasketInTime[10] := DSLocalSystemTimeML.sCurrentDateTime;
+ARiStnBasketProductRecipeBuffer[10] 	:= DSStnBasketInfo[10].iProductRecipeNo; ARsStnBasketNoBuffer[10] 	:= DSStnBasketInfo[10].sReservedInt; 	END_IF
+
+IF bAutoStartPb AND ARbStnBasketAvailibilityFE[10].Q 	THEN ARbStnBasketOutActivate[10] 	:= TRUE; ARsStnBasketOutTime[10] := DSLocalSystemTimeML.sCurrentDateTime; 	END_IF
+
+//IF bAutoStartPb AND ARbStnBasketAvailibilityRE[11].Q 	THEN ARbStnBasketInActivate[11] 	:= TRUE; ARsStnBasketInTime[11] := DSLocalSystemTimeML.sCurrentDateTime;
+//ARiStnBasketProductRecipeBuffer[11] 	:= DSStnBasketInfo[11].iProductRecipeNo; ARsStnBasketNoBuffer[11] 	:= DSStnBasketInfo[11].sReservedInt; 	END_IF
+
+//IF bAutoStartPb AND ARbStnBasketAvailibilityFE[11].Q 	THEN ARbStnBasketOutActivate[11] 	:= TRUE; ARsStnBasketOutTime[11] := DSLocalSystemTimeML.sCurrentDateTime; 	END_IF
+
+//IF bAutoStartPb AND ARbStnBasketAvailibilityRE[12].Q 	THEN ARbStnBasketInActivate[12] 	:= TRUE; ARsStnBasketInTime[12] := DSLocalSystemTimeML.sCurrentDateTime;
+//ARiStnBasketProductRecipeBuffer[12] 	:= DSStnBasketInfo[12].iProductRecipeNo; ARsStnBasketNoBuffer[12] 	:= DSStnBasketInfo[12].sReservedInt; 	END_IF
+
+//IF bAutoStartPb AND ARbStnBasketAvailibilityFE[12].Q 	THEN ARbStnBasketOutActivate[12] 	:= TRUE; ARsStnBasketOutTime[12] := DSLocalSystemTimeML.sCurrentDateTime; 	END_IF
+
+
+
+IF bAutoStartPb AND ARtLdNotBasketAvailibility[1].Q 	THEN ARbLdBasketInActivate[1] 	:= FALSE;  	END_IF
+
+IF bAutoStartPb AND ARtUldNotBasketAvailibility[1].Q 	THEN ARbUldBasketInActivate[1] 	:= FALSE; 	END_IF
+//IF bAutoStartPb AND ARtUldNotBasketAvailibility[2].Q 	THEN ARbUldBasketInActivate[2] 	:= FALSE; 	END_IF
+
+IF bAutoStartPb AND ARtStnNotBasketAvailibility[1].Q 	THEN ARbStnBasketInActivate[1] 	:= FALSE; 	ARbStnBasketOutActivate[1] 	:= FALSE; 	END_IF
+IF bAutoStartPb AND ARtStnNotBasketAvailibility[2].Q 	THEN ARbStnBasketInActivate[2] 	:= FALSE; 	ARbStnBasketOutActivate[2] 	:= FALSE; 	END_IF
+IF bAutoStartPb AND ARtStnNotBasketAvailibility[3].Q 	THEN ARbStnBasketInActivate[3] 	:= FALSE; 	ARbStnBasketOutActivate[3] 	:= FALSE; 	END_IF
+IF bAutoStartPb AND ARtStnNotBasketAvailibility[4].Q 	THEN ARbStnBasketInActivate[4] 	:= FALSE; 	ARbStnBasketOutActivate[4] 	:= FALSE; 	END_IF
+IF bAutoStartPb AND ARtStnNotBasketAvailibility[5].Q 	THEN ARbStnBasketInActivate[5] 	:= FALSE; 	ARbStnBasketOutActivate[5] 	:= FALSE; 	END_IF
+IF bAutoStartPb AND ARtStnNotBasketAvailibility[6].Q 	THEN ARbStnBasketInActivate[6] 	:= FALSE; 	ARbStnBasketOutActivate[6] 	:= FALSE; 	END_IF
+IF bAutoStartPb AND ARtStnNotBasketAvailibility[7].Q 	THEN ARbStnBasketInActivate[7] 	:= FALSE; 	ARbStnBasketOutActivate[7] 	:= FALSE; 	END_IF
+IF bAutoStartPb AND ARtStnNotBasketAvailibility[8].Q 	THEN ARbStnBasketInActivate[8] 	:= FALSE; 	ARbStnBasketOutActivate[8] 	:= FALSE; 	END_IF
+IF bAutoStartPb AND ARtStnNotBasketAvailibility[9].Q 	THEN ARbStnBasketInActivate[9] 	:= FALSE; 	ARbStnBasketOutActivate[9] 	:= FALSE; 	END_IF
+IF bAutoStartPb AND ARtStnNotBasketAvailibility[10].Q 	THEN ARbStnBasketInActivate[10] 	:= FALSE; 	ARbStnBasketOutActivate[10] 	:= FALSE; 	END_IF
+//IF bAutoStartPb AND ARtStnNotBasketAvailibility[11].Q 	THEN ARbStnBasketInActivate[11] 	:= FALSE; 	ARbStnBasketOutActivate[11] 	:= FALSE; 	END_IF
+//IF bAutoStartPb AND ARtStnNotBasketAvailibility[12].Q 	THEN ARbStnBasketInActivate[12] 	:= FALSE; 	ARbStnBasketOutActivate[12] 	:= FALSE; 	END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="Log_BasketTimeInOut">
+      <LineId Id="24" Count="124" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

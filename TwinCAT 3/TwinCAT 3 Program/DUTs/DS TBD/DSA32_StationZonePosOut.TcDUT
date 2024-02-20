@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSA32_StationZonePosOut" Id="{a1112d94-bcac-437f-ad4f-16635fab17ca}">
+    <Declaration><![CDATA[TYPE DSA32_StationZonePosOut : (*Full Occupied Byte = 200*)
+STRUCT
+
+	sReservedBool : STRING(50); (* Byte "n+0 ~ n+99" *)
+
+(*	sReservedInt : STRING(49); (* Byte "n+110~n+149" *)*)
+
+	lrZone1StartPos : LREAL; (* Byte "n+100~n+107" *)
+	lrZone1EndPos : LREAL; (* Byte "n+108~n+115" *)
+	lrZone2StartPos : LREAL; (* Byte "n+116~n+123" *)
+	lrZone2EndPos : LREAL; (* Byte "n+124~n+131" *)
+	lrZone3StartPos : LREAL; (* Byte "n+132~n+139" *)
+	lrZone3EndPos : LREAL; (* Byte "n+140~n+147" *)
+	lrZone4StartPos : LREAL; (* Byte "n+148~n+155" *)
+	lrZone4EndPos : LREAL; (* Byte "n+156~n+163" *)
+
+	lrMidPos : LREAL; (*Byte "n+164~n+171*)
+
+	sReservedLreal : STRING(27); (* Byte "n+172~n+199" *)
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

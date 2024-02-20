@@ -1,0 +1,355 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV3_TemperatureParaRecipe" Id="{6d9e7ee9-ed20-4cfa-b2d9-30da3ede2814}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV3_TemperatureParaRecipe
+
+VAR_INPUT
+	bSavePB : BOOL;
+	bLoadPB : BOOL;
+(*	bCopyPB : BOOL;
+	iCopyToSpdProfileNo : INT;
+*)
+	Call_iProductRecipeNo : INT;
+	Call_bCallPB: BOOL;
+	DSTempCtrlParameter_Min : DSV3_TempCtrlParameter;
+	DSTempCtrlParameter_Max : DSV3_TempCtrlParameter;
+(*	HMI_iRecipeNo : INT;*)
+(*	HMI_iStnNo : INT;*)
+
+END_VAR
+
+
+VAR_IN_OUT PERSISTENT
+	HMI_iRecipeNo : INT;
+	HMI_iStnNo : INT;
+	HMI_DSTempCtrlParameter_Input : DSV3_TempCtrlParameter;
+
+
+
+END_VAR
+VAR_OUTPUT
+	bSaveInd: BOOL;
+	bLoadInd: BOOL;
+	bCallCompleted : BOOL;
+	bInvalidCallTempCtrlRecipeHold: BOOL;
+	bInvalidCallTempCtrlRecipePulse: BOOL;
+	Call_DSTempCtrlRecipe : DSV3_TempCtrlRecipe;
+
+END_VAR
+VAR
+	SaveIndHr: BOOL;
+	LoadIndHr: BOOL;
+
+	SaveTimerDelay: TON;
+	LoadTimerDelay: TON;
+(*	SelfCheckTimer: TON;*)
+	bLoadEn: BOOL;
+(*	SelfCheckloopArmSpdProfileRecipe: BOOL;*)
+	iPreviousTemperatureParaRecipe: INT; (*New*)
+	iPreviousTemperatureParaStn: INT; (*New*)
+
+	LoadDF : R_TRIG;
+	LoadENDF : R_TRIG;
+
+	SaveDF: R_TRIG;
+(*	CallIntervalTimer: TON;
+	CallIntervalDIFU: R_TRIG;
+*)
+	bCallCompletedHR: BOOL;
+	bCallCompletedHRRE: R_TRIG;
+	CallCompletedTimer: TON;
+	CallSelfCheckTimer : TON;
+	CallSelfCheckloop : BOOL;
+
+	CallSelfCheckRE: R_TRIG;
+	CallStep: INT;
+	CallSelfCheckHR: BOOL;
+	bCallPBRE: R_TRIG;
+
+	LoadFL: INT;
+	SaveFL: INT;
+	PreviousTemperatureParaRecipeCallNo: INT;
+	CallSFL: INT;
+	febInvalidCallTempCtrlRecipe: F_TRIG;(*New*)
+
+
+
+(*	rebInvalidCallArmSpdProfileNo: R_TRIG;*)
+	tInvalidCallTempCtrlRecipePulseTimer: TON;
+	CopyDF: R_TRIG;
+(*	iMaxMinFL: INT;*)
+END_VAR
+
+VAR PERSISTENT
+
+(*	DSTempCtrlRecipe 			: ARRAY [0..iProductRecipeArrayQty] OF DSV3_TempCtrlRecipe;  (* Make it Global so that future can read/write easily*)	*)
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+
+
+XML_ImportExport();
+
+IF HMI_iRecipeNo < 0 THEN
+HMI_iRecipeNo := 0;
+END_IF
+
+(*
+IF HMI_iRecipeNo < 1 THEN
+HMI_iRecipeNo := 1;
+END_IF
+*)
+IF HMI_iRecipeNo > iProductRecipeArrayQty THEN
+HMI_iRecipeNo := iProductRecipeArrayQty;
+END_IF
+
+
+
+(*Min / Max Control*)
+			IF HMI_DSTempCtrlParameter_Input.rProTank1stLimitTempSV 		< DSTempCtrlParameter_Min.rProTank1stLimitTempSV THEN
+			HMI_DSTempCtrlParameter_Input.rProTank1stLimitTempSV			:= DSTempCtrlParameter_Min.rProTank1stLimitTempSV;
+			ELSIF HMI_DSTempCtrlParameter_Input.rProTank1stLimitTempSV 	> DSTempCtrlParameter_Max.rProTank1stLimitTempSV THEN
+			HMI_DSTempCtrlParameter_Input.rProTank1stLimitTempSV			:= DSTempCtrlParameter_Max.rProTank1stLimitTempSV;
+			END_IF
+
+			IF HMI_DSTempCtrlParameter_Input.rProTankHighTempSV 			< DSTempCtrlParameter_Min.rProTankHighTempSV THEN
+			HMI_DSTempCtrlParameter_Input.rProTankHighTempSV			:= DSTempCtrlParameter_Min.rProTankHighTempSV;
+			ELSIF HMI_DSTempCtrlParameter_Input.rProTankHighTempSV	 	> DSTempCtrlParameter_Max.rProTankHighTempSV THEN
+			HMI_DSTempCtrlParameter_Input.rProTankHighTempSV			:= DSTempCtrlParameter_Max.rProTankHighTempSV;
+			END_IF
+
+			IF HMI_DSTempCtrlParameter_Input.rProTankHysTempSV 			< DSTempCtrlParameter_Min.rProTankHysTempSV THEN
+			HMI_DSTempCtrlParameter_Input.rProTankHysTempSV			:= DSTempCtrlParameter_Min.rProTankHysTempSV;
+			ELSIF HMI_DSTempCtrlParameter_Input.rProTankHysTempSV 		> DSTempCtrlParameter_Max.rProTankHysTempSV THEN
+			HMI_DSTempCtrlParameter_Input.rProTankHysTempSV			:= DSTempCtrlParameter_Max.rProTankHysTempSV;
+			END_IF
+
+			IF HMI_DSTempCtrlParameter_Input.rProTankProcessTempSV 		< DSTempCtrlParameter_Min.rProTankProcessTempSV THEN
+			HMI_DSTempCtrlParameter_Input.rProTankProcessTempSV		:= DSTempCtrlParameter_Min.rProTankProcessTempSV;
+			ELSIF HMI_DSTempCtrlParameter_Input.rProTankProcessTempSV 	> DSTempCtrlParameter_Max.rProTankProcessTempSV THEN
+			HMI_DSTempCtrlParameter_Input.rProTankProcessTempSV		:= DSTempCtrlParameter_Max.rProTankProcessTempSV;
+			END_IF
+
+			IF HMI_DSTempCtrlParameter_Input.rProTankRdyTempSV 			< DSTempCtrlParameter_Min.rProTankRdyTempSV THEN
+			HMI_DSTempCtrlParameter_Input.rProTankRdyTempSV			:= DSTempCtrlParameter_Min.rProTankRdyTempSV;
+			ELSIF HMI_DSTempCtrlParameter_Input.rProTankRdyTempSV 		> DSTempCtrlParameter_Max.rProTankRdyTempSV THEN
+			HMI_DSTempCtrlParameter_Input.rProTankRdyTempSV			:= DSTempCtrlParameter_Max.rProTankRdyTempSV;
+			END_IF
+
+			IF HMI_DSTempCtrlParameter_Input.iProTankRdyTempDelayTime 		< DSTempCtrlParameter_Min.iProTankRdyTempDelayTime THEN
+			HMI_DSTempCtrlParameter_Input.iProTankRdyTempDelayTime			:= DSTempCtrlParameter_Min.iProTankRdyTempDelayTime;
+			ELSIF HMI_DSTempCtrlParameter_Input.iProTankRdyTempDelayTime 	> DSTempCtrlParameter_Max.iProTankRdyTempDelayTime THEN
+			HMI_DSTempCtrlParameter_Input.iProTankRdyTempDelayTime			:= DSTempCtrlParameter_Max.iProTankRdyTempDelayTime;
+			END_IF
+
+
+
+			IF HMI_DSTempCtrlParameter_Input.rSubTank1stLimitTempSV 		< DSTempCtrlParameter_Min.rSubTank1stLimitTempSV THEN
+			HMI_DSTempCtrlParameter_Input.rSubTank1stLimitTempSV			:= DSTempCtrlParameter_Min.rSubTank1stLimitTempSV;
+			ELSIF HMI_DSTempCtrlParameter_Input.rSubTank1stLimitTempSV 	> DSTempCtrlParameter_Max.rSubTank1stLimitTempSV THEN
+			HMI_DSTempCtrlParameter_Input.rSubTank1stLimitTempSV			:= DSTempCtrlParameter_Max.rSubTank1stLimitTempSV;
+			END_IF
+
+			IF HMI_DSTempCtrlParameter_Input.rSubTankHighTempSV 			< DSTempCtrlParameter_Min.rSubTankHighTempSV THEN
+			HMI_DSTempCtrlParameter_Input.rSubTankHighTempSV			:= DSTempCtrlParameter_Min.rSubTankHighTempSV;
+			ELSIF HMI_DSTempCtrlParameter_Input.rSubTankHighTempSV	 	> DSTempCtrlParameter_Max.rSubTankHighTempSV THEN
+			HMI_DSTempCtrlParameter_Input.rSubTankHighTempSV			:= DSTempCtrlParameter_Max.rSubTankHighTempSV;
+			END_IF
+
+			IF HMI_DSTempCtrlParameter_Input.rSubTankHysTempSV 			< DSTempCtrlParameter_Min.rSubTankHysTempSV THEN
+			HMI_DSTempCtrlParameter_Input.rSubTankHysTempSV			:= DSTempCtrlParameter_Min.rSubTankHysTempSV;
+			ELSIF HMI_DSTempCtrlParameter_Input.rSubTankHysTempSV 		> DSTempCtrlParameter_Max.rSubTankHysTempSV THEN
+			HMI_DSTempCtrlParameter_Input.rSubTankHysTempSV			:= DSTempCtrlParameter_Max.rSubTankHysTempSV;
+			END_IF
+
+			IF HMI_DSTempCtrlParameter_Input.rSubTankProcessTempSV 		< DSTempCtrlParameter_Min.rSubTankProcessTempSV THEN
+			HMI_DSTempCtrlParameter_Input.rSubTankProcessTempSV		:= DSTempCtrlParameter_Min.rSubTankProcessTempSV;
+			ELSIF HMI_DSTempCtrlParameter_Input.rSubTankProcessTempSV 	> DSTempCtrlParameter_Max.rSubTankProcessTempSV THEN
+			HMI_DSTempCtrlParameter_Input.rSubTankProcessTempSV		:= DSTempCtrlParameter_Max.rSubTankProcessTempSV;
+			END_IF
+
+			IF HMI_DSTempCtrlParameter_Input.rSubTankRdyTempSV 			< DSTempCtrlParameter_Min.rSubTankRdyTempSV THEN
+			HMI_DSTempCtrlParameter_Input.rSubTankRdyTempSV			:= DSTempCtrlParameter_Min.rSubTankRdyTempSV;
+			ELSIF HMI_DSTempCtrlParameter_Input.rSubTankRdyTempSV 		> DSTempCtrlParameter_Max.rSubTankRdyTempSV THEN
+			HMI_DSTempCtrlParameter_Input.rSubTankRdyTempSV			:= DSTempCtrlParameter_Max.rSubTankRdyTempSV;
+			END_IF
+
+			IF HMI_DSTempCtrlParameter_Input.iSubTankRdyTempDelayTime 		< DSTempCtrlParameter_Min.iSubTankRdyTempDelayTime THEN
+			HMI_DSTempCtrlParameter_Input.iSubTankRdyTempDelayTime			:= DSTempCtrlParameter_Min.iSubTankRdyTempDelayTime;
+			ELSIF HMI_DSTempCtrlParameter_Input.iSubTankRdyTempDelayTime 	> DSTempCtrlParameter_Max.iSubTankRdyTempDelayTime THEN
+			HMI_DSTempCtrlParameter_Input.iSubTankRdyTempDelayTime			:= DSTempCtrlParameter_Max.iSubTankRdyTempDelayTime;
+			END_IF
+
+
+
+(*Load and Save Indicator*)
+IF bSavePB THEN
+SaveIndHr := TRUE;
+END_IF
+
+SaveTimerDelay(IN:=SaveIndHr, PT := T#1s, Q=>, ET=>);
+IF SaveTimerDelay.Q THEN
+SaveIndHr := FALSE;
+END_IF
+
+IF SaveIndHr AND NOT SaveTimerDelay.Q THEN
+bSaveInd := TRUE;
+ELSE
+bSaveInd := FALSE;
+END_IF
+
+IF bLoadPB THEN
+LoadIndHr := TRUE;
+END_IF
+
+LoadTimerDelay(IN:=LoadIndHr, PT := T#1s, Q=>, ET=>);
+IF loadtimerdelay.Q THEN
+LoadIndHr := FALSE;
+END_IF
+
+IF loadIndHr AND NOT LoadTimerDelay.Q THEN
+bLoadInd := TRUE;
+ELSE
+bLoadInd := FALSE;
+END_IF
+
+IF HMI_iRecipeNo <> iPreviousTemperatureParaRecipe OR  HMI_iStnNo <> iPreviousTemperatureParaStn THEN
+bLoadEn := TRUE;
+ELSE
+bLoadEn := FALSE;
+END_IF
+
+
+(* Load Recipe *)
+
+LoadDF(CLK:=bLoadPB,Q=>);
+LoadENDF(CLK:=bLoadEn,Q=>);
+
+IF LoadDF.Q OR LoadENDF.Q THEN
+
+HMI_DSTempCtrlParameter_Input := ARDSTempCtrlRecipe[HMI_iRecipeNo].Station[HMI_iStnNo];
+iPreviousTemperatureParaRecipe := HMI_iRecipeNo  ;
+iPreviousTemperatureParaStn := HMI_iStnNo  ;
+
+END_IF
+
+
+(* Save Recipe *)
+
+SaveDF(CLK:=bSavePB,Q=>);
+
+IF SaveDF.Q THEN
+
+ARDSTempCtrlRecipe[HMI_iRecipeNo].Station[HMI_iStnNo] := HMI_DSTempCtrlParameter_Input;
+
+END_IF
+
+(*
+(*Copy Recipe*)
+
+CopyDF(CLK:=bCopyPB,Q=>);
+
+IF CopyDF.Q THEN
+
+ARDSTempCtrlRecipe[iCopyToSpdProfileNo] := ARDSTempCtrlRecipe[HMI_iRecipeNo];
+ARsStorageArmSpeedProfileDescription[iCopyToSpdProfileNo] := ARDSTempCtrlRecipe[HMI_iRecipeNo].sDescription;
+
+END_IF
+*)
+
+
+
+
+(* Call Recipe *)
+(* ---- Call Recipe Complete Flag ---*)
+
+
+IF NOT Call_bCallPB THEN
+bCallCompleted := FALSE;
+END_IF
+
+bCallPBRE(CLK:=Call_bCallPB , Q=> );
+(*
+IF (Call_iProductRecipeNo <= 0 OR Call_iProductRecipeNo > iProductRecipeArrayQty) AND Call_bCallPB THEN
+bInvalidCallTempCtrlRecipeHold := TRUE;
+ELSE
+bInvalidCallTempCtrlRecipeHold := FALSE;
+END_IF
+*)
+
+febInvalidCallTempCtrlRecipe(CLK:= Call_bCallPB AND bInvalidCallTempCtrlRecipeHold  , Q=> );
+
+IF febInvalidCallTempCtrlRecipe.Q THEN
+bInvalidCallTempCtrlRecipePulse := TRUE;
+END_IF
+
+tInvalidCallTempCtrlRecipePulseTimer(IN:=bInvalidCallTempCtrlRecipePulse , PT:=t#0.5s , Q=> , ET=> );
+
+IF tInvalidCallTempCtrlRecipePulseTimer.Q OR NOT Call_bCallPB THEN
+bInvalidCallTempCtrlRecipePulse := FALSE;
+END_IF
+
+IF bCallPBRE.Q AND NOT bInvalidCallTempCtrlRecipeHold THEN
+bCallCompleted := FALSE;
+CallStep:= 1;
+END_IF
+
+
+CASE CallStep OF
+
+1:
+
+Call_DSTempCtrlRecipe := ARDSTempCtrlRecipe[Call_iProductRecipeNo];
+
+CallStep := 11;
+
+
+11:
+bCallCompleted := TRUE;
+CallSelfCheckHR := FALSE;
+PreviousTemperatureParaRecipeCallNo := Call_iProductRecipeNo;
+CallStep := 99;
+
+
+
+99:
+;
+END_CASE]]></ST>
+    </Implementation>
+    <Action Name="XML_ImportExport" Id="{c95a6245-568d-4f18-a8de-f7617dbc8a28}">
+      <Implementation>
+        <ST><![CDATA[(* XML Import Export Control *)
+(*	ARiSubAction					: ARRAY [1..10] OF INT; (* 0-Idle, 1-Import, 2-Export, 3-Clear/Delete 8-Done *)*)
+
+
+	IF 		ARiSubAction[3] = 1 THEN (*Write from Buffer to Actual Memory*)
+				ARDSTempCtrlRecipe[iXMLRecipeNo] := DSV3XML_Recipe.DSTempCtrlRecipe;
+				ARiSubAction[3] := 8;
+(*				IF iHMIRecipeNo = iXMLRecipeNo THEN
+					bRecipeLoadPb := TRUE;
+				END_IF
+*)
+	ELSIF	ARiSubAction[3] = 2 THEN (*Read from Actual to Buffer Memory*)
+				DSV3XML_Recipe.DSTempCtrlRecipe := ARDSTempCtrlRecipe[iXMLRecipeNo];
+				ARiSubAction[3] := 8;
+
+	ELSIF	ARiSubAction[3] = 3 THEN (*DELETE Actual Memory*)
+				ARDSTempCtrlRecipe := ARDSTempCtrlRecipe_Delete;
+				ARiSubAction[3] := 8;
+(*				IF iHMIRecipeNo = iXMLRecipeNo THEN
+					bRecipeLoadPb := TRUE;
+				END_IF
+*)
+	END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="fbV3_TemperatureParaRecipe">
+      <LineId Id="84" Count="229" />
+    </LineIds>
+    <LineIds Name="fbV3_TemperatureParaRecipe.XML_ImportExport">
+      <LineId Id="0" Count="23" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbTempControl" Id="{c17c2636-bad2-4aa9-a0f2-ddb2c324fe0f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbTempControl
+VAR_INPUT
+	iRawAnalogInput					: INT;
+	rRawToPVRatio					: REAL;
+	rTargetTempHysteresis			: REAL;
+	rBasedHighTempSV				: REAL;
+	rBasedTargetTempSV				: REAL;
+	rBasedTempReadySV				: REAL;
+	rBased1stLimitSV					: REAL;
+(*	rBased2ndLimitSV					: REAL;*)
+	rOverrideTargetTempSV			: REAL;
+	rOverrideTempReadySV			: REAL;
+	rOverride1stLimitSV				: REAL;
+(*	rOverride2ndLimitSV				: REAL;*)
+
+	bTemperatureOverrideEn			: BOOL;
+	bManualHeaterOnPB				: BOOL;
+	bPreparation						: BOOL;
+	bAutoStart						: BOOL;
+	bDeactivatedMode				: BOOL;
+	iNotReadyAlarmDelayTime					: INT;
+
+END_VAR
+VAR_OUTPUT
+	rTemperaturePV				: REAL;
+	bOutputHeater				: BOOL;
+	bStatusTempReadyNO					: BOOL;
+	bAlarmHighTempNC					: BOOL;
+	bAlarm1stLimitNO					: BOOL;
+	bAlarmTemperatureNotReady 		: BOOL;
+(*	bAlarm2ndLimit					: BOOL;
+	b_ConditionNotFullfill	: BOOL;
+	b_TempNotRdyAlarm	: BOOL;*)
+
+END_VAR
+VAR
+	rInternalTempRdyPlus: REAL;
+	rInternalTempRdyMinus: REAL;
+	rInternalTempHysPlus: REAL;
+	rInternalTempHysMinus: REAL;
+	rInternal1stLimitPlus: REAL;
+	rInternal1stLimitMinus: REAL;
+	rInternalTargetTempSV : REAL;
+(*	rInternal2ndLimitPlus: REAL;
+	rInternal2ndLimitMinus: REAL;*)
+(*	tPowerOnDelayTimer: TON;
+	tPowerOnDelayTimer_RE: R_TRIG;
+*)	tNotReadyAlarmDelayTimer: TON;
+	bManualHeaterOnPB_RE: R_TRIG;
+	bPreparation_RE: R_TRIG;
+	bAutoStart_RE: R_TRIG;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*tPowerOnDelayTimer(IN:=TRUE, PT:=t#1s , Q=> , ET=> );
+tPowerOnDelayTimer_RE(CLK:=tPowerOnDelayTimer.Q , Q=> );
+*)
+
+IF rRawToPVRatio <> 0 AND iRawAnalogInput > 0 THEN
+rTemperaturePV := INT_TO_REAL(iRawAnalogInput)/rRawToPVRatio ;
+ELSE
+rTemperaturePV := 0 ;
+END_IF
+
+IF bTemperatureOverrideEn THEN
+
+	rInternalTargetTempSV := rOverrideTargetTempSV;
+	rInternalTempRdyPlus := rOverrideTargetTempSV+rOverrideTempReadySV;
+	rInternalTempRdyMinus := rOverrideTargetTempSV-rOverrideTempReadySV;
+
+	rInternalTempHysPlus :=rOverrideTargetTempSV+ rTargetTempHysteresis;
+	rInternalTempHysMinus := rOverrideTargetTempSV-rTargetTempHysteresis;
+
+	rInternal1stLimitPlus := rOverrideTargetTempSV+rOverride1stLimitSV;
+	rInternal1stLimitMinus := rOverrideTargetTempSV-rOverride1stLimitSV;
+(*
+	rInternal2ndLimitPlus := rOverrideTargetTempSV+rOverride2ndLimitSV;
+	rInternal2ndLimitMinus := rOverrideTargetTempSV-rOverride2ndLimitSV;
+*)
+ELSE
+
+	rInternalTargetTempSV := rBasedTargetTempSV;
+	rInternalTempRdyPlus := rBasedTargetTempSV+rBasedTempReadySV;
+	rInternalTempRdyMinus := rBasedTargetTempSV-rBasedTempReadySV;
+
+	rInternalTempHysPlus := rBasedTargetTempSV+ rTargetTempHysteresis;
+	rInternalTempHysMinus := rBasedTargetTempSV-rTargetTempHysteresis;
+
+	rInternal1stLimitPlus := rBasedTargetTempSV+rBased1stLimitSV;
+	rInternal1stLimitMinus := rBasedTargetTempSV-rBased1stLimitSV;
+(*
+	rInternal2ndLimitPlus := rBasedTargetTempSV+rBased2ndLimitSV;
+	rInternal2ndLimitMinus := rBasedTargetTempSV-rBased2ndLimitSV;
+*)
+END_IF
+(*
+IF  bAutoStart AND (rTemperaturePV >= rInternal2ndLimitPlus OR rTemperaturePV <= rInternal2ndLimitMinus) THEN
+	bAlarm2ndLimit := TRUE;
+ELSE
+	bAlarm2ndLimit := FALSE;
+END_IF
+*)
+IF bAutoStart AND (rTemperaturePV >= rInternal1stLimitPlus OR rTemperaturePV <= rInternal1stLimitMinus) AND NOT bDeactivatedMode THEN
+	bAlarm1stLimitNO := TRUE;
+ELSE
+	bAlarm1stLimitNO := FALSE;
+END_IF
+
+IF rTemperaturePV >= rInternalTempRdyMinus AND rTemperaturePV <= rInternalTempRdyPlus THEN
+	bStatusTempReadyNO	:= TRUE;
+ELSE
+	bStatusTempReadyNO	:= FALSE;
+END_IF
+
+
+
+(*Heater Output Control*)
+bManualHeaterOnPB_RE(CLK:=bManualHeaterOnPB , Q=> );
+bPreparation_RE(CLK:=bPreparation , Q=> );
+bAutoStart_RE(CLK:=bAutoStart , Q=> );
+
+
+
+IF rTemperaturePV >= rInternalTargetTempSV OR bDeactivatedMode THEN
+	bOutputHeater := FALSE;
+ELSIF  rTemperaturePV <= rInternalTempHysMinus AND bAlarmHighTempNC  THEN
+	bOutputHeater := TRUE;
+ELSIF rTemperaturePV < rInternalTargetTempSV AND (bManualHeaterOnPB_RE.Q OR bPreparation_RE.Q AND bAutoStart_RE.Q)   AND bAlarmHighTempNC THEN
+	bOutputHeater := TRUE;
+END_IF
+
+tNotReadyAlarmDelayTimer(IN:=NOT bStatusTempReadyNO AND bPreparation AND NOT bAutoStart , PT:= INT_TO_TIME(iNotReadyAlarmDelayTime*1000) , Q=> , ET=> );
+IF  tNotReadyAlarmDelayTimer.Q THEN
+bAlarmTemperatureNotReady := TRUE;
+ELSE
+bAlarmTemperatureNotReady := FALSE;
+END_IF
+
+
+IF rTemperaturePV >= rBasedHighTempSV AND NOT bDeactivatedMode THEN
+	bAlarmHighTempNC := FALSE;
+ELSE
+	bAlarmHighTempNC := TRUE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbTempControl">
+      <LineId Id="52" Count="89" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

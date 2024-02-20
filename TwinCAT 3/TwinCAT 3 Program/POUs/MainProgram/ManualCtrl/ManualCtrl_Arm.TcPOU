@@ -1,0 +1,544 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="ManualCtrl_Arm" Id="{9b740fba-a5c7-4b00-b9c4-bbc29456b7e1}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM ManualCtrl_Arm
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*=================================Station Unhook Position================================*)
+(*xxxxxxxxxx ARM 1 xxxxxxxxxx*)
+IF ARDSArmCtrl[1].AR3sbPositionCfm[2,1,7] THEN
+	bArm1HorzLD1Unhook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[3,1,7] THEN
+	bArm1HorzULD1Unhook_30		:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,1,7] THEN
+	bArm1HorzStn1Unhook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,2,7] THEN
+	bArm1HorzStn2Unhook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,3,7] THEN
+	bArm1HorzStn3Unhook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,4,7] THEN
+	bArm1HorzStn4Unhook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,5,7] THEN
+	bArm1HorzStn5Unhook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,6,7] THEN
+	bArm1HorzStn6Unhook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,7,7] THEN
+	bArm1HorzStn7Unhook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,8,7] THEN
+	bArm1HorzStn8Unhook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,9,7] THEN
+	bArm1HorzStn9Unhook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,10,7] THEN
+	bArm1HorzStn10Unhook_30		:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,11,7] THEN
+	bArm1HorzStn11Unhook_30		:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,12,7] THEN
+	bArm1HorzStn12Unhook_30		:= FALSE;
+END_IF
+
+(*xxxxxxxxxx ARM 2 xxxxxxxxxx*)
+IF ARDSArmCtrl[2].AR3sbPositionCfm[2,1,7] THEN
+	bArm2HorzLD1Unhook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[3,1,7] THEN
+	bArm2HorzULD1Unhook_30		:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,1,7] THEN
+	bArm2HorzStn1Unhook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,2,7] THEN
+	bArm2HorzStn2Unhook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,3,7] THEN
+	bArm2HorzStn3Unhook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,4,7] THEN
+	bArm2HorzStn4Unhook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,5,7] THEN
+	bArm2HorzStn5Unhook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,6,7] THEN
+	bArm2HorzStn6Unhook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,7,7] THEN
+	bArm2HorzStn7Unhook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,8,7] THEN
+	bArm2HorzStn8Unhook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,9,7] THEN
+	bArm2HorzStn9Unhook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,10,7] THEN
+	bArm2HorzStn10Unhook_30		:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,11,7] THEN
+	bArm2HorzStn11Unhook_30		:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,12,7] THEN
+	bArm2HorzStn12Unhook_30		:= FALSE;
+END_IF
+
+
+(*=================================Station Hook Position================================*)
+(*xxxxxxxxxx ARM 1 xxxxxxxxxx*)
+IF ARDSArmCtrl[1].AR3sbPositionCfm[2,1,8] THEN
+	bArm1HorzLD1Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[3,1,8] THEN
+	bArm1HorzULD1Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,1,8] THEN
+	bArm1HorzStn1Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,2,8] THEN
+	bArm1HorzStn2Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,3,8] THEN
+	bArm1HorzStn3Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,4,8] THEN
+	bArm1HorzStn4Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,5,8] THEN
+	bArm1HorzStn5Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,6,8] THEN
+	bArm1HorzStn6Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,7,8] THEN
+	bArm1HorzStn7Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,8,8] THEN
+	bArm1HorzStn8Hook_30			:= FALSE;
+END_IF
+
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,9,8] THEN
+	bArm1HorzStn9Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,10,8] THEN
+	bArm1HorzStn10Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,11,8] THEN
+	bArm1HorzStn11Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,12,8] THEN
+	bArm1HorzStn12Hook_30			:= FALSE;
+END_IF
+
+(*xxxxxxxxxx ARM 2 xxxxxxxxxx*)
+IF ARDSArmCtrl[2].AR3sbPositionCfm[2,1,8] THEN
+	bArm2HorzLD1Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[3,1,8] THEN
+	bArm2HorzULD1Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,1,8] THEN
+	bArm2HorzStn1Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,2,8] THEN
+	bArm2HorzStn2Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,3,8] THEN
+	bArm2HorzStn3Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,4,8] THEN
+	bArm2HorzStn4Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,5,8] THEN
+	bArm2HorzStn5Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,6,8] THEN
+	bArm2HorzStn6Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,7,8] THEN
+	bArm2HorzStn7Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,8,8] THEN
+	bArm2HorzStn8Hook_30			:= FALSE;
+END_IF
+
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,9,8] THEN
+	bArm2HorzStn9Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,10,8] THEN
+	bArm2HorzStn10Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,11,8] THEN
+	bArm2HorzStn11Hook_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,12,8] THEN
+	bArm2HorzStn12Hook_30			:= FALSE;
+END_IF
+
+
+(*=================================Station Up / Down Position================================*)
+(*xxxxxxxxxx ARM 1 xxxxxxxxxx*)
+IF ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1] OR NOT ARbArmVertHomeDone[1] THEN
+	bArm1VertLD1Up_30				:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[2,1,6] THEN
+	bArm1VertLD1Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[3,1,6] THEN
+	 bArm1VertULD1Down_30 			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,1,6] THEN
+	bArm1VertStn1Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,2,6] THEN
+	bArm1VertStn2Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,3,6] THEN
+	bArm1VertStn3Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,4,6] THEN
+	bArm1VertStn4Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,5,6] THEN
+	bArm1VertStn5Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,6,6] THEN
+	bArm1VertStn6Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,7,6] THEN
+	bArm1VertStn7Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,8,6] THEN
+	bArm1VertStn8Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,9,6] THEN
+	bArm1VertStn9Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,10,6] THEN
+	bArm1VertStn10Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,11,6] THEN
+	bArm1VertStn11Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,12,6] THEN
+	bArm1VertStn12Down_30			:= FALSE;
+END_IF
+
+(*xxxxxxxxxx ARM 2 xxxxxxxxxx*)
+IF ARDSArmCtrl[2].AR3sbPositionCfm[3,1,1] OR NOT ARbArmVertHomeDone[2] THEN
+	bArm2VertULD1Up_30				:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[2,1,6] THEN
+	bArm2VertLD1Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[3,1,6] THEN
+	 bArm2VertULD1Down_30 			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,1,6] THEN
+	bArm2VertStn1Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,2,6] THEN
+	bArm2VertStn2Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,3,6] THEN
+	bArm2VertStn3Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,4,6] THEN
+	bArm2VertStn4Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,5,6] THEN
+	bArm2VertStn5Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,6,6] THEN
+	bArm2VertStn6Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,7,6] THEN
+	bArm2VertStn7Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,8,6] THEN
+	bArm2VertStn8Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,9,6] THEN
+	bArm2VertStn9Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,10,6] THEN
+	bArm2VertStn10Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,11,6] THEN
+	bArm2VertStn11Down_30			:= FALSE;
+END_IF
+
+IF ARDSArmCtrl[2].AR3sbPositionCfm[1,12,6] THEN
+	bArm2VertStn12Down_30			:= FALSE;
+END_IF
+
+
+(*=================================Station Slow Pull Position================================*)
+
+
+IF ARDSArmCtrl[1].AR3sbPositionCfm[1,9,2] THEN      (*Stn 9 SlowPull Mid Down*)
+	bArm1VertStn9SpSlanted_30		:= FALSE;
+END_IF
+
+
+IF bArmSlowPullUpCFM OR NOT ARbArmSlowPullHomeDone[1] THEN
+	bSlowPull1LifterStn9Up_30			:= FALSE;
+END_IF
+
+
+IF bArmSlowPullDownCFM OR NOT ARbArmSlowPullHomeDone[1] THEN
+	bSlowPull1LifterStn9Down_30		:= FALSE;
+END_IF
+
+
+(*=================================Station Position================================*)
+
+IF EmergencyStop OR NOT ManualPageEnable THEN
+
+	bArm1VertHomeStart_30			:= FALSE;
+	bArm1HorzHomeStart_30			:= FALSE;
+	bSlowPull1LifterHomeStart_30		:= FALSE;
+
+	bArm2VertHomeStart_30			:= FALSE;
+	bArm2HorzHomeStart_30			:= FALSE;
+	bSlowPull2LifterHomeStart_30		:= FALSE;
+
+	bArm1HorzLD1Unhook_30			:= FALSE;
+	bArm1HorzULD1Unhook_30		:= FALSE;
+	bArm1HorzStn1Unhook_30 			:= FALSE;
+	bArm1HorzStn2Unhook_30			:= FALSE;
+	bArm1HorzStn3Unhook_30			:= FALSE;
+	bArm1HorzStn4Unhook_30			:= FALSE;
+	bArm1HorzStn5Unhook_30 			:= FALSE;
+	bArm1HorzStn6Unhook_30			:= FALSE;
+	bArm1HorzStn7Unhook_30			:= FALSE;
+	bArm1HorzStn8Unhook_30			:= FALSE;
+	bArm1HorzStn9Unhook_30 			:= FALSE;
+	bArm1HorzStn10Unhook_30		:= FALSE;
+	bArm1HorzStn11Unhook_30		:= FALSE;
+	bArm1HorzStn12Unhook_30		:= FALSE;
+
+	bArm2HorzLD1Unhook_30			:= FALSE;
+	bArm2HorzULD1Unhook_30		:= FALSE;
+	bArm2HorzStn1Unhook_30 			:= FALSE;
+	bArm2HorzStn2Unhook_30			:= FALSE;
+	bArm2HorzStn3Unhook_30			:= FALSE;
+	bArm2HorzStn4Unhook_30			:= FALSE;
+	bArm2HorzStn5Unhook_30 			:= FALSE;
+	bArm2HorzStn6Unhook_30			:= FALSE;
+	bArm2HorzStn7Unhook_30			:= FALSE;
+	bArm2HorzStn8Unhook_30			:= FALSE;
+	bArm2HorzStn9Unhook_30 			:= FALSE;
+	bArm2HorzStn10Unhook_30		:= FALSE;
+	bArm2HorzStn11Unhook_30		:= FALSE;
+	bArm2HorzStn12Unhook_30		:= FALSE;
+
+	bArm1HorzLD1Hook_30			:= FALSE;
+	bArm1HorzULD1Hook_30			:= FALSE;
+	bArm1HorzStn1Hook_30			:= FALSE;
+	bArm1HorzStn2Hook_30			:= FALSE;
+	bArm1HorzStn3Hook_30			:= FALSE;
+	bArm1HorzStn4Hook_30			:= FALSE;
+	bArm1HorzStn5Hook_30			:= FALSE;
+	bArm1HorzStn6Hook_30			:= FALSE;
+	bArm1HorzStn7Hook_30			:= FALSE;
+	bArm1HorzStn8Hook_30			:= FALSE;
+	bArm1HorzStn9Hook_30			:= FALSE;
+	bArm1HorzStn10Hook_30			:= FALSE;
+	bArm1HorzStn11Hook_30			:= FALSE;
+	bArm1HorzStn12Hook_30			:= FALSE;
+
+	bArm2HorzLD1Hook_30			:= FALSE;
+	bArm2HorzULD1Hook_30			:= FALSE;
+	bArm2HorzStn1Hook_30			:= FALSE;
+	bArm2HorzStn2Hook_30			:= FALSE;
+	bArm2HorzStn3Hook_30			:= FALSE;
+	bArm2HorzStn4Hook_30			:= FALSE;
+	bArm2HorzStn5Hook_30			:= FALSE;
+	bArm2HorzStn6Hook_30			:= FALSE;
+	bArm2HorzStn7Hook_30			:= FALSE;
+	bArm2HorzStn8Hook_30			:= FALSE;
+	bArm2HorzStn9Hook_30			:= FALSE;
+	bArm2HorzStn10Hook_30			:= FALSE;
+	bArm2HorzStn11Hook_30			:= FALSE;
+	bArm2HorzStn12Hook_30			:= FALSE;
+
+	bArm1VertLD1Up_30				:= FALSE;
+	bArm1VertLD1Up_28 				:= FALSE;
+
+	bArm2VertULD1Up_30				:= FALSE;
+	bArm2VertULD1Up_28 				:= FALSE;
+
+	bArm1VertLD1Down_30			:= FALSE;
+	bArm1VertULD1Down_30			:= FALSE;
+	bArm1VertStn1Down_30			:= FALSE;
+	bArm1VertStn2Down_30			:= FALSE;
+	bArm1VertStn3Down_30			:= FALSE;
+	bArm1VertStn4Down_30			:= FALSE;
+	bArm1VertStn5Down_30			:= FALSE;
+	bArm1VertStn6Down_30			:= FALSE;
+	bArm1VertStn7Down_30			:= FALSE;
+	bArm1VertStn8Down_30			:= FALSE;
+	bArm1VertStn9Down_30			:= FALSE;
+	bArm1VertStn10Down_30			:= FALSE;
+
+	bArm2VertLD1Down_30			:= FALSE;
+	bArm2VertULD1Down_30			:= FALSE;
+	bArm2VertStn1Down_30			:= FALSE;
+	bArm2VertStn2Down_30			:= FALSE;
+	bArm2VertStn3Down_30			:= FALSE;
+	bArm2VertStn4Down_30			:= FALSE;
+	bArm2VertStn5Down_30			:= FALSE;
+	bArm2VertStn6Down_30			:= FALSE;
+	bArm2VertStn7Down_30			:= FALSE;
+	bArm2VertStn8Down_30			:= FALSE;
+	bArm2VertStn9Down_30			:= FALSE;
+	bArm2VertStn10Down_30			:= FALSE;
+
+	bArm1VertStn9SpSlanted_30		:= FALSE;
+	bArm2VertStn9SpSlanted_30		:= FALSE;
+
+	bArm1VertStn10SpSlanted_30		:= FALSE;
+	bArm2VertStn10SpSlanted_30		:= FALSE;
+
+	bSlowPull1LifterStn9Up_30			:= FALSE;
+	bSlowPull1LifterStn9Down_30		:= FALSE;
+
+	bSlowPull1LifterStn10Up_30			:= FALSE;
+	bSlowPull1LifterStn10Down_30		:= FALSE;
+
+	bSlowPull2LifterStn10Up_30			:= FALSE;
+	bSlowPull2LifterStn10Down_30		:= FALSE;
+
+	bManualArmHome				:= FALSE;
+
+END_IF
+
+
+IF ARbArmVertHomeDone[1] THEN
+	bArm1VertHomeStart_30			:= FALSE;
+END_IF
+
+IF ARbArmHorzHomeDone[1] THEN
+	bArm1HorzHomeStart_30			:= FALSE;
+END_IF
+
+IF ARbArmSlowPullHomeDone[1] THEN
+	bSlowPull1LifterHomeStart_30		:= FALSE;
+END_IF
+
+
+IF ARbArmVertHomeDone[2] THEN
+	bArm2VertHomeStart_30			:= FALSE;
+END_IF
+
+IF ARbArmHorzHomeDone[2] THEN
+	bArm2HorzHomeStart_30			:= FALSE;
+END_IF
+
+
+IF ARbArmVertHomeDone[1] AND ARbArmHorzHomeDone[1] THEN
+	bManualArmHome				:= FALSE;
+END_IF
+
+IF bManualArmHome AND ARbArmVertHomeDone[1] AND NOT ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1] THEN
+bArm1VertLD1Up_28 					:= TRUE;
+ELSE
+bArm1VertLD1Up_28 					:= FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="ManualCtrl_Arm">
+      <LineId Id="3" Count="530" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

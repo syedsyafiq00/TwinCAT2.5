@@ -1,0 +1,722 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Csv_Report_Mapping" Id="{ce56b823-302f-4a58-bab3-0886dfbfa911}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Csv_Report_Mapping
+VAR
+	sTime: STRING(20);
+	
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[	sTime  		:= CONCAT(DSLocalSystemTimeML.s12Hour, ':');
+	sTime  		:= CONCAT(sTime, DSLocalSystemTimeML.sMin);
+//	sTime  		:= CONCAT(sTime, ':');
+//	sTime  		:= CONCAT(sTime, DSLocalSystemTimeML.sSec);
+	sTime  		:= CONCAT(sTime, ' ');
+	sTime 		:= CONCAT(sTime, DSLocalSystemTimeML.s12HrSign);
+
+// Configure total report to log
+dsCsvReport.iNumOfData_HeadlineData		:= 30;
+dsCsvReport.iNumOfData_HeadlineTitle	:= 30;
+dsCsvReport.iNumOfData_LogData			:= 45;
+dsCsvReport.iNumOfData_LogTitle			:= 45;
+dsCsvReport.iNumOfData_LogUnit			:= 45;
+
+// Headline Title ( FIRST ROW )
+dsCsvReport.ARsHeadlineTitle[1]  := '';
+dsCsvReport.ARsHeadlineTitle[2]  := 'Operator';
+dsCsvReport.ARsHeadlineTitle[3]  := 'Loading ID';
+dsCsvReport.ARsHeadlineTitle[4]  := 'Unloading ID';
+dsCsvReport.ARsHeadlineTitle[5]  := 'Product Recipe Number';
+dsCsvReport.ARsHeadlineTitle[6]  := 'Product Recipe Description';
+dsCsvReport.ARsHeadlineTitle[7]  := 'Load Number';
+dsCsvReport.ARsHeadlineTitle[8]  := '';
+dsCsvReport.ARsHeadlineTitle[9]  := '';
+dsCsvReport.ARsHeadlineTitle[10] := '';
+dsCsvReport.ARsHeadlineTitle[11] := '';
+dsCsvReport.ARsHeadlineTitle[12] := '';
+dsCsvReport.ARsHeadlineTitle[13] := '';
+dsCsvReport.ARsHeadlineTitle[14] := '';
+dsCsvReport.ARsHeadlineTitle[15] := '';
+
+
+// Headline Data ( SECOND ROW )
+dsCsvReport.ARsHeadlineData[1]  := '';
+dsCsvReport.ARsHeadlineData[2]  := fbHmiTF1800_UserlevelManagement.dsHmiUserStatus_Active.sLoginName;
+dsCsvReport.ARsHeadlineData[3]  := '1';
+dsCsvReport.ARsHeadlineData[4]  := '1';
+dsCsvReport.ARsHeadlineData[5]  := INT_TO_STRING(AR2sDSCv_LdConfirmBasketInfo[1,4].iProductRecipeNo);
+dsCsvReport.ARsHeadlineData[6]  := AR2sDSCv_LdConfirmBasketInfo[1,4].sProgramDescription;
+dsCsvReport.ARsHeadlineData[7]  := INT_TO_STRING(iProgBatchTotal);
+dsCsvReport.ARsHeadlineData[8]  := '';
+dsCsvReport.ARsHeadlineData[9]  := '';
+dsCsvReport.ARsHeadlineData[10] := '';
+dsCsvReport.ARsHeadlineData[11] := '';
+dsCsvReport.ARsHeadlineData[12] := '';
+dsCsvReport.ARsHeadlineData[13] := '';
+dsCsvReport.ARsHeadlineData[14] := '';
+dsCsvReport.ARsHeadlineData[15] := '';
+
+// Data log unit ( THIRD ROW )
+dsCsvReport.ARsLogUnit[1]:='';   
+dsCsvReport.ARsLogUnit[2]:='N/A';
+dsCsvReport.ARsLogUnit[3]:='N/A';
+dsCsvReport.ARsLogUnit[4]:='N/A';
+dsCsvReport.ARsLogUnit[5]:='N/A';
+dsCsvReport.ARsLogUnit[6]:='N/A';
+dsCsvReport.ARsLogUnit[7]:='N/A';
+dsCsvReport.ARsLogUnit[8]:='Sec';
+dsCsvReport.ARsLogUnit[9]:='Sec';
+dsCsvReport.ARsLogUnit[10]:='Sec'; 
+dsCsvReport.ARsLogUnit[11]:='Sec'; 
+dsCsvReport.ARsLogUnit[12]:='Sec'; 
+dsCsvReport.ARsLogUnit[13]:='Sec'; 
+dsCsvReport.ARsLogUnit[14]:='DegC';
+dsCsvReport.ARsLogUnit[15]:='DegC';
+dsCsvReport.ARsLogUnit[16]:='%';   
+dsCsvReport.ARsLogUnit[17]:='%';   
+dsCsvReport.ARsLogUnit[18]:='Hz';  
+dsCsvReport.ARsLogUnit[19]:='Hz';  
+dsCsvReport.ARsLogUnit[20]:='%';   
+dsCsvReport.ARsLogUnit[21]:='%';   
+dsCsvReport.ARsLogUnit[22]:='Hz';  
+dsCsvReport.ARsLogUnit[23]:='Hz';  
+dsCsvReport.ARsLogUnit[24]:='%';   
+dsCsvReport.ARsLogUnit[25]:='%';   
+dsCsvReport.ARsLogUnit[26]:='Hz';  
+dsCsvReport.ARsLogUnit[27]:='Hz';  
+dsCsvReport.ARsLogUnit[28]:='%';   
+dsCsvReport.ARsLogUnit[29]:='%';   
+dsCsvReport.ARsLogUnit[30]:='Hz';  
+dsCsvReport.ARsLogUnit[31]:='Hz';  
+dsCsvReport.ARsLogUnit[32]:='Kpa'; 
+dsCsvReport.ARsLogUnit[33]:='Kpa'; 
+dsCsvReport.ARsLogUnit[34]:='uS';  
+dsCsvReport.ARsLogUnit[35]:='uS';  
+dsCsvReport.ARsLogUnit[36]:='LPM'; 
+dsCsvReport.ARsLogUnit[37]:='LPM'; 
+dsCsvReport.ARsLogUnit[38]:='OHM'; 
+dsCsvReport.ARsLogUnit[39]:='OHM'; 
+dsCsvReport.ARsLogUnit[40]:='PH';  
+dsCsvReport.ARsLogUnit[41]:='PH';  
+dsCsvReport.ARsLogUnit[42]:='N/A'; 
+dsCsvReport.ARsLogUnit[43]:='N/A'; 
+dsCsvReport.ARsLogUnit[44]:='Sec'; 
+dsCsvReport.ARsLogUnit[45]:='Sec'; 
+
+// Data log unit ( FORTH ROW )
+dsCsvReport.ARsLogTitle[1]:='Time';
+dsCsvReport.ARsLogTitle[2]:='Station';         
+dsCsvReport.ARsLogTitle[3]:='Station';         
+dsCsvReport.ARsLogTitle[4]:='Sequences Recipe';
+dsCsvReport.ARsLogTitle[5]:='Sequences Recipe';
+dsCsvReport.ARsLogTitle[6]:='Sub Recipe';      
+dsCsvReport.ARsLogTitle[7]:='Sub Recipe';      
+dsCsvReport.ARsLogTitle[8]:='Minimum Time';    
+dsCsvReport.ARsLogTitle[9]:='Minimum Time';    
+dsCsvReport.ARsLogTitle[10]:='Maximum Time';    
+dsCsvReport.ARsLogTitle[11]:='Maximum Time';              
+dsCsvReport.ARsLogTitle[12]:='Effective Time';            
+dsCsvReport.ARsLogTitle[13]:='Effective Time';            
+dsCsvReport.ARsLogTitle[14]:='Temperature';               
+dsCsvReport.ARsLogTitle[15]:='Temperature';               
+dsCsvReport.ARsLogTitle[16]:='U/Sonic Bottom A Power';    
+dsCsvReport.ARsLogTitle[17]:='U/Sonic Bottom A Power';    
+dsCsvReport.ARsLogTitle[18]:='U/Sonic Bottom A Frequency';
+dsCsvReport.ARsLogTitle[19]:='U/Sonic Bottom A Frequency';
+dsCsvReport.ARsLogTitle[20]:='U/Sonic Bottom B Power';    
+dsCsvReport.ARsLogTitle[21]:='U/Sonic Bottom B Power';    
+dsCsvReport.ARsLogTitle[22]:='U/Sonic Bottom B Frequency';
+dsCsvReport.ARsLogTitle[23]:='U/Sonic Bottom B Frequency';
+dsCsvReport.ARsLogTitle[24]:='U/Sonic Side A Power SV';   
+dsCsvReport.ARsLogTitle[25]:='U/Sonic Side A Power PV';   
+dsCsvReport.ARsLogTitle[26]:='U/Sonic Side A Frequency';  
+dsCsvReport.ARsLogTitle[27]:='U/Sonic Side A Frequency';  
+dsCsvReport.ARsLogTitle[28]:='U/Sonic Side B Power';      
+dsCsvReport.ARsLogTitle[29]:='U/Sonic Side B Power';      
+dsCsvReport.ARsLogTitle[30]:='U/Sonic Side B Frequency';  
+dsCsvReport.ARsLogTitle[31]:='U/Sonic Side B Frequency';  
+dsCsvReport.ARsLogTitle[32]:='Vacuum SV';                 
+dsCsvReport.ARsLogTitle[33]:='Vacuum PV';                 
+dsCsvReport.ARsLogTitle[34]:='Conductivity';              
+dsCsvReport.ARsLogTitle[35]:='Conductivity';              
+dsCsvReport.ARsLogTitle[36]:='Pump Flow';                 
+dsCsvReport.ARsLogTitle[37]:='Pump Flow';                 
+dsCsvReport.ARsLogTitle[38]:='Resistivity';               
+dsCsvReport.ARsLogTitle[39]:='Resistivity';               
+dsCsvReport.ARsLogTitle[40]:='PH PV';                     
+dsCsvReport.ARsLogTitle[41]:='PH PV';                     
+dsCsvReport.ARsLogTitle[42]:='Quality';                   
+dsCsvReport.ARsLogTitle[43]:='Quality';                   
+dsCsvReport.ARsLogTitle[44]:='Actual Time';               
+dsCsvReport.ARsLogTitle[45]:='Actual Time';               
+
+// Data log info STN 01 ( FIFTH ROW )
+dsCsvReport.AR2sLogData[1][1]:=sTime;
+dsCsvReport.AR2sLogData[1][2]:='N/A';(*Station*)                                                                
+dsCsvReport.AR2sLogData[1][3]:='1-SONIC CLEANING';(*Station*)                                                      
+dsCsvReport.AR2sLogData[1][4]:='N/A';(*Sequences Recipe*)                                                       
+dsCsvReport.AR2sLogData[1][5]:=DSHmiStationDisplayInfo[1].sStationSequenceRecipeDescription;(*Sequences Recipe*)
+dsCsvReport.AR2sLogData[1][6]:='N/A';(*Sub Recipe*)                                                             
+dsCsvReport.AR2sLogData[1][7]:=DSHmiStationDisplayInfo[1].sStationSubDescription;(*Sub Recipe*)                 
+dsCsvReport.AR2sLogData[1][8]:=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[1].iMinTime);(*Minimum Time*)          
+dsCsvReport.AR2sLogData[1][9]:='N/A';(*Minimum Time*)                                                           
+dsCsvReport.AR2sLogData[1][10]:=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[1].iMaxTime);(*Maximum Time*)          
+dsCsvReport.AR2sLogData[1][11]:='N/A';(*Maximum Time*)                                                                                   
+dsCsvReport.AR2sLogData[1][12]:=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[1].iEffTime);(*Effective Time*)                                
+dsCsvReport.AR2sLogData[1][13]:='N/A';(*Effective Time*)                                                                                 
+dsCsvReport.AR2sLogData[1][14]:=REAL_TO_STRING(ARrStnTempSV[1]);(*Temperature SV*)                                                       
+dsCsvReport.AR2sLogData[1][15]:=REAL_TO_STRING(ARrStnTempPV[1]);(*Temperature PV*)                                                       
+dsCsvReport.AR2sLogData[1][16]:=INT_TO_STRING(ARDsStnSeqProcessCtrl[1].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent);(*U/Sonic Bottom A Power SV*)                                     
+dsCsvReport.AR2sLogData[1][17]:=INT_TO_STRING(ARiUsPowerPV_percent[1]);(*U/Sonic Bottom A Power PV*)                                           
+dsCsvReport.AR2sLogData[1][18]:='N/A';(*U/Sonic Bottom A Frequency SV*)                                                                  
+dsCsvReport.AR2sLogData[1][19]:=INT_TO_STRING(iDisplayFreqUs[1]);(*U/Sonic Bottom A Frequency PV*)
+dsCsvReport.AR2sLogData[1][20]:='N/A';(*U/Sonic Bottom B Power SV*)                                     
+dsCsvReport.AR2sLogData[1][21]:='N/A';(*U/Sonic Bottom B Power PV*)                                           
+dsCsvReport.AR2sLogData[1][22]:='N/A';(*U/Sonic Bottom B Frequency SV*)                                                                  
+dsCsvReport.AR2sLogData[1][23]:='N/A';(*U/Sonic Bottom B Frequency PV*)                                                                  
+dsCsvReport.AR2sLogData[1][24]:='N/A';(*U/Sonic Side A Power SV*)                                                                        
+dsCsvReport.AR2sLogData[1][25]:='N/A';(*U/Sonic Side A Power PV*)                                                                        
+dsCsvReport.AR2sLogData[1][26]:='N/A';(*U/Sonic Side A Frequency SV*)                                                                    
+dsCsvReport.AR2sLogData[1][27]:='N/A';(*U/Sonic Side A Frequency PV*)                                                                    
+dsCsvReport.AR2sLogData[1][28]:='N/A';(*U/Sonic Side B Power SV*)                                                                        
+dsCsvReport.AR2sLogData[1][29]:='N/A';(*U/Sonic Side B Power PV*)                                                                        
+dsCsvReport.AR2sLogData[1][30]:='N/A';(*U/Sonic Side B Frequency SV*)                                                                    
+dsCsvReport.AR2sLogData[1][31]:='N/A';(*U/Sonic Side B Frequency PV*)                                                                    
+dsCsvReport.AR2sLogData[1][32]:='N/A';(*Vacuum SV*)                                                                                      
+dsCsvReport.AR2sLogData[1][33]:='N/A';(*Vacuum PV*)                                                                                      
+dsCsvReport.AR2sLogData[1][34]:='N/A';(*Conductivity SV*)                                                                                
+dsCsvReport.AR2sLogData[1][35]:=REAL_TO_STRING(ARrStnConductivityPV[1]);(*Conductivity PV*)                                              
+dsCsvReport.AR2sLogData[1][36]:='N/A';(*Pump Flow SV*)                                                                                   
+dsCsvReport.AR2sLogData[1][37]:=REAL_TO_STRING(ARrStnFilterPressurePV[1]);(*Pump Flow PV*)                                               
+dsCsvReport.AR2sLogData[1][38]:='N/A';(*Resistivity SV*)                                                                                 
+dsCsvReport.AR2sLogData[1][39]:='N/A';(*Resistivity PV*)                                                                                 
+dsCsvReport.AR2sLogData[1][40]:='N/A';(*PH SV*)                                                                                          
+dsCsvReport.AR2sLogData[1][41]:='N/A'; (*PH PV*)                                                                                         
+dsCsvReport.AR2sLogData[1][42]:='N/A';(*Quality*)                                                                                        
+dsCsvReport.AR2sLogData[1][43]:=DSStnBasketInfo[1].sProductQuality;(*Quality*)                                                           
+dsCsvReport.AR2sLogData[1][44]:=INT_TO_STRING(ARDsStnSeqProcessCtrl[1].Out_iCurrentProcessTime);(*Actual Time*)                          
+dsCsvReport.AR2sLogData[1][45]:='N/A';(*Actual Time*)        
+                                                                            
+// Data log info STN 02 ( SIX ROW )
+dsCsvReport.AR2sLogData[2][1]:=sTime;(*Station*)
+dsCsvReport.AR2sLogData[2][2]:='N/A';(*Station*)
+dsCsvReport.AR2sLogData[2][3]:='2-RINSING';(*Station*)
+dsCsvReport.AR2sLogData[2][4]:='N/A';(*Sequences Recipe*)
+dsCsvReport.AR2sLogData[2][5]:=DSHmiStationDisplayInfo[2].sStationSequenceRecipeDescription;(*Sequences Recipe*)
+dsCsvReport.AR2sLogData[2][6]:='N/A';(*Sub Recipe*)
+dsCsvReport.AR2sLogData[2][7]:=DSHmiStationDisplayInfo[2].sStationSubDescription;(*Sub Recipe*)
+dsCsvReport.AR2sLogData[2][8]:=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[2].iMinTime);(*Minimum Time*)
+dsCsvReport.AR2sLogData[2][9]:='N/A';(*Minimum Time*)
+dsCsvReport.AR2sLogData[2][10]:=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[2].iMaxTime);(*Maximum Time*)
+dsCsvReport.AR2sLogData[2][11]:='N/A';(*Maximum Time*)
+dsCsvReport.AR2sLogData[2][12]:=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[2].iEffTime);(*Effective Time*)
+dsCsvReport.AR2sLogData[2][13]:='N/A';(*Effective Time*)
+dsCsvReport.AR2sLogData[2][14]:=REAL_TO_STRING(ARrStnTempSV[2]);(*Temperature SV*)
+dsCsvReport.AR2sLogData[2][15]:=REAL_TO_STRING(ARrStnTempPV[2]);(*Temperature PV*)
+dsCsvReport.AR2sLogData[2][16]:=INT_TO_STRING(ARDsStnSeqProcessCtrl[2].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent);(*U/Sonic Bottom A Power SV*)
+dsCsvReport.AR2sLogData[2][17]:=INT_TO_STRING(ARiUsPowerPV_percent[2]);(*U/Sonic Bottom A Power PV*)
+dsCsvReport.AR2sLogData[2][18]:='N/A';(*U/Sonic Bottom A Frequency SV*)
+dsCsvReport.AR2sLogData[2][19]:=INT_TO_STRING(iDisplayFreqUs[2]);(*U/Sonic Bottom A Frequency PV*)
+dsCsvReport.AR2sLogData[2][20]:='N/A';(*U/Sonic Bottom B Power SV*)
+dsCsvReport.AR2sLogData[2][21]:='N/A';(*U/Sonic Bottom B Power PV*)
+dsCsvReport.AR2sLogData[2][22]:='N/A';(*U/Sonic Bottom B Frequency SV*)
+dsCsvReport.AR2sLogData[2][23]:='N/A';(*U/Sonic Bottom B Frequency PV*)
+dsCsvReport.AR2sLogData[2][24]:='N/A';(*U/Sonic Side A Power SV*)
+dsCsvReport.AR2sLogData[2][25]:='N/A';(*U/Sonic Side A Power PV*)
+dsCsvReport.AR2sLogData[2][26]:='N/A';(*U/Sonic Side A Frequency SV*)
+dsCsvReport.AR2sLogData[2][27]:='N/A';(*U/Sonic Side A Frequency PV*)
+dsCsvReport.AR2sLogData[2][28]:='N/A';(*U/Sonic Side B Power SV*)
+dsCsvReport.AR2sLogData[2][29]:='N/A';(*U/Sonic Side B Power PV*)
+dsCsvReport.AR2sLogData[2][30]:='N/A';(*U/Sonic Side B Frequency SV*)
+dsCsvReport.AR2sLogData[2][31]:='N/A';(*U/Sonic Side B Frequency PV*)
+dsCsvReport.AR2sLogData[2][32]:='N/A';(*Vacuum SV*)
+dsCsvReport.AR2sLogData[2][33]:='N/A';(*Vacuum PV*)
+dsCsvReport.AR2sLogData[2][34]:='N/A';(*Conductivity SV*)
+dsCsvReport.AR2sLogData[2][35]:=REAL_TO_STRING(ARrStnConductivityPV[2]);(*Conductivity PV*)
+dsCsvReport.AR2sLogData[2][36]:='N/A';(*Pump Flow SV*)
+dsCsvReport.AR2sLogData[2][37]:=REAL_TO_STRING(ARrStnFilterPressurePV[2]);(*Pump Flow PV*)
+dsCsvReport.AR2sLogData[2][38]:='N/A';(*Resistivity SV*)
+dsCsvReport.AR2sLogData[2][39]:='N/A';(*Resistivity PV*)
+dsCsvReport.AR2sLogData[2][40]:='N/A';(*PH SV*)
+dsCsvReport.AR2sLogData[2][41]:='N/A'; (*PH PV*)
+dsCsvReport.AR2sLogData[2][42]:='N/A';(*Quality*)
+dsCsvReport.AR2sLogData[2][43]:=DSStnBasketInfo[2].sProductQuality;(*Quality*)
+dsCsvReport.AR2sLogData[2][44]:=INT_TO_STRING(ARDsStnSeqProcessCtrl[2].Out_iCurrentProcessTime);(*Actual Time*)
+dsCsvReport.AR2sLogData[2][45]:='N/A';(*Actual Time*)                 
+
+
+// Data log info STN 03 ( SEVEN ROW )
+dsCsvReport.AR2sLogData[3][1]  :=sTime;(*Station*)
+dsCsvReport.AR2sLogData[3][2]  :='N/A';(*Station*)
+dsCsvReport.AR2sLogData[3][3]  :='3-SONIC CLEANING';(*Station*)
+dsCsvReport.AR2sLogData[3][4]  :='N/A';(*Sequences Recipe*)
+dsCsvReport.AR2sLogData[3][5]  :=DSHmiStationDisplayInfo[3].sStationSequenceRecipeDescription;(*Sequences Recipe*)
+dsCsvReport.AR2sLogData[3][6]  :='N/A';(*Sub Recipe*)
+dsCsvReport.AR2sLogData[3][7]  :=DSHmiStationDisplayInfo[3].sStationSubDescription;(*Sub Recipe*)
+dsCsvReport.AR2sLogData[3][8]  :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[3].iMinTime);(*Minimum Time*)
+dsCsvReport.AR2sLogData[3][9]  :='N/A';(*Minimum Time*)
+dsCsvReport.AR2sLogData[3][10]  :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[3].iMaxTime);(*Maximum Time*)
+dsCsvReport.AR2sLogData[3][11] :='N/A';(*Maximum Time*)
+dsCsvReport.AR2sLogData[3][12] :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[3].iEffTime);(*Effective Time*)
+dsCsvReport.AR2sLogData[3][13] :='N/A';(*Effective Time*)
+dsCsvReport.AR2sLogData[3][14] :=REAL_TO_STRING(ARrStnTempSV[3]);(*Temperature SV*)
+dsCsvReport.AR2sLogData[3][15] :=REAL_TO_STRING(ARrStnTempPV[3]);(*Temperature PV*)
+dsCsvReport.AR2sLogData[3][16] :=INT_TO_STRING(ARDsStnSeqProcessCtrl[3].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent);(*U/Sonic Bottom A Power SV*)
+dsCsvReport.AR2sLogData[3][17]:=INT_TO_STRING(ARiMegaPowerPV_percent[1]);(*U/Sonic Bottom A Power PV*)
+dsCsvReport.AR2sLogData[3][18]:='N/A';(*U/Sonic Bottom A Frequency SV*)
+dsCsvReport.AR2sLogData[3][19]:=INT_TO_STRING(DSV2ModbusControl2.wModbusData[1]);(*U/Sonic Bottom A Frequency PV*)
+dsCsvReport.AR2sLogData[3][20]:='N/A';(*U/Sonic Bottom B Power SV*)
+dsCsvReport.AR2sLogData[3][21]:='N/A';(*U/Sonic Bottom B Power PV*)
+dsCsvReport.AR2sLogData[3][22]:='N/A';(*U/Sonic Bottom B Frequency SV*)
+dsCsvReport.AR2sLogData[3][23]:='N/A';(*U/Sonic Bottom B Frequency PV*)
+dsCsvReport.AR2sLogData[3][24]:='N/A';(*U/Sonic Side A Power SV*)
+dsCsvReport.AR2sLogData[3][25]:='N/A';(*U/Sonic Side A Power PV*)
+dsCsvReport.AR2sLogData[3][26]:='N/A';(*U/Sonic Side A Frequency SV*)
+dsCsvReport.AR2sLogData[3][27]:='N/A';(*U/Sonic Side A Frequency PV*)
+dsCsvReport.AR2sLogData[3][28]:='N/A';(*U/Sonic Side B Power SV*)
+dsCsvReport.AR2sLogData[3][29]:='N/A';(*U/Sonic Side B Power PV*)
+dsCsvReport.AR2sLogData[3][30]:='N/A';(*U/Sonic Side B Frequency SV*)
+dsCsvReport.AR2sLogData[3][31]:='N/A';(*U/Sonic Side B Frequency PV*)
+dsCsvReport.AR2sLogData[3][32]:='N/A';(*Vacuum SV*)
+dsCsvReport.AR2sLogData[3][33]:='N/A';(*Vacuum PV*)
+dsCsvReport.AR2sLogData[3][34]:='N/A';(*Conductivity SV*)
+dsCsvReport.AR2sLogData[3][35]:=REAL_TO_STRING(ARrStnConductivityPV[3]);(*Conductivity PV*)
+dsCsvReport.AR2sLogData[3][36]:='N/A';(*Pump Flow SV*)
+dsCsvReport.AR2sLogData[3][37]:=REAL_TO_STRING(ARrStnFilterPressurePV[3]);(*Pump Flow PV*)
+dsCsvReport.AR2sLogData[3][38]:='N/A';(*Resistivity SV*)
+dsCsvReport.AR2sLogData[3][39]:='N/A';(*Resistivity PV*)
+dsCsvReport.AR2sLogData[3][40]:='N/A';(*PH SV*)
+dsCsvReport.AR2sLogData[3][41]:='N/A'; (*PH PV*)
+dsCsvReport.AR2sLogData[3][42]:='N/A';(*Quality*)
+dsCsvReport.AR2sLogData[3][43]:=DSStnBasketInfo[3].sProductQuality;(*Quality*)
+dsCsvReport.AR2sLogData[3][44]:=INT_TO_STRING(ARDsStnSeqProcessCtrl[3].Out_iCurrentProcessTime);(*Actual Time*)
+dsCsvReport.AR2sLogData[3][45]:='N/A';(*Actual Time*)                                        
+
+// Data log info STN 04 ( EIGHT ROW )4-RINSING
+dsCsvReport.AR2sLogData[4][1]  :=sTime;
+dsCsvReport.AR2sLogData[4][2]  :='N/A';(*Station*)
+dsCsvReport.AR2sLogData[4][3]  :='4-RINSING';(*Station*)
+dsCsvReport.AR2sLogData[4][4]  :='N/A';(*Sequences Recipe*)
+dsCsvReport.AR2sLogData[4][5]  :=DSHmiStationDisplayInfo[4].sStationSequenceRecipeDescription;(*Sequences Recipe*)
+dsCsvReport.AR2sLogData[4][6]  :='N/A';(*Sub Recipe*)
+dsCsvReport.AR2sLogData[4][7]  :=DSHmiStationDisplayInfo[4].sStationSubDescription;(*Sub Recipe*)
+dsCsvReport.AR2sLogData[4][8]  :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[4].iMinTime);(*Minimum Time*)
+dsCsvReport.AR2sLogData[4][9]  :='N/A';(*Minimum Time*)
+dsCsvReport.AR2sLogData[4][10]  :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[4].iMaxTime);(*Maximum Time*)
+dsCsvReport.AR2sLogData[4][11] :='N/A';(*Maximum Time*)
+dsCsvReport.AR2sLogData[4][12] :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[4].iEffTime);(*Effective Time*)
+dsCsvReport.AR2sLogData[4][13] :='N/A';(*Effective Time*)
+dsCsvReport.AR2sLogData[4][14] :=REAL_TO_STRING(ARrStnTempSV[4]);(*Temperature SV*)
+dsCsvReport.AR2sLogData[4][15] :=REAL_TO_STRING(ARrStnTempPV[4]);(*Temperature PV*)
+dsCsvReport.AR2sLogData[4][16] :=INT_TO_STRING(ARDsStnSeqProcessCtrl[4].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent);(*U/Sonic Bottom A Power SV*)
+dsCsvReport.AR2sLogData[4][17]:=INT_TO_STRING(ARiUsPowerPV_percent[4]);(*U/Sonic Bottom A Power PV*)
+dsCsvReport.AR2sLogData[4][18]:='N/A';(*U/Sonic Bottom A Frequency SV*)
+dsCsvReport.AR2sLogData[4][19]:=INT_TO_STRING(iDisplayFreqUs[4]);(*U/Sonic Bottom A Frequency PV*)
+dsCsvReport.AR2sLogData[4][20]:='N/A';(*U/Sonic Bottom B Power SV*)
+dsCsvReport.AR2sLogData[4][21]:='N/A';(*U/Sonic Bottom B Power PV*)
+dsCsvReport.AR2sLogData[4][22]:='N/A';(*U/Sonic Bottom B Frequency SV*)
+dsCsvReport.AR2sLogData[4][23]:='N/A';(*U/Sonic Bottom B Frequency PV*)
+dsCsvReport.AR2sLogData[4][24]:='N/A';(*U/Sonic Side A Power SV*)
+dsCsvReport.AR2sLogData[4][25]:='N/A';(*U/Sonic Side A Power PV*)
+dsCsvReport.AR2sLogData[4][26]:='N/A';(*U/Sonic Side A Frequency SV*)
+dsCsvReport.AR2sLogData[4][27]:='N/A';(*U/Sonic Side A Frequency PV*)
+dsCsvReport.AR2sLogData[4][28]:='N/A';(*U/Sonic Side B Power SV*)
+dsCsvReport.AR2sLogData[4][29]:='N/A';(*U/Sonic Side B Power PV*)
+dsCsvReport.AR2sLogData[4][30]:='N/A';(*U/Sonic Side B Frequency SV*)
+dsCsvReport.AR2sLogData[4][31]:='N/A';(*U/Sonic Side B Frequency PV*)
+dsCsvReport.AR2sLogData[4][32]:='N/A';(*Vacuum SV*)
+dsCsvReport.AR2sLogData[4][33]:='N/A';(*Vacuum PV*)
+dsCsvReport.AR2sLogData[4][34]:='N/A';(*Conductivity SV*)
+dsCsvReport.AR2sLogData[4][35]:=REAL_TO_STRING(ARrStnConductivityPV[4]);(*Conductivity PV*)
+dsCsvReport.AR2sLogData[4][36]:='N/A';(*Pump Flow SV*)
+dsCsvReport.AR2sLogData[4][37]:=REAL_TO_STRING(ARrStnFilterPressurePV[4]);(*Pump Flow PV*)
+dsCsvReport.AR2sLogData[4][38]:='N/A';(*Resistivity SV*)
+dsCsvReport.AR2sLogData[4][39]:='N/A';(*Resistivity PV*)
+dsCsvReport.AR2sLogData[4][40]:='N/A';(*PH SV*)
+dsCsvReport.AR2sLogData[4][41]:='N/A'; (*PH PV*)
+dsCsvReport.AR2sLogData[4][42]:='N/A';(*Quality*)
+dsCsvReport.AR2sLogData[4][43]:=DSStnBasketInfo[4].sProductQuality;(*Quality*)
+dsCsvReport.AR2sLogData[4][44]:=INT_TO_STRING(ARDsStnSeqProcessCtrl[4].Out_iCurrentProcessTime);(*Actual Time*)
+dsCsvReport.AR2sLogData[4][45]:='N/A';(*Actual Time*)               
+
+                         
+// Data log info STN 05 ( NINE ROW )5 -US CLEANING
+dsCsvReport.AR2sLogData[5][1]  :=sTime;
+dsCsvReport.AR2sLogData[5][2]  :='N/A';(*Station*)
+dsCsvReport.AR2sLogData[5][3]  :='5-SONIC CLEANING';(*Station*)
+dsCsvReport.AR2sLogData[5][4]  :='N/A';(*Sequences Recipe*)
+dsCsvReport.AR2sLogData[5][5]  :=DSHmiStationDisplayInfo[5].sStationSequenceRecipeDescription;(*Sequences Recipe*)
+dsCsvReport.AR2sLogData[5][6]  :='N/A';(*Sub Recipe*)
+dsCsvReport.AR2sLogData[5][7]  :=DSHmiStationDisplayInfo[5].sStationSubDescription;(*Sub Recipe*)
+dsCsvReport.AR2sLogData[5][8]  :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[5].iMinTime);(*Minimum Time*)
+dsCsvReport.AR2sLogData[5][9]  :='N/A';(*Minimum Time*)
+dsCsvReport.AR2sLogData[5][10]  :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[5].iMaxTime);(*Maximum Time*)
+dsCsvReport.AR2sLogData[5][11] :='N/A';(*Maximum Time*)
+dsCsvReport.AR2sLogData[5][12] :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[5].iEffTime);(*Effective Time*)
+dsCsvReport.AR2sLogData[5][13] :='N/A';(*Effective Time*)
+dsCsvReport.AR2sLogData[5][14] :=REAL_TO_STRING(ARrStnTempSV[5]);(*Temperature SV*)
+dsCsvReport.AR2sLogData[5][15] :=REAL_TO_STRING(ARrStnTempPV[5]);(*Temperature PV*)
+dsCsvReport.AR2sLogData[5][16] :=INT_TO_STRING(ARDsStnSeqProcessCtrl[5].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent);(*U/Sonic Bottom A Power SV*)
+dsCsvReport.AR2sLogData[5][17]:=INT_TO_STRING(ARiUsPowerPV_percent[5]);(*U/Sonic Bottom A Power PV*)
+dsCsvReport.AR2sLogData[5][18]:='N/A';(*U/Sonic Bottom A Frequency SV*)
+dsCsvReport.AR2sLogData[5][19]:=INT_TO_STRING(iDisplayFreqUs[5]);(*U/Sonic Bottom A Frequency PV*)
+dsCsvReport.AR2sLogData[5][20]:='N/A';(*U/Sonic Bottom B Power SV*)
+dsCsvReport.AR2sLogData[5][21]:='N/A';(*U/Sonic Bottom B Power PV*)
+dsCsvReport.AR2sLogData[5][22]:='N/A';(*U/Sonic Bottom B Frequency SV*)
+dsCsvReport.AR2sLogData[5][23]:='N/A';(*U/Sonic Bottom B Frequency PV*)
+dsCsvReport.AR2sLogData[5][24]:='N/A';(*U/Sonic Side A Power SV*)
+dsCsvReport.AR2sLogData[5][25]:='N/A';(*U/Sonic Side A Power PV*)
+dsCsvReport.AR2sLogData[5][26]:='N/A';(*U/Sonic Side A Frequency SV*)
+dsCsvReport.AR2sLogData[5][27]:='N/A';(*U/Sonic Side A Frequency PV*)
+dsCsvReport.AR2sLogData[5][28]:='N/A';(*U/Sonic Side B Power SV*)
+dsCsvReport.AR2sLogData[5][29]:='N/A';(*U/Sonic Side B Power PV*)
+dsCsvReport.AR2sLogData[5][30]:='N/A';(*U/Sonic Side B Frequency SV*)
+dsCsvReport.AR2sLogData[5][31]:='N/A';(*U/Sonic Side B Frequency PV*)
+dsCsvReport.AR2sLogData[5][32]:='N/A';(*Vacuum SV*)
+dsCsvReport.AR2sLogData[5][33]:='N/A';(*Vacuum PV*)
+dsCsvReport.AR2sLogData[5][34]:='N/A';(*Conductivity SV*)
+dsCsvReport.AR2sLogData[5][35]:=REAL_TO_STRING(ARrStnConductivityPV[5]);(*Conductivity PV*)
+dsCsvReport.AR2sLogData[5][36]:='N/A';(*Pump Flow SV*)
+dsCsvReport.AR2sLogData[5][37]:=REAL_TO_STRING(ARrStnFilterPressurePV[5]);(*Pump Flow PV*)
+dsCsvReport.AR2sLogData[5][38]:='N/A';(*Resistivity SV*)
+dsCsvReport.AR2sLogData[5][39]:='N/A';(*Resistivity PV*)
+dsCsvReport.AR2sLogData[5][40]:='N/A';(*PH SV*)
+dsCsvReport.AR2sLogData[5][41]:='N/A'; (*PH PV*)
+dsCsvReport.AR2sLogData[5][42]:='N/A';(*Quality*)
+dsCsvReport.AR2sLogData[5][43]:=DSStnBasketInfo[5].sProductQuality;(*Quality*)
+dsCsvReport.AR2sLogData[5][44]:=INT_TO_STRING(ARDsStnSeqProcessCtrl[5].Out_iCurrentProcessTime);(*Actual Time*)
+dsCsvReport.AR2sLogData[5][45]:='N/A';(*Actual Time*)    
+               
+           
+
+// Data log info STN 06 ( NINE ROW )6-RINSING
+dsCsvReport.AR2sLogData[6][1]  :=sTime;
+dsCsvReport.AR2sLogData[6][2]  :='N/A';(*Station*)
+dsCsvReport.AR2sLogData[6][3]  :='6-RINSING';(*Station*)
+dsCsvReport.AR2sLogData[6][4]  :='N/A';(*Sequences Recipe*)
+dsCsvReport.AR2sLogData[6][5]  :=DSHmiStationDisplayInfo[6].sStationSequenceRecipeDescription;(*Sequences Recipe*)
+dsCsvReport.AR2sLogData[6][6]  :='N/A';(*Sub Recipe*)
+dsCsvReport.AR2sLogData[6][7]  :=DSHmiStationDisplayInfo[6].sStationSubDescription;(*Sub Recipe*)
+dsCsvReport.AR2sLogData[6][8]  :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[6].iMinTime);(*Minimum Time*)
+dsCsvReport.AR2sLogData[6][9]  :='N/A';(*Minimum Time*)
+dsCsvReport.AR2sLogData[6][10]  :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[6].iMaxTime);(*Maximum Time*)
+dsCsvReport.AR2sLogData[6][11] :='N/A';(*Maximum Time*)
+dsCsvReport.AR2sLogData[6][12] :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[6].iEffTime);(*Effective Time*)
+dsCsvReport.AR2sLogData[6][13] :='N/A';(*Effective Time*)
+dsCsvReport.AR2sLogData[6][14] :=REAL_TO_STRING(ARrStnTempSV[6]);(*Temperature SV*)
+dsCsvReport.AR2sLogData[6][15] :=REAL_TO_STRING(ARrStnTempPV[6]);(*Temperature PV*)
+dsCsvReport.AR2sLogData[6][16] :=INT_TO_STRING(ARDsStnSeqProcessCtrl[6].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent);(*U/Sonic Bottom A Power SV*)
+dsCsvReport.AR2sLogData[6][17]:=INT_TO_STRING(ARiMegaPowerPV_percent[3]);(*U/Sonic Bottom A Power PV*)
+dsCsvReport.AR2sLogData[6][18]:='N/A';(*U/Sonic Bottom A Frequency SV*)
+dsCsvReport.AR2sLogData[6][19]:=INT_TO_STRING(DSV2ModbusControl2.wModbusData[9]);(*U/Sonic Bottom A Frequency PV*)
+dsCsvReport.AR2sLogData[6][20]:='N/A';(*U/Sonic Bottom B Power SV*)
+dsCsvReport.AR2sLogData[6][21]:='N/A';(*U/Sonic Bottom B Power PV*)
+dsCsvReport.AR2sLogData[6][22]:='N/A';(*U/Sonic Bottom B Frequency SV*)
+dsCsvReport.AR2sLogData[6][23]:='N/A';(*U/Sonic Bottom B Frequency PV*)
+dsCsvReport.AR2sLogData[6][24]:='N/A';(*U/Sonic Side A Power SV*)
+dsCsvReport.AR2sLogData[6][25]:='N/A';(*U/Sonic Side A Power PV*)
+dsCsvReport.AR2sLogData[6][26]:='N/A';(*U/Sonic Side A Frequency SV*)
+dsCsvReport.AR2sLogData[6][27]:='N/A';(*U/Sonic Side A Frequency PV*)
+dsCsvReport.AR2sLogData[6][28]:='N/A';(*U/Sonic Side B Power SV*)
+dsCsvReport.AR2sLogData[6][29]:='N/A';(*U/Sonic Side B Power PV*)
+dsCsvReport.AR2sLogData[6][30]:='N/A';(*U/Sonic Side B Frequency SV*)
+dsCsvReport.AR2sLogData[6][31]:='N/A';(*U/Sonic Side B Frequency PV*)
+dsCsvReport.AR2sLogData[6][32]:='N/A';(*Vacuum SV*)
+dsCsvReport.AR2sLogData[6][33]:='N/A';(*Vacuum PV*)
+dsCsvReport.AR2sLogData[6][34]:='N/A';(*Conductivity SV*)
+dsCsvReport.AR2sLogData[6][35]:=REAL_TO_STRING(ARrStnConductivityPV[6]);(*Conductivity PV*)
+dsCsvReport.AR2sLogData[6][36]:='N/A';(*Pump Flow SV*)
+dsCsvReport.AR2sLogData[6][37]:=REAL_TO_STRING(ARrStnFilterPressurePV[6]);(*Pump Flow PV*)
+dsCsvReport.AR2sLogData[6][38]:='N/A';(*Resistivity SV*)
+dsCsvReport.AR2sLogData[6][39]:='N/A';(*Resistivity PV*)
+dsCsvReport.AR2sLogData[6][40]:='N/A';(*PH SV*)
+dsCsvReport.AR2sLogData[6][41]:='N/A'; (*PH PV*)
+dsCsvReport.AR2sLogData[6][42]:='N/A';(*Quality*)
+dsCsvReport.AR2sLogData[6][43]:=DSStnBasketInfo[6].sProductQuality;(*Quality*)
+dsCsvReport.AR2sLogData[6][44]:=INT_TO_STRING(ARDsStnSeqProcessCtrl[6].Out_iCurrentProcessTime);(*Actual Time*)
+dsCsvReport.AR2sLogData[6][45]:='N/A';(*Actual Time*)                      
+
+
+// Data log info STN 07 ( NINE ROW )7- FINE RINSING
+dsCsvReport.AR2sLogData[7][1]  :=sTime;(*Station*)
+dsCsvReport.AR2sLogData[7][2]  :='N/A';(*Station*)
+dsCsvReport.AR2sLogData[7][3]  :='7-FINE RINSING';(*Station*)
+dsCsvReport.AR2sLogData[7][4]  :='N/A';(*Sequences Recipe*)
+dsCsvReport.AR2sLogData[7][5]  :=DSHmiStationDisplayInfo[7].sStationSequenceRecipeDescription;(*Sequences Recipe*)
+dsCsvReport.AR2sLogData[7][6]  :='N/A';(*Sub Recipe*)
+dsCsvReport.AR2sLogData[7][7]  :=DSHmiStationDisplayInfo[7].sStationSubDescription;(*Sub Recipe*)
+dsCsvReport.AR2sLogData[7][8]  :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[7].iMinTime);(*Minimum Time*)
+dsCsvReport.AR2sLogData[7][9]  :='N/A';(*Minimum Time*)
+dsCsvReport.AR2sLogData[7][10]  :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[7].iMaxTime);(*Maximum Time*)
+dsCsvReport.AR2sLogData[7][11] :='N/A';(*Maximum Time*)
+dsCsvReport.AR2sLogData[7][12] :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[7].iEffTime);(*Effective Time*)
+dsCsvReport.AR2sLogData[7][13] :='N/A';(*Effective Time*)
+dsCsvReport.AR2sLogData[7][14] :=REAL_TO_STRING(ARrStnTempSV[7]);(*Temperature SV*)
+dsCsvReport.AR2sLogData[7][15] :=REAL_TO_STRING(ARrStnTempPV[7]);(*Temperature PV*)
+dsCsvReport.AR2sLogData[7][16] :=INT_TO_STRING(ARDsStnSeqProcessCtrl[7].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent);(*U/Sonic Bottom A Power SV*)
+dsCsvReport.AR2sLogData[7][17]:=INT_TO_STRING(ARiUsPowerPV_percent[7]);(*U/Sonic Bottom A Power PV*)
+dsCsvReport.AR2sLogData[7][18]:='N/A';(*U/Sonic Bottom A Frequency SV*)
+dsCsvReport.AR2sLogData[7][19]:=INT_TO_STRING(iDisplayFreqUs[7]);(*U/Sonic Bottom A Frequency PV*)
+dsCsvReport.AR2sLogData[7][20]:='N/A';(*U/Sonic Bottom B Power SV*)
+dsCsvReport.AR2sLogData[7][21]:='N/A';(*U/Sonic Bottom B Power PV*)
+dsCsvReport.AR2sLogData[7][22]:='N/A';(*U/Sonic Bottom B Frequency SV*)
+dsCsvReport.AR2sLogData[7][23]:='N/A';(*U/Sonic Bottom B Frequency PV*)
+dsCsvReport.AR2sLogData[7][24]:='N/A';(*U/Sonic Side A Power SV*)
+dsCsvReport.AR2sLogData[7][25]:='N/A';(*U/Sonic Side A Power PV*)
+dsCsvReport.AR2sLogData[7][26]:='N/A';(*U/Sonic Side A Frequency SV*)
+dsCsvReport.AR2sLogData[7][27]:='N/A';(*U/Sonic Side A Frequency PV*)
+dsCsvReport.AR2sLogData[7][28]:='N/A';(*U/Sonic Side B Power SV*)
+dsCsvReport.AR2sLogData[7][29]:='N/A';(*U/Sonic Side B Power PV*)
+dsCsvReport.AR2sLogData[7][30]:='N/A';(*U/Sonic Side B Frequency SV*)
+dsCsvReport.AR2sLogData[7][31]:='N/A';(*U/Sonic Side B Frequency PV*)
+dsCsvReport.AR2sLogData[7][32]:='N/A';(*Vacuum SV*)
+dsCsvReport.AR2sLogData[7][33]:='N/A';(*Vacuum PV*)
+dsCsvReport.AR2sLogData[7][34]:='N/A';(*Conductivity SV*)
+dsCsvReport.AR2sLogData[7][35]:=REAL_TO_STRING(ARrStnConductivityPV[7]);(*Conductivity PV*)
+dsCsvReport.AR2sLogData[7][36]:='N/A';(*Pump Flow SV*)
+dsCsvReport.AR2sLogData[7][37]:=REAL_TO_STRING(ARrStnFilterPressurePV[7]);(*Pump Flow PV*)
+dsCsvReport.AR2sLogData[7][38]:='N/A';(*Resistivity SV*)
+dsCsvReport.AR2sLogData[7][39]:='N/A';(*Resistivity PV*)
+dsCsvReport.AR2sLogData[7][40]:='N/A';(*PH SV*)
+dsCsvReport.AR2sLogData[7][41]:='N/A'; (*PH PV*)
+dsCsvReport.AR2sLogData[7][42]:='N/A';(*Quality*)
+dsCsvReport.AR2sLogData[7][43]:=DSStnBasketInfo[7].sProductQuality;(*Quality*)
+dsCsvReport.AR2sLogData[7][44]:=INT_TO_STRING(ARDsStnSeqProcessCtrl[7].Out_iCurrentProcessTime);(*Actual Time*)
+dsCsvReport.AR2sLogData[7][45]:='N/A';(*Actual Time*) 
+                             
+
+// Data log info STN 08 ( NINE ROW )8- FINE RINSING
+dsCsvReport.AR2sLogData[8][1]  :=sTime;(*Station*)
+dsCsvReport.AR2sLogData[8][2]  :='N/A';(*Station*)
+dsCsvReport.AR2sLogData[8][3]  :='8-FINE RINSING';(*Station*)
+dsCsvReport.AR2sLogData[8][4]  :='N/A';(*Sequences Recipe*)
+dsCsvReport.AR2sLogData[8][5]  :=DSHmiStationDisplayInfo[8].sStationSequenceRecipeDescription;(*Sequences Recipe*)
+dsCsvReport.AR2sLogData[8][6]  :='N/A';(*Sub Recipe*)
+dsCsvReport.AR2sLogData[8][7]  :=DSHmiStationDisplayInfo[8].sStationSubDescription;(*Sub Recipe*)
+dsCsvReport.AR2sLogData[8][8]  :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[8].iMinTime);(*Minimum Time*)
+dsCsvReport.AR2sLogData[8][9]  :='N/A';(*Minimum Time*)
+dsCsvReport.AR2sLogData[8][10]  :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[8].iMaxTime);(*Maximum Time*)
+dsCsvReport.AR2sLogData[8][11] :='N/A';(*Maximum Time*)
+dsCsvReport.AR2sLogData[8][12] :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[8].iEffTime);(*Effective Time*)
+dsCsvReport.AR2sLogData[8][13] :='N/A';(*Effective Time*)
+dsCsvReport.AR2sLogData[8][14] :=REAL_TO_STRING(ARrStnTempSV[8]);(*Temperature SV*)
+dsCsvReport.AR2sLogData[8][15] :=REAL_TO_STRING(ARrStnTempPV[8]);(*Temperature PV*)
+dsCsvReport.AR2sLogData[8][16] :=INT_TO_STRING(ARDsStnSeqProcessCtrl[8].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent);(*U/Sonic Bottom A Power SV*)
+dsCsvReport.AR2sLogData[8][17]:=INT_TO_STRING(ARiUsPowerPV_percent[8]);(*U/Sonic Bottom A Power PV*)
+dsCsvReport.AR2sLogData[8][18]:='N/A';(*U/Sonic Bottom A Frequency SV*)
+dsCsvReport.AR2sLogData[8][19]:=INT_TO_STRING(iDisplayFreqUs[8]);(*U/Sonic Bottom A Frequency PV*)
+dsCsvReport.AR2sLogData[8][20]:='N/A';(*U/Sonic Bottom B Power SV*)
+dsCsvReport.AR2sLogData[8][21]:='N/A';(*U/Sonic Bottom B Power PV*)
+dsCsvReport.AR2sLogData[8][22]:='N/A';(*U/Sonic Bottom B Frequency SV*)
+dsCsvReport.AR2sLogData[8][23]:='N/A';(*U/Sonic Bottom B Frequency PV*)
+dsCsvReport.AR2sLogData[8][24]:='N/A';(*U/Sonic Side A Power SV*)
+dsCsvReport.AR2sLogData[8][25]:='N/A';(*U/Sonic Side A Power PV*)
+dsCsvReport.AR2sLogData[8][26]:='N/A';(*U/Sonic Side A Frequency SV*)
+dsCsvReport.AR2sLogData[8][27]:='N/A';(*U/Sonic Side A Frequency PV*)
+dsCsvReport.AR2sLogData[8][28]:='N/A';(*U/Sonic Side B Power SV*)
+dsCsvReport.AR2sLogData[8][29]:='N/A';(*U/Sonic Side B Power PV*)
+dsCsvReport.AR2sLogData[8][30]:='N/A';(*U/Sonic Side B Frequency SV*)
+dsCsvReport.AR2sLogData[8][31]:='N/A';(*U/Sonic Side B Frequency PV*)
+dsCsvReport.AR2sLogData[8][32]:='N/A';(*Vacuum SV*)
+dsCsvReport.AR2sLogData[8][33]:='N/A';(*Vacuum PV*)
+dsCsvReport.AR2sLogData[8][34]:='N/A';(*Conductivity SV*)
+dsCsvReport.AR2sLogData[8][35]:=REAL_TO_STRING(ARrStnConductivityPV[8]);(*Conductivity PV*)
+dsCsvReport.AR2sLogData[8][36]:='N/A';(*Pump Flow SV*)
+dsCsvReport.AR2sLogData[8][37]:=REAL_TO_STRING(ARrStnFilterPressurePV[8]);(*Pump Flow PV*)
+dsCsvReport.AR2sLogData[8][38]:='N/A';(*Resistivity SV*)
+dsCsvReport.AR2sLogData[8][39]:='N/A';(*Resistivity PV*)
+dsCsvReport.AR2sLogData[8][40]:='N/A';(*PH SV*)
+dsCsvReport.AR2sLogData[8][41]:='N/A'; (*PH PV*)
+dsCsvReport.AR2sLogData[8][42]:='N/A';(*Quality*)
+dsCsvReport.AR2sLogData[8][43]:=DSStnBasketInfo[8].sProductQuality;(*Quality*)
+dsCsvReport.AR2sLogData[8][44]:=INT_TO_STRING(ARDsStnSeqProcessCtrl[8].Out_iCurrentProcessTime);(*Actual Time*)
+dsCsvReport.AR2sLogData[8][45]:='N/A';(*Actual Time*)                        
+
+// Data log info STN 09 ( NINE ROW )9-INFRARED DRYER
+dsCsvReport.AR2sLogData[9][1]  :=sTime;(*Station*)
+dsCsvReport.AR2sLogData[9][2]  :='N/A';(*Station*)
+dsCsvReport.AR2sLogData[9][3]  :='9-PRECISION RINSING';(*Station*)
+dsCsvReport.AR2sLogData[9][4]  :='N/A';(*Sequences Recipe*)
+dsCsvReport.AR2sLogData[9][5]  :=DSHmiStationDisplayInfo[9].sStationSequenceRecipeDescription;(*Sequences Recipe*)
+dsCsvReport.AR2sLogData[9][6]  :='N/A';(*Sub Recipe*)
+dsCsvReport.AR2sLogData[9][7]  :=DSHmiStationDisplayInfo[9].sStationSubDescription;(*Sub Recipe*)
+dsCsvReport.AR2sLogData[9][8]  :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[9].iMinTime);(*Minimum Time*)
+dsCsvReport.AR2sLogData[9][9]  :='N/A';(*Minimum Time*)
+dsCsvReport.AR2sLogData[9][10] :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[9].iMaxTime);(*Maximum Time*)
+dsCsvReport.AR2sLogData[9][11] :='N/A';(*Maximum Time*)
+dsCsvReport.AR2sLogData[9][12] :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[9].iEffTime);(*Effective Time*)
+dsCsvReport.AR2sLogData[9][13] :='N/A';(*Effective Time*)
+dsCsvReport.AR2sLogData[9][14] :=REAL_TO_STRING(ARrStnTempSV[9]);(*Temperature SV*)
+dsCsvReport.AR2sLogData[9][15] :=REAL_TO_STRING(ARrStnTempPV[9]);(*Temperature PV*)
+dsCsvReport.AR2sLogData[9][16] :='';(*U/Sonic Bottom A Power SV*)
+dsCsvReport.AR2sLogData[9][17]:='';(*U/Sonic Bottom A Power PV*)
+dsCsvReport.AR2sLogData[9][18]:='N/A';(*U/Sonic Bottom A Frequency SV*)
+dsCsvReport.AR2sLogData[9][19]:='';(*U/Sonic Bottom A Frequency PV*)
+dsCsvReport.AR2sLogData[9][20]:='N/A';(*U/Sonic Bottom B Power SV*)
+dsCsvReport.AR2sLogData[9][21]:='N/A';(*U/Sonic Bottom B Power PV*)
+dsCsvReport.AR2sLogData[9][22]:='N/A';(*U/Sonic Bottom B Frequency SV*)
+dsCsvReport.AR2sLogData[9][23]:='N/A';(*U/Sonic Bottom B Frequency PV*)
+dsCsvReport.AR2sLogData[9][24]:='N/A';(*U/Sonic Side A Power SV*)
+dsCsvReport.AR2sLogData[9][25]:='N/A';(*U/Sonic Side A Power PV*)
+dsCsvReport.AR2sLogData[9][26]:='N/A';(*U/Sonic Side A Frequency SV*)
+dsCsvReport.AR2sLogData[9][27]:='N/A';(*U/Sonic Side A Frequency PV*)
+dsCsvReport.AR2sLogData[9][28]:='N/A';(*U/Sonic Side B Power SV*)
+dsCsvReport.AR2sLogData[9][29]:='N/A';(*U/Sonic Side B Power PV*)
+dsCsvReport.AR2sLogData[9][30]:='N/A';(*U/Sonic Side B Frequency SV*)
+dsCsvReport.AR2sLogData[9][31]:='N/A';(*U/Sonic Side B Frequency PV*)
+dsCsvReport.AR2sLogData[9][32]:='N/A';(*Vacuum SV*)
+dsCsvReport.AR2sLogData[9][33]:='N/A';(*Vacuum PV*)
+dsCsvReport.AR2sLogData[9][34]:='N/A';(*Conductivity SV*)
+dsCsvReport.AR2sLogData[9][35]:=REAL_TO_STRING(ARrStnConductivityPV[9]);(*Conductivity PV*)
+dsCsvReport.AR2sLogData[9][36]:='N/A';(*Pump Flow SV*)
+dsCsvReport.AR2sLogData[9][37]:=REAL_TO_STRING(ARrStnFilterPressurePV[9]);(*Pump Flow PV*)
+dsCsvReport.AR2sLogData[9][38]:='N/A';(*Resistivity SV*)
+dsCsvReport.AR2sLogData[9][39]:='N/A';(*Resistivity PV*)
+dsCsvReport.AR2sLogData[9][40]:='N/A';(*PH SV*)
+dsCsvReport.AR2sLogData[9][41]:='N/A'; (*PH PV*)
+dsCsvReport.AR2sLogData[9][42]:='N/A';(*Quality*)
+dsCsvReport.AR2sLogData[9][43]:=DSStnBasketInfo[9].sProductQuality;(*Quality*)
+dsCsvReport.AR2sLogData[9][44]:=INT_TO_STRING(ARDsStnSeqProcessCtrl[9].Out_iCurrentProcessTime);(*Actual Time*)
+dsCsvReport.AR2sLogData[9][45]:='N/A';(*Actual Time*)                        
+                  
+
+// Data LOG info STN 10 ( NINE ROW )
+dsCsvReport.AR2sLogData[10][1]  :=sTime;(*Station*)
+dsCsvReport.AR2sLogData[10][2]  :='N/A';(*Station*)
+dsCsvReport.AR2sLogData[10][3]  :='10-INFRARED DRYER';(*Station*)
+dsCsvReport.AR2sLogData[10][4]  :='N/A';(*Sequences Recipe*)
+dsCsvReport.AR2sLogData[10][5]  :=DSHmiStationDisplayInfo[10].sStationSequenceRecipeDescription;(*Sequences Recipe*)
+dsCsvReport.AR2sLogData[10][6]  :='N/A';(*Sub Recipe*)
+dsCsvReport.AR2sLogData[10][7]  :=DSHmiStationDisplayInfo[10].sStationSubDescription;(*Sub Recipe*)
+dsCsvReport.AR2sLogData[10][8]  :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[10].iMinTime);(*Minimum Time*)
+dsCsvReport.AR2sLogData[10][9]  :='N/A';(*Minimum Time*)
+dsCsvReport.AR2sLogData[10][10]  :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[10].iMaxTime);(*Maximum Time*)
+dsCsvReport.AR2sLogData[10][11] :='N/A';(*Maximum Time*)
+dsCsvReport.AR2sLogData[10][12] :=INT_TO_STRING(ARDsStnMinMaxEffTimeDisplay[10].iEffTime);(*Effective Time*)
+dsCsvReport.AR2sLogData[10][13] :='N/A';(*Effective Time*)
+dsCsvReport.AR2sLogData[10][14] :=REAL_TO_STRING(ARrStnTempSV[10]);(*Temperature SV*)
+dsCsvReport.AR2sLogData[10][15] :=REAL_TO_STRING(ARrStnTempPV[10]);(*Temperature PV*)
+dsCsvReport.AR2sLogData[10][16] :='';(*U/Sonic Bottom A Power SV*)
+dsCsvReport.AR2sLogData[10][17]:='';(*U/Sonic Bottom A Power PV*)
+dsCsvReport.AR2sLogData[10][18]:='N/A';(*U/Sonic Bottom A Frequency SV*)
+dsCsvReport.AR2sLogData[10][19]:='';(*U/Sonic Bottom A Frequency PV*)
+dsCsvReport.AR2sLogData[10][20]:='N/A';(*U/Sonic Bottom B Power SV*)
+dsCsvReport.AR2sLogData[10][21]:='N/A';(*U/Sonic Bottom B Power PV*)
+dsCsvReport.AR2sLogData[10][22]:='N/A';(*U/Sonic Bottom B Frequency SV*)
+dsCsvReport.AR2sLogData[10][23]:='N/A';(*U/Sonic Bottom B Frequency PV*)
+dsCsvReport.AR2sLogData[10][24]:='N/A';(*U/Sonic Side A Power SV*)
+dsCsvReport.AR2sLogData[10][25]:='N/A';(*U/Sonic Side A Power PV*)
+dsCsvReport.AR2sLogData[10][26]:='N/A';(*U/Sonic Side A Frequency SV*)
+dsCsvReport.AR2sLogData[10][27]:='N/A';(*U/Sonic Side A Frequency PV*)
+dsCsvReport.AR2sLogData[10][28]:='N/A';(*U/Sonic Side B Power SV*)
+dsCsvReport.AR2sLogData[10][29]:='N/A';(*U/Sonic Side B Power PV*)
+dsCsvReport.AR2sLogData[10][30]:='N/A';(*U/Sonic Side B Frequency SV*)
+dsCsvReport.AR2sLogData[10][31]:='N/A';(*U/Sonic Side B Frequency PV*)
+dsCsvReport.AR2sLogData[10][32]:='N/A';(*Vacuum SV*)
+dsCsvReport.AR2sLogData[10][33]:='N/A';(*Vacuum PV*)
+dsCsvReport.AR2sLogData[10][34]:='N/A';(*Conductivity SV*)
+dsCsvReport.AR2sLogData[10][35]:='N/A';(*Conductivity PV*)
+dsCsvReport.AR2sLogData[10][36]:='N/A';(*Pump Flow SV*)
+dsCsvReport.AR2sLogData[10][37]:='N/A';(*Pump Flow PV*)
+dsCsvReport.AR2sLogData[10][38]:='N/A';(*Resistivity SV*)
+dsCsvReport.AR2sLogData[10][39]:='N/A';(*Resistivity PV*)
+dsCsvReport.AR2sLogData[10][40]:='N/A';(*PH SV*)
+dsCsvReport.AR2sLogData[10][41]:='N/A'; (*PH PV*)
+dsCsvReport.AR2sLogData[10][42]:='N/A';(*Quality*)
+dsCsvReport.AR2sLogData[10][43]:=DSStnBasketInfo[10].sProductQuality;(*Quality*)
+dsCsvReport.AR2sLogData[10][44]:=INT_TO_STRING(ARDsStnSeqProcessCtrl[10].Out_iCurrentProcessTime);(*Actual Time*)
+dsCsvReport.AR2sLogData[10][45]:='N/A';(*Actual Time*)            
+
+
+
+
+	sCsvFilePath								:= 'C:\JKS\report_csv\';
+	udiCsvMRBCount								;	// The number of data set stored in MRB (MemoryRingBuffer)
+	udiCsvMRBUsagePercent 						;	// Current Usage % in MRB (MemoryRingBuffer)
+
+	// Check if thats a problem
+	ARdsCsvErrorLog[1].sPathAndFilename;
+	ARdsCsvErrorLog[1].eLogAction;
+	ARdsCsvErrorLog[1].sLogString;
+	ARdsCsvErrorLog[1].iCaseid;
+	ARdsCsvErrorLog[1].udiErrorId;
+
+	ARdsCsvErrorLog[2].sPathAndFilename;
+	ARdsCsvErrorLog[2].eLogAction;
+	ARdsCsvErrorLog[2].sLogString;
+	ARdsCsvErrorLog[2].iCaseid;
+	ARdsCsvErrorLog[2].udiErrorId;
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="Csv_Report_Mapping">
+      <LineId Id="381" Count="29" />
+      <LineId Id="659" Count="0" />
+      <LineId Id="411" Count="16" />
+      <LineId Id="668" Count="0" />
+      <LineId Id="429" Count="15" />
+      <LineId Id="724" Count="14" />
+      <LineId Id="747" Count="4" />
+      <LineId Id="753" Count="9" />
+      <LineId Id="789" Count="0" />
+      <LineId Id="446" Count="15" />
+      <LineId Id="882" Count="25" />
+      <LineId Id="881" Count="0" />
+      <LineId Id="908" Count="1" />
+      <LineId Id="1569" Count="0" />
+      <LineId Id="910" Count="0" />
+      <LineId Id="463" Count="15" />
+      <LineId Id="926" Count="27" />
+      <LineId Id="925" Count="0" />
+      <LineId Id="479" Count="0" />
+      <LineId Id="1596" Count="0" />
+      <LineId Id="480" Count="0" />
+      <LineId Id="1032" Count="0" />
+      <LineId Id="1060" Count="17" />
+      <LineId Id="1595" Count="0" />
+      <LineId Id="1079" Count="23" />
+      <LineId Id="1033" Count="0" />
+      <LineId Id="496" Count="0" />
+      <LineId Id="1570" Count="0" />
+      <LineId Id="497" Count="0" />
+      <LineId Id="1572" Count="0" />
+      <LineId Id="1103" Count="42" />
+      <LineId Id="512" Count="2" />
+      <LineId Id="1573" Count="0" />
+      <LineId Id="1146" Count="42" />
+      <LineId Id="530" Count="0" />
+      <LineId Id="1190" Count="0" />
+      <LineId Id="1189" Count="0" />
+      <LineId Id="531" Count="0" />
+      <LineId Id="1574" Count="0" />
+      <LineId Id="1191" Count="43" />
+      <LineId Id="1576" Count="0" />
+      <LineId Id="1575" Count="0" />
+      <LineId Id="547" Count="1" />
+      <LineId Id="1577" Count="0" />
+      <LineId Id="1296" Count="42" />
+      <LineId Id="1295" Count="0" />
+      <LineId Id="1578" Count="0" />
+      <LineId Id="564" Count="1" />
+      <LineId Id="1580" Count="0" />
+      <LineId Id="1396" Count="42" />
+      <LineId Id="580" Count="0" />
+      <LineId Id="1579" Count="0" />
+      <LineId Id="581" Count="1" />
+      <LineId Id="1581" Count="0" />
+      <LineId Id="1439" Count="42" />
+      <LineId Id="597" Count="2" />
+      <LineId Id="1582" Count="0" />
+      <LineId Id="1482" Count="43" />
+      <LineId Id="614" Count="2" />
+      <LineId Id="1583" Count="0" />
+      <LineId Id="1526" Count="17" />
+      <LineId Id="1589" Count="0" />
+      <LineId Id="1545" Count="23" />
+      <LineId Id="632" Count="21" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

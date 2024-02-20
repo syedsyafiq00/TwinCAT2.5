@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_WEBER" Id="{6b8b4882-a5c7-4384-9cc7-3b0ba3e76f97}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_WEBER
+VAR_INPUT
+	iID				: STRING;
+	bStart 			: BOOL;
+	bStop			: BOOL;
+	bSetPoint 		: BOOL;
+	iSetPoint			: INT;
+	bSetFrequency 	: BOOL;
+	iFrequency		: INT;
+	bClk				: BOOL;
+	bReset			: BOOL;
+END_VAR
+VAR_OUTPUT
+	sCmd			: STRING;
+	bBusy			: BOOL;
+END_VAR
+VAR
+	step				: BYTE;
+	R_TRIG_START			: R_TRIG;
+	R_TRIG_SETFREQ 		: R_TRIG;
+	R_TRIG_SETPOINT		: R_TRIG;
+	R_TRIG_STOP			: R_TRIG;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[R_TRIG_START(CLK:=bStart , Q=> );
+IF R_TRIG_START.Q THEN
+	step:=10;
+END_IF
+
+R_TRIG_SETPOINT(CLK:=bSetpoint , Q=> );
+IF R_TRIG_SETPOINT.Q THEN
+	step:=20;
+END_IF
+
+R_TRIG_STOP(CLK:=bStop , Q=> );
+IF R_TRIG_STOP.Q THEN
+	step:=30;
+END_IF
+
+R_TRIG_SETFREQ(CLK:=bSetFrequency , Q=> );
+IF R_TRIG_SETFREQ.Q THEN
+	step:=41;
+END_IF
+
+
+IF bClk THEN
+	CASE step OF
+	0:; (*Standby*)
+
+	10:(*ON*)
+		sCmd :=CONCAT( CONCAT('$$',iID),'G$R'); (*ON*)
+		step:=0;
+
+	20: (*SetPoint*)
+		sCmd :=CONCAT(CONCAT(CONCAT(CONCAT('$$',iID),'R'),INT_TO_STRING(iSetPoint)),'0$R'); (*SET POINT*)
+		step:=0;
+
+	30: (*OFF*)
+		sCmd :=CONCAT( CONCAT('$$',iID),'O$R'); (*ON*)
+		step:=0;
+
+	40: (*Set Frequency*)
+		bBusy:=TRUE;
+		sCmd :=CONCAT( CONCAT('$$',iID),'O$R'); (*OFF*)
+		step:=41;
+
+	41:
+		sCmd := CONCAT(CONCAT(CONCAT(CONCAT('$$',iID),'B'),INT_TO_STRING(iFrequency)),'$R'); (*SET FREQ*)
+		step:=0; (*return string base on ilD*)
+
+	42:
+		 sCmd := CONCAT(CONCAT('$$',iID),'G$R'); (*ON*)
+		step:=43;
+
+	43:
+		(*bBusy:=FALSE;*)
+		 sCmd := CONCAT(CONCAT(CONCAT(CONCAT('$$',iID),'R'),INT_TO_STRING(iSetPoint)),'$R'); (*SET POINT*)
+		step:=0;
+
+	51:
+		sCmd := CONCAT(CONCAT(CONCAT('$$',iID),'EO'),'$R'); (*RESET ALL GENERATOR*)
+		step:=0;
+
+	END_CASE
+
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="FB_WEBER">
+      <LineId Id="23" Count="61" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,258 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_Analog_NoPersistent" Id="{5becaf37-1ee0-40ca-abef-3249d0098b40}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Temperature Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARrStnTempPV										: ARRAY [1..iStnQty] OF REAL;
+	ARbStnTempOnOff										: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnTempRDY										: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnTempHAL										: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnTemp1stLimitAlarm								: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnTemp2ndLimitAlarm								: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnTempPreparationNoRdyAlarm						: ARRAY [1..iStnQty] OF BOOL;
+
+	rStnTempMINsvHMIDisplay								: REAL;
+	rStnTempMAXsvHMIDisplay								: REAL;
+	
+	rStnTempHALMINsvHMIDisplay							: REAL;
+	rStnTempHALMAXsvHMIDisplay							: REAL;
+	
+	rStnTempHYSMINsvHMIDisplay							: REAL;
+	rStnTempHYSMAXsvHMIDisplay							: REAL;
+	
+	rStnTempRDYMINsvHMIDisplay							: REAL;
+	rStnTempRDYMAXsvHMIDisplay							: REAL;
+	
+	rStnTemp1stLimitMINsvHMIDisplay						: REAL;
+	rStnTemp1stLimitMAXsvHMIDisplay						: REAL;
+	
+	iStnPreparationTempMINsvHMIDisplay					: INT;
+	iStnPreparationTempMAXsvHMIDisplay					: INT;	
+	
+	rChillerSystemTempPV								: REAL;
+	bChillerSystemTempOnOff								: BOOL;
+	bChillerSystemTempRDY								: BOOL;
+	bChillerSystemTempHAL								: BOOL;
+	bChillerSystemTemp1stLimitAlarm						: BOOL;
+	bChillerSystemTemp2ndLimitAlarm						: BOOL;
+	bChillerSystemTempPreparationNoRdyAlarm				: BOOL;
+	
+	ARbStnChillerValueOnOff								: ARRAY [1..iStnQty] OF BOOL;
+	
+(*****Temperature Changed Based on Recipe Ctrl *****)
+
+	bDefaultTempSettingOnTSpagePB						: BOOL;
+	iHMIrecipeFinalDestination							: INT;
+	iCallProductRecipeFinalDestination					: INT;
+
+	Call_bCallPB										: BOOL;
+
+	bCallCompleted 										: BOOL;
+	bInvalidCallTempCtrlRecipeHold						: BOOL;
+	bInvalidCallTempCtrlRecipePulse						: BOOL;
+	Call_DSTempCtrlRecipe 								: DSV3_TempCtrlRecipe;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Conductivity Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARrStnConductivityPV 								: ARRAY [1..iStnQty] OF REAL;
+	ARbStnConductivity1stLimitAlarm						: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnConductivity2ndLimitAlarm						: ARRAY [1..iStnQty] OF BOOL;
+	
+	ARbStnConductivityLowAlarm							: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnConductivityHighAlarm							: ARRAY [1..iStnQty] OF BOOL;
+	
+	ARtDelayOffTopupBasedConductivityTimerOn			: ARRAY [0..iStnQty] OF TON;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Resistivity Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARrStnResistivityPV 									: ARRAY [1..iStnQty] OF REAL;
+	ARbStnResistivity1stLimitAlarm							: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnResistivity2ndLimitAlarm							: ARRAY [1..iStnQty] OF BOOL;
+
+	rIncResistivityPV 										: REAL;
+	bIncResistivity1stLimitAlarm							: BOOL;
+	bIncResistivity2ndLimitAlarm							: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx PH Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARrStnPhPV 											: ARRAY [1..iStnQty] OF REAL;
+	ARbStnPH1stLimitAlarm								: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnPH2ndLimitAlarm								: ARRAY [1..iStnQty] OF BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Filter Pressure Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARrStnFilterPressurePV 								: ARRAY [1..iStnQty] OF REAL;
+	ARbStnFilterPressure1stLimitAlarm					: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnFilterPressure2ndLimitAlarm					: ARRAY [1..iStnQty] OF BOOL;
+
+	ARbStnFilterPressureLowAlarm						: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnFilterPressureHighAlarm						: ARRAY [1..iStnQty] OF BOOL;
+	
+	ARrIncFilterPressurePV 								: ARRAY [1..iStnQty] OF REAL;
+	ARbIncFilterPressure1stLimitAlarm					: ARRAY [1..iStnQty] OF BOOL;
+	ARbIncFilterPressure2ndLimitAlarm					: ARRAY [1..iStnQty] OF BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Flow Switch Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARrStnFlowSwitchPV 									: ARRAY [1..iStnQty] OF REAL;
+	ARbStnFlowSwitch1stLimitAlarm						: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnFlowSwitch2ndLimitAlarm						: ARRAY [1..iStnQty] OF BOOL;
+
+	ARrIncFlowSwitchPV 									: ARRAY [1..iStnQty] OF REAL;
+	ARbIncFlowSwitch1stLimitAlarm						: ARRAY [1..iStnQty] OF BOOL;
+	ARbIncFlowSwitch2ndLimitAlarm						: ARRAY [1..iStnQty] OF BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Compress Air Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARrStnCompressAirPV 								: ARRAY [1..iStnQty] OF REAL;
+	ARbStnCompressAir1stLimitAlarm						: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnCompressAir2ndLimitAlarm						: ARRAY [1..iStnQty] OF BOOL;
+
+	ARrIncCompressAirPV 								: ARRAY [1..iStnQty] OF REAL;
+	ARbIncCompressAir1stLimitAlarm						: ARRAY [1..iStnQty] OF BOOL;
+	ARbIncCompressAir2ndLimitAlarm						: ARRAY [1..iStnQty] OF BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Weber Ultrasonic Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	bWeberFbErrorReset 									: BOOL;
+
+	ARbUSFSel1OnOff 									: ARRAY [1..iUSGeneratorQty] OF BOOL;
+	ARbUSFSel2OnOff 									: ARRAY [1..iUSGeneratorQty] OF BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Brenson Ultrasonic Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	bBrensonFbErrorReset 								: BOOL;
+
+	ARbBrensonUSFSel1OnOff 								: ARRAY [1..iUSGeneratorQty] OF BOOL;
+	ARbBrensonUSFSel2OnOff 								: ARRAY [1..iUSGeneratorQty] OF BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxx Manual WeberUltrasonic Variable Cltr xxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARiStnUSSideAPv									: ARRAY [1..iStnQty] OF INT;
+	ARiStnUSSideBPv									: ARRAY [1..iStnQty] OF INT;
+	ARiStnUSSideCPv									: ARRAY [1..iStnQty] OF INT;
+	ARiStnUSSideDPv									: ARRAY [1..iStnQty] OF INT;
+
+	ARiStnUSBtmAPv									: ARRAY [1..iStnQty] OF INT;
+	ARiStnUSBtmBPv									: ARRAY [1..iStnQty] OF INT;
+	ARiStnUSBtmCPv									: ARRAY [1..iStnQty] OF INT;
+	ARiStnUSBtmDPv									: ARRAY [1..iStnQty] OF INT;
+	                                                
+	ARiStnUSSideAFreqPv								: ARRAY [1..iStnQty] OF INT;
+	ARiStnUSSideBFreqPv								: ARRAY [1..iStnQty] OF INT;
+	ARiStnUSSideCFreqPv								: ARRAY [1..iStnQty] OF INT;
+	ARiStnUSSideDFreqPv								: ARRAY [1..iStnQty] OF INT;
+
+	ARiStnUSBtmAFreqPv								: ARRAY [1..iStnQty] OF INT;
+	ARiStnUSBtmBFreqPv								: ARRAY [1..iStnQty] OF INT;
+	ARiStnUSBtmCFreqPv								: ARRAY [1..iStnQty] OF INT;
+	ARiStnUSBtmDFreqPv								: ARRAY [1..iStnQty] OF INT;
+
+(* xxxxxxxxxxxxxxxxxxxxxx ClangsonicUltrasonic Variable Cltr xxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARiUsPowerPV_percent								: ARRAY [1..12] OF INT;
+	ARiUsOutput_Watt										: ARRAY [1..12] OF INT;
+
+	ARbUSfeedbackInRange								: ARRAY [1..12] OF BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Inverter Encoder Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARbVertCounterValueReset 							: ARRAY [0..iArmQty] OF BOOL;
+	ARbHorzCounterValueReset 							: ARRAY [0..iArmQty] OF BOOL;
+
+	ARbVertCounterValueErrReset 							: ARRAY [0..iArmQty] OF BOOL;
+	ARbHorzCounterValueErrReset							: ARRAY [0..iArmQty] OF BOOL;
+
+	ARbVertCounterValueErr								: ARRAY [0..iArmQty] OF BOOL;
+	ARbHorzCounterValueErr								: ARRAY [0..iArmQty] OF BOOL;
+
+	ARbVertOUT_CounterResetEn							: ARRAY [0..iArmQty] OF BOOL;
+	ARbHorzOUT_CounterResetEn							: ARRAY [0..iArmQty] OF BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Vacuum Value Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARbStnHighVacuumSignal								: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnLowVacuumSignal								: ARRAY [1..iStnQty] OF BOOL;
+
+	ARbStnSubHighVacuumSignal							: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnSubLowVacuumSignal							: ARRAY [1..iStnQty] OF BOOL;
+
+	bDCHighVacuumSignal								: BOOL;
+	bDCLowVacuumSignal									: BOOL;
+
+	bCCHighVacuumSignal								: BOOL;
+	bCCLowVacuumSignal									: BOOL;
+
+	ARbRevHighVacuumSignal								: ARRAY [1..iStnQty] OF BOOL;
+	ARbRevLowVacuumSignal								: ARRAY [1..iStnQty] OF BOOL;
+
+	ARrStnVacuumPV										: ARRAY [1..iStnQty] OF REAL;
+	ARiStnVacuumPV										: ARRAY [1..iStnQty] OF INT;
+
+	ARrStnSubVacuumPV									: ARRAY [1..iStnQty] OF REAL;
+	ARiStnSubVacuumPV									: ARRAY [1..iStnQty] OF INT;
+
+	rDCVacuumPV										: REAL;
+	iDCVacuumPV										: INT;
+
+	rCCVacuumPV										: REAL;
+	iCCVacuumPV										: INT;
+
+	ARrRevVacuumPV									: ARRAY [1..iStnQty] OF REAL;
+	ARiRevVacuumPV									: ARRAY [1..iStnQty] OF INT;
+
+	ARtVacuumPumpTimerResetDelay 						: ARRAY [1..iStnQty] OF TON;
+
+	ARbVacuumPumpTimerReset							: ARRAY [1..iStnQty] OF BOOL;
+
+	ARbDaysPvReset_Routine								: ARRAY [1..iStnQty] OF BOOL;
+	ARbDaysPvReset_Major								: ARRAY [1..iStnQty] OF BOOL;
+
+	ARbVacuumWarning_Routine							: ARRAY [1..iStnQty] OF BOOL;
+	ARbVacuumAlarm_Routine								: ARRAY [1..iStnQty] OF BOOL;
+
+	ARbVacuumWarning_Major								: ARRAY [1..iStnQty] OF BOOL;
+	ARbVacuumAlarm_Major								: ARRAY [1..iStnQty] OF BOOL;
+
+	ARbVacPumpService1stLimitAlarm						: ARRAY [1..iStnQty] OF BOOL;
+	ARbVacPumpService2ndLimitAlarm						: ARRAY [1..iStnQty] OF BOOL;
+	ARbVacPumpService2ndlimitAlarmHR					: ARRAY [1..iStnQty] OF BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxx Keyence Vacuum Variable Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARbStnHighVacuumLvlSave							: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnLowVacuumLvlSave							: ARRAY [1..iStnQty] OF BOOL;
+
+	ARbStnSubHighVacuumLvlSave						: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnSubLowVacuumLvlSave							: ARRAY [1..iStnQty] OF BOOL;
+
+	bDCHighVacuumLvlSave								: BOOL;
+	bDCLowVacuumLvlSave								: BOOL;
+
+	bCCHighVacuumLvlSave								: BOOL;
+	bCCLowVacuumLvlSave								: BOOL;
+
+	ARbRevHighVacuumLvlSave							: ARRAY [1..iStnQty] OF BOOL;
+	ARbRevLowVacuumLvlSave							: ARRAY [1..iStnQty] OF BOOL;
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

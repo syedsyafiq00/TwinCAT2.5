@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Internal_Mapping" Id="{a6b33a70-f6c9-4aca-a064-f4bef62ee907}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Internal_Mapping
+VAR
+	CKKALARMRESET: BOOL;
+	CKKBUZZERRESET: BOOL;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//ARwDO[eY11002_GeneralBuzzerTone01].00:=bBuzzerOutput; // Need to mapping with pyshical Output Buzzer Tone 1
+
+//bEventRstPBPhysicalInput:=ARbDI[eX10000_Stn01UltrasonicGeneratorMcb_Trip] OR CKKALARMRESET OR bHMI_AlarmRstPB;  // Need to mapping with physical Input Alarm Reset PB
+//bBuzzerRstPBPhysicalInput:=ARbDI[eX10001_GeneralBuzzerPb_Reset] OR CKKBUZZERRESET OR bHMI_BuzzerRstPB; // Need to mapping with physical Input Buzzer Reset PB
+
+
+// Clangsonic Ultrasonic Mapping
+//ARdsClangsonicGenerator[1].iGenModbusUnitID		:= 1;
+//ARdsClangsonicGenerator[2].iGenModbusUnitID		:= 2;
+//ARdsClangsonicGenerator[3].iGenModbusUnitID		:= 3;
+
+//ARdsClangsonicGenerator[1].iModbusRS485ChannelID	:= 1;
+//ARdsClangsonicGenerator[2].iModbusRS485ChannelID	:= 1;
+//ARdsClangsonicGenerator[3].iModbusRS485ChannelID	:= 1;
+
+
+// Misshook Sensor
+
+	ARbMAP_ArmMisshookSensorA[1]	:= ARbDI[eX11004_Arm01SensorA_Misshook];
+	ARbMAP_ArmMisshookSensorB[1]	:= ARbDI[eX11005_Arm01SensorB_Misshook];
+	
+
+//  Last index basket at loading ( Basket LD arm pick )
+
+	bMAP_LdConfirmBasketPickAvailibility   := AR2sDSCv_LdConfirmBasketInfo[1,3].bAvailibility;]]></ST>
+    </Implementation>
+    <LineIds Name="Internal_Mapping">
+      <LineId Id="5" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="42" Count="5" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="54" Count="0" />
+      <LineId Id="57" Count="8" />
+      <LineId Id="30" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

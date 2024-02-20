@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSV2_A1_ArmHorzPosInput" Id="{1982b3d6-d8f3-48d3-8ca5-e6460efa4272}">
+    <Declaration><![CDATA[TYPE DSV2_A1_ArmHorzPosInput : (*Full Occupied Byte = 500*)
+STRUCT
+
+	sReservedBool 			: STRING(50); (* Byte "n+0~n+99" *)
+
+	lrCurrentPos 				: LREAL; (* Byte "n+100~n+107" *)
+	lrTargetPos 				: LREAL; (* Byte "n+108~n+115" *)
+	lrPosConfirmToleranceSV  	: LREAL; (* Byte "n+116~n+123" *)
+	lr2ndSpeedSV 			: LREAL; (* Byte "n+124~n+131" *)
+	ARlrLdHookPos 			: ARRAY [0..iLdStnQty] OF LREAL; (* Byte "n+132~n+139" *)
+	ARlrLdUnhookPos 		: ARRAY [0..iLdStnQty] OF LREAL; (* Byte "n+140~n+147" *)
+	ARlrUldHookPos 			: ARRAY [0..iUldStnQty] OF LREAL; (* Byte "n+148~n+155" *)
+	ARlrUldUnhookPos 		: ARRAY [0..iUldStnQty] OF LREAL; (* Byte "n+156~n+163" *)
+
+	ARlrStnHookPos 			: ARRAY [0..iStnQty] OF LREAL; (* Byte "n+164~n+331" *)
+	ARlrStnUnhookPos 		: ARRAY [0..iStnQty] OF LREAL; (* Byte "n+332~n+499" *)
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

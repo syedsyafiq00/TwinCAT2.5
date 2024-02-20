@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="AutoPreparationCtrl_ST" Id="{fc19016a-5feb-4ed6-8b6b-5aa64f208d1c}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM AutoPreparationCtrl_ST
+VAR
+	bAutoPreparationTempPass: BOOL;
+
+	bStn4BasketFE: F_TRIG;
+	tStn4ValveDelayOff: TON;
+	bStn4ValveRemainOn: BOOL;
+
+	bStn6BasketFE: F_TRIG;
+	tStn6ValveDelayOff: TON;
+	bStn6ValveRemainOn: BOOL;
+
+	iTopupOptionFL: INT;
+	iTopupOptionSFL: INT;
+	ARbOptionSelectedAutoTopupFlagRE: ARRAY [1..iTotalOptionQty] OF R_TRIG;
+	bFoundOptionAutoTopupFlag: BOOL;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF bMainOnOff AND bAutoPreparationInt
+AND ( REAL_TO_INT(ARrStnTempPV[1]) >= ARrStnTempSV[1] )
+AND ( REAL_TO_INT(ARrStnTempPV[2]) >= ARrStnTempSV[2] )
+AND ( REAL_TO_INT(ARrStnTempPV[3]) >= ARrStnTempSV[3] )
+(*AND ( REAL_TO_INT(ARrStnTempPV[4]) >= ARrStnTempSV[4] )*)
+AND ( REAL_TO_INT(ARrStnTempPV[5]) >= ARrStnTempSV[5] )
+(*AND ( REAL_TO_INT(ARrStnTempPV[6]) >= ARrStnTempSV[6] )*)
+AND ( REAL_TO_INT(ARrStnTempPV[7]) >= ARrStnTempSV[7] )
+AND ( REAL_TO_INT(ARrStnTempPV[8]) >= ARrStnTempSV[8] )
+(*AND ( REAL_TO_INT(rOilSeparatorTempPV) >= rOilSeparatorTempSV )*) THEN
+
+bAutoPreparationTempPass := TRUE;
+ELSE
+bAutoPreparationTempPass := FALSE;
+END_IF
+
+
+
+(*STN4 Incoming valve will remain OPEN 30sec after process completed*)
+
+bStn4BasketFE(CLK:= DSStnBasketInfo[4].bAvailibility, Q=> );
+tStn4ValveDelayOff(IN:= bStn4ValveRemainOn, PT:= t#30s , Q=> , ET=> );
+
+IF bAutoStartPb AND bStn4BasketFE.Q THEN
+bStn4ValveRemainOn := TRUE;
+END_IF
+
+IF bAutoStartPb AND bStn4ValveRemainOn AND tStn4ValveDelayOff.Q THEN
+bStn4ValveRemainOn := FALSE;
+END_IF
+
+
+(*STN6 Incoming valve will remain OPEN 30sec after process completed*)
+
+bStn6BasketFE(CLK:= DSStnBasketInfo[6].bAvailibility, Q=> );
+tStn6ValveDelayOff(IN:= bStn6ValveRemainOn, PT:= t#30s , Q=> , ET=> );
+
+IF bAutoStartPb AND bStn6BasketFE.Q THEN
+bStn6ValveRemainOn := TRUE;
+END_IF
+
+IF bAutoStartPb AND bStn6ValveRemainOn AND tStn6ValveDelayOff.Q THEN
+bStn6ValveRemainOn := FALSE;
+END_IF
+
+
+(**Option Selected  for AutoTopup**)
+
+iTopupOptionFL:=1;
+
+     FOR iTopupOptionFL :=1 TO iTotalOptionQty DO
+               IF iTopupOptionFL >=1 AND iTopupOptionFL <= iTotalOptionQty THEN
+		ARbOptionSelectedAutoTopupFlagRE[iTopupOptionFL](CLK:=ARbOptionSelectedAutoTopupFlag[iTopupOptionFL],Q=>);
+	     END_IF
+     END_FOR
+
+iTopupOptionFL:=1;
+
+     FOR iTopupOptionFL:=1TO iTotalOptionQty DO
+		    IF iTopupOptionFL >=1 AND iTopupOptionFL <= iTotalOptionQty THEN
+			IF ARbOptionSelectedAutoTopupFlagRE[iTopupOptionFL].Q THEN
+
+				iTopupOptionSFL :=1;
+					FOR iTopupOptionSFL:=1 TO  iTotalOptionQty DO
+						IF  iTopupOptionSFL >=1 AND  iTopupOptionSFL<= iTotalOptionQty THEN
+							ARbOptionSelectedAutoTopupFlag[iTopupOptionSFL]:= FALSE ;
+						END_IF
+					END_FOR
+
+				ARbOptionSelectedAutoTopupFlag[iTopupOptionFL]:=TRUE;
+			END_IF
+
+		    END_IF
+	END_FOR
+
+(**Auto selected for topup not choosing**)
+
+iTopupOptionFL:=1;
+bFoundOptionAutoTopupFlag:=FALSE;
+
+	FOR iTopupOptionFL :=1 TO iTotalOptionQty DO
+		IF ARbOptionSelectedAutoTopupFlag[iTopupOptionFL] THEN
+			bFoundOptionAutoTopupFlag:=TRUE;
+		END_IF
+	END_FOR
+
+IF iTopupOptionFL > iTotalOptionQty AND NOT bFoundOptionAutoTopupFlag THEN
+ARbOptionSelectedAutoTopupFlag[1] := TRUE;
+END_IF
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="AutoPreparationCtrl_ST">
+      <LineId Id="18" Count="90" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

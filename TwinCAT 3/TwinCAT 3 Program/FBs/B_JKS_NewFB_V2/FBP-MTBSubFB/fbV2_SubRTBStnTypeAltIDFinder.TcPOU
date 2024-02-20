@@ -1,0 +1,285 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_SubRTBStnTypeAltIDFinder" Id="{ff500e62-8d4f-4558-a719-8a343681bb65}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_SubRTBStnTypeAltIDFinder
+VAR_INPUT
+	bReset																		: BOOL;
+	ARbAlternateStnEn 															: ARRAY [1..iAlternateSetQty] OF BOOL;
+	AR2siAlternateStn 																: ARRAY [1..iAlternateSetQty, 1..iAlternateStnQty] OF INT;
+	ARiArmID																	: ARRAY [1..iArmQty] OF INT;
+	ARiUldStnID																	: ARRAY [1..iUldStnQty] OF INT;		(* To Define Unloading Station ID*)
+
+	iRTBScanBlockNo															: INT;
+	AR2SiRecipeTimeBlock				 										: ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+
+(* RecipeTimeBlockDetail
+	1 - Start Time
+	2 - End Time
+	3 - Stn ID
+	4 - Step No (Based on Product Recipe PnP Step No)
+	5 - Busy Time <Duration> = EndTime - StartTime + 1; 
+	6 - Min Time (Define by User -> Process Time Per Station)
+	7 - Max Time (Define by User -> For Process Tank only)
+	8 - Eff Time (Final Process Time, Used on Station Timer and Call Arm Used)
+	9 - BusyLink Reference 
+		0		=Non
+		11-19 	= BusyLinkGroupMaster No 1
+		21-29 	= BusyLinkGroupMaster No 2
+		=================================
+		91-99 	= BusyLinkGroupMaster No 9
+
+		111-119 	= BusyLinkGroupMaster No 1 - 1st Stn ID
+		121-129 	= BusyLinkGroupMaster No 1 - 2nd Stn ID
+		131-139 	= BusyLinkGroupMaster No 1 - 3rd Stn ID
+
+		211-219 	= BusyLinkGroupMaster No 2 - 1st Stn ID
+		221-229 	= BusyLinkGroupMaster No 2 - 2nd Stn ID
+		231-239 	= BusyLinkGroupMaster No 2 - 3rd Stn ID
+
+		911-919 	= BusyLinkGroupMaster No 9 - 1st Stn ID
+		921-929 	= BusyLinkGroupMaster No 9 - 2nd Stn ID
+		931-939 	= BusyLinkGroupMaster No 9 - 3rd Stn ID
+
+		
+
+*)
+
+END_VAR
+
+VAR_IN_OUT
+	bEn										: BOOL;
+
+
+END_VAR
+
+
+
+VAR_OUTPUT
+	bEmptyBlockFound						: BOOL;
+	bArmIDFound								: BOOL;
+	bStnIDFound								: BOOL;
+	bUldIDFound								: BOOL;
+	bAltStnIDFound							: BOOL;
+	iArmAdd									: INT;
+	iStnAdd									: INT;
+	iUldAdd									: INT;
+	ARiAltStnIDFound							: ARRAY [1..iAlternateStnQty] OF INT;
+	ARiAltStnAddFound						: ARRAY [1..iAlternateStnQty] OF INT;
+	bDone : BOOL;
+END_VAR
+
+VAR
+	bResetRE					: R_TRIG;
+
+	iCheckAlternateStnEnFL 		: INT;
+	iClearBufferAltFL 				: INT;
+	iCheckArmIDFL 				: INT;
+	iCheckStnIDFL 				: INT;
+	iCheckUldIDFL 				: INT;
+	iAlternateSetFindFL 			: INT;
+	iAlternateStnFindFL 			: INT;
+	iAltStnTransferFL 				: INT;
+	iAltStnAddCheckFL 			: INT;
+	iAltStnAddCheckSFL 			: INT;
+
+
+	bAlternateStnEnableFound 		: BOOL;
+	ARiAltStnIDFoundEmpty		: ARRAY [1..iAlternateStnQty] OF INT;
+	ARiAltStnAddFoundEmpty		: ARRAY [1..iAlternateStnQty] OF INT;
+	iRTBScanBlockNoPrevious: INT;
+	bEnFE: F_TRIG;
+	bEnRE: R_TRIG;
+END_VAR
+
+
+
+VAR PERSISTENT
+
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[bResetRE(CLK:=bReset , Q=> );
+bEnFE(CLK:=bEn , Q=> );
+bEnRE(CLK:=bEn , Q=> );
+
+IF bResetRE.Q OR bEnFE.Q THEN
+
+	bEn						:= FALSE;
+	bDone 					:= FALSE;
+
+	bEmptyBlockFound		:= FALSE;
+	bArmIDFound	 			:= FALSE;
+	bStnIDFound 				:= FALSE;
+	bUldIDFound	 			:= FALSE;
+	bAltStnIDFound			:= FALSE;
+	iArmAdd 					:= 0;
+	iStnAdd 					:= 0;
+	iUldAdd 					:= 0;
+	ARiAltStnIDFound			:= ARiAltStnIDFoundEmpty;
+	ARiAltStnAddFound		:= ARiAltStnAddFoundEmpty;
+
+	bAlternateStnEnableFound 	:= FALSE;
+	iRTBScanBlockNoPrevious := iRTBScanBlockNo;
+
+
+END_IF
+
+(*
+IF NOT bEn THEN
+bDone := FALSE;
+END_IF
+*)
+
+
+IF
+NOT bReset
+AND bEn
+AND (iRTBScanBlockNoPrevious <> iRTBScanBlockNo OR bEnRE.Q)
+THEN
+	bDone 					:= FALSE;
+
+	bEmptyBlockFound		:= FALSE;
+	bArmIDFound	 			:= FALSE;
+	bStnIDFound 				:= FALSE;
+	bUldIDFound	 			:= FALSE;
+	bAltStnIDFound			:= FALSE;
+	iArmAdd 					:= 0;
+	iStnAdd 					:= 0;
+	iUldAdd 					:= 0;
+	ARiAltStnIDFound			:= ARiAltStnIDFoundEmpty;
+	ARiAltStnAddFound		:= ARiAltStnAddFoundEmpty;
+
+	bAlternateStnEnableFound 	:= FALSE;
+
+	IF AR2SiRecipeTimeBlock[iRTBScanBlockNo,3] > 0
+	AND iRTBScanBlockNo > 0 AND iRTBScanBlockNo <= iRecipeBlockQty
+	THEN
+	
+		(*Check if AlternateStn Enable*)
+		iCheckAlternateStnEnFL := 1;
+		FOR iCheckAlternateStnEnFL := 1 TO iAlternateSetQty DO
+			IF iCheckAlternateStnEnFL >= 1 AND iCheckAlternateStnEnFL <= iAlternateSetQty THEN
+				IF ARbAlternateStnEn[iCheckAlternateStnEnFL] THEN
+					bAlternateStnEnableFound := TRUE;
+				END_IF
+			END_IF
+		END_FOR
+	
+
+
+	
+		(*Check ArmID*)
+		iCheckArmIDFL := 1;
+		IF iCheckArmIDFL>0 AND iCheckArmIDFL < iArmQty+1 THEN
+			FOR iCheckArmIDFL := 1 TO iArmQty DO
+				IF AR2SiRecipeTimeBlock[iRTBScanBlockNo,3] = ARiArmID[iCheckArmIDFL] THEN
+				iArmAdd := iCheckArmIDFL;
+				bArmIDFound := TRUE;
+				iCheckArmIDFL := iArmQty+1;
+				END_IF
+			END_FOR
+		END_IF
+
+		(*Check StnID*)
+		iCheckStnIDFL := 1;
+		IF iCheckStnIDFL>0 AND iCheckStnIDFL <iStnQty+1 THEN
+			FOR iCheckStnIDFL := 1 TO iStnQty DO
+				IF AR2SiRecipeTimeBlock[iRTBScanBlockNo,3] = iCheckStnIDFL THEN
+				iStnAdd := iCheckStnIDFL;
+				bStnIDFound := TRUE;
+				iCheckStnIDFL := iStnQty+1;
+				END_IF
+			END_FOR
+		END_IF
+
+		(*Check UldID*)
+		iCheckUldIDFL := 1;
+		IF iCheckUldIDFL>0 AND iCheckUldIDFL <iUldStnQty+1 THEN
+			FOR iCheckUldIDFL := 1 TO iUldStnQty DO
+				IF AR2SiRecipeTimeBlock[iRTBScanBlockNo,3] = ARiUldStnID[iCheckUldIDFL] THEN
+				iUldAdd := iCheckUldIDFL;
+				bUldIDFound := TRUE;
+				iCheckUldIDFL := iUldStnQty+1;
+				END_IF
+			END_FOR
+		END_IF
+	
+		IF (bStnIDFound OR bUldIDFound) AND bAlternateStnEnableFound THEN
+		iAlternateSetFindFL := 1;
+			FOR iAlternateSetFindFL := 1 TO iAlternateSetQty DO
+				IF iAlternateSetFindFL >= 1 AND iAlternateSetFindFL <= iAlternateSetQty THEN
+					IF ARbAlternateStnEn[iAlternateSetFindFL] THEN
+					iAlternateStnFindFL := 1; (*Find Stn ID matching*)
+						FOR iAlternateStnFindFL := 1 TO iAlternateStnQty DO
+							IF iAlternateStnFindFL >= 1 AND iAlternateStnFindFL <= iAlternateStnQty THEN
+								IF (bStnIDFound AND iStnAdd = AR2SiAlternateStn[iAlternateSetFindFL , iAlternateStnFindFL])
+								OR (bUldIDFound AND ARiUldStnID[iUldAdd] = AR2SiAlternateStn[iAlternateSetFindFL , iAlternateStnFindFL])
+								 THEN
+									bAltStnIDFound := TRUE;
+									iAltStnTransferFL := 1;
+	
+										FOR iAltStnTransferFL := 1 TO iAlternateStnQty DO
+											IF iAltStnTransferFL >= 1 AND iAltStnTransferFL <= iAlternateStnQty THEN
+												ARiAltStnIDFound[iAltStnTransferFL] := AR2SiAlternateStn[iAlternateSetFindFL , iAltStnTransferFL];
+											END_IF
+										END_FOR
+	
+	
+									iAltStnAddCheckFL := 1;
+	
+										FOR iAltStnAddCheckFL := 1 TO iAlternateStnQty DO
+											IF iAltStnAddCheckFL >= 1 AND iAltStnAddCheckFL <= iAlternateStnQty THEN
+												IF (*bStnIDFound*)ARiAltStnIDFound[iAltStnAddCheckFL] >= 1 AND ARiAltStnIDFound[iAltStnAddCheckFL] <= iStnQty THEN
+	
+													ARiAltStnAddFound[iAltStnAddCheckFL] := ARiAltStnIDFound[iAltStnAddCheckFL];
+	
+												ELSIF (*bUldIDFound*) ARiAltStnIDFound[iAltStnAddCheckFL] > 0 THEN
+												iAltStnAddCheckSFL := 1;
+													FOR iAltStnAddCheckSFL := 1 TO iUldStnQty DO
+														IF iAltStnAddCheckSFL >= 1 AND iAltStnAddCheckSFL <= iUldStnQty THEN
+															IF ARiAltStnIDFound[iAltStnAddCheckFL] = ARiUldStnID[iAltStnAddCheckSFL] THEN
+															ARiAltStnAddFound[iAltStnAddCheckFL] := iAltStnAddCheckSFL;
+															END_IF
+														END_IF
+	
+													END_FOR
+												ELSE
+	
+													ARiAltStnAddFound[iAltStnAddCheckFL] := 0;
+	
+
+												END_IF
+	
+											END_IF
+										END_FOR
+	
+	
+									iAlternateSetFindFL := iAlternateSetQty+1;
+									iAlternateStnFindFL := iAlternateStnQty+1;
+									iAltStnTransferFL := iAlternateStnQty+1;
+	
+								END_IF
+							END_IF
+						END_FOR
+					END_IF
+				END_IF
+			END_FOR
+		END_IF
+
+	bDone 						:= TRUE;
+	iRTBScanBlockNoPrevious 	:= iRTBScanBlockNo;
+	ELSE
+	bEmptyBlockFound			:= TRUE;
+	bDone 						:= TRUE;
+	iRTBScanBlockNoPrevious 	:= iRTBScanBlockNo;
+	END_IF
+
+ELSE
+iRTBScanBlockNoPrevious := iRTBScanBlockNo;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_SubRTBStnTypeAltIDFinder">
+      <LineId Id="96" Count="178" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

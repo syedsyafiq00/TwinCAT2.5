@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_fbGnrProductRecipeMemoryOut" Id="{ffe6ba5a-aa6a-4566-aafe-c58ed5f49c1c}">
+    <Declaration><![CDATA[TYPE DS_fbGnrProductRecipeMemoryOut : (*Full Occupied Byte = 1700*)
+STRUCT
+
+	bCallCompleted 							: BOOL; (* Byte "n" *)
+
+	bInvalidProductRecipeNoErrHold 		: BOOL; (* Byte "n+1" *)
+	bInvalidProductRecipeNoErrPulse		: BOOL; (* Byte "n+2" *)
+	bInvalidProductRecipeStepErrHold 		: BOOL; (* Byte "n+3" *)
+	bInvalidProductRecipeStepErrPulse		: BOOL; (* Byte "n+4" *)
+
+	bCallUpDownPatternMemoryErr 			: BOOL; (* Byte "n+5" *)
+	bCallArmSpeedProfileMemoryErr 		: BOOL; (* Byte "n+6" *)
+	bCallPickStationNoErr 					: BOOL; (* Byte "n+7" *)
+	bCallTransferStationNoErr 				: BOOL; (* Byte "n+8" *)
+
+	sReservedBool 							: STRING(50); (* Byte "n+9~n+99" *)
+
+
+	iCalledProductRecipeNo 					: INT; (* Byte "n+100~n+101" *) (*New*)
+	iCalledProductRecipeStep				: INT; (* Byte "n+102~n+103" *) (*New*)
+	iCallCaseNo 								: INT; (* Byte "n+104~n+105" *)
+
+	sReservedInt 								: STRING(50); (* Byte "n+106~n+199" *)
+
+	sProductRecipeDescription 				: STRING(50);
+
+	DSGnrCalledArmPnpParameter : DSGnr_CalledArmPnpParameter;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

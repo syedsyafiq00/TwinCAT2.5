@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="HorzCoERead" Id="{4a5621de-996e-43cd-96dc-da1c4abaa32c}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM HorzCoERead
+VAR
+	fbCoERead_LoadingOT 	: FB_EcCoESdoRead;
+	fbCoERead_UnloadingOT 	: FB_EcCoESdoRead;
+	fbCoERead_HorzHome 		: FB_EcCoESdoRead;
+	fbCoERead_HorzErrStop 	: FB_EcCoESdoRead;
+	nLdOT					: PVOID;
+	nUldOT					: PVOID;
+	nHorzHome				: PVOID;
+	nHorzErrStop			: PVOID;	
+	bLdOTReadError			: BOOL;
+	bUldOTReadError 		: BOOL;
+	bHorzHomeReadError		: BOOL;
+	bHorzErrStopReadError	: BOOL;
+
+	
+	
+	bArm1HorzLdOT		: BOOL;
+	bArm1HorzUldOT		: BOOL;
+	bArm1HorzHome		: BOOL;
+	bArm1HorzErrStop	: BOOL;
+	bHorzCoEReadError	: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//IF bMainCtrl THEN
+	
+	fbCoERead_LoadingOT(
+		sNetId:= '169.254.184.40.4.1:1031', 
+		nSlaveAddr:= 1031, 
+		nSubIndex:= 16#81, 
+		nIndex:= 16#4631, 
+		pDstBuf:= ADR(nLdOT), 
+		cbBufLen:= SIZEOF(nLdOT), 
+		bExecute:= bClockPulse_10ms, 
+		tTimeout:= , 
+		bBusy=> , 
+		bError=> bLdOTReadError, 
+		nErrId=> , 
+		cbRead=> );
+	
+	fbCoERead_UnloadingOT(
+		sNetId:= '169.254.184.40.4.1:1031', 
+		nSlaveAddr:= 1031, 
+		nSubIndex:= 16#81, 
+		nIndex:= 16#4630, 
+		pDstBuf:= ADR(nUldOT), 
+		cbBufLen:= SIZEOF(nUldOT), 
+		bExecute:= bClockPulse_10ms, 
+		tTimeout:= , 
+		bBusy=> , 
+		bError=> bUldOTReadError, 
+		nErrId=> , 
+		cbRead=> );
+		
+	fbCoERead_HorzHome(
+		sNetId:= '169.254.184.40.4.1:1031', 
+		nSlaveAddr:= 1031, 
+		nSubIndex:= 16#81, 
+		nIndex:= 16#4634, 
+		pDstBuf:= ADR(nHorzHome), 
+		cbBufLen:= SIZEOF(nHorzHome), 
+		bExecute:= bClockPulse_10ms, 
+		tTimeout:= , 
+		bBusy=> , 
+		bError=> bHorzHomeReadError, 
+		nErrId=> , 
+		cbRead=> );	
+	
+	// servo ready output	
+	fbCoERead_HorzErrStop(
+		sNetId:= '169.254.184.40.4.1:1031', 
+		nSlaveAddr:= 1031, 
+		nSubIndex:= 16#81, 
+		nIndex:= 16#4651, 
+		pDstBuf:= ADR(nHorzErrStop), 
+		cbBufLen:= SIZEOF(nHorzErrStop), 
+		bExecute:= bClockPulse_10ms, 
+		tTimeout:= , 
+		bBusy=> , 
+		bError=> bHorzErrStopReadError, 
+		nErrId=> , 
+		cbRead=> ); 
+		
+	bArm1HorzLdOT 				:= NOT TO_BOOL(nLdOT);	
+	bArm1HorzUldOT 				:= NOT TO_BOOL(nUldOT);	
+	bArm1HorzHome 				:= TO_BOOL(nHorzHome);
+	bArm1HorzErrStop			:= TO_BOOL(nHorzErrStop);	
+	
+	bHorzCoEReadError := bLdOTReadError OR bUldOTReadError OR bHorzHomeReadError OR bHorzErrStopReadError;
+//END_IF
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="HorzCoERead">
+      <LineId Id="82" Count="0" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="86" Count="41" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="128" Count="18" />
+      <LineId Id="84" Count="1" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

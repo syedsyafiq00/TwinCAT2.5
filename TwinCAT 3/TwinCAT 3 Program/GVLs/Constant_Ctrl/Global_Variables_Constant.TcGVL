@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_Constant" Id="{d4b3623d-4d5b-49bb-bc3b-ca8ecac95930}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL CONSTANT
+
+	iStnQty 								: INT := 12;						(* To change the Qty of Array*)
+	iArmQty 								: INT := 2; 						(* ArmQty must lesser than StnQty*)
+	iArmSlowPullQty							: INT := 1;
+	iRecipeBlockQty 						: INT := 100;						(* To change the Qty of Array*)
+	iMasterBlockQty 						: INT := 100;						(* To change the Qty of Array*)
+	iProductRecipeArrayQty					: INT := 20;						(* To change the Qty of Array*)
+	iProductRecipeStepArrayQty				: INT := 20;						(* To change the Qty of Array*)
+	iStationSequenceRecipeArrayQty			: INT := 20;						(* To change the Qty of Array*)
+	iStationSubRecipeArrayQty 				: INT := 20;						(* To change the Qty of Array*)
+	iArmSpeedProfileArrayQty				: INT := 20;						(* To change the Qty of Array*)
+	iArmUpDownPatternArrayQty				: INT := 20;						(* To change the Qty of Array*)
+	iHorzArmPosArrayQty 					: INT := 10; 						(*To change the Qty of Array*) (*For old version*)
+	iTotalOptionQty							: INT := 5;							(*To change the Qty of Array*)
+
+	iBarcodeRegQty							: INT := 100;						(*To change the Qty of Array*) (*For Barcode Registration Qty*)
+	iBarcodeRegSecDisplayQty 				: INT := 25;						(*To change the Qty of Array*) (*For Barcode Section Display Qty*)
+
+	iAlternateStnQty						: INT := 2;							(*To change the Qty of Array*)
+	iAlternateSetQty						: INT := 2;							(*To change the Qty of Array*)
+
+	iBusyLinkUpSetQty						: INT := 2;							(*To change the Qty of Array*)
+	iBusyLinkUpStnQty						: INT := 2;							(*To change the Qty of Array*)
+
+	iAlarmQty								: INT := 480;				 		(* To change the Qty of Array*)
+	iActAlarmDisplayQty						: INT := 100;						(* To change the Qty of Array*)
+	iActAlarmDisplayStorageQty				: INT := 500;						(* To change the Qty of Array*)
+
+	iLogAlarmDisplayQty						: INT := 100;						(* To change the Qty of Array*)
+	iLogAlarmDisplayStorageQty				: INT := 500;						(* To change the Qty of Array*)
+
+	iDeactivateQty							: INT := 100;						(* To change the Qty of Array*)
+
+	iLdStnQty								: INT := 1;							(* To Define Loading Group Set - How many set of Loading Conveyor*)
+	iUldStnQty								: INT := 1;							(* To Define Unloading Group Set - How many set of Unloading Conveyor*)
+
+	iLdStnID								: INT := 79; 						(* To Define Loading Station ID*) (*Old Program Used*)
+	iUldStnID								: INT := 81;						(* To Define Unloading Station ID*) (*Old Program Used*)
+
+	iCvLdQty								: INT := 4;
+	iCvUldQty								: INT := 4;
+
+	iArm1n2InterchangeStnNo					: INT := 6 ;
+
+(*
+	ARiLdStnID								: ARRAY [1..iLdStnQty] OF INT;		(* To Define Loading Station ID*)
+	ARiUldStnID								: ARRAY [1..iUldStnQty] OF INT;		(* To Define Unloading Station ID*)
+*)
+
+(*Instrument*)
+
+	iUSGeneratorQty 						: INT := 9;
+	iModbusRWQty							: INT := 100;
+	iUSEnclosureQty 						: INT := 2;
+	iUSModbusRWQty							: INT := 100;
+
+(*HMI*)
+
+	iAddMapArrayBool 						: INT := 500;
+	iAddMapArrayInt 						: INT := 20;
+	iAddMapArrayReal 						: INT := 200;
+	iAddMapArrayLreal 						: INT := 20;
+	iAddMapArrayString 						: INT := 150;
+
+
+END_VAR
+
+VAR_GLOBAL
+
+	CurrentTime								: TIMESTRUCT;(* Local windows system time *)
+
+	sCurrentTimeYear						: STRING;
+	sCurrentTimeMonth						: STRING;
+	sCurrentTimeDay							: STRING;
+	sCurrentTimeHour12						: STRING;
+	sCurrentTimeHour24						: STRING;
+	sCurrentTimeMinute						: STRING;
+	sCurrentTimeSecond						: STRING;
+	sCurrentTimeDayOfWeek					: STRING;
+	sCurrentTime12hrSign 					: STRING;
+                                        
+	sCurrentDateAndTime24Hr 				: STRING(50);
+	sCurrentDateAndTime12Hr 				: STRING(50);
+
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

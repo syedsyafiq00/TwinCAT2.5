@@ -1,0 +1,388 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="PnpMapping_Arm1" Id="{a1888d0b-8edf-40ca-8a1b-e3838fabe255}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM PnpMapping_Arm1
+VAR
+
+	LeeTest: BOOL;
+	LeeTestPnpStart: BOOL;
+	LeeTestPSN: INT;
+	LeeTestTSN: INT;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Arm 1*)
+(*Loading*)
+		IF ARDSGnrFeedArmPnpParameter[1].iPickStationNo = ARiLdStnID[1] THEN
+		ARbDownPickCondition[1]		:=     (
+										(bCallRTB_CallOK AND bMTBWriteDoneFlag AND ARDsStnSeqProcessCtrl[0].Out_bProcessCompleted)
+										OR
+										(bCallRTB_NoTrackerInfo AND bTrackerStartEN AND ARDsStnSeqProcessCtrl[0].Out_bProcessCompleted)
+										OR
+										(NOT bTimeOptimizeDisable AND ARDsStnSeqProcessCtrl[0].Out_bProcessCompleted)
+										)
+										AND
+										AR2sDSCv_LdConfirmBasketInfo[1,4].iProductRecipeNo >0;
+		END_IF
+
+		IF ARDSGnrFeedArmPnpParameter[1].iTransferStationNo = ARiLdStnID[1] THEN
+		ARbDownTransferCondition[1]		:=    FALSE;
+		END_IF
+
+(*Station 1*)
+		IF ARDSGnrFeedArmPnpParameter[1].iPickStationNo = 1 THEN
+		ARbDownPickCondition[1]		:=    ARbStationProcessCompletedFlag[1] (*AND ((bArmSlowPullUpCFM AND NOT bStnLiftoutMechanismBypass) OR bStnLiftoutMechanismBypass )*) ;
+		END_IF
+
+		IF ARDSGnrFeedArmPnpParameter[1].iTransferStationNo = 1 THEN
+		ARbDownTransferCondition[1]		:=    TRUE;
+		END_IF
+
+(*Station 2*)
+		IF ARDSGnrFeedArmPnpParameter[1].iPickStationNo = 2 THEN
+		ARbDownPickCondition[1]		:=    ARbStationProcessCompletedFlag[2] (*AND ((bArmSlowPullUpCFM AND NOT bStnLiftoutMechanismBypass) OR bStnLiftoutMechanismBypass )*) ;
+		END_IF
+
+		IF ARDSGnrFeedArmPnpParameter[1].iTransferStationNo = 2 THEN
+		ARbDownTransferCondition[1]		:=    TRUE;
+		END_IF
+
+(*Station 3*)
+		IF ARDSGnrFeedArmPnpParameter[1].iPickStationNo = 3 THEN
+		ARbDownPickCondition[1]		:=    ARbStationProcessCompletedFlag[3] (*AND ((bArmSlowPullUpCFM AND NOT bStnLiftoutMechanismBypass) OR bStnLiftoutMechanismBypass )*) ;
+		END_IF
+
+		IF ARDSGnrFeedArmPnpParameter[1].iTransferStationNo = 3 THEN
+		ARbDownTransferCondition[1]		:=    TRUE;
+		END_IF
+
+(*Station 4*)
+		IF ARDSGnrFeedArmPnpParameter[1].iPickStationNo = 4 THEN
+		ARbDownPickCondition[1]		:=    ARbStationProcessCompletedFlag[4] (*AND ((bArmSlowPullUpCFM AND NOT bStnLiftoutMechanismBypass) OR bStnLiftoutMechanismBypass )*) ;
+		END_IF
+
+		IF ARDSGnrFeedArmPnpParameter[1].iTransferStationNo = 4 THEN
+		ARbDownTransferCondition[1]		:=    TRUE;
+		END_IF
+
+(*Station 5*)
+		IF ARDSGnrFeedArmPnpParameter[1].iPickStationNo = 5 THEN
+		ARbDownPickCondition[1]		:=    ARbStationProcessCompletedFlag[5] (*AND ((bArmSlowPullUpCFM AND NOT bStnLiftoutMechanismBypass) OR bStnLiftoutMechanismBypass )*) ;
+		END_IF
+
+		IF ARDSGnrFeedArmPnpParameter[1].iTransferStationNo = 5 THEN
+		ARbDownTransferCondition[1]		:=    TRUE;
+		END_IF
+
+(*Station 6*)
+		IF ARDSGnrFeedArmPnpParameter[1].iPickStationNo = 6 THEN
+		ARbDownPickCondition[1]		:=    ARbStationProcessCompletedFlag[6] (*AND ((bArmSlowPullUpCFM AND NOT bStnLiftoutMechanismBypass) OR bStnLiftoutMechanismBypass )*) ;
+		END_IF
+
+		IF ARDSGnrFeedArmPnpParameter[1].iTransferStationNo = 6 THEN
+		ARbDownTransferCondition[1]		:=    TRUE;
+		END_IF
+
+(*Station 7*)
+		IF ARDSGnrFeedArmPnpParameter[1].iPickStationNo = 7 THEN
+		ARbDownPickCondition[1]		:=    ARbStationProcessCompletedFlag[7] (*AND ((bArmSlowPullUpCFM AND NOT bStnLiftoutMechanismBypass) OR bStnLiftoutMechanismBypass )*) ;
+		END_IF
+
+		IF ARDSGnrFeedArmPnpParameter[1].iTransferStationNo = 7 THEN
+		ARbDownTransferCondition[1]		:=    TRUE;
+		END_IF
+
+(*Station 8*)
+		IF ARDSGnrFeedArmPnpParameter[1].iPickStationNo = 8 THEN
+		ARbDownPickCondition[1]		:=    ARbStationProcessCompletedFlag[8] (*AND ((bArmSlowPullUpCFM AND NOT bStnLiftoutMechanismBypass) OR bStnLiftoutMechanismBypass )*) ;
+		END_IF
+
+		IF ARDSGnrFeedArmPnpParameter[1].iTransferStationNo = 8 THEN
+		ARbDownTransferCondition[1]		:=    TRUE;
+		END_IF
+
+(*Station 9*)
+		IF ARDSGnrFeedArmPnpParameter[1].iPickStationNo = 9 THEN
+		ARbDownPickCondition[1]		:=    ARbStationProcessCompletedFlag[9] AND ((bArmSlowPullUpCFM AND NOT bStnLiftoutMechanismBypass) OR bStnLiftoutMechanismBypass ) ;
+		END_IF
+
+		IF ARDSGnrFeedArmPnpParameter[1].iTransferStationNo = 9 THEN
+		ARbDownTransferCondition[1]		:=    TRUE;
+		END_IF
+
+(*Station 10*)
+		IF ARDSGnrFeedArmPnpParameter[1].iPickStationNo = 10 THEN
+		ARbDownPickCondition[1]		:=    ARbStationProcessCompletedFlag[10] (*AND ((bArmSlowPullUpCFM AND NOT bStnLiftoutMechanismBypass) OR bStnLiftoutMechanismBypass )*) ;
+		END_IF
+
+		IF ARDSGnrFeedArmPnpParameter[1].iTransferStationNo = 10 THEN
+		ARbDownTransferCondition[1]		:=    TRUE;
+		END_IF
+
+(*Station 11*)
+		IF ARDSGnrFeedArmPnpParameter[1].iPickStationNo = 11 THEN
+		ARbDownPickCondition[1]		:=    ARbStationProcessCompletedFlag[11] AND ((bArmSlowPullUpCFM AND NOT bStnLiftoutMechanismBypass) OR bStnLiftoutMechanismBypass ) ;
+		END_IF
+
+		IF ARDSGnrFeedArmPnpParameter[1].iTransferStationNo = 11 THEN
+		ARbDownTransferCondition[1]		:=    TRUE;
+		END_IF
+
+(*Station 12*)
+		IF ARDSGnrFeedArmPnpParameter[1].iPickStationNo = 12 THEN
+		ARbDownPickCondition[1]		:=    ARbStationProcessCompletedFlag[12] AND ((bArmSlowPullUpCFM AND NOT bStnLiftoutMechanismBypass) OR bStnLiftoutMechanismBypass ) ;
+		END_IF
+
+		IF ARDSGnrFeedArmPnpParameter[1].iTransferStationNo = 12 THEN
+		ARbDownTransferCondition[1]		:=    TRUE;
+		END_IF
+
+(*Unloading*)
+		IF ARDSGnrFeedArmPnpParameter[1].iPickStationNo = ARiUldStnID[1] (*OR  ARDSGnrFeedArmPnpParameter[1].iPickStationNo = ARiUldStnID[2]*) THEN
+		ARbDownPickCondition[1]		:=    FALSE;
+		END_IF
+
+		IF ARDSGnrFeedArmPnpParameter[1].iTransferStationNo = ARiUldStnID[1] (*OR  ARDSGnrFeedArmPnpParameter[1].iTransferStationNo = ARiUldStnID[2]*) THEN
+		ARbDownTransferCondition[1]		:=    TRUE;
+		END_IF
+
+(*Not in Station Range*)
+		IF ARDSGnrFeedArmPnpParameter[1].iPickStationNo < 1 OR (ARDSGnrFeedArmPnpParameter[1].iPickStationNo > iStnQty AND ARDSGnrFeedArmPnpParameter[1].iPickStationNo <> ARiLdStnID[1]) THEN
+		ARbDownPickCondition[1]		:=    FALSE;
+		END_IF
+
+		IF ARDSGnrFeedArmPnpParameter[1].iTransferStationNo < 1 OR (ARDSGnrFeedArmPnpParameter[1].iTransferStationNo > iStnQty AND
+		( ARDSGnrFeedArmPnpParameter[1].iTransferStationNo <> ARiUldStnID[1] (*ARiLdStnID[1]*) (*AND ARDSGnrFeedArmPnpParameter[1].iTransferStationNo <> ARiUldStnID[2]*) )) THEN
+		ARbDownTransferCondition[1]		:=    FALSE;
+		END_IF
+
+(*
+IF bLdPnpStart THEN
+
+ARbPnPStart[1]				:=   TRUE 	;
+ARiPickStnNo[1]				:=    79	;
+ARiTransferStnNo[1]			:=    1	;
+ARbDownPickCondition[1]		:=    ( bMTBWriteDoneFlag OR bRecipeTimeBlockTrackerEN OR TRUE) AND LdEnable	;
+ARbDownTransferCondition[1]	:=    TRUE	;
+
+
+ELSIF bStn1PnpStart THEN
+
+ARbPnPStart[1]				:=    TRUE	;
+ARiPickStnNo[1]				:=    1	;
+ARiTransferStnNo[1]			:=    2	;
+ARbDownPickCondition[1]		:=    ARDsStnSeqProcessCtrl[1].Out_bProcessCompleted	;
+ARbDownTransferCondition[1]	:=    TRUE	;
+
+
+ELSIF bStn2PnpStart THEN
+
+ARbPnPStart[1]				:=    TRUE	;
+ARiPickStnNo[1]				:=    2	;
+ARiTransferStnNo[1]			:=    3	;
+ARbDownPickCondition[1]		:=    ARDsStnSeqProcessCtrl[2].Out_bProcessCompleted	;
+ARbDownTransferCondition[1]	:=    TRUE	;
+
+
+ELSIF bStn3PnpStart THEN
+
+ARbPnPStart[1]				:=    TRUE	;
+ARiPickStnNo[1]				:=    3	;
+ARiTransferStnNo[1]			:=    4	;
+ARbDownPickCondition[1]		:=    ARDsStnSeqProcessCtrl[3].Out_bProcessCompleted	;
+ARbDownTransferCondition[1]	:=    TRUE	;
+
+
+ELSIF bStn4PnpStart THEN
+
+ARbPnPStart[1]				:=    TRUE	;
+ARiPickStnNo[1]				:=    4	;
+ARiTransferStnNo[1]			:=    5	;
+ARbDownPickCondition[1]		:=    ARDsStnSeqProcessCtrl[4].Out_bProcessCompleted	;
+ARbDownTransferCondition[1]	:=    TRUE	;
+
+
+ELSIF bStn5PnpStart THEN
+
+ARbPnPStart[1]				:=    TRUE	;
+ARiPickStnNo[1]				:=    6	;
+ARiTransferStnNo[1]			:=    81	;
+ARbDownPickCondition[1]		:=    ARDsStnSeqProcessCtrl[5].Out_bProcessCompleted	;
+ARbDownTransferCondition[1]	:=    TRUE	;
+
+ELSIF LeeTest THEN
+
+	ARbPnPStart[1]				:=    LeeTestPnpStart	;
+	ARiPickStnNo[1]				:=    LeeTestPSN	;
+	ARiTransferStnNo[1]			:=    LeeTestTSN	;
+	ARbDownPickCondition[1]		:=    TRUE	;
+	ARbDownTransferCondition[1]	:=    TRUE	;
+	sStatusMessage;
+
+ELSE
+
+	ARbPnPStart[1]				:=    FALSE	;
+	ARiPickStnNo[1]				:=    0	;
+	ARiTransferStnNo[1]			:=    0	;
+	ARbDownPickCondition[1]		:=    FALSE	;
+	ARbDownTransferCondition[1]	:=    FALSE	;
+
+END_IF
+*)
+
+ARbPickMidDownStnEn[1]		:= FALSE	;
+ARbPickMidDownStnEn[2]		:= FALSE	;
+ARbPickMidDownStnEn[3]		:= FALSE	;
+ARbPickMidDownStnEn[4]		:= FALSE	;
+ARbPickMidDownStnEn[5]		:= FALSE	;
+ARbPickMidDownStnEn[6]		:= FALSE	;
+ARbPickMidDownStnEn[7]		:= FALSE	; (*TRUE AND NOT bStnLiftoutMechanismBypass;*)
+ARbPickMidDownStnEn[8]		:= FALSE	;
+ARbPickMidDownStnEn[9]		:= TRUE AND NOT bStnLiftoutMechanismBypass	;
+ARbPickMidDownStnEn[10]		:= FALSE	;
+ARbPickMidDownStnEn[11]		:= FALSE	;
+ARbPickMidDownStnEn[12]		:= FALSE	;
+
+ARbTransferMidDownStnEn[1]	:= FALSE	;
+ARbTransferMidDownStnEn[2]	:= FALSE	;
+ARbTransferMidDownStnEn[3]	:= FALSE	;
+ARbTransferMidDownStnEn[4]	:= FALSE	;
+ARbTransferMidDownStnEn[5]	:= FALSE	;
+ARbTransferMidDownStnEn[6]	:= FALSE	;
+ARbTransferMidDownStnEn[7]	:= FALSE	;
+ARbTransferMidDownStnEn[8]	:= FALSE	;
+ARbTransferMidDownStnEn[9]	:= FALSE	;
+ARbTransferMidDownStnEn[10]	:= FALSE	;
+ARbTransferMidDownStnEn[11]	:= FALSE	;
+ARbTransferMidDownStnEn[12]	:= FALSE	;
+
+ARiStationDippingTime[1]		:= ARiStnDippingTimeSV[1]	;
+ARiStationDippingTime[2]		:= ARiStnDippingTimeSV[2]	;
+ARiStationDippingTime[3]		:= ARiStnDippingTimeSV[3]	;
+ARiStationDippingTime[4]		:= ARiStnDippingTimeSV[4]	;
+ARiStationDippingTime[5]		:= ARiStnDippingTimeSV[5]	;
+ARiStationDippingTime[6]		:= ARiStnDippingTimeSV[6]	;
+ARiStationDippingTime[7]		:= ARiStnDippingTimeSV[7]	;
+ARiStationDippingTime[8]		:= ARiStnDippingTimeSV[8]	;
+ARiStationDippingTime[9]		:= ARiStnDippingTimeSV[9]	;
+ARiStationDippingTime[10]		:= ARiStnDippingTimeSV[10];
+ARiStationDippingTime[11]		:= ARiStnDippingTimeSV[11];
+ARiStationDippingTime[12]		:= ARiStnDippingTimeSV[12];
+
+(********************Output************************)
+(*Top Triggering*)
+bArm1VertLD1Up_15 			:= bMoveTop;
+
+(*Vert Triggering*)
+bArm1VertLD1Down_05 		:= ARbMoveLdDown[1];
+bArm1VertULD1Down_05 		:= ARbMoveUldDown[1];
+
+bArm1VertStn1Down_05		:= ARbMoveStnDown[1];
+bArm1VertStn2Down_05		:= ARbMoveStnDown[2];
+bArm1VertStn3Down_05		:= ARbMoveStnDown[3];
+bArm1VertStn4Down_05		:= ARbMoveStnDown[4];
+bArm1VertStn5Down_05		:= ARbMoveStnDown[5];
+bArm1VertStn6Down_05		:= ARbMoveStnDown[6];
+bArm1VertStn7Down_05		:= ARbMoveStnDown[7];
+bArm1VertStn8Down_05		:= ARbMoveStnDown[8];
+bArm1VertStn9Down_05		:= ARbMoveStnDown[9];
+bArm1VertStn10Down_05		:= ARbMoveStnDown[10];
+bArm1VertStn11Down_05		:= ARbMoveStnDown[11];
+bArm1VertStn12Down_05		:= ARbMoveStnDown[12];
+
+bArm1VertStn1SpSlanted_05 	:= ARbMoveStnMidDown[1];
+bArm1VertStn2SpSlanted_05 	:= ARbMoveStnMidDown[2];
+bArm1VertStn3SpSlanted_05 	:= ARbMoveStnMidDown[3];
+bArm1VertStn4SpSlanted_05 	:= ARbMoveStnMidDown[4];
+bArm1VertStn5SpSlanted_05 	:= ARbMoveStnMidDown[5];
+bArm1VertStn6SpSlanted_05 	:= ARbMoveStnMidDown[6];
+bArm1VertStn7SpSlanted_05 	:= ARbMoveStnMidDown[7];
+bArm1VertStn8SpSlanted_05 	:= ARbMoveStnMidDown[8];
+bArm1VertStn9SpSlanted_05 	:= ARbMoveStnMidDown[9];
+bArm1VertStn10SpSlanted_05 	:= ARbMoveStnMidDown[10];
+bArm1VertStn11SpSlanted_05 	:= ARbMoveStnMidDown[11];
+bArm1VertStn12SpSlanted_05 	:= ARbMoveStnMidDown[12];
+
+
+(*Hook Triggering*)
+bArm1HorzLD1Hook_05 		:= ARbMoveLdHook[1];
+bArm1HorzLD1Unhook_05		:= ARbMoveLdUnhook[1];
+
+bArm1HorzStn1Hook_05 		:= ARbMoveStnHook[1];
+bArm1HorzStn2Hook_05 		:= ARbMoveStnHook[2];
+bArm1HorzStn3Hook_05 		:= ARbMoveStnHook[3];
+bArm1HorzStn4Hook_05 		:= ARbMoveStnHook[4];
+bArm1HorzStn5Hook_05 		:= ARbMoveStnHook[5];
+bArm1HorzStn6Hook_05 		:= ARbMoveStnHook[6];
+bArm1HorzStn7Hook_05 		:= ARbMoveStnHook[7];
+bArm1HorzStn8Hook_05 		:= ARbMoveStnHook[8];
+bArm1HorzStn9Hook_05 		:= ARbMoveStnHook[9];
+bArm1HorzStn10Hook_05 		:= ARbMoveStnHook[10];
+bArm1HorzStn11Hook_05 		:= ARbMoveStnHook[11];
+bArm1HorzStn12Hook_05 		:= ARbMoveStnHook[12];
+
+(*Unhook Triggering*)
+bArm1HorzULD1Hook_05 		:= ARbMoveUldHook[1];
+bArm1HorzULD1Unhook_05 		:= ARbMoveUldUnhook[1];
+
+bArm1HorzStn1Unhook_05 		:= ARbMoveStnUnhook[1];
+bArm1HorzStn2Unhook_05 		:= ARbMoveStnUnhook[2];
+bArm1HorzStn3Unhook_05 		:= ARbMoveStnUnhook[3];
+bArm1HorzStn4Unhook_05 		:= ARbMoveStnUnhook[4];
+bArm1HorzStn5Unhook_05 		:= ARbMoveStnUnhook[5];
+bArm1HorzStn6Unhook_05 		:= ARbMoveStnUnhook[6];
+bArm1HorzStn7Unhook_05 		:= ARbMoveStnUnhook[7];
+bArm1HorzStn8Unhook_05 		:= ARbMoveStnUnhook[8];
+bArm1HorzStn9Unhook_05 		:= ARbMoveStnUnhook[9];
+bArm1HorzStn10Unhook_05 	:= ARbMoveStnUnhook[10];
+bArm1HorzStn11Unhook_05		:= ARbMoveStnUnhook[11];
+bArm1HorzStn12Unhook_05 	:= ARbMoveStnUnhook[12];
+
+
+ARDSArmCtrl[1].AR3sbPositionCfm[1,1,1]		:= ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1]; (*STN1*)
+ARDSArmCtrl[1].AR3sbPositionCfm[1,2,1] 		:= ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1]; (*STN2*)
+ARDSArmCtrl[1].AR3sbPositionCfm[1,3,1]		:= ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1]; (*STN3*)
+ARDSArmCtrl[1].AR3sbPositionCfm[1,4,1] 		:= ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1]; (*STN4*)
+ARDSArmCtrl[1].AR3sbPositionCfm[1,5,1]		:= ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1]; (*STN5*)
+ARDSArmCtrl[1].AR3sbPositionCfm[1,6,1] 		:= ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1]; (*STN6*)
+ARDSArmCtrl[1].AR3sbPositionCfm[1,7,1]		:= ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1]; (*STN7*)
+ARDSArmCtrl[1].AR3sbPositionCfm[1,8,1] 		:= ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1]; (*STN8*)
+ARDSArmCtrl[1].AR3sbPositionCfm[1,9,1]		:= ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1]; (*STN9*)
+ARDSArmCtrl[1].AR3sbPositionCfm[1,10,1]		:= ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1]; (*STN10*)
+ARDSArmCtrl[1].AR3sbPositionCfm[1,11,1]		:= ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1]; (*STN11*)
+ARDSArmCtrl[1].AR3sbPositionCfm[1,12,1]		:= ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1]; (*STN12*)
+ARDSArmCtrl[1].AR3sbPositionCfm[3,1,1]		:= ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1]; (*ULD1*)
+ARDSArmCtrl[1].AR3sbPositionCfm[3,2,1]		:= ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1]; (*ULD2*)
+
+
+ARDSStnInterlock[1].ARbArmUpInterlock[1]		:= bArm1LdUpInterlockOK;
+ARDSStnInterlock[1].ARbArmUpInterlock[2]		:= bArm1LdUpInterlockOK;
+ARDSStnInterlock[1].ARbArmUpInterlock[3]		:= bArm1LdUpInterlockOK;
+ARDSStnInterlock[1].ARbArmUpInterlock[4]		:= bArm1LdUpInterlockOK;
+ARDSStnInterlock[1].ARbArmUpInterlock[5]		:= bArm1LdUpInterlockOK;
+ARDSStnInterlock[1].ARbArmUpInterlock[6]		:= bArm1LdUpInterlockOK;
+ARDSStnInterlock[1].ARbArmUpInterlock[7]		:= bArm1LdUpInterlockOK;
+ARDSStnInterlock[1].ARbArmUpInterlock[8]		:= bArm1LdUpInterlockOK;
+ARDSStnInterlock[1].ARbArmUpInterlock[9]		:= bArm1LdUpInterlockOK;
+ARDSStnInterlock[1].ARbArmUpInterlock[10]		:= bArm1LdUpInterlockOK;
+ARDSStnInterlock[1].ARbArmUpInterlock[11]		:= bArm1LdUpInterlockOK;
+ARDSStnInterlock[1].ARbArmUpInterlock[12]		:= bArm1LdUpInterlockOK;
+
+ARDSStnInterlock[2].ARbArmUpInterlock[1]		:= bArm2LdUpInterlockOK;
+ARDSStnInterlock[2].ARbArmUpInterlock[2]		:= bArm2LdUpInterlockOK;
+ARDSStnInterlock[2].ARbArmUpInterlock[3]		:= bArm2LdUpInterlockOK;
+ARDSStnInterlock[2].ARbArmUpInterlock[4]		:= bArm2LdUpInterlockOK;
+ARDSStnInterlock[2].ARbArmUpInterlock[5]		:= bArm2LdUpInterlockOK;
+ARDSStnInterlock[2].ARbArmUpInterlock[6]		:= bArm2LdUpInterlockOK;
+ARDSStnInterlock[2].ARbArmUpInterlock[7]		:= bArm2LdUpInterlockOK;
+ARDSStnInterlock[2].ARbArmUpInterlock[8]		:= bArm2LdUpInterlockOK;
+ARDSStnInterlock[2].ARbArmUpInterlock[9]		:= bArm2LdUpInterlockOK;
+ARDSStnInterlock[2].ARbArmUpInterlock[10]		:= bArm2LdUpInterlockOK;
+ARDSStnInterlock[2].ARbArmUpInterlock[11]		:= bArm2LdUpInterlockOK;
+ARDSStnInterlock[2].ARbArmUpInterlock[12]		:= bArm2LdUpInterlockOK;]]></ST>
+    </Implementation>
+    <LineIds Name="PnpMapping_Arm1">
+      <LineId Id="9" Count="368" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

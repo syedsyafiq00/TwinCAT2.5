@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_SevenDay_NoPersistent" Id="{075a852e-e20f-4e90-aa49-7f6977e97226}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+	bAutoSysOn			: BOOL;
+	bSevenDaySysOn 	: BOOL;
+	bSevenDaySysOff 	: BOOL;
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

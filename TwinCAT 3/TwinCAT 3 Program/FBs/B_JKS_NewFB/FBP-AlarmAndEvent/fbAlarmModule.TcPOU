@@ -1,0 +1,166 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbAlarmModule" Id="{c901e01e-6dd5-43df-8146-ceed283ee64e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbAlarmModule
+VAR_INPUT (*PERSISTENT*)
+	bEN: BOOL;
+	bAlarmRstPB 				: BOOL;
+	bBuzzerRstPB	 			: BOOL;
+	ARbSignalInput 		: ARRAY [1..iAlarmQty] OF BOOL;
+	ARiDelayTimeSV 			: ARRAY [1..iAlarmQty] OF INT;
+
+	ARsAlarmDescription 	: ARRAY [0..iAlarmQty] OF STRING(99);
+
+	ARbHoldingDisable 		: ARRAY [1..iAlarmQty] OF BOOL;
+
+
+END_VAR
+VAR_INPUT
+	ARbTestAlarmEn	 		: ARRAY [1..iAlarmQty] OF BOOL;
+	ARbTestSignal	 		: ARRAY [1..iAlarmQty] OF BOOL;
+END_VAR
+VAR_OUTPUT
+
+	ARiDelayTimeEV(*ARiAlarmTimer*) 		: ARRAY [1..iAlarmQty] OF INT;
+	ARbAlarmOutput 							: ARRAY [1..iAlarmQty] OF BOOL;
+	bBuzzerOutput 							: BOOL;
+	bAlarmOccurFlag							: BOOL;
+END_VAR
+VAR PERSISTENT
+	ARbAlmBuzzerStop 		: ARRAY [1..iAlarmQty] OF BOOL;
+END_VAR
+VAR
+	iAlarmFL					: INT;
+	bScanningEN				: BOOL;
+	OnTime					: TON;
+	OnTimeRE				: R_TRIG;
+	iResetFL					: INT;
+	bENRE					: R_TRIG;
+	bENFE						: F_TRIG;
+	iBuzzerCtrlFL: INT;
+	bBuzzerRstPBRE: R_TRIG;
+	iBuzzerRstFL: INT;
+	iAlarmRstFL: INT;
+	iAlarmOccurFL: INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*1Sec Clock Pulse*)
+IF bEN THEN
+OnTime(IN:=NOT OnTime.Q , PT:=T#1s , Q=> , ET=> );
+OnTimeRE(CLK:=OnTime.Q , Q=> );
+bENRE(CLK:=bEN , Q=> );
+bENFE(CLK:=bEN , Q=> );
+bBuzzerRstPBRE(CLK:=bBuzzerRstPB , Q=> );
+END_IF
+
+IF bENRE.Q OR bENFE.Q THEN
+iResetFL := 1;
+
+	FOR iResetFL := 1 TO iAlarmQty DO
+
+		IF iResetFL >0 AND iResetFL <= iAlarmQty THEN
+			(*IF (NOT ARbTestAlarmEn[iResetFL] AND NOT ARbSignalInput[iResetFL]) OR (ARbTestAlarmEn[iResetFL] AND NOT ARbTestSignal[iResetFL]) THEN*)
+			ARbAlarmOutput[iResetFL] := FALSE;
+			ARiDelayTimeEV[iResetFL] := 0;
+			ARbAlmBuzzerStop[iResetFL]  := FALSE;
+			(*END_IF*)
+		END_IF
+	END_FOR
+END_IF
+
+
+
+(*Generate Alarm Output*)
+IF bEN THEN
+	iAlarmFL := 1;
+
+		FOR iAlarmFL := 1 TO iAlarmQty DO
+	
+			IF iAlarmFL >0 AND iAlarmFL <= iAlarmQty THEN
+				IF ((NOT ARbTestAlarmEn[iAlarmFL] AND ARbSignalInput[iAlarmFL]) OR (ARbTestAlarmEn[iAlarmFL] AND NOT ARbTestSignal[iAlarmFL]))(*NOT ARbSignalInput[iAlarmFL]*) AND OnTimeRE.Q AND ARiDelayTimeSV[iAlarmFL] > ARiDelayTimeEV[iAlarmFL]THEN
+				ARiDelayTimeEV[iAlarmFL] := ARiDelayTimeEV[iAlarmFL] +1;
+				END_IF
+	
+				IF ((NOT ARbTestAlarmEn[iAlarmFL] AND NOT ARbSignalInput[iAlarmFL]) OR (ARbTestAlarmEn[iAlarmFL] AND ARbTestSignal[iAlarmFL]))(*ARbSignalInput[iAlarmFL]*) THEN
+				ARiDelayTimeEV[iAlarmFL] := 0;
+				END_IF
+	
+				IF ((NOT ARbTestAlarmEn[iAlarmFL] AND ARbSignalInput[iAlarmFL]) OR (ARbTestAlarmEn[iAlarmFL] AND NOT ARbTestSignal[iAlarmFL]))(*NOT ARbSignalInput[iAlarmFL]*) AND ARiDelayTimeEV[iAlarmFL] >= ARiDelayTimeSV[iAlarmFL] THEN
+				ARbAlarmOutput[iAlarmFL] := TRUE;
+				END_IF
+
+			END_IF
+
+		END_FOR
+
+
+	
+	iAlarmRstFL := 1;
+
+		FOR iAlarmRstFL := 1 TO iAlarmQty DO
+	
+			IF iAlarmRstFL >0 AND iAlarmRstFL <= iAlarmQty THEN
+
+				IF ((NOT ARbTestAlarmEn[iAlarmRstFL] AND NOT ARbSignalInput[iAlarmRstFL]) OR (ARbTestAlarmEn[iAlarmRstFL] AND ARbTestSignal[iAlarmRstFL]))(*ARbSignalInput[iAlarmRstFL]*) AND (ARbHoldingDisable[iAlarmRstFL] OR bAlarmRstPB )THEN
+					ARbAlarmOutput[iAlarmRstFL] := FALSE;
+					ARbAlmBuzzerStop[iAlarmRstFL]  := FALSE;
+				END_IF
+			END_IF
+		END_FOR
+	
+	
+	(*Buzzer Control*)
+	iBuzzerCtrlFL := 1;
+	bBuzzerOutput := FALSE;
+	
+		FOR iBuzzerCtrlFL := 1 TO iAlarmQty DO
+	
+			IF iBuzzerCtrlFL >0 AND iBuzzerCtrlFL <= iAlarmQty THEN
+	
+				IF ARbAlarmOutput[iBuzzerCtrlFL] AND NOT ARbAlmBuzzerStop[iBuzzerCtrlFL] THEN
+				bBuzzerOutput := TRUE;
+				END_IF
+	
+			END_IF
+	
+		END_FOR
+
+	(*Stop Buzzer Control - On*)
+
+	IF bBuzzerRstPB THEN
+	iBuzzerRstFL := 1;
+	
+		FOR iBuzzerRstFL := 1 TO iAlarmQty DO
+	
+			IF iBuzzerRstFL >0 AND iBuzzerRstFL <= iAlarmQty THEN
+	
+				IF ARbAlarmOutput[iBuzzerRstFL] AND bBuzzerRstPB THEN
+				ARbAlmBuzzerStop[iBuzzerRstFL]  := TRUE;
+				END_IF
+			END_IF
+		END_FOR
+	
+	END_IF
+
+
+END_IF
+
+(*Alarm Occured Flag*)
+iAlarmOccurFL := 1;
+bAlarmOccurFlag := FALSE;
+
+	FOR iAlarmOccurFL := 1 TO iAlarmQty DO
+		IF iAlarmOccurFL >= 1 AND iAlarmOccurFL <= iAlarmQty THEN
+			IF ARbAlarmOutput[iAlarmOccurFL] THEN
+			bAlarmOccurFlag := TRUE;
+			iAlarmOccurFL := iAlarmQty+1;
+			END_IF
+		END_IF
+	END_FOR]]></ST>
+    </Implementation>
+    <LineIds Name="fbAlarmModule">
+      <LineId Id="43" Count="112" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

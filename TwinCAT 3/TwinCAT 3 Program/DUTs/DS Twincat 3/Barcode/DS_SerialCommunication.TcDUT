@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_SerialCommunication" Id="{adc76167-31e4-4a38-b12f-7f95067592cd}">
+    <Declaration><![CDATA[TYPE DS_SerialCommunication :
+STRUCT
+	// Config
+	SerialCfg 				: ComSerialConfig;
+	PortOpened 				: BOOL;     (* Indicates if selected serial port is opened *)
+    SerialConnectError      : BOOL;     (* 'TRUE' if an error occurred *)
+    ErrorID    				: UDINT;    (* Displays the error code; 0 = no error *)
+    Busy       				: BOOL;     (* 'TRUE' if internal ADS communication is busy *)
+    TxBufCount 				: UDINT;    (* number of bytes in internal Tx buffer *)
+    RxBufCount 				: UDINT;    (* number of bytes in internal Rx buffer *)	
+    Error 					: BOOL;
+	RxTimeout 				: BOOL;
+	StringReceived 			: BOOL;
+	TxBuffer				: ComBuffer;
+	RxBuffer				: ComBuffer;
+
+	// Send String Input
+	sSendString 			: STRING;
+	bSendStringBusy 		: BOOL;
+	SendStringError 		: ComError_t;
+	
+	// Receive String Input//
+	sReceivedString 		: STRING;
+	bStringReceived			: BOOL;
+	ReceivedStringError 	: ComError_t;
+	bReceivedStringBusy 	: BOOL;
+	bReceivedStringTimeout	: BOOL;
+	bReceivedStringReset	: BOOL;	
+	sRSPrefix 				: STRING;
+    sRSSuffix 				: STRING;
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

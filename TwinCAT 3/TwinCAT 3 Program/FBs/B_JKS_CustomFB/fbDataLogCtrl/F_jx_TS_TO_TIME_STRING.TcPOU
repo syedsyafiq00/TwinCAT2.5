@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="F_jx_TS_TO_TIME_STRING" Id="{aacb13c1-68af-47fd-9d89-cba4f9b315d5}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION F_jx_TS_TO_TIME_STRING : STRING
+VAR_INPUT
+	ts_TimeNow: TIMESTRUCT;
+END_VAR
+VAR
+	sTime:STRING;
+	sSeperator: STRING := ':';
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[sTime:='';
+IF ts_TimeNow.wHour < 10 THEN	(*Hour*)
+sTime:=CONCAT(sTime,'0');
+sTime:=CONCAT(sTime,WORD_TO_STRING(ts_TimeNow.wHour));
+ELSE
+sTime:=CONCAT(sTime,WORD_TO_STRING(ts_TimeNow.wHour));
+END_IF
+
+sTime:=CONCAT(sTime,sSeperator);
+
+IF ts_TimeNow.wMinute < 10 THEN	(*Minute*)
+sTime:=CONCAT(sTime,'0');
+sTime:=CONCAT(sTime,WORD_TO_STRING(ts_TimeNow.wMinute));
+ELSE
+sTime:=CONCAT(sTime,WORD_TO_STRING(ts_TimeNow.wMinute));
+END_IF
+
+sTime:=CONCAT(sTime,sSeperator);
+
+IF ts_TimeNow.wSecond < 10 THEN	(*Minute*)
+sTime:=CONCAT(sTime,'0');
+sTime:=CONCAT(sTime,WORD_TO_STRING(ts_TimeNow.wSecond));
+ELSE
+sTime:=CONCAT(sTime,WORD_TO_STRING(ts_TimeNow.wSecond));
+END_IF
+
+F_jx_TS_TO_TIME_STRING:=sTime;]]></ST>
+    </Implementation>
+    <LineIds Name="F_jx_TS_TO_TIME_STRING">
+      <LineId Id="8" Count="26" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

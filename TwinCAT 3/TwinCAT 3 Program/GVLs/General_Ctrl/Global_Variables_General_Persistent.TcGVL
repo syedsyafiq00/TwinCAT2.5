@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_General_Persistent" Id="{1033ae18-959d-4ff1-9b02-e81734613d01}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL PERSISTENT
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx Machine Time Counter xxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARfbMachineTimeCounter								: ARRAY [1..4] OF fbMachineTimeCounter;
+
+	ARfbVacPumpOnTimeCounter							: ARRAY [1..iStnQty] OF fbVacuumPumpTimeCounter;
+	ARfbVacuumPump_Routine								: ARRAY [1..iStnQty] OF fbV2_EquipmentServiceCounter_Day;
+	ARfbVacuumPump_Major								: ARRAY [1..iStnQty] OF fbV2_EquipmentServiceCounter_Day;
+
+	fbPreparationTotalTimeCounter							: fbPreparationTotalTimeCounter;
+
+	sMachineOnTime_JKS									: STRING(50);
+	sMachineOnTime_Customer							: STRING(50);
+
+	sMachineRunningTime_JKS							: STRING(50);
+	sMachineRunningTime_Customer						: STRING(50);
+
+	sMachinePreparationCurrentTime						: STRING(50);
+	sMachinePreparationPreviousTime						: STRING(50);
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Basket Totalizer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARfbBasketTotalizer									: ARRAY [1..6] OF fbBasketTotalizer;
+	ARfbStnBasketTotalizer								: ARRAY [1..iStnQty] OF fbStnBasketTotalizer;
+
+	diTotalBasketQty_JKS									: DINT;
+	diTotalBasketQty_Customer							: DINT;
+	diTotalBasketQty_User								: DINT;
+	diTotalBasketQty_Daily								: DINT;
+	diTotalBasketQty_Daily1st								: DINT;
+	diTotalBasketQty_Daily2nd								: DINT;
+
+	diPreviousTotalBasketQtyLog_Daily						: DINT;
+	diPreviousTotalBasketQtyLog_Daily1st					: DINT;
+	diPreviousTotalBasketQtyLog_Daily2nd					: DINT;
+
+	ARdiTotalStnBasketQty								: ARRAY [1..iStnQty] OF DINT;
+	ARdiStnBasketCounter1stLimitSV						: ARRAY [1..iStnQty] OF DINT;
+	ARdiStnBasketCounter2ndLimitSV						: ARRAY [1..iStnQty] OF DINT;
+
+	wZeroValue											: WORD := 0;
+	wAutoStartHourSV_Daily								: WORD;
+	wAutoStartHourSV_Daily1st								: WORD;
+	wAutoStartHourSV_Daily2nd							: WORD;
+
+	wAutoDurationHourSV_JKS								: WORD;
+	wAutoDurationHourSV_Customer						: WORD;
+	wAutoDurationHourSV_User							: WORD;
+	wAutoDurationHourSV_Daily							: WORD;
+	wAutoDurationHourSV_Daily1st							: WORD;
+	wAutoDurationHourSV_Daily2nd							: WORD;
+
+(* xxxxxxxxxxxxxxxxxxxxxx Machine Shut Down Operation Control xxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	wShutDownYear										: WORD;
+	wShutDownMonth										: WORD;
+	wShutDownDay										: WORD;
+
+	bMcShutDownDisable									: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx Vacuum Pump Time Counter xxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARsVacuumPumpRunningTime							: ARRAY [1..iStnQty] OF STRING(50);
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx User Password Used xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	UserPassword										: ARRAY [0..7] OF STRING;
+	UserName											: ARRAY [0..7] OF wSTRING;
+	UserLogin											: ARRAY [0..7] OF BOOL;
+
+(*XML Prev Recipe No*)
+	iPrevrecipeNo	:INT;
+	iAutoPrevRecipeMode:INT;
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

@@ -1,0 +1,741 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB3_CsvHandler" Id="{4137ca01-9cc2-4959-a4f7-4045d1c19325}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB3_CsvHandler
+
+VAR_INPUT
+	bEn 							: BOOL;
+	bReset							: BOOL;
+	bShutdownRequestFlag 			: BOOL;
+	bClearErrorLog					: REFERENCE TO BOOL;
+END_VAR
+
+VAR_OUTPUT
+	bIdle							: BOOL;
+	bProgress						: BOOL;
+	bReadyToShutdownFlag 			: BOOL;
+	bError							: BOOL;
+	bErrorCaseId					: INT;
+END_VAR                     		
+                            		
+VAR_IN_OUT                  		
+	udiCsvMRBCount					: UDINT;
+	udiCsvMRBUsagePercent 			: UDINT;	
+END_VAR
+VAR
+	dsCsvLog						: DS_CsvLog;
+	dsCsvLog_Previous				: DS_CsvLog;
+	dsCsvLog_Empty					: DS_CsvLog;
+	bScanOnce						: BOOL := TRUE;
+	iCase							: INT;
+	
+	fbFileOpen						: FB_FileOpen;
+	fbFilePuts						: FB_FilePuts;
+	fbFileSeek						: FB_FileSeek;
+	fbFileClose						: FB_FileClose;
+	fbFileRename					: FB_FileRename;	
+	fbFileDelete					: FB_FileDelete;	
+	bFileOpened						: BOOL; // To keep trace if the file opened and havent close
+	
+	ARbScanOnce						: ARRAY [1..99] OF BOOL;
+	ARbScanOnce_Empty				: ARRAY [1..99] OF BOOL;
+	iFL								: INT;
+	bError_NonImportant				: BOOL;
+	iEventLogTitleStep				: INT;
+	sEventLogString					: STRING(255);
+	bEventLogTitleDone				: BOOL;
+	dsEventHistoryDummy 			: DS_EventHistory;
+	sDateToLogFilename: STRING;
+END_VAR
+VAR PERSISTENT
+sPreviousEventLogDate : STRING;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[	// Detect Next Day and trigger EventLog Filename Generate (from CS_ to CSV)
+	IF sPreviousEventLogDate = '' THEN	// Prevent if Persistent currupted and caused the date initialised, this step is to avoid trigger CSV Generate. 
+		sPreviousEventLogDate := dsLocalSystemTimeML.sCurrentDate_General;
+	END_IF
+
+	IF 	sPreviousEventLogDate <> dsLocalSystemTimeML.sCurrentDate_General THEN
+		sDateToLogFilename	:= 	sPreviousEventLogDate;		
+		sPreviousEventLogDate := dsLocalSystemTimeML.sCurrentDate_General;
+		// Event Log to MRB (Memory Ring Buffer)				
+		FNbCsvEventLogToBuffer(	dsEventHistoryToLog		:= dsEventHistoryDummy,
+								sDateToLogFIlename		:= sDateToLogFilename, 
+								eCsvActionType			:= eCsvGenerate_EventLog, 
+								udiCsvMRBCount			=> udiCsvMRBCount, 
+								udiCsvMRBUsagePercent	=> udiCsvMRBUsagePercent, 
+								bError					=> );			 
+	END_IF
+
+
+	IF bScanOnce THEN
+		//readout the current MRBCount and UsagePecentage
+		FNbCsvReadWithoutRemoveBuffer(
+										dsCsvLog				=>	dsCsvLog , 
+										udiCsvMRBCount			=> udiCsvMRBCount, 
+										udiCsvMRBUsagePercent	=> udiCsvMRBUsagePercent );	
+		bScanOnce := FALSE;	
+	END_IF
+
+	
+		
+	IF bEN  AND NOT bReset THEN
+				IF iCase < 1 THEN iCase := 1; END_IF
+	ELSE
+				iCase					:= 0;
+	END_IF
+	
+
+	// RESET/Clear CSV Error Log
+IF iFL >=1 THEN	
+	IF bClearErrorLog THEN
+		FOR iFL := 1 TO 100 DO
+			ARdsCsvErrorLog[iFL] := dsCsvErrorLog_Empty;
+		END_FOR
+		bClearErrorLog := FALSE;		
+	END_IF
+END_IF	
+CASE iCase OF
+	0: // FunctionBlock Disable
+				bIdle 					:= FALSE;
+				bProgress 				:= FALSE;	
+				bReadyToShutdownFlag 	:= FALSE;
+				bError					:= FALSE;
+				bErrorCaseId			:= 0;
+				dsCsvLog				:=	dsCsvLog_Empty;
+				dsCsvLog_Previous		:=	dsCsvLog_Empty;
+				ARbScanOnce				:=	ARbScanOnce_Empty;
+				bFileOpened				:= FALSE;
+				
+	1: // Idling
+
+		
+		// Indicator Handling
+		IF NOT bShutdownRequestFlag THEN
+			IF udiCsvMRBCount = 0 THEN
+				bIdle 					:= TRUE;
+				bProgress 				:= FALSE;	
+				bReadyToShutdownFlag 	:= FALSE;
+			ELSE
+				bIdle 					:= FALSE;
+				bProgress 				:= TRUE;	
+				bReadyToShutdownFlag 	:= FALSE;
+			END_IF
+		ELSE
+			IF udiCsvMRBCount = 0 THEN
+				bIdle 					:= TRUE;
+				bProgress 				:= FALSE;	
+				bReadyToShutdownFlag 	:= TRUE;
+			ELSE
+				bIdle 					:= FALSE;
+				bProgress 				:= TRUE;	
+				bReadyToShutdownFlag 	:= FALSE;
+			END_IF
+			
+		END_IF
+ 
+		IF udiCsvMRBCount <> 0 THEN
+				iCase	:= 2;
+		END_IF
+	
+	
+	2: // Read Without Remove from MRB (Memory Ring Buffer) 
+	
+		FNbCsvReadWithoutRemoveBuffer(
+							dsCsvLog				=>	dsCsvLog , 
+							udiCsvMRBCount			=>	udiCsvMRBCount , 
+							udiCsvMRBUsagePercent	=>	udiCsvMRBUsagePercent , 	
+							bError					=>	bError );
+		
+		IF NOT bError THEN
+				iCase 			:= 3;
+		ELSE
+			FNbCsvErrorLog(iCaseId:= iCase, udiErrorId:= 9999, dsCsvLog:= dsCsvLog);
+			bErrorCaseId 	:= iCase;
+			iCase			:= 97; // Close File and go Case 99 to wait
+		END_IF
+		
+	
+	3: // Prepare for Write Process	
+		
+		CASE dsCsvLog.eLogAction OF
+
+			eCsvLogData_EventLog:
+				iCase 				:= 10; // Proceed File Open
+				fbFileOpen(nMode	:= FOPEN_MODEREAD OR FOPEN_MODEPLUS OR FOPEN_MODETEXT);
+			
+			eCsvNewFile_EventLog, eCsvNewFile_CarrierReport, eCsvLogData_CarrierReport:			
+				iCase 				:= 10; // Proceed File Open
+				fbFileOpen(nMode	:= FOPEN_MODEAPPEND OR FOPEN_MODETEXT);
+
+			eCsvGenerate_CarrierReport, eCsvGenerate_EventLog:
+				iCase	:= 30; // Rename CSV File	
+				
+		END_CASE
+
+	10: // File Open
+		
+		IF NOT bFileOpened THEN
+			fbFileOpen(bExecute	:= FALSE );
+			fbFileOpen(
+				sPathName		:= CONCAT(dsCsvLog.sPathAndFilename,'.CS_'), 
+				ePath			:= PATH_GENERIC, 
+				bExecute		:= TRUE );				
+		ELSE
+				iCase			:= 12; // Proceed FileSeek 
+		END_IF
+		
+		IF fbFileOpen.bBusy THEN
+				iCase			:= 11; // FileOpen in progress, go to check point
+		END_IF
+
+
+	11: // File Open - Check point
+	
+		fbFileOpen(bExecute	:= FALSE );
+		IF NOT fbFileOpen.bBusy THEN
+			IF NOT fbFileOpen.bError THEN
+				iCase			:= 12; // Proceed FileSeek 
+				bFileOpened		:= TRUE;
+			ELSE
+				IF fbFileOpen.nErrId = 1804 AND dsCsvLog.eLogAction = eCsvLogData_EventLog THEN
+					iCase				:= 41; // Proceed New File with Title
+				ELSE		
+					FNbCsvErrorLog(iCaseId:= iCase, udiErrorId:= fbFileOpen.nErrId, dsCsvLog:= dsCsvLog);
+					bErrorCaseId 	:= iCase;
+					iCase			:= 20; // Proceed Remove MRB, Check & Close File, Clear Current Log in MRB and proceed Next Log
+				END_IF
+			END_IF				
+		END_IF
+
+		
+		41: // New file
+	
+			fbFileOpen(bExecute	:= FALSE );
+			fbFileOpen(
+				nMode			:= FOPEN_MODEWRITE OR FOPEN_MODEPLUS OR FOPEN_MODETEXT,
+				sPathName		:= CONCAT(dsCsvLog.sPathAndFilename,'.CS_'), 
+				ePath			:= PATH_GENERIC, 
+				bExecute		:= TRUE );				
+			
+			IF fbFileOpen.bBusy THEN
+					iCase		:= 42; // FileOpen in progress, go to check point
+			END_IF
+
+		42: // New File Open - Check point
+		
+			fbFileOpen(bExecute	:= FALSE );
+			IF NOT fbFileOpen.bBusy THEN
+				IF NOT fbFileOpen.bError THEN
+					iCase				:= 43; // Proceed Write Title 
+					iEventLogTitleStep	:= 1;
+					bEventLogTitleDone	:= FALSE;
+					bFileOpened			:= TRUE;
+				ELSE
+					FNbCsvErrorLog(iCaseId:= iCase, udiErrorId:= fbFileOpen.nErrId, dsCsvLog:= dsCsvLog);
+					bErrorCaseId 	:= iCase;
+					iCase			:= 20; // Proceed Remove MRB, Check & Close File, Clear Current Log in MRB and proceed Next Log
+				END_IF				
+			END_IF
+	
+	
+		43: // File Puts (Write Title)
+					// Prepare Data
+					dsCsvReport.ARsLogTitle_EventLog[1] := 'Occurred Time';
+					dsCsvReport.ARsLogTitle_EventLog[2] := 'Acknowledged Time';
+					dsCsvReport.ARsLogTitle_EventLog[3] := 'Recovered Time';
+					dsCsvReport.ARsLogTitle_EventLog[4] := 'Event ID';
+					dsCsvReport.ARsLogTitle_EventLog[5] := 'Event Code';
+					dsCsvReport.ARsLogTitle_EventLog[6] := 'Event Type';
+					dsCsvReport.ARsLogTitle_EventLog[7] := 'Main Location';
+					dsCsvReport.ARsLogTitle_EventLog[8] := 'Sub Location';
+					dsCsvReport.ARsLogTitle_EventLog[9] := 'Description';
+	//				dsCsvReport.ARsLogTitle_EventLog[10] := ;
+
+					IF dsCsvReport.iNumOfData_LogTitle_EventLog >= iEventLogTitleStep THEN
+						sEventLogString := concat(dsCsvReport.ARsLogTitle_EventLog[iEventLogTitleStep],','); 
+					ELSE
+						sEventLogString := '$N';
+						bEventLogTitleDone := TRUE;
+					END_IF	
+						
+						
+				fbFilePuts(	bExecute:= FALSE );
+				fbFilePuts(	
+					hFile			:= fbFileOpen.hFile, 
+					sLine			:= sEventLogString, 
+					bExecute		:= TRUE );	
+	
+			IF fbFilePuts.bBusy THEN
+					iCase			:= 44; // FilePuts in progress, go to check point	
+			END_IF
+	
+		44: // File Puts - Check point
+		
+			fbFilePuts(	bExecute:= FALSE );
+			IF NOT fbFilePuts.bBusy THEN
+				IF NOT fbFilePuts.bError THEN
+					IF NOT bEventLogTitleDone THEN
+						iCase				:= 43; // Continue Write Event Log Title
+						iEventLogTitleStep 	:= iEventLogTitleStep + 1; 
+					ELSE
+						iCase 				:= 12; // Title Done, Write data
+						bEventLogTitleDone	:= FALSE;
+					END_IF
+					
+				ELSE
+					FNbCsvErrorLog(iCaseId:= iCase, udiErrorId:= fbFilePuts.nErrId, dsCsvLog:= dsCsvLog);
+					bErrorCaseId 	:= iCase;
+					iCase			:= 20; // Proceed Remove MRB, Check & Close File, Clear Current Log in MRB and proceed Next Log
+				END_IF				
+			END_IF
+
+				
+	12: // File Seek
+	
+			fbFileSeek(	bExecute:= FALSE );
+			fbFileSeek(	
+				eOrigin			:= SEEK_END,
+				hFile			:= fbFileOpen.hFile, 
+				bExecute		:= TRUE );	
+				
+		IF fbFileSeek.bBusy THEN
+				iCase			:= 13; // FileSeek in progress, go to check point
+		END_IF
+
+	13: // File Seek - Check point
+
+		fbFileSeek(	bExecute:= FALSE );
+		IF NOT fbFileSeek.bBusy THEN
+			IF NOT fbFileSeek.bError THEN
+				iCase			:= 14; // Proceed FilePuts (Write data) 
+			ELSE
+				FNbCsvErrorLog(iCaseId:= iCase, udiErrorId:= fbFileSeek.nErrId, dsCsvLog:= dsCsvLog);
+				bErrorCaseId 	:= iCase;
+				iCase			:= 20; // Proceed Remove MRB, Check & Close File, Clear Current Log in MRB and proceed Next Log
+			END_IF				
+		END_IF
+
+	14: // File Puts (Write Data)
+			fbFilePuts(	bExecute:= FALSE );
+			fbFilePuts(	
+				hFile			:= fbFileOpen.hFile, 
+				sLine			:= dsCsvLog.sLogString, 
+				bExecute		:= TRUE );	
+
+		IF fbFilePuts.bBusy THEN
+				iCase			:= 15; // FilePuts in progress, go to check point	
+		END_IF
+
+	15: // File Puts - Check point
+	
+		fbFilePuts(	bExecute:= FALSE );
+		IF NOT fbFilePuts.bBusy THEN
+			IF NOT fbFilePuts.bError THEN
+				iCase			:= 20; // Proceed Remove MRB, Check & Close File, Clear Current Log in MRB and proceed Next Log
+			ELSE
+				FNbCsvErrorLog(iCaseId:= iCase, udiErrorId:= fbFilePuts.nErrId, dsCsvLog:= dsCsvLog);
+				bErrorCaseId 	:= iCase;
+				iCase			:= 20; // Proceed Remove MRB, Check & Close File, Clear Current Log in MRB and proceed Next Log
+			END_IF				
+		END_IF
+
+	20: // Remove MRB and put into dsCsvLog_Previous
+	IF NOT ARbScanOnce[20] THEN 	
+		FNbCsvReadAndRemoveBuffer(
+							dsCsvLog				=>	dsCsvLog_Previous , 
+							udiCsvMRBCount			=>	udiCsvMRBCount , 
+							udiCsvMRBUsagePercent	=>	udiCsvMRBUsagePercent , 	
+							bError					=>	bError );
+		ARbScanOnce[20] := TRUE;
+	END_IF
+		
+		IF NOT bError THEN
+			IF udiCsvMRBCount >= 1 THEN
+				iCase 			:= 21; // Proceed to Check and determine whether to close file or not
+				ARbScanOnce[20] := FALSE;
+			ELSE
+				iCase			:= 22; // Proceed File Close
+				ARbScanOnce[20] := FALSE;				
+			END_IF
+		ELSE
+			FNbCsvErrorLog(iCaseId:= iCase, udiErrorId:= 9999, dsCsvLog:= dsCsvLog);
+			bErrorCaseId 	:= iCase;
+			ARbScanOnce[20] := FALSE;
+			iCase			:= 97; // Close File and go Case 99 to wait
+		END_IF
+
+
+	21: // 	Check and determine whether to close file or not		
+		
+	IF NOT ARbScanOnce[21] THEN 	
+		FNbCsvReadWithoutRemoveBuffer(
+							dsCsvLog				=>	dsCsvLog , 
+							udiCsvMRBCount			=>	udiCsvMRBCount , 
+							udiCsvMRBUsagePercent	=>	udiCsvMRBUsagePercent , 	
+							bError					=>	bError_NonImportant );
+		ARbScanOnce[21] := TRUE;
+	END_IF
+		
+		IF NOT bError_NonImportant THEN	
+			IF dsCsvLog_Previous.sPathAndFilename = dsCsvLog.sPathAndFilename AND dsCsvLog_Previous.eLogAction = dsCsvLog.eLogAction AND dsCsvLog.eLogAction <> eCsvGenerate_CarrierReport AND dsCsvLog.eLogAction <> eCsvGenerate_EventLog THEN // Matched, Skipped File Open
+				iCase			:= 14; // Proceed FilePuts (Write data) 
+				ARbScanOnce[21] := FALSE;
+					
+			ELSE
+				iCase			:= 22; // Proceed File Close
+				ARbScanOnce[21] := FALSE;
+			END_IF			
+		ELSE 
+			iCase				:= 22; // Possible the Buffer is empty, so just proceed to File Close 1 
+			ARbScanOnce[21]		:= FALSE;
+			bError_NonImportant := FALSE;
+		END_IF
+	
+	
+	22: // File Close		
+
+			fbFileClose(	bExecute:= FALSE );
+			fbFileClose(	
+				hFile			:= fbFileOpen.hFile, 
+				bExecute		:= TRUE );	
+
+		IF fbFileClose.bBusy THEN
+				iCase			:= 23; // FileClose in progress, go to check point
+		END_IF
+
+
+	23: // File Close - Check point
+	
+		fbFileClose(	bExecute:= FALSE );
+		IF NOT fbFileClose.bBusy THEN
+			IF NOT fbFileClose.bError THEN
+				iCase			:= 1; // Done -> Check next Log or Idle
+				bFileOpened		:= FALSE;
+			ELSE
+				FNbCsvErrorLog(iCaseId:= iCase, udiErrorId:= fbFileClose.nErrId, dsCsvLog:= dsCsvLog);
+				bErrorCaseId 	:= iCase;
+				iCase			:= 1; // Nothing much can do, just proceed next Log or Idle
+			END_IF				
+		END_IF
+	
+
+	30: // Rename CSV 
+
+
+	
+			fbFileRename(	bExecute:= FALSE );
+			fbFileRename(	
+					sOldName		:= CONCAT(dsCsvLog.sPathAndFilename,'.CS_'), 
+					sNewName		:= CONCAT(dsCsvLog.sPathAndFilename,'.CSV'), 
+					ePath			:= PATH_GENERIC,
+					bExecute		:= TRUE );
+
+		IF fbFileRename.bBusy THEN
+				iCase			:= 31; // RenameCSV in progress, go to check point
+		END_IF
+
+	31: // Rename CSV - Check point
+	
+		fbFileRename(	bExecute:= FALSE );
+		IF NOT fbFileRename.bBusy THEN
+			IF NOT fbFileRename.bError THEN
+				iCase			:= 32; // Done -> Proceed Remove MRB 
+			ELSE
+				FNbCsvErrorLog(iCaseId:= iCase, udiErrorId:= fbFileRename.nErrId, dsCsvLog:= dsCsvLog);
+				bErrorCaseId 	:= iCase;
+				iCase			:= 32; // Nothing much can do, just proceed Remove MRB
+			END_IF				
+		END_IF
+	
+	32: // Remove MRB and put into dsCsvLog_Previous
+		
+	IF NOT ARbScanOnce[32] THEN 	
+		FNbCsvReadAndRemoveBuffer(
+							dsCsvLog				=>	dsCsvLog_Previous , 
+							udiCsvMRBCount			=>	udiCsvMRBCount , 
+							udiCsvMRBUsagePercent	=>	udiCsvMRBUsagePercent , 	
+							bError					=>	bError );
+		ARbScanOnce[32] := TRUE;
+	END_IF
+		
+		IF NOT bError THEN
+			iCase 			:= 1; // Done -> Check next Log or Idle
+			ARbScanOnce[32] := FALSE;
+		ELSE
+			FNbCsvErrorLog(iCaseId:= iCase, udiErrorId:= 9999, dsCsvLog:= dsCsvLog);
+			bErrorCaseId 	:= iCase;
+			ARbScanOnce[32] := FALSE;
+			iCase			:= 97; // Close File and go Case 99 to wait
+		END_IF
+
+	97: // File Close (with Error Reading from Buffer)		
+
+			fbFileClose(	bExecute:= FALSE );
+			fbFileClose(	
+				hFile			:= fbFileOpen.hFile, 
+				bExecute		:= TRUE );	
+
+		IF fbFileClose.bBusy THEN
+				iCase			:= 98; // FileClose in progress, go to check point
+		END_IF
+
+
+	98: // File Close - Check point (with Error Reading from Buffer)
+	
+		fbFileClose(	bExecute:= FALSE );
+		IF NOT fbFileClose.bBusy THEN
+			IF NOT fbFileClose.bError THEN
+					iCase			:= 99;
+					bFileOpened		:= FALSE;
+			ELSE
+				FNbCsvErrorLog(iCaseId:= iCase, udiErrorId:= fbFileClose.nErrId, dsCsvLog:= dsCsvLog);
+				bErrorCaseId 	:= iCase;
+				iCase			:= 99; 
+			END_IF				
+		END_IF
+	
+
+
+				
+	99:; // Error, Stay here
+
+
+END_CASE
+
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB3_CsvHandler">
+      <LineId Id="1220" Count="0" />
+      <LineId Id="1235" Count="0" />
+      <LineId Id="1237" Count="1" />
+      <LineId Id="1236" Count="0" />
+      <LineId Id="1223" Count="0" />
+      <LineId Id="1239" Count="0" />
+      <LineId Id="1224" Count="0" />
+      <LineId Id="1226" Count="6" />
+      <LineId Id="1221" Count="1" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="62" Count="3" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="54" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="116" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="103" Count="0" />
+      <LineId Id="844" Count="0" />
+      <LineId Id="104" Count="0" />
+      <LineId Id="885" Count="0" />
+      <LineId Id="105" Count="0" />
+      <LineId Id="831" Count="0" />
+      <LineId Id="839" Count="1" />
+      <LineId Id="837" Count="0" />
+      <LineId Id="832" Count="0" />
+      <LineId Id="841" Count="0" />
+      <LineId Id="102" Count="0" />
+      <LineId Id="106" Count="0" />
+      <LineId Id="113" Count="2" />
+      <LineId Id="109" Count="0" />
+      <LineId Id="179" Count="0" />
+      <LineId Id="192" Count="1" />
+      <LineId Id="535" Count="1" />
+      <LineId Id="110" Count="1" />
+      <LineId Id="148" Count="0" />
+      <LineId Id="118" Count="25" />
+      <LineId Id="161" Count="1" />
+      <LineId Id="144" Count="3" />
+      <LineId Id="163" Count="4" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="182" Count="1" />
+      <LineId Id="511" Count="0" />
+      <LineId Id="173" Count="0" />
+      <LineId Id="967" Count="0" />
+      <LineId Id="181" Count="0" />
+      <LineId Id="176" Count="1" />
+      <LineId Id="185" Count="1" />
+      <LineId Id="204" Count="0" />
+      <LineId Id="1110" Count="0" />
+      <LineId Id="1106" Count="3" />
+      <LineId Id="205" Count="0" />
+      <LineId Id="282" Count="0" />
+      <LineId Id="1053" Count="0" />
+      <LineId Id="480" Count="0" />
+      <LineId Id="1010" Count="2" />
+      <LineId Id="206" Count="0" />
+      <LineId Id="482" Count="0" />
+      <LineId Id="481" Count="0" />
+      <LineId Id="1043" Count="0" />
+      <LineId Id="484" Count="0" />
+      <LineId Id="500" Count="0" />
+      <LineId Id="489" Count="0" />
+      <LineId Id="540" Count="0" />
+      <LineId Id="493" Count="1" />
+      <LineId Id="501" Count="1" />
+      <LineId Id="486" Count="0" />
+      <LineId Id="194" Count="1" />
+      <LineId Id="503" Count="5" />
+      <LineId Id="600" Count="0" />
+      <LineId Id="509" Count="0" />
+      <LineId Id="515" Count="0" />
+      <LineId Id="512" Count="0" />
+      <LineId Id="534" Count="0" />
+      <LineId Id="1056" Count="0" />
+      <LineId Id="514" Count="0" />
+      <LineId Id="1055" Count="0" />
+      <LineId Id="1044" Count="0" />
+      <LineId Id="517" Count="2" />
+      <LineId Id="1057" Count="0" />
+      <LineId Id="516" Count="0" />
+      <LineId Id="513" Count="0" />
+      <LineId Id="1111" Count="0" />
+      <LineId Id="520" Count="0" />
+      <LineId Id="1112" Count="0" />
+      <LineId Id="1114" Count="3" />
+      <LineId Id="1127" Count="0" />
+      <LineId Id="1118" Count="1" />
+      <LineId Id="1123" Count="3" />
+      <LineId Id="1146" Count="0" />
+      <LineId Id="1128" Count="5" />
+      <LineId Id="1198" Count="0" />
+      <LineId Id="1206" Count="0" />
+      <LineId Id="1134" Count="1" />
+      <LineId Id="1139" Count="2" />
+      <LineId Id="1143" Count="2" />
+      <LineId Id="1147" Count="0" />
+      <LineId Id="1170" Count="0" />
+      <LineId Id="1289" Count="10" />
+      <LineId Id="1193" Count="0" />
+      <LineId Id="1195" Count="1" />
+      <LineId Id="1200" Count="0" />
+      <LineId Id="1203" Count="1" />
+      <LineId Id="1202" Count="0" />
+      <LineId Id="1194" Count="0" />
+      <LineId Id="1201" Count="0" />
+      <LineId Id="1171" Count="14" />
+      <LineId Id="1207" Count="0" />
+      <LineId Id="1186" Count="0" />
+      <LineId Id="1214" Count="0" />
+      <LineId Id="1209" Count="1" />
+      <LineId Id="1213" Count="0" />
+      <LineId Id="1211" Count="1" />
+      <LineId Id="1187" Count="5" />
+      <LineId Id="1148" Count="0" />
+      <LineId Id="1113" Count="0" />
+      <LineId Id="521" Count="0" />
+      <LineId Id="1034" Count="0" />
+      <LineId Id="522" Count="0" />
+      <LineId Id="524" Count="0" />
+      <LineId Id="541" Count="0" />
+      <LineId Id="1101" Count="0" />
+      <LineId Id="529" Count="0" />
+      <LineId Id="537" Count="0" />
+      <LineId Id="542" Count="3" />
+      <LineId Id="538" Count="0" />
+      <LineId Id="547" Count="0" />
+      <LineId Id="601" Count="0" />
+      <LineId Id="549" Count="2" />
+      <LineId Id="553" Count="5" />
+      <LineId Id="548" Count="0" />
+      <LineId Id="560" Count="3" />
+      <LineId Id="583" Count="0" />
+      <LineId Id="565" Count="0" />
+      <LineId Id="571" Count="0" />
+      <LineId Id="567" Count="3" />
+      <LineId Id="586" Count="0" />
+      <LineId Id="598" Count="0" />
+      <LineId Id="602" Count="0" />
+      <LineId Id="588" Count="2" />
+      <LineId Id="592" Count="5" />
+      <LineId Id="604" Count="2" />
+      <LineId Id="610" Count="4" />
+      <LineId Id="800" Count="0" />
+      <LineId Id="615" Count="0" />
+      <LineId Id="799" Count="0" />
+      <LineId Id="616" Count="0" />
+      <LineId Id="797" Count="0" />
+      <LineId Id="617" Count="0" />
+      <LineId Id="801" Count="0" />
+      <LineId Id="933" Count="0" />
+      <LineId Id="937" Count="0" />
+      <LineId Id="936" Count="0" />
+      <LineId Id="796" Count="0" />
+      <LineId Id="618" Count="2" />
+      <LineId Id="929" Count="0" />
+      <LineId Id="621" Count="3" />
+      <LineId Id="609" Count="0" />
+      <LineId Id="607" Count="0" />
+      <LineId Id="802" Count="0" />
+      <LineId Id="629" Count="4" />
+      <LineId Id="806" Count="0" />
+      <LineId Id="803" Count="0" />
+      <LineId Id="634" Count="1" />
+      <LineId Id="647" Count="0" />
+      <LineId Id="1059" Count="0" />
+      <LineId Id="804" Count="0" />
+      <LineId Id="1026" Count="0" />
+      <LineId Id="643" Count="0" />
+      <LineId Id="650" Count="0" />
+      <LineId Id="805" Count="0" />
+      <LineId Id="651" Count="0" />
+      <LineId Id="637" Count="0" />
+      <LineId Id="640" Count="0" />
+      <LineId Id="928" Count="0" />
+      <LineId Id="927" Count="0" />
+      <LineId Id="641" Count="0" />
+      <LineId Id="626" Count="0" />
+      <LineId Id="546" Count="0" />
+      <LineId Id="603" Count="0" />
+      <LineId Id="653" Count="0" />
+      <LineId Id="656" Count="2" />
+      <LineId Id="660" Count="5" />
+      <LineId Id="675" Count="0" />
+      <LineId Id="655" Count="0" />
+      <LineId Id="676" Count="4" />
+      <LineId Id="688" Count="0" />
+      <LineId Id="682" Count="5" />
+      <LineId Id="652" Count="0" />
+      <LineId Id="689" Count="1" />
+      <LineId Id="701" Count="2" />
+      <LineId Id="691" Count="1" />
+      <LineId Id="716" Count="2" />
+      <LineId Id="695" Count="0" />
+      <LineId Id="719" Count="0" />
+      <LineId Id="696" Count="2" />
+      <LineId Id="720" Count="0" />
+      <LineId Id="699" Count="0" />
+      <LineId Id="721" Count="4" />
+      <LineId Id="728" Count="6" />
+      <LineId Id="830" Count="0" />
+      <LineId Id="807" Count="0" />
+      <LineId Id="810" Count="9" />
+      <LineId Id="821" Count="1" />
+      <LineId Id="824" Count="2" />
+      <LineId Id="932" Count="0" />
+      <LineId Id="966" Count="0" />
+      <LineId Id="828" Count="1" />
+      <LineId Id="938" Count="16" />
+      <LineId Id="956" Count="1" />
+      <LineId Id="959" Count="6" />
+      <LineId Id="808" Count="1" />
+      <LineId Id="539" Count="0" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="112" Count="0" />
+      <LineId Id="108" Count="0" />
+      <LineId Id="107" Count="0" />
+      <LineId Id="968" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="218" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

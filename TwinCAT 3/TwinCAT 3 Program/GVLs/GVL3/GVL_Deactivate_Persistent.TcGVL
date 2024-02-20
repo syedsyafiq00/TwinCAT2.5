@@ -1,0 +1,185 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="GVL_Deactivate_Persistent" Id="{1378f21a-f44b-44b5-8cab-20943d907f5f}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL PERSISTENT
+	
+	DE10000  : BOOL;   // EMERGENCY STOP SAFETY RELAY - RESET  (-250K3)              
+	DE10001  : BOOL;   // STN 01 ULTRASONIC GENERATOR FREQUENCY CHANGE (-10U1)       
+	DE10002  : BOOL;   // STN 02 ULTRASONIC GENERATOR FREQUENCY CHANGE (-11U1)       
+	DE10003  : BOOL;   // STN 04 ULTRASONIC GENERATOR FREQUENCY CHANGE (-12U1)       
+	DE10004  : BOOL;   // STN 05 ULTRASONIC GENERATOR FREQUENCY CHANGE (-13U1)       
+	DE10005  : BOOL;   // STN 07 ULTRASONIC GENERATOR FREQUENCY CHANGE (-14U1)       
+	DE10006  : BOOL;   // STN 08 ULTRASONIC GENERATOR FREQUENCY CHANGE (-15U1)       
+	DE10007  : BOOL;   // STN 09 SLOW PULL MECHANISM SERVO MOTOR - ERROR STOP (-42U1)
+	DE10008  : BOOL;   // ARM 01 HORIZONTAL SERVO MOTOR - ERROR STOP (-40U1)         
+	DE10009  : BOOL;   // ARM 01 VERTICAL SERVO MOTOR - ERROR STOP (-41U1)           
+	DE10010  : BOOL;   // RESERVED                                                   
+	DE10011  : BOOL;   // RESERVED                                                   
+	DE10012  : BOOL;   // RESERVED                                                   
+	DE10013  : BOOL;   // RESERVED                                                   
+	DE10014  : BOOL;   // RESERVED                                                   
+	DE10015  : BOOL;   // RESERVED                                                   
+	
+	DE10100  : BOOL;   // STN 01 ULTRASONIC GENERATOR ON/OFF (-10U1)     
+	DE10101  : BOOL;   // STN 02 ULTRASONIC GENERATOR ON/OFF (-11U1)     
+	DE10102  : BOOL;   // STN 04 ULTRASONIC GENERATOR ON/OFF (-12U1)     
+	DE10103  : BOOL;   // STN 05 ULTRASONIC GENERATOR ON/OFF (-13U1)     
+	DE10104  : BOOL;   // STN 07 ULTRASONIC GENERATOR ON/OFF (-14U1)     
+	DE10105  : BOOL;   // STN 08 ULTRASONIC GENERATOR ON/OFF (-15U1)     
+	DE10106  : BOOL;   // STN 07 DI WATER RETURN TANK PUMP ON/OFF (-81K1)
+	DE10107  : BOOL;   // STN 01 PROCESS TANK PUMP ON/OFF (-73K1)        
+	DE10108  : BOOL;   // STN 02 PROCESS TANK PUMP ON/OFF (-74K1)        
+	DE10109  : BOOL;   // STN 03 PROCESS TANK PUMP ON/OFF (-75K1)        
+	DE10110  : BOOL;   // STN 04 PROCESS TANK PUMP ON/OFF (-76K1)        
+	DE10111  : BOOL;   // STN 05 PROCESS TANK PUMP ON/OFF (-77K1)        
+	DE10112  : BOOL;   // STN 06 PROCESS TANK PUMP ON/OFF (-78K1)        
+	DE10113  : BOOL;   // STN 07 PROCESS TANK PUMP ON/OFF (-79K1)        
+	DE10114  : BOOL;   // STN 08 PROCESS TANK PUMP ON/OFF (-80K1)        
+	DE10115  : BOOL;   // STN 01 PROCESS TANK HEATER ON/OFF (-130K1)     
+	
+	DE10200  : BOOL;   // STN 02 PROCESS TANK HEATER ON/OFF (-131K1) 
+	DE10201  : BOOL;   // STN 03 PROCESS TANK HEATER ON/OFF (-132K1) 
+	DE10202  : BOOL;   // STN 04 PROCESS TANK HEATER ON/OFF (-133K1) 
+	DE10203  : BOOL;   // STN 05 PROCESS TANK HEATER ON/OFF (-134K1) 
+	DE10204  : BOOL;   // STN 06 PROCESS TANK HEATER ON/OFF (-135K1) 
+	DE10205  : BOOL;   // STN 07 PROCESS TANK HEATER ON/OFF (-136K1) 
+	DE10206  : BOOL;   // STN 08 PROCESS TANK HEATER ON/OFF (-137K1) 
+	DE10207  : BOOL;   // STN 10 PROCESS TANK HEATER ON/OFF (-138K1) 
+	DE10208  : BOOL;   // STN 09 - STN 10 FFU UNIT ON/OFF (-163K1)   
+	DE10209  : BOOL;   // UNLOADING FFU UNIT ON/OFF (-164K1)         
+	DE10210  : BOOL;   // UNLOADING CONVEYOR FFU UNIT ON/OFF (-165K1)
+	DE10211  : BOOL;   // STN 09 PROCESS TANK PUMP ON/OFF (-82K1)    
+	DE10212  : BOOL;   // RESERVED                                   
+	DE10213  : BOOL;   // RESERVED                                   
+	DE10214  : BOOL;   // RESERVED                                   
+	DE10215  : BOOL;   // RESERVED                                   
+	
+	DE10300  : BOOL;   // STN 01 - 08 AGITATION MOTOR ON/OFF (-160K1)
+	DE10301  : BOOL;   // LOADING CONVEYOR 01 ON/OFF (-170K1)        
+	DE10302  : BOOL;   // LOADING CONVEYOR 02 ON/OFF (-171K1)        
+	DE10303  : BOOL;   // LOADING CONVEYOR 03 ON/OFF (-172K1)        
+	DE10304  : BOOL;   // LOADING CONVEYOR 04 ON/OFF (-173K1)        
+	DE10305  : BOOL;   // UNLOADING CONVEYOR 01 ON/OFF (-174K1)      
+	DE10306  : BOOL;   // UNLOADING CONVEYOR 02 ON/OFF (-175K1)      
+	DE10307  : BOOL;   // UNLOADING CONVEYOR 03 ON/OFF (-176K1)      
+	DE10308  : BOOL;   // UNLOADING CONVEYOR 04 ON/OFF (-177K1)      
+	DE10309  : BOOL;   // RESERVED                                   
+	DE10310  : BOOL;   // RESERVED                                   
+	DE10311  : BOOL;   // RESERVED                                   
+	DE10312  : BOOL;   // RESERVED                                   
+	DE10313  : BOOL;   // RESERVED                                   
+	DE10314  : BOOL;   // RESERVED                                   
+	DE10315  : BOOL;   // RESERVED                                   
+	
+	DE10400  : BOOL;	
+	DE10401  : BOOL;	
+	DE10402  : BOOL;	
+	DE10403  : BOOL;	
+	DE10404  : BOOL;	
+	DE10405  : BOOL;	
+	DE10406  : BOOL;	
+	DE10407  : BOOL;	
+	DE10408  : BOOL;	
+	DE10409  : BOOL;	
+	DE10410  : BOOL;	
+	DE10411  : BOOL;	
+	DE10412  : BOOL;	
+	DE10413  : BOOL;	
+	DE10414  : BOOL;	
+	DE10415  : BOOL;	
+		
+	DE11000  : BOOL;   // GENERAL ALARM RESET IND (-310S1)         
+	DE11001  : BOOL;   // GENERAL BUZZER  RESET IND (-310S2)       
+	DE11002  : BOOL;   // GENERAL BUZZER TONE 01 (-410H1)          
+	DE11003  : BOOL;   // GENERAL BUZZER TONE 02 (-410H1)          
+	DE11004  : BOOL;   // GENERAL TOWER LIGHT IND - RED (-410H2)   
+	DE11005  : BOOL;   // GENERAL TOWER LIGHT IND - YELLOW (-410H2)
+	DE11006  : BOOL;   // GENERAL TOWER LIGHT IND - GREEN (-410H2) 
+	DE11007  : BOOL;   // IPC DC ON HOLDING RELAY (-410K1)         
+	DE11008  : BOOL;   // RESERVED                                 
+	DE11009  : BOOL;   // RESERVED                                 
+	DE11010  : BOOL;   // RESERVED                                 
+	DE11011  : BOOL;   // RESERVED                                 
+	DE11012  : BOOL;   // RESERVED                                 
+	DE11013  : BOOL;   // RESERVED                                 
+	DE11014  : BOOL;   // RESERVED                                 
+	DE11015  : BOOL;   // RESERVED                                 
+	
+	DE11100  : BOOL;   // STN 03 MEGASONIC GENERATOR 01 ON/OFF (-16U1)
+	DE11101  : BOOL;   // STN 03 MEGASONIC GENERATOR 02 ON/OFF (-17U1)
+	DE11102  : BOOL;   // STN 01 DOSING PUMP ON/OFF (-70K1)           
+	DE11103  : BOOL;   // STN 03 DOSING PUMP ON/OFF (-71K1)           
+	DE11104  : BOOL;   // RESERVED                                    
+	DE11105  : BOOL;   // RESERVED                                    
+	DE11106  : BOOL;   // RESERVED                                    
+	DE11107  : BOOL;   // RESERVED                                    
+	DE11108  : BOOL;   // RESERVED                                    
+	DE11109  : BOOL;   // RESERVED                                    
+	DE11110  : BOOL;   // RESERVED                                    
+	DE11111  : BOOL;   // RESERVED                                    
+	DE11112  : BOOL;   // RESERVED                                    
+	DE11113  : BOOL;   // RESERVED                                    
+	DE11114  : BOOL;   // RESERVED                                    
+	DE11115  : BOOL;   // RESERVED                                    
+	
+	DE12000  : BOOL;   // STN 05 DOSING PUMP ON/OFF (-72K1)           
+	DE12001  : BOOL;   // STN 06 MEGASONIC GENERATOR 01 ON/OFF (-18U1)
+	DE12002  : BOOL;   // STN 06 MEGASONIC GENERATOR 02 ON/OFF (-19U1)
+	DE12003  : BOOL;   // STN 06 MEGASONIC GENERATOR 03 ON/OFF (-20U1)
+	DE12004  : BOOL;   // RESERVED                                    
+	DE12005  : BOOL;   // RESERVED                                    
+	DE12006  : BOOL;   // RESERVED                                    
+	DE12007  : BOOL;   // RESERVED                                    
+	DE12008  : BOOL;   // RESERVED                                    
+	DE12009  : BOOL;   // RESERVED                                    
+	DE12010  : BOOL;   // RESERVED                                    
+	DE12011  : BOOL;   // RESERVED                                    
+	DE12012  : BOOL;   // RESERVED                                    
+	DE12013  : BOOL;   // RESERVED                                    
+	DE12014  : BOOL;   // RESERVED                                    
+	DE12015  : BOOL;   // RESERVED                                    
+	
+	DE13000  : BOOL;   // STN 01 DIW INCOMING SUPPLY AV1-1 (-430Y1)  
+	DE13001  : BOOL;   // STN 01 OVERFLOW SUCTION AV1-2 (-430Y2)     
+	DE13002  : BOOL;   // STN 02 ROW INCOMING SUPPLY AV2-1 (-430Y3)  
+	DE13003  : BOOL;   // STN 03 DIW INCOMING SUPPLY AV3-1 (-430Y4)  
+	DE13004  : BOOL;   // STN 03 OVERFLOW SUCTION AV3-2 (-430Y5)     
+	DE13005  : BOOL;   // STN 03 CHILLED WATER SUPPLY AV3-3 (-430Y6) 
+	DE13006  : BOOL;   // STN 04 ROW INCOMING SUPPLY AV4-1 (-430Y7)  
+	DE13007  : BOOL;   // STN 05 DIW INCOMING SUPPLY AV5-1 (-430Y8)  
+	DE13008  : BOOL;   // STN 05 OVERFLOW SUCTION AV5-2 (-430Y9)     
+	DE13009  : BOOL;   // STN 06 ROW INCOMING SUPPLY AV6-1 (-430Y10) 
+	DE13010  : BOOL;   // STN 06 CHILLED WATER SUPPLY AV6-2 (-430Y11)
+	DE13011  : BOOL;   // STN 07 DIW INCOMING SUPPLY AV7-1 (-430Y12) 
+	DE13012  : BOOL;   // STN 08 DIW INCOMING SUPPLY AV8-1 (-430Y13) 
+	DE13013  : BOOL;   // STN 09 DIW INCOMING SUPPLY AV9-1 (-430Y14) 
+	DE13014  : BOOL;   // DIW MAIN INCOMING SUPPLY AVINC-1 (-430Y15) 
+	DE13015  : BOOL;   // ROW MAIN INCOMING SUPPLY AVINC-2 (-430Y16) 
+	
+	DE13100  : BOOL;   // UNLOADING SHUTTER DOOR - OPEN (-431Y1)          
+	DE13101  : BOOL;   // UNLOADING SHUTTER DOOR - CLOSE (-431Y2)         
+	DE13102  : BOOL;   // UNLOADING CONVEYOR SHUTTER DOOR - OPEN (-431Y3) 
+	DE13103  : BOOL;   // UNLOADING CONVEYOR SHUTTER DOOR - CLOSE (-431Y4)
+	DE13104  : BOOL;   // RESERVED                                        
+	DE13105  : BOOL;   // RESERVED                                        
+	DE13106  : BOOL;   // RESERVED                                        
+	DE13107  : BOOL;   // RESERVED                                        
+	DE13108  : BOOL;   // RESERVED                                        
+	DE13109  : BOOL;   // RESERVED                                        
+	DE13110  : BOOL;   // RESERVED                                        
+	DE13111  : BOOL;   // RESERVED                                        
+	DE13112  : BOOL;   // RESERVED                                        
+	DE13113  : BOOL;   // RESERVED                                        
+	DE13114  : BOOL;   // RESERVED                                        
+	DE13115  : BOOL;   // RESERVED                                        
+
+//	bDeactivateMagneticSwitchDoorAlarm	: BOOL;
+//	bDeactivateSlidingWindowAlarm		: BOOL;	
+//	ARbDeactivateMissHookAlarm			: ARRAY [0..C_iMcArmHookQty] OF BOOL;
+//	ARbDeactivateArmCrashAlarm			: ARRAY [0..C_iMcArmHookQty] OF BOOL;
+	
+	
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

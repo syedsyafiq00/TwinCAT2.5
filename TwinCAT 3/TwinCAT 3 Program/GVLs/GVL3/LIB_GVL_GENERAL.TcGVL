@@ -1,0 +1,190 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="LIB_GVL_GENERAL" Id="{2003645f-961c-4533-a1b8-b8cfd0980464}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+
+
+
+// Clock Timer Counter
+	dsLocalSystemTimeML 						: DS_LocalSystemTime;	// Multi-Language Support
+	SysTime										: TIMESTRUCT;			// System Time (Structure)
+	sSysTime									: STRING(50);
+
+	bClockPulse_1Sec							: BOOL; // its a Pulse, so no need to add R_TRIG
+	bClockPulse_0_5Sec							: BOOL; // its a Pulse, so no need to add R_TRIG
+	bClockPulse_0_1Sec							: BOOL; // its a Pulse, so no need to add R_TRIG
+	bClockPulse_10ms							: BOOL; // its a Pulse, so no need to add R_TRIG
+	bClockBlink_1Sec							: BOOL; // 0.5Sec ON <-> 0.5Sec OFF
+	
+// HMI Related	
+//	bSavePB_Recipe								: BOOL;
+//	bSaveAndUpdateAllCheckBox					: BOOL;
+//	bLoadPB_Recipe								: BOOL; (* For PLC Used only *)
+//	bReloadPB_Recipe							: BOOL; 
+
+//	bSavePB_RecipeRE							: R_TRIG;
+//	bLoadPB_RecipeRE							: R_TRIG;	
+//	bReloadPB_RecipeRE							: R_TRIG;	
+	
+//	bSavePB_RecipeFE							: F_TRIG;	
+//	bLoadPB_RecipeFE							: F_TRIG;		
+//	bReloadPB_RecipeFE							: F_TRIG;		
+		
+	
+//	bSavePBInd_Recipe							: BOOL;
+//	bLoadPBInd_Recipe							: BOOL;
+//	bReloadPBInd_Recipe							: BOOL;	
+
+//	bHmiInitialisationFlag						: BOOL;
+//	bHmiInitialisationPulse						: BOOL;
+
+//	bHmi_ActiveUsernameChangedPulse				: BOOL;	
+
+
+//	XML Manually Import and Export - FB3_XmlSvrRW_Recipe
+(**)	bManualRecipe_ImportSt						: BOOL;
+(**)	bManualRecipe_ImportBusyFlag				: BOOL;
+(**)	bManualRecipe_ImportDoneFlag				: BOOL;
+(**)	bManualRecipe_ImportErrFlag					: BOOL;
+		udManualRecipe_ImportErrId					: UDINT;
+
+(**)	bManualRecipe_ExportSt						: BOOL;
+(**)	bManualRecipe_ExportBusyFlag				: BOOL;
+(**)	bManualRecipe_ExportDoneFlag				: BOOL;
+(**)	bManualRecipe_ExportErrFlag					: BOOL;
+		udManualRecipe_ExportErrId					: UDINT;
+
+		eManualRecipe_SelectedVariableType			: E_XMLVariableType; (* refer to E_XMLVariableType *)
+		sManualRecipe_DefaultFilePath				: STRING := 'C:\SW\XML management\Recipe Handling';
+		sManualRecipe_FileExtension					: STRING := 'XML';
+(**)	sManualRecipe_sErrorMessage					: STRING;
+(**)	iManualRecipe_TotalTimePv_100ms				: INT;
+(**)	iManualRecipe_ExportedImportedQty			: INT;
+(**)	iManualRecipe_ProgressPercentage			: INT;	
+
+(**)	eManualRecipe_ImportExportMode				: E_XmlRWMode; (* refer to E_XmlRwMode :
+
+														eXmlMode_MergeAllByType 					:= 1,			// SSER -> One XML, SSUR -> One XML, Product Recipe -> One XML and so on
+														eXmlMode_SeperateByProductAndStation		:= 2,			// SSER will seperate by Station with Multiple file, same goes to the rest of the Recipe
+														eXmlMode_SeperateAll					 	:= 3			// Seperate each of the recipe individually *)
+
+
+	
+	eHmiLanguage								: E_HmiLanguage;
+
+	sHmiActiveUsername							: STRING(30):= 'TF2000 HMI User'; 	// Active username that login in HMI currently
+	sHmiActiveUsergroup							: STRING(30);
+	iHmiCurrentUserIDs							: INT := 1; 						// Standby for HMI Current User used
+	ARsHmiUsernameList 							: ARRAY [0..50] OF STRING;			// HMI User Management Namelist push out from HMI
+	ARsHmiUsergroupList 						: ARRAY [0..10] OF STRING;			// HMI User Management Namelist push out from HMI
+	
+	
+	bEventRstPB									: BOOL; // Used in program, HMI and any places. This variable need to Mapped with Physical Input via FunctionBlock (FB3_EventModule)
+	bBuzzerRstPB								: BOOL; // Used in program, HMI and any places. This variable need to Mapped with Physical Input via FunctionBlock (FB3_EventModule)
+	bAcknowledgePB								: BOOL; // Used in program, HMI and any places. This variable need to Mapped with Physical Input via FunctionBlock (FB3_EventModule)
+	
+
+
+// Machine
+
+
+	bShutdownRequestFlag						: BOOL;
+	bManualRecipe_ReadyToShutdownFlag			: BOOL; // 
+	bCSVWrite_ReadyToShutdownFlag				: BOOL; // 
+	
+	
+// Boot Up Shut Down
+	bMainCtrl									: BOOL;	
+	bReadXmlEn									: BOOL;
+	bReadXmlComplete							: BOOL;
+	bMachineShutdown							: BOOL;
+	bShutdownPopupPage							: BOOL;
+	bRecipeShutdownRequestFlag					: BOOL;
+	bCsvShutdownRequestFlag						: BOOL;
+	bWriteXmlEn									: BOOL;
+	bWrite_Done									: BOOL;
+	bRead_Done									: BOOL;
+	
+	
+// CSV Report Log
+		
+	dsCsvReport									: DS_CsvReport; // Please consider to change the naming of DS and declaration on upcoming project
+	fbBkMemRingBuffer							: FB_MemRingBuffer;
+	fbCsvHandler	 							: FB3_CsvHandler;
+	sCsvFilePath								: STRING := 'C:\\report_csv\';
+	udiCsvMRBCount								: UDINT;	// The number of data set stored in MRB (MemoryRingBuffer)
+	udiCsvMRBUsagePercent 						: UDINT;	// Current Usage % in MRB (MemoryRingBuffer)
+	ARdsCsvErrorLog								: ARRAY [1..C_iCsvErrorLogQty] OF DS_CsvErrorLog;
+	dsCsvErrorLog_Empty							: DS_CsvErrorLog;
+
+// CSV Event Log
+
+	sCsvFilePath_EventLog						: STRING := 'C:\SW\EventLog\';
+
+	
+	
+END_VAR
+	
+VAR_GLOBAL PERSISTENT
+// Station, Loading, Unloading
+
+//	ARiLdModulePickStnID						: ARRAY [0..C_iLdModuleQty] OF INT;  //XML_AutoRO_ManualRW  	// To "Name" the Loading Station with a Number, usually we will label the 1st Module Loading Conveyor with 79 (7=Loading, 9= the 9th Zone (or we all it max) of the conveyor end zone. 
+//	ARiUldModuleUnloadStnID						: ARRAY [0..C_iUldModuleQty] OF INT; //XML_AutoRO_ManualRW		// To "Name" the Unlaoding Station with a Number, usually we will label the 1st Module of Unloading Conveyor with 81 (8=Unloading, 1=The 1st Zone of the unloading Conveyor.
+	
+// XML Multiple GVL Backup Version
+
+	AR2sXMLMultipleGVLVerDate 				: ARRAY [1..C_iXMLSrvMultiGVLQty] OF ARRAY [1..C_iXMLMultipleGVLVerQty] OF STRING;
+
+(***** CHECK ******
+
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  UPS - Internal Used xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	bGetUpsStatusEn						: BOOL := TRUE;
+	bGetUpsStatusValid					: BOOL;
+	bGetUpsStatusError					: BOOL;
+	udiGetUpsStatusErrID					: UDINT;
+	UpsStatus							: ST_UPSStatus;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  UPS - External Used xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+	(* --- Alarm --- *)
+	bDCPowerUnknownStatusAlarm			: BOOL;
+	bBatteryUnknownStatusAlarm			: BOOL;
+	bUpsCommUnknownStatusAlarm		: BOOL;
+	bBatteryReplacementRequestAlarm		: BOOL;
+	bUpsCommErrorAlarm					: BOOL;
+	(* --- Status --- *)
+	bDCPowerModeActivated				: BOOL;
+	bBatteryModeActivated				: BOOL;
+	bUpsCommOkFlag					: BOOL;
+
+	timeNow: TIMESTRUCT;
+
+*)
+	
+(*
+	// Arm
+	C_iArmModuleQty 				: INT := 1; 								(* Total quantity of Single Arm + Multiple Arm Module - ex: 1x Multiple Arm (with 5 Vertical Axis) + 2x Single Arm = 3 Modules = Value: 3 *)
+	C_ARiArmModuleVertAxisQty		: ARRAY [1..C_iArmModuleQty]OF INT := [1];	(* Total quantity of Veritical Axis per Arm Module *)
+	C_ARMcArmHookQty				: INT := 1;									(* Total quantity of Hook per Machine, ex: 2x Arm Module, 1st Module with 1x Hook, 2nd Module is Multiple arm with 7x Hook, so thev value is add together = value: 8 *)
+
+	// Station , Loading, Unloading	
+	C_iProcessStnQty 						: INT := 6;		(* To change the Qty of Array*)
+	C_iLdModuleQty					: INT := 1;		(* To Define Loading Group Set - How many module of Loading Conveyor*)
+	C_iUldModuleQty					: INT := 1;		(* To Define Unloading Group Set - How many module of Unloading Conveyor*)
+		
+	C_ARiCvLdModuleZoneQty			: ARRAY [1..C_iLdStnQty] OF INT := [3];		(* Number of Zone on each of the Loading Conveyor Module (Module seperated by Array) *)
+	C_ARiCvUldModuleZoneQty			: ARRAY [1..C_iUldStnQty] OF INT := [3];	(* Number of Zone on each of the Unloading Conveyor Module (Module seperated by Array) *)
+
+	C_iTotalCvLdZoneQty				: INT := 3;		(* Number of Zone on each of the Loading Conveyor Module*)
+	C_iTotalCvUldZoneQty			: INT := 3;		(* Number of Zone (Or Max Number of Zone) on each of the Unloading Conveyor Module*)
+	*)
+
+	
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

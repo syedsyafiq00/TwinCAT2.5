@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbHMIAddMappingArrayBool" Id="{12bbb9a9-f6c6-4e77-89cb-216bc15ec3a4}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbHMIAddMappingArrayBool
+
+
+VAR_INPUT
+	bEN : BOOL;
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+	ARbBoolAddress_Pro 					: ARRAY [0..iAddMapArrayBool] OF BOOL;
+	ARbBoolAddress_Hmi 				: ARRAY [0..iAddMapArrayBool] OF BOOL;
+END_VAR
+
+
+VAR_OUTPUT
+END_VAR
+
+
+VAR
+	ARBufferbBoolAddress_Pro 				:  ARRAY [1..iAddMapArrayBool] OF BOOL;
+	ARBufferbBoolAddress_Hmi 				:  ARRAY [1..iAddMapArrayBool] OF BOOL;
+
+	ARUpdate_bBoolAddress_Pro 				:  ARRAY [1..iAddMapArrayBool] OF BOOL;
+	ARUpdate_bBoolAddress_Hmi 				:  ARRAY [1..iAddMapArrayBool] OF BOOL;
+
+	iInitialFL: INT;
+	iProgramFL: INT;
+	bENRE : R_TRIG;
+
+
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Initialized*)
+bENRE(CLK:=bEN , Q=> );
+IF bENRE.Q THEN
+			(*Bool*)
+iInitialFL := 1;
+
+	FOR iInitialFL := 1 TO iAddMapArrayBool DO
+			ARBufferbBoolAddress_Pro[iInitialFL] := ARbBoolAddress_Pro[iInitialFL];
+			ARBufferbBoolAddress_Hmi[iInitialFL] := ARbBoolAddress_Pro[iInitialFL];
+			ARbBoolAddress_Hmi[iInitialFL] := ARbBoolAddress_Pro[iInitialFL];
+	END_FOR
+
+END_IF
+
+(*Program*)
+
+			(**********PRO Side Value Change**********)
+
+iProgramFL:= 1;
+
+	FOR iProgramFL := 1 TO iAddMapArrayBool DO
+
+		ARUpdate_bBoolAddress_Pro[iProgramFL] := FALSE;
+
+			IF ARBufferbBoolAddress_Pro[iProgramFL] <> ARbBoolAddress_Pro[iProgramFL] THEN
+				ARUpdate_bBoolAddress_Pro[iProgramFL] := TRUE;
+			END_IF
+		
+			IF ARUpdate_bBoolAddress_Pro[iProgramFL] THEN
+				ARBufferbBoolAddress_Pro[iProgramFL] := ARbBoolAddress_Pro[iProgramFL];
+				ARBufferbBoolAddress_Hmi[iProgramFL] := ARbBoolAddress_Pro[iProgramFL];
+				ARbBoolAddress_Hmi[iProgramFL] := ARbBoolAddress_Pro[iProgramFL];
+			END_IF
+		
+
+
+					(**********HMI Side Value Change**********)
+		
+		ARUpdate_bBoolAddress_Hmi[iProgramFL] := FALSE;
+		
+			IF ARBufferbBoolAddress_Hmi[iProgramFL] <> ARbBoolAddress_Hmi[iProgramFL] THEN
+				ARUpdate_bBoolAddress_Hmi[iProgramFL] := TRUE;
+			END_IF
+		
+			IF ARUpdate_bBoolAddress_Hmi[iProgramFL] THEN
+				ARBufferbBoolAddress_Pro[iProgramFL] := ARbBoolAddress_Hmi[iProgramFL];
+				ARBufferbBoolAddress_Hmi[iProgramFL] := ARbBoolAddress_Hmi[iProgramFL];
+				ARbBoolAddress_Pro[iProgramFL] := ARbBoolAddress_Hmi[iProgramFL];
+			END_IF
+
+	END_FOR
+(*
+(*Bool 001*)
+IF NOT ARUpdate_bBoolAddress_Hmi THEN ARbBoolAddress_Pro := Pro_bBool_001; ELSE Pro_bBool_001 := ARbBoolAddress_Pro; END_IF
+IF NOT ARUpdate_bBoolAddress_Pro THEN ARbBoolAddress_Hmi := Hmi_bBool_001; ELSE Hmi_bBool_001 := ARbBoolAddress_Hmi; END_IF
+*)]]></ST>
+    </Implementation>
+    <LineIds Name="fbHMIAddMappingArrayBool">
+      <LineId Id="32" Count="55" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,263 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbA31_ArmSpeedProfileMemory" Id="{0482576f-d055-4085-aeec-6f9bafeac7f0}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbA31_ArmSpeedProfileMemory
+
+VAR_INPUT
+	bSavePB : BOOL;
+	bLoadPB : BOOL;
+	bCopyPB : BOOL;
+	iCopyToSpdProfileNo : INT;
+	iVertMaxVelo : INT;
+	iVertMaxAcc : INT;
+	iVertMaxDcc : INT;
+	iVertMinVelo : INT;
+	iVertMinAcc : INT;
+	iVertMinDcc : INT;
+END_VAR
+
+
+VAR_IN_OUT PERSISTENT
+
+	iArmSpdProfileNo: INT; (* 10 sets of Station Sequence Recipe *)
+	DSArmSpeedProfile : DSA31_ArmSpeedProfileMemory;
+
+	Call_iArmSpdProfile : INT;
+	bCallPB: BOOL;
+
+END_VAR
+VAR_OUTPUT
+	bSaveInd: BOOL;
+	bLoadInd: BOOL;
+	bCallCompleted : BOOL;
+	bInvalidCallArmSpdProfileNoHold: BOOL;
+	bInvalidCallArmSpdProfileNoPulse: BOOL;
+	Call_DSArmSpeedProfile : DSA31_ArmSpeedProfileMemory;
+
+END_VAR
+VAR
+	SaveIndHr: BOOL;
+	LoadIndHr: BOOL;
+
+	SaveTimerDelay: TON;
+	LoadTimerDelay: TON;
+	SelfCheckTimer: TON;
+	bLoadEn: BOOL;
+	SelfCheckloopArmSpdProfileRecipe: BOOL;
+	PreviousArmSpdProfileRecipe: INT;
+
+	LoadDF : R_TRIG;
+	LoadENDF : R_TRIG;
+
+	SaveDF: R_TRIG;
+	CallIntervalTimer: TON;
+	CallIntervalDIFU: R_TRIG;
+
+	bCallCompletedHR: BOOL;
+	bCallCompletedHRRE: R_TRIG;
+	CallCompletedTimer: TON;
+	CallSelfCheckTimer : TON;
+	CallSelfCheckloop : BOOL;
+
+	CallSelfCheckRE: R_TRIG;
+	CallStep: INT;
+	CallSelfCheckHR: BOOL;
+	bCallPBRE: R_TRIG;
+
+	LoadFL: INT;
+	SaveFL: INT;
+	PreviousArmSpdProfileCallNo: INT;
+	CallSFL: INT;
+	febInvalidCallArmSpdProfileNo: F_TRIG;
+
+
+
+	rebInvalidCallArmSpdProfileNo: R_TRIG;
+	tInvalidCallArmSpdProfileNoPulseTimer: TON;
+	CopyDF: R_TRIG;
+	iMaxMinFL: INT;
+END_VAR
+
+VAR PERSISTENT
+
+	ARDsArmSpeedProfileMemory : ARRAY [1..iArmSpeedProfileArrayQty] OF DSA31_ArmSpeedProfileMemory;
+	ARsStorageArmSpeedProfileDescription: ARRAY [0..iArmSpeedProfileArrayQty] OF STRING(50);
+
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF iArmSpdProfileNo < 1 THEN
+iArmSpdProfileNo := 1;
+END_IF
+
+IF iArmSpdProfileNo > iArmSpeedProfileArrayQty THEN
+iArmSpdProfileNo := iArmSpeedProfileArrayQty;
+END_IF
+
+
+
+(*Min / Max Control*)
+			IF DSArmSpeedProfile.lrSpeedVelo < iVertMinVelo THEN
+			DSArmSpeedProfile.lrSpeedVelo:= iVertMinVelo;
+			ELSIF DSArmSpeedProfile.lrSpeedVelo > iVertMaxVelo THEN
+			DSArmSpeedProfile.lrSpeedVelo:= iVertMaxVelo;
+			END_IF
+
+			IF DSArmSpeedProfile.lrAcc < iVertMinAcc THEN
+			DSArmSpeedProfile.lrAcc:= iVertMinAcc;
+			ELSIF DSArmSpeedProfile.lrAcc > iVertMaxAcc THEN
+			DSArmSpeedProfile.lrAcc:= iVertMaxAcc;
+			END_IF
+
+			IF DSArmSpeedProfile.lrDcc < iVertMinDcc THEN
+			DSArmSpeedProfile.lrDcc:= iVertMinDcc;
+			ELSIF DSArmSpeedProfile.lrDcc > iVertMaxDcc THEN
+			DSArmSpeedProfile.lrDcc:= iVertMaxDcc;
+			END_IF
+
+
+
+(*Load and Save Indicator*)
+IF bSavePB THEN
+SaveIndHr := TRUE;
+END_IF
+
+SaveTimerDelay(IN:=SaveIndHr, PT := T#1s, Q=>, ET=>);
+IF SaveTimerDelay.Q THEN
+SaveIndHr := FALSE;
+END_IF
+
+IF SaveIndHr AND NOT SaveTimerDelay.Q THEN
+bSaveInd := TRUE;
+ELSE
+bSaveInd := FALSE;
+END_IF
+
+IF bLoadPB THEN
+LoadIndHr := TRUE;
+END_IF
+
+LoadTimerDelay(IN:=LoadIndHr, PT := T#1s, Q=>, ET=>);
+IF loadtimerdelay.Q THEN
+LoadIndHr := FALSE;
+END_IF
+
+IF loadIndHr AND NOT LoadTimerDelay.Q THEN
+bLoadInd := TRUE;
+ELSE
+bLoadInd := FALSE;
+END_IF
+
+IF iArmSpdProfileNo <> PreviousArmSpdProfileRecipe THEN
+bLoadEn := TRUE;
+ELSE
+bLoadEn := FALSE;
+END_IF
+
+
+(* Load Recipe *)
+
+LoadDF(CLK:=bLoadPB,Q=>);
+LoadENDF(CLK:=bLoadEn,Q=>);
+
+IF LoadDF.Q OR LoadENDF.Q THEN
+
+DSArmSpeedProfile := ARDsArmSpeedProfileMemory[iArmSpdProfileNo];
+PreviousArmSpdProfileRecipe := iArmSpdProfileNo  ;
+
+END_IF
+
+
+(* Save Recipe *)
+
+SaveDF(CLK:=bSavePB,Q=>);
+
+IF SaveDF.Q THEN
+
+ARDsArmSpeedProfileMemory[iArmSpdProfileNo] := DSArmSpeedProfile;
+ARsStorageArmSpeedProfileDescription[iArmSpdProfileNo] := DSArmSpeedProfile.sDescription;
+
+END_IF
+
+
+(*Copy Recipe*)
+
+CopyDF(CLK:=bCopyPB,Q=>);
+
+IF CopyDF.Q THEN
+
+ARDsArmSpeedProfileMemory[iCopyToSpdProfileNo] := ARDsArmSpeedProfileMemory[iArmSpdProfileNo];
+ARsStorageArmSpeedProfileDescription[iCopyToSpdProfileNo] := ARDsArmSpeedProfileMemory[iArmSpdProfileNo].sDescription;
+
+END_IF
+
+
+
+
+
+(* Call Recipe *)
+(* ---- Call Recipe Complete Flag ---*)
+
+
+IF NOT bCallPB THEN
+bCallCompleted := FALSE;
+END_IF
+
+bCallPBRE(CLK:=bCallPB , Q=> );
+
+IF (Call_iArmSpdProfile <= 0 OR Call_iArmSpdProfile > iArmSpeedProfileArrayQty) AND bCallPB THEN
+bInvalidCallArmSpdProfileNoHold := TRUE;
+ELSE
+bInvalidCallArmSpdProfileNoHold := FALSE;
+END_IF
+
+
+febInvalidCallArmSpdProfileNo(CLK:= bCallPB AND bInvalidCallArmSpdProfileNoHold  , Q=> );
+
+IF febInvalidCallArmSpdProfileNo.Q THEN
+bInvalidCallArmSpdProfileNoPulse := TRUE;
+END_IF
+
+tInvalidCallArmSpdProfileNoPulseTimer(IN:=bInvalidCallArmSpdProfileNoPulse , PT:=t#0.5s , Q=> , ET=> );
+
+IF tInvalidCallArmSpdProfileNoPulseTimer.Q OR NOT bCallPB THEN
+bInvalidCallArmSpdProfileNoPulse := FALSE;
+END_IF
+
+IF bCallPBRE.Q AND NOT bInvalidCallArmSpdProfileNoHold THEN
+bCallCompleted := FALSE;
+CallStep:= 1;
+END_IF
+
+
+CASE CallStep OF
+
+1:
+
+Call_DSArmSpeedProfile := ARDsArmSpeedProfileMemory[Call_iArmSpdProfile];
+
+CallStep := 11;
+
+
+10:
+bCallCompleted := TRUE;
+CallSelfCheckHR := FALSE;
+PreviousArmSpdProfileCallNo := Call_iArmSpdProfile;
+CallStep := 99;
+
+11:
+
+bCallCompleted := TRUE;
+CallStep := 99;
+
+
+
+99:
+;
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="fbA31_ArmSpeedProfileMemory">
+      <LineId Id="84" Count="168" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

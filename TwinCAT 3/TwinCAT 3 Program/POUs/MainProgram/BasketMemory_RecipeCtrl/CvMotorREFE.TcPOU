@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="CvMotorREFE" Id="{cee8e95c-395d-439a-8855-9b6db4be8a97}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM CvMotorREFE
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[;
+(*Loading Conveyor Motor REFE*)
+
+LdMotor1RE(CLK:= ARbDO[eY10301_LoadingConveyor01On_Off] AND ARbDO[eY10302_LoadingConveyor02On_Off] , Q=> );
+LdMotor2RE(CLK:= ARbDO[eY10302_LoadingConveyor02On_Off] AND ARbDO[eY10303_LoadingConveyor03On_Off] , Q=> );
+LdMotor3RE(CLK:= ARbDO[eY10303_LoadingConveyor03On_Off] AND ARbDO[eY10304_LoadingConveyor04On_Off], Q=> );
+LdMotor4RE(CLK:= ARbDO[eY10304_LoadingConveyor04On_Off]  , Q=> );
+(*LdMotor5RE(CLK:= Y102_01 , Q=> );*)
+
+LdMotor1FE(CLK:= ARbDO[eY10301_LoadingConveyor01On_Off] AND ARbDO[eY10302_LoadingConveyor02On_Off], Q=> );
+LdMotor2FE(CLK:= ARbDO[eY10302_LoadingConveyor02On_Off] AND ARbDO[eY10303_LoadingConveyor03On_Off], Q=> );
+LdMotor3FE(CLK:= ARbDO[eY10303_LoadingConveyor03On_Off] AND ARbDO[eY10304_LoadingConveyor04On_Off] , Q=> );
+LdMotor4FE(CLK:= ARbDO[eY10304_LoadingConveyor04On_Off], Q=> );
+(*LdMotor5FE(CLK:= Y102_01 , Q=> );
+*)
+
+(*Unloading Conveyor Motor REFE*)
+
+UldMotor1RE(CLK:=ARbDO[eY10305_UnloadingConveyor01On_Off] AND ARbDO[eY10306_UnloadingConveyor02On_Off], Q=> );
+UldMotor2RE(CLK:=ARbDO[eY10306_UnloadingConveyor02On_Off] AND ARbDO[eY10307_UnloadingConveyor03On_Off], Q=> );
+UldMotor3RE(CLK:=ARbDO[eY10307_UnloadingConveyor03On_Off] AND ARbDO[eY10308_UnloadingConveyor04On_Off], Q=> );
+UldMotor4RE(CLK:=ARbDO[eY10308_UnloadingConveyor04On_Off], Q=> );
+(*UldMotor5RE(CLK:= Y102_06, Q=> );
+*)
+UldMotor1FE(CLK:= ARbDO[eY10305_UnloadingConveyor01On_Off] AND ARbDO[eY10306_UnloadingConveyor02On_Off] , Q=> );
+UldMotor2FE(CLK:= ARbDO[eY10306_UnloadingConveyor02On_Off] AND ARbDO[eY10307_UnloadingConveyor03On_Off], Q=> );
+UldMotor3FE(CLK:= ARbDO[eY10307_UnloadingConveyor03On_Off] AND ARbDO[eY10308_UnloadingConveyor04On_Off], Q=> );
+UldMotor4FE(CLK:= ARbDO[eY10308_UnloadingConveyor04On_Off], Q=> );
+
+(*UldMotor5FE(CLK:= Y102_06, Q=> );
+
+X155_00; (*FEED*)
+X155_01; (*INDEX 1*) Y102_03; Y102_04;
+X155_02; (*INDEX 2*) Y102_04; Y102_05;
+X155_03; (*INDEX 3*) Y102_05; Y102_06;
+X155_04; (*PICK*)
+
+IF (Y101_13 OR Y101_14 OR Y101_15 OR Y102_00 OR Y102_01) THEN
+bLoadingConveyorBusyFlag := TRUE;
+ELSE
+bLoadingConveyorBusyFlag := FALSE;
+END_IF
+
+
+IF (Y102_02 OR Y102_03 OR Y102_04 OR Y102_05 OR Y102_06) THEN
+bUnloadingConveyorBusyFlag := TRUE;
+ELSE
+bUnloadingConveyorBusyFlag := FALSE;
+END_IF
+*)
+]]></ST>
+    </Implementation>
+    <LineIds Name="CvMotorREFE">
+      <LineId Id="3" Count="4" />
+      <LineId Id="9" Count="5" />
+      <LineId Id="16" Count="8" />
+      <LineId Id="26" Count="5" />
+      <LineId Id="33" Count="1" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="35" Count="21" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_WeberGenerator" Id="{a6e996a7-fc96-420e-9e68-185d556df8a8}">
+    <Declaration><![CDATA[TYPE DS_WeberGenerator :
+STRUCT
+	IN_bUltrasonicStartEn : BOOL;
+	IN_bMultiFreqEn :  BOOL;
+	IN_iFreqSetPoint :  INT; (* 40/80/120 or 25/50*)
+	IN_iTargetPowerPercentSetPoint :  INT; (* 0-100%*)
+	IN_lrPowerToAnalogRatio : LREAL; (*Normally for 0-100% is 327.67*)
+	IN_lrAnalogInputFineTuneRatio :  LREAL; (*Normally 1, use lower than 1 (example: 0.97) if set to 100% the actual output is greater, use higher than 1 meant the actual output is lesser when you set 100% *)
+	IN_lrAnalogOutputFineTuneRatio :  LREAL; (*Normally 1, use lower than 1 (example: 0.97) if set to 100% the actual output is greater, use higher than 1 meant the actual output is lesser when you set 100% *)
+
+	DSWeberMulFreqSwitching : DS_WeberMulFreqSwitching;
+
+	OUT_bUltrasonicOnOff :  BOOL;
+	OUT_iActualPowerPercentDisplay :  INT; (*Display 0 - 100%*)
+	OUT_bFreqSetPointError :  BOOL;
+
+	IN_iPowerAnalogInput  :  INT; (*Link to Terminal*)
+	OUT_iPowerAnalogOutput  :  INT; (*Link to Terminal*)
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

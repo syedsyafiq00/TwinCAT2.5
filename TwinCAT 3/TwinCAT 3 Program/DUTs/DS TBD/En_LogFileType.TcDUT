@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="En_LogFileType" Id="{f641eb1e-d147-455f-a42e-3b2bee58bfd1}">
+    <Declaration><![CDATA[TYPE En_LogFileType :
+(
+	CSV:=1,
+	TXT:=2
+);
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

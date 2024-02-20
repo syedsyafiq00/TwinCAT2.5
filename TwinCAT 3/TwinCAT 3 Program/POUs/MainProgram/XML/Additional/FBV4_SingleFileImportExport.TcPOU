@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FBV4_SingleFileImportExport" Id="{b6344fb9-b8d2-46ae-a293-3074e7c7d126}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FBV4_SingleFileImportExport
+VAR_INPUT
+	bWritePb 		: BOOL;
+	bReadPb			: BOOL;
+	pSymAddr		: PVOID;
+	cbSymSize		: UDINT;
+	sWriteFilePath	: T_MaxString;
+	sReadFilePath	: T_MaxString; 
+	sXPath			: T_MaxString;  
+	bShutdownRequestFlag 	: BOOL;
+END_VAR
+VAR_OUTPUT
+	sStatus			: STRING(30);
+	bReadyToShutdownFlag 	: BOOL;
+END_VAR
+VAR
+	writeRE			: R_TRIG;
+	readRE			: R_TRIG;
+	bWriteAllSt	 	: BOOL;
+	bWriteStHold 	: BOOL;	
+	bReadAllSt		: BOOL;
+	bReadStHold 	: BOOL;
+	bFileDeleteSt 	: BOOL;
+	fbXmlSrvWriteToXML 	: FB_XmlSrvWrite;
+	fbXmlSrvReadFromXML	: FB_XmlSrvRead;
+	fbFileDelete		: FB_FileDelete;	
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Read & write control
+writeRE(CLK:= bWritePb AND NOT bShutdownRequestFlag, Q=> bWriteAllSt);
+readRE(CLK:= bReadPb AND NOT bShutdownRequestFlag, Q=> bReadAllSt);
+
+// Shutdown request control
+bReadyToShutdownFlag := NOT fbXmlSrvWriteToXML.bBusy AND NOT fbXmlSrvReadFromXML.bBusy AND NOT fbFileDelete.bBusy AND bShutdownRequestFlag;
+	
+	fbXmlSrvWriteToXML(
+		nMode					:= XMLSRV_ADDMISSING, 
+		pSymAddr				:= pSymAddr,
+		cbSymSize				:= cbSymSize, 
+		sFilePath				:= sWriteFilePath, 
+		sXPath					:= sXPath, 
+		bExecute				:= bWriteAllSt 
+	);
+			
+	fbXmlSrvReadFromXML(
+	  pSymAddr					:= pSymAddr,
+	  cbSymSize					:= cbSymSize, 
+	  sFilePath					:= sReadFilePath,
+	  sXPath					:= sXPath,
+	  bExecute					:= bReadAllSt 
+	);
+	
+	fbFileDelete(
+		sNetId			:= '', 
+		sPathName		:= sReadFilePath, 
+		ePath			:= PATH_GENERIC, 
+		bExecute		:= bFileDeleteSt, 
+		tTimeout		:= T#2S, 
+	);		
+	
+	IF bFileDeleteSt AND NOT fbFileDelete.bBusy THEN
+		bFileDeleteSt := FALSE;	
+	END_IF
+
+	IF bReadAllSt THEN
+		bReadStHold := TRUE;
+	END_IF
+	
+	IF bReadStHold AND NOT fbXmlSrvReadFromXML.bBusy THEN
+		bFileDeleteSt := TRUE;
+		bReadStHold := FALSE;
+		
+		IF fbXmlSrvReadFromXML.bError THEN
+			sStatus := 'Import Error';
+		ELSE
+			sStatus := 'Import Completed';
+		END_IF
+	END_IF	
+
+	IF bWriteAllSt THEN
+		bWriteStHold := TRUE;
+	END_IF
+	
+	IF bWriteStHold AND NOT fbXmlSrvWriteToXML.bBusy THEN
+		bWriteStHold := FALSE;
+		
+		IF fbXmlSrvWriteToXML.bError THEN
+			sStatus := 'Export Error';
+		ELSE
+			sStatus := 'Export Completed';
+		END_IF
+	END_IF	
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="FBV4_SingleFileImportExport">
+      <LineId Id="3" Count="64" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

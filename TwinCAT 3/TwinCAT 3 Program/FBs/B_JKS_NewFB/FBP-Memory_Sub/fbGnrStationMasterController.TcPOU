@@ -1,0 +1,418 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbGnrStationMasterController" Id="{3a036baf-1748-400d-8591-fb3d0b9acdc8}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbGnrStationMasterController
+
+VAR_INPUT
+	bTrackerEN								: BOOL;
+	bTrackerBasedOnPreviousTime			: BOOL;
+	iCurrentStationAddress 					: INT;															(* Input - Define current station no so that this fb know which array number to used*)
+	iPreCallArmTime							: INT;															(* Input - Pre-Call Arm Time, Program will call arm if the Total process timeEV Equal or Lesser than this value*)
+	iTotalProcessTimeSV						:INT;
+	iCurrentStnSeqProcessTotalTime 		: INT;															(* Input - Link with fbStnSeqProcess, to collect CurrentProcessTotalTime*)
+	iPreviousStnSeqProcessTotalTime 		: INT; 															(* Input - Link with fbStnSeqProcess,  to collect PreviousProcessTotalTime*)
+	bStnSeqProcessInProgressFlag			: BOOL;														(* Input - Link with fbStnSeqProcess,  to collect the status of process in progress from StnSeqProcessfb*)
+	bStnSeqProcessCompleted 				: BOOL;														(* Input - Link with fbStnSeqProcess,  to collect the status of process completion from StnSeqProcessfb*)
+	ARbAlternateStnEn : ARRAY [1..iAlternateSetQty] OF BOOL;
+	AR2siAlternateStn : ARRAY [1..iAlternateSetQty, 1..iAlternateStnQty] OF INT;
+(*	DSStnSeqProOutput 				:DS_StnSeqProOutput;								(* Output - To Control Output - When process running, instrument should control by the output in this Data structure*)
+*)
+
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+	bStnSeqProcessSt						: BOOL;														(* Output - Link with fbStnSeqProcess, After Read out from fbGnrProductRecipeMemory, this fb will trigger this Bool to start the StnSeqProcess*)
+
+	ARbProductRecipeCallEn 				: ARRAY [0..iStnQty] OF BOOL;					(* Output - Link with fbGnrProductRecipeMemory, Array based on Current Station No, the fbGnrProductRecipeMemory will start Read info from Memory when this bool turn on*)
+	ARiProductRecipeNoCall 				: ARRAY [0..iStnQty] OF INT;						(* Output - Link with fbGnrProductRecipeMemory, Array based on Current Station No, the read out from fbGnrProductRecipeMemory is based on this Product Recipe No*)
+	ARiProductRecipeStepCall 				: ARRAY [0..iStnQty] OF INT;						(* Output - Link with fbGnrProductRecipeMemory, Array based on Current Station No, the read out from fbGnrProductRecipeMemory is based on this Product Recipe Step No*)
+	DSfbGnrProductRecipeMemoryOut 		: DS_fbGnrProductRecipeMemoryOut;						(* Input - Link with fbGnrProductRecipeMemory, all the read out info from fbGnrProductRecipeMemory will store in this DataStucture*)
+
+	ARbArmReady							: ARRAY [1..iArmQty] OF BOOL;								(* Input - From ArmPnpFB, This signal is used to confirm if the arm is ready and idling*)
+	ARiStnNoToCalledArm					: ARRAY [0..iArmQty] OF INT; 									(* Output - Link with fbArmPnP, Array based on Arm No, The Int will store which Station that calling the Arm*)
+	ARDSGnrFeedArmPnpParameter		: ARRAY [0..iArmQty] OF DSGnr_CalledArmPnpParameter; 	(* Output - Link with fbArmPnP, Array based on Current Station No, Arm should move based on this DataStructure Info*)
+
+	DSLdBasketInfo		 				: DS_BasketInfo;									(*Input - Loading CONFIRM Basket Info*)
+	DSUldBasketInfo		 				: DS_BasketInfo;									(*Input - Uloading CONFIRM Basket Info*)
+	ARDsStnBasketInfo					: ARRAY [1..iStnQty] OF DS_BasketInfo;				(*Input - Station Basket Info*)
+
+
+END_VAR
+
+VAR_OUTPUT PERSISTENT
+
+	DSGnrBufferCalledArmPnpParameter 	: DSGnr_CalledArmPnpParameter;							(* Internal used, Buffer Data Structure read out from fbGnrProductRecipeMemory*)
+	DSGnrBuffersPnpSequenceDescription	: STRING (99);													(* Internal used, Buffer Description read out from fbGnrProductRecipeMemory*)
+	ARiPreviousStnSeqTotalProcessTime 	: ARRAY [0..iProductRecipeArrayQty] OF INT;				(* Internal used, Previous Total Process Time will save into this Array, Array based on StationSequenceNo*)
+	iCallStep									: INT;															(* Internal used, to monitor the current Step so that you can indentify the error of this function block if stucked*)
+
+END_VAR
+VAR PERSISTENT
+	bBasketDetectedRE						: R_TRIG;
+	iCallCheck								: INT;
+	bArmPnpSequenceCallEn				: BOOL;
+	bStnSeqProcessCompletedRE			: R_TRIG;
+	iCallArmCountDownTime				: INT;
+	bCallArmEnInt								: BOOL;
+
+
+END_VAR
+VAR
+	bBasketDetectedFE						: F_TRIG;
+	bCallProductRecipeStorageEn			: BOOL;
+	bTestCallArm								: BOOL;
+
+	DSCurrentStationBasketInfo: DS_BasketInfo;
+	DSEmptyBasketInfo: DS_BasketInfo;
+	bPickStationBasketAvailable: BOOL;
+	bTransferStationBasketAvailable: BOOL;
+	bTransferStationBasketNotAvailable: BOOL;
+	iCurrentStationAddressInt: INT;
+	iTrackerCallArmCountDownTime: INT;
+(*	bAlternateStnEnableFound: BOOL;*)
+(*	iCheckAlternateStnEnFL: INT;*)
+	bPickAltStnIDFound: BOOL;
+	iPickAlternateStnFindFL: INT;
+	iPickAlternateSetFindFL: INT;
+	iPickAltStnTransferFL : INT;
+	ARiBufferPickAltStn: ARRAY [1..iAlternateStnQty] OF INT;
+
+	bTransferAltStnIDFound: BOOL;
+	iTransferAlternateStnFindFL: INT;
+	iTransferAlternateSetFindFL: INT;
+	iTransferAltStnTransferFL : INT;
+	ARiBufferTransferAltStn: ARRAY [1..iAlternateStnQty] OF INT;
+
+	iCheckTrfStnBktFL: INT;
+	iTransferStnNo: INT;
+	iAltTransferStnNo: INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Check if Loading Stn Detected, Switch the CurrentStatonAddress to 0*)
+IF iLdStnID = iCurrentStationAddress THEN
+iCurrentStationAddressInt := 0;
+ELSE
+iCurrentStationAddressInt := iCurrentStationAddress;
+END_IF
+
+
+(*Check if Alternate Stn Matched with Current (Pick) Station*)
+bPickAltStnIDFound := FALSE;
+iPickAlternateSetFindFL := 1;
+	FOR iPickAlternateSetFindFL := 1 TO iAlternateSetQty DO
+		IF iPickAlternateSetFindFL >= 1 AND iPickAlternateSetFindFL <= iAlternateSetQty THEN
+			IF ARbAlternateStnEn[iPickAlternateSetFindFL] THEN
+			iPickAlternateStnFindFL := 1; (*Find Stn ID matching*)
+				FOR iPickAlternateStnFindFL := 1 TO iAlternateStnQty DO
+					IF iPickAlternateStnFindFL >= 1 AND iPickAlternateStnFindFL <= iAlternateStnQty THEN
+						IF iCurrentStationAddress = AR2SiAlternateStn[iPickAlternateSetFindFL , iPickAlternateStnFindFL] THEN
+							bPickAltStnIDFound := TRUE;
+							iPickAltStnTransferFL := 1;
+								FOR iPickAltStnTransferFL := 1 TO iAlternateStnQty DO
+									IF iPickAltStnTransferFL >= 1 AND iPickAltStnTransferFL <= iAlternateStnQty THEN
+										ARiBufferPickAltStn[iPickAltStnTransferFL] := AR2SiAlternateStn[iPickAlternateSetFindFL , iPickAltStnTransferFL];
+									END_IF
+								END_FOR
+							iPickAlternateSetFindFL := iAlternateSetQty+1;
+							iPickAlternateStnFindFL := iAlternateStnQty+1;
+							iPickAltStnTransferFL := iAlternateStnQty+1;
+
+						END_IF
+					END_IF
+				END_FOR
+			END_IF
+		END_IF
+	END_FOR
+
+(*Check if Alternate Stn Matched with Transfer Station*)
+
+bTransferAltStnIDFound := FALSE;
+IF iCallStep = 3 THEN
+iTransferAlternateSetFindFL := 1;
+	FOR iTransferAlternateSetFindFL := 1 TO iAlternateSetQty DO
+		IF iTransferAlternateSetFindFL >= 1 AND iTransferAlternateSetFindFL <= iAlternateSetQty THEN
+			IF ARbAlternateStnEn[iTransferAlternateSetFindFL] THEN
+			iTransferAlternateStnFindFL := 1; (*Find Stn ID matching*)
+				FOR iTransferAlternateStnFindFL := 1 TO iAlternateStnQty DO
+					IF iTransferAlternateStnFindFL >= 1 AND iTransferAlternateStnFindFL <= iAlternateStnQty THEN
+						IF DSGnrBufferCalledArmPnpParameter.iTransferStationNo = AR2SiAlternateStn[iTransferAlternateSetFindFL , iTransferAlternateStnFindFL] THEN
+							bTransferAltStnIDFound := TRUE;
+							iTransferAltStnTransferFL := 1;
+								FOR iTransferAltStnTransferFL := 1 TO iAlternateStnQty DO
+									IF iTransferAltStnTransferFL >= 1 AND iTransferAltStnTransferFL <= iAlternateStnQty THEN
+										ARiBufferTransferAltStn[iTransferAltStnTransferFL] := AR2SiAlternateStn[iTransferAlternateSetFindFL , iTransferAltStnTransferFL];
+									END_IF
+								END_FOR
+							iTransferAlternateSetFindFL := iAlternateSetQty+1;
+							iTransferAlternateStnFindFL := iAlternateStnQty+1;
+							iTransferAltStnTransferFL := iAlternateStnQty+1;
+
+						END_IF
+					END_IF
+				END_FOR
+			END_IF
+		END_IF
+	END_FOR
+END_IF
+(*Define Current Station Basket Info*)
+IF iCurrentStationAddress = iLdStnID THEN
+DSCurrentStationBasketInfo := DSLdBasketInfo;
+ELSIF iCurrentStationAddress = iUldStnID THEN
+DSCurrentStationBasketInfo := DSUldBasketInfo;
+ELSIF iCurrentStationAddress >= 1 AND iCurrentStationAddress <= iStnQty THEN
+DSCurrentStationBasketInfo := ARDsStnBasketInfo[iCurrentStationAddress];
+ELSE
+DSCurrentStationBasketInfo := DSEmptyBasketInfo;
+END_IF
+
+
+(* Check if no one called Data From DSfbGnrProductRecipeMemory *)
+iCallCheck := 1;
+FOR iCallCheck := 1 TO iStnQty DO
+		IF ARbProductRecipeCallEn[iCallCheck] THEN
+		bArmPnpSequenceCallEn := TRUE;
+		iCallCheck := 90;
+		END_IF
+END_FOR
+
+IF iCallCheck > iStnQty AND iCallCheck <= (iStnQty+2) THEN
+bArmPnpSequenceCallEn := FALSE;
+END_IF
+
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+(*Store Previous Total Process Time by Program No*)
+bStnSeqProcessCompletedRE(CLK:=bStnSeqProcessCompleted , Q=> );
+
+IF bStnSeqProcessCompletedRE.Q AND (*ARiPreviousStnSeqTotalProcessTime[*)DSCurrentStationBasketInfo.iStationSeqenceRecipeNo(*]*) > 0 AND (*ARiPreviousStnSeqTotalProcessTime[*)DSCurrentStationBasketInfo.iStationSeqenceRecipeNo(*]*) <= iProductRecipeArrayQty THEN
+ARiPreviousStnSeqTotalProcessTime[DSCurrentStationBasketInfo.iStationSeqenceRecipeNo] := iPreviousStnSeqProcessTotalTime ;
+END_IF
+
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+(*Call Arm Activation*)
+
+IF (*NOT DSStnSeqProOutput.b12SlowPull AND*) bStnSeqProcessInProgressFlag OR bStnSeqProcessCompleted THEN
+	iCallArmCountDownTime := ARiPreviousStnSeqTotalProcessTime[DSCurrentStationBasketInfo.iStationSeqenceRecipeNo] - iCurrentStnSeqProcessTotalTime;
+END_IF
+(*
+IF DSStnSeqProOutput.b12SlowPull AND bStnSeqProcessInProgressFlag OR bStnSeqProcessCompleted THEN
+	iCallArmCountDownTime := iTotalProcessTimeSV - iCurrentStnSeqProcessTotalTime;
+END_IF
+*)
+
+iTrackerCallArmCountDownTime := iTotalProcessTimeSV - iCurrentStnSeqProcessTotalTime;
+
+IF
+(iCurrentStationAddress <> iLdStnID AND NOT bTrackerEN  AND iCurrentStnSeqProcessTotalTime > 0 AND iCallArmCountDownTime >= 0 AND iCallArmCountDownTime <= iPreCallArmTime AND bStnSeqProcessInProgressFlag)
+OR
+(iCurrentStationAddress <> iLdStnID AND bTrackerEN AND bTrackerBasedOnPreviousTime  AND iCurrentStnSeqProcessTotalTime > 0 AND iCallArmCountDownTime >= 0 AND iCallArmCountDownTime <= iPreCallArmTime AND bStnSeqProcessInProgressFlag)
+OR
+(iCurrentStationAddress <> iLdStnID AND bTrackerEN AND NOT bTrackerBasedOnPreviousTime AND iCurrentStnSeqProcessTotalTime > 0 AND iTrackerCallArmCountDownTime >= 0 AND iTrackerCallArmCountDownTime <= iPreCallArmTime AND bStnSeqProcessInProgressFlag)
+OR
+bStnSeqProcessCompleted
+OR
+bTestCallArm
+THEN
+bCallArmEnInt := TRUE;
+ELSE
+bCallArmEnInt := FALSE;
+END_IF
+
+(*Check PickStation Basket Availability *)
+IF (*DSGnrBufferCalledArmPnpParameter.iPickStationNo*)iCurrentStationAddress = iLdStnID AND DSLdBasketInfo.bAvailibility THEN
+bPickStationBasketAvailable := TRUE;
+ELSIF (*DSGnrBufferCalledArmPnpParameter.iPickStationNo*)iCurrentStationAddress = iUldStnID AND DSUldBasketInfo.bAvailibility THEN
+bPickStationBasketAvailable := TRUE;
+ELSIF (*DSGnrBufferCalledArmPnpParameter.iPickStationNo*)iCurrentStationAddress >= 1 AND  (*DSGnrBufferCalledArmPnpParameter.iPickStationNo*)iCurrentStationAddress <= iStnQty AND ARDsStnBasketInfo[(*DSGnrBufferCalledArmPnpParameter.iPickStationNo*)iCurrentStationAddress].bAvailibility THEN
+bPickStationBasketAvailable := TRUE;
+ELSE
+bPickStationBasketAvailable := FALSE;
+END_IF
+(*
+(*Check TransferStation Basket Availability *)
+IF DSGnrBufferCalledArmPnpParameter.iTransferStationNo = iLdStnID AND DSLdBasketInfo.bAvailibility THEN
+bTransferStationBasketAvailable := TRUE;
+ELSIF DSGnrBufferCalledArmPnpParameter.iTransferStationNo = iUldStnID AND DSUldBasketInfo.bAvailibility THEN
+bTransferStationBasketAvailable := TRUE;
+ELSIF DSGnrBufferCalledArmPnpParameter.iTransferStationNo >= 1 AND  DSGnrBufferCalledArmPnpParameter.iTransferStationNo <= iStnQty AND ARDsStnBasketInfo[DSGnrBufferCalledArmPnpParameter.iTransferStationNo].bAvailibility THEN
+bTransferStationBasketAvailable := TRUE;
+ELSE
+bTransferStationBasketAvailable := FALSE;
+END_IF
+*)
+
+IF bTransferAltStnIDFound THEN
+	iCheckTrfStnBktFL := 1;
+	bTransferStationBasketAvailable := TRUE;
+	iAltTransferStnNo := 0;
+	FOR iCheckTrfStnBktFL := 1 TO iAlternateStnQty DO
+	
+		IF iCheckTrfStnBktFL >= 1 AND iCheckTrfStnBktFL <= iAlternateStnQty THEN
+
+			IF ARiBufferTransferAltStn[iCheckTrfStnBktFL] = iLdStnID AND NOT DSLdBasketInfo.bAvailibility THEN
+			bTransferStationBasketAvailable := FALSE;
+			iAltTransferStnNo := ARiBufferTransferAltStn[iCheckTrfStnBktFL];
+			iCheckTrfStnBktFL := iAlternateStnQty+1;
+
+			ELSIF ARiBufferTransferAltStn[iCheckTrfStnBktFL] = iUldStnID AND NOT DSUldBasketInfo.bAvailibility THEN
+			bTransferStationBasketAvailable := FALSE;
+			iAltTransferStnNo := ARiBufferTransferAltStn[iCheckTrfStnBktFL];
+			iCheckTrfStnBktFL := iAlternateStnQty+1;
+
+			ELSIF ARiBufferTransferAltStn[iCheckTrfStnBktFL] >= 1 AND ARiBufferTransferAltStn[iCheckTrfStnBktFL] <= iStnQty AND NOT  ARDsStnBasketInfo[ARiBufferTransferAltStn[iCheckTrfStnBktFL]].bAvailibility THEN
+			bTransferStationBasketAvailable := FALSE;
+			iAltTransferStnNo := ARiBufferTransferAltStn[iCheckTrfStnBktFL];
+			iCheckTrfStnBktFL := iAlternateStnQty+1;
+
+			END_IF
+	
+		END_IF
+
+	END_FOR
+
+ELSE
+
+	IF DSGnrBufferCalledArmPnpParameter.iTransferStationNo = iLdStnID AND DSLdBasketInfo.bAvailibility THEN
+	bTransferStationBasketAvailable := TRUE;
+	ELSIF DSGnrBufferCalledArmPnpParameter.iTransferStationNo = iUldStnID AND DSUldBasketInfo.bAvailibility THEN
+	bTransferStationBasketAvailable := TRUE;
+	ELSIF DSGnrBufferCalledArmPnpParameter.iTransferStationNo >= 1 AND  DSGnrBufferCalledArmPnpParameter.iTransferStationNo <= iStnQty AND ARDsStnBasketInfo[DSGnrBufferCalledArmPnpParameter.iTransferStationNo].bAvailibility THEN
+	bTransferStationBasketAvailable := TRUE;
+	ELSE
+	bTransferStationBasketAvailable := FALSE;
+	END_IF
+	
+END_IF
+
+IF bCallArmEnInt
+AND bPickStationBasketAvailable
+AND NOT bTransferStationBasketAvailable
+AND ARbArmReady[DSGnrBufferCalledArmPnpParameter.iCallArmNo]
+AND  ARiStnNoToCalledArm[DSGnrBufferCalledArmPnpParameter.iCallArmNo] = 0
+AND iCallStep = 3
+THEN
+
+	IF bTransferAltStnIDFound THEN
+		ARDSGnrFeedArmPnpParameter[DSGnrBufferCalledArmPnpParameter.iCallArmNo] := DSGnrBufferCalledArmPnpParameter;
+		ARDSGnrFeedArmPnpParameter[DSGnrBufferCalledArmPnpParameter.iCallArmNo].iPickStationNo := iCurrentStationAddress;
+		ARDSGnrFeedArmPnpParameter[DSGnrBufferCalledArmPnpParameter.iCallArmNo].iTransferStationNo := iAltTransferStnNo;
+
+		ARiStnNoToCalledArm[DSGnrBufferCalledArmPnpParameter.iCallArmNo]  := iCurrentStationAddress;
+
+	ELSE
+
+		ARDSGnrFeedArmPnpParameter[DSGnrBufferCalledArmPnpParameter.iCallArmNo] := DSGnrBufferCalledArmPnpParameter;
+		ARDSGnrFeedArmPnpParameter[DSGnrBufferCalledArmPnpParameter.iCallArmNo].iPickStationNo := iCurrentStationAddress;
+		ARiStnNoToCalledArm[DSGnrBufferCalledArmPnpParameter.iCallArmNo]  := iCurrentStationAddress;
+
+	END_IF
+
+END_IF
+
+
+
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+(*Start Call *)
+IF bBasketDetectedFE.Q THEN
+iCallStep := 0;
+END_IF
+
+bBasketDetectedRE(CLK:=DSCurrentStationBasketInfo.bAvailibility , Q=> );
+bBasketDetectedFE(CLK:=DSCurrentStationBasketInfo.bAvailibility , Q=> );
+(*
+IF bBasketDetectedRE.Q THEN
+DSCurrentStationBasketInfo.iStationSeqenceRecipeNo :=  0;
+END_IF
+*)
+IF DSCurrentStationBasketInfo.bAvailibility AND NOT bCallProductRecipeStorageEn AND NOT bArmPnpSequenceCallEn THEN
+ARbProductRecipeCallEn[iCurrentStationAddressInt] := TRUE;
+iCallStep := 1;
+bCallProductRecipeStorageEn := TRUE;
+END_IF
+
+IF DSCurrentStationBasketInfo.bAvailibility AND DSCurrentStationBasketInfo.iStationSeqenceRecipeNo > 0 THEN (*New, Make sure during ArmPnP, must write the StnSeqRecipeNo to BasketInfo before put the basket to station*)
+bStnSeqProcessSt := TRUE;
+ELSE
+bStnSeqProcessSt := FALSE;
+END_IF
+
+
+CASE iCallStep OF
+
+0:
+ARbProductRecipeCallEn[iCurrentStationAddressInt] := FALSE;
+bCallProductRecipeStorageEn := FALSE;
+bStnSeqProcessSt := FALSE;
+
+
+1:
+
+ARiProductRecipeNoCall[iCurrentStationAddressInt] := DSCurrentStationBasketInfo.iProductRecipeNo;
+ARiProductRecipeStepCall[iCurrentStationAddressInt] := DSCurrentStationBasketInfo.iProductRecipeStepNo+1(*New*);
+ARbProductRecipeCallEn[iCurrentStationAddressInt] := TRUE;
+iCallStep := 2;
+
+2:
+
+IF DSfbGnrProductRecipeMemoryOut.bCallCompleted
+AND  DSfbGnrProductRecipeMemoryOut.iCalledProductRecipeNo = DSCurrentStationBasketInfo.iProductRecipeNo
+AND DSfbGnrProductRecipeMemoryOut.iCalledProductRecipeStep = DSCurrentStationBasketInfo.iProductRecipeStepNo+1(*New*)
+AND NOT DSfbGnrProductRecipeMemoryOut.bCallPickStationNoErr
+AND NOT DSfbGnrProductRecipeMemoryOut.bCallTransferStationNoErr
+AND NOT DSfbGnrProductRecipeMemoryOut.bCallUpDownPatternMemoryErr
+AND NOT DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeNoErrHold
+AND NOT DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeNoErrPulse
+AND NOT DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeStepErrHold
+AND NOT DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeStepErrPulse
+THEN
+
+DSGnrBufferCalledArmPnpParameter := DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter;
+DSGnrBuffersPnpSequenceDescription := DSfbGnrProductRecipeMemoryOut.sProductRecipeDescription;
+(*DSCurrentStationBasketInfo.iStationSeqenceRecipeNo := DSGnrBufferCalledArmPnpParameter.iStnSeqRecipeNo;*) (*New*)
+ARbProductRecipeCallEn[iCurrentStationAddressInt] := FALSE;
+iCallStep := 3;
+END_IF
+
+IF DSfbGnrProductRecipeMemoryOut.bCallCompleted
+AND (  DSfbGnrProductRecipeMemoryOut.iCalledProductRecipeNo <> DSCurrentStationBasketInfo.iProductRecipeNo
+OR DSfbGnrProductRecipeMemoryOut.iCalledProductRecipeStep <> DSCurrentStationBasketInfo.iProductRecipeStepNo+1(*New*))
+THEN
+ARbProductRecipeCallEn[iCurrentStationAddressInt] := FALSE;
+iCallStep := 11;
+END_IF
+
+
+IF DSfbGnrProductRecipeMemoryOut.bCallCompleted
+AND (DSfbGnrProductRecipeMemoryOut.bCallPickStationNoErr
+OR DSfbGnrProductRecipeMemoryOut.bCallTransferStationNoErr
+OR DSfbGnrProductRecipeMemoryOut.bCallUpDownPatternMemoryErr
+OR DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeNoErrHold
+OR DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeNoErrPulse
+OR DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeStepErrHold
+OR DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeStepErrPulse)
+THEN
+ARbProductRecipeCallEn[iCurrentStationAddressInt] := FALSE;
+iCallStep := 12;
+END_IF
+
+3: (*Complete without Error*);
+ARbProductRecipeCallEn[iCurrentStationAddressInt] := FALSE;
+
+
+11: (*Program No or Step No Not Matching*);
+
+12: (*Error when call data *);
+
+END_CASE
+
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)]]></ST>
+    </Implementation>
+    <LineIds Name="fbGnrStationMasterController">
+      <LineId Id="87" Count="320" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

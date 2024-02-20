@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_HMI_MappingVariable" Id="{c94c6a97-973f-46f2-9fa1-56976096f670}">
+    <Declaration><![CDATA[TYPE DS_HMI_MappingVariable :
+STRUCT
+	
+//PushButton
+
+bProTankHeater_PB				:BOOL;
+bProTankPump_PB				    :Bool;
+bProTankUsSide_PB				:Bool;
+bProTankUsBtm_PB				:Bool;
+bProTankUsFreqChangeBit1_PB	    :Bool;
+bProTankUsFreqChangeBit2_PB     :Bool;
+bProTankVacuumPump_PB			:Bool;
+bProTankAgitationMotor_PB		:BOOL;
+bProTankBlower_PB				:BOOL;
+bDosingPump_PB				    :BOOL;
+bLdConveyorMotor01_PB			:BOOL;
+bLdConveyorMotor02_PB			:BOOL;
+bLdConveyorMotor03_PB			:BOOL;
+bLdConveyorMotor04_PB			:BOOL;
+bValve01_PB					    :BOOL;
+bValve02_PB					    :Bool;
+bValve03_PB					    :Bool;
+bValve04_PB					    :Bool;
+bValve05_PB					    :BOOL;
+bExhaustBlower_PB				:BOOL;
+bStnRotationRotaryBarrel_PB		:BOOL;
+bRobotRotationRotaryBarrel_PB   :BOOL;
+bGeneralIncValve01_PB 			:BOOL;
+bGeneralIncValve02_PB 			:BOOL;
+bFFU01_PB				 		:BOOL;
+bFFU02_PB				 		:BOOL;
+
+
+
+
+//Indicator
+bProTankHeater_IND				:BOOL;
+bProTankPump_IND	  			:BOOL;
+bProTankUsSide_IND				:BOOL;
+bProTankUsBtm_IND				:BOOL;
+bProTankUsFreqChangeBit1_IND	:BOOL;
+bProTankUsFreqChangeBit2_IND    :BOOL;
+bProTankVacuumPump_IND			:BOOL;
+bProTankAgitationMotor_IND		:BOOL;
+bProTankBlower_IND				:BOOL;
+bDosingPump_IND	    			:BOOL;
+bLdConveyorMotor01_IND			:BOOL;
+bLdConveyorMotor02_IND			:BOOL;
+bLdConveyorMotor03_IND			:BOOL;
+bLdConveyorMotor04_IND			:BOOL;
+bValve01_IND			  		:BOOL;
+bValve02_IND			  		:BOOL;
+bValve03_IND			  		:BOOL;
+bValve04_IND			  		:BOOL;
+bValve05_IND			  		:BOOL;
+bExhaustBlower_IND				:BOOL;
+bStnRotationRotaryBarrel_IND	:BOOL;
+bRobotRotationRotaryBarrel_IND  :BOOL;
+bGeneralIncValve01_IND 			:BOOL;
+bGeneralIncValve02_IND 			:BOOL;
+
+
+bProcessTankMinLevel_IND		:BOOL;
+bProcessTankRegLevel_IND		:BOOL;
+bProcessTankTopupLevel_IND		:BOOL;
+
+bSubTankMinLevel_IND			:BOOL;
+bSubTankRegLevel_IND			:BOOL;
+bSubTankMaxLevel_IND			:BOOL;
+bSubTankTopupLevel_IND			:BOOL;
+
+bOverflowMinLevel_IND			:BOOL;
+bOverflowRegLevel_IND			:BOOL;
+bOverflowMaxLevel_IND			:BOOL;
+
+bLdFeedSensor_IND				:BOOL;
+bLdIndex1Sensor_IND				:BOOL;
+bLdIndex2Sensor_IND				:BOOL;
+bLdIndex3Sensor_IND				:BOOL;
+bLdIndex4Sensor_IND				:BOOL;
+bLdPickSensor_IND				:BOOL;
+
+bUldFeedSensor_IND				:BOOL;
+bUldIndex1Sensor_IND			:BOOL;
+bUldIndex2Sensor_IND			:BOOL;
+bUldIndex3Sensor_IND			:BOOL;
+bUldIndex4Sensor_IND			:BOOL;
+bUldPickSensor_IND				:BOOL;
+
+bFFU01_IND				 		:BOOL;
+bFFU02_IND				 		:BOOL;
+
+
+
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbHMISimulateArmMovement" Id="{c1646b41-1ff8-4023-afbd-4bfacf4c5626}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbHMISimulateArmMovement
+VAR_INPUT
+	lrArmHorzActualPos : LREAL;
+	lrAngleRatio : LREAL;
+	bSimulateEN : BOOL;
+	iInterval_ms : INT;
+	lrMaxSimulateNo : LREAL;
+
+
+END_VAR
+VAR_OUTPUT
+	lrSimulateHorzXPos : LREAL;
+	lrSimulateVertYPos : LREAL;
+
+END_VAR
+VAR
+	tDelayOn: TON;
+	tDelayOnRE: R_TRIG;
+	lrSimArmHorzActualPos: LREAL;
+	bReverseCount: BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF bSimulateEN THEN
+	IF lrSimArmHorzActualPos > 0 AND lrAngleRatio >0 THEN
+	lrSimulateHorzXPos := lrSimArmHorzActualPos;
+	lrSimulateVertYPos := lrSimArmHorzActualPos * lrAngleRatio;
+	ELSE
+		lrSimulateHorzXPos := 0;
+		lrSimulateVertYPos := 0;
+	END_IF
+ELSE
+	IF lrArmHorzActualPos > 0 AND lrAngleRatio >0 THEN
+	lrSimulateHorzXPos := lrArmHorzActualPos;
+	lrSimulateVertYPos := lrArmHorzActualPos * lrAngleRatio;
+	ELSE
+		lrSimulateHorzXPos := 0;
+		lrSimulateVertYPos := 0;
+	END_IF
+END_IF
+
+
+
+
+(*Simulation*)
+
+
+tDelayOn(IN:=NOT tDelayOn.Q , PT:=INT_TO_TIME(iInterval_ms) , Q=> , ET=> );
+tDelayOnRE(CLK:=tDelayOn.Q , Q=> );
+
+IF bSimulateEN THEN
+	IF lrSimArmHorzActualPos >= lrMaxSimulateNo THEN
+	bReverseCount := TRUE;
+	END_IF
+	
+	IF  lrSimArmHorzActualPos <= 0 THEN
+	bReverseCount := FALSE;
+	END_IF
+
+	IF  tDelayOnRE.Q AND NOT bReverseCount AND lrMaxSimulateNo > 0 THEN
+	lrSimArmHorzActualPos := lrSimArmHorzActualPos +1;
+	END_IF
+	
+	IF  tDelayOnRE.Q AND bReverseCount THEN
+	lrSimArmHorzActualPos := lrSimArmHorzActualPos -1;
+	END_IF
+END_IF
+
+
+IF NOT bSimulateEN THEN
+bReverseCount := FALSE;
+lrSimArmHorzActualPos := 0;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbHMISimulateArmMovement">
+      <LineId Id="21" Count="49" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

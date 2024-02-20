@@ -1,0 +1,2164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Alarm_IO" Id="{da9a59b1-4dae-4afa-9a11-a62fb849c6fb}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Alarm_IO
+VAR
+	ARbArmMisshook1Alarm1_Delay: BOOL;
+	ARbArmMisshook2Alarm1_Delay: BOOL;
+	ARbArmMisshook1Alarm1_DelayTimer: TON;
+	ARbArmMisshook2Alarm1_DelayTimer: TON;
+	ckktest : bool;
+	
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// ARdsEventCtrl[1] - ARdsEventCtrl[249]
+
+// Function Block Event
+fb3EventModule(
+	bEN								:=TRUE , 
+	bEventRstPBPhysicalInput		:=bInternal_AlarmReset ,   
+	bBuzzerRstPBPhysicalInput		:=bInternal_BuzzerReset ,
+	bAcknowdgePBPhysicalInput		:=FALSE , 
+	bEventRstPB						:=bEventRstPB , 
+	bBuzzerRstPB					:=bBuzzerRstPB , 
+	bAcknowledgePB					:=bAcknowledgePB , // TRUE if the EVENT Acknowledge Action will take place (by USER)
+	bAcknowledgeEnable				:=bAcknowledgeEnable , 
+	bPowerUpDelayFlag				:=PowerOnDelay.Q ,  // 
+	eHmiLanguage					:=eHmiLanguage , // English:=1, Mandarin:=2, German:=3, French:=4, Portuguese:=5
+	bActiveEventDisplay_ScrollUp	:=bActiveEventDisplay_ScrollUp , 
+	bActiveEventDisplay_ScrollDown	:=bActiveEventDisplay_ScrollDown , 
+	bHistoryEventDisplay_ScrollUp	:=bHistoryEventDisplay_ScrollUp , 
+	bHistoryEventDisplay_ScrollDown	:=bHistoryEventDisplay_ScrollDown , 
+	sCurrentDateAndTimeUser24hr		:=DSLocalSystemTimeML.sCurrentDT24Hr_General,
+	bCautionEventOccuredFlag		=>bCautionEventOccuredFlag , 
+	bWarningEventOccuredFlag		=>bWarningEventOccuredFlag , 
+	bErrorEventOccuredFlag			=>bErrorEventOccuredFlag , 
+	iActiveCautionEventCount		=>iActiveCautionEventCount , 
+	iActiveWarningEventCount		=>iActiveWarningEventCount , 
+	iActiveErrorEventCount			=>iActiveErrorEventCount , 
+	bBuzzerOutput					=>bBuzzerOccur );
+	
+	IF bCautionEventOccuredFlag OR bWarningEventOccuredFlag OR bErrorEventOccuredFlag THEN
+		bAlarmOccurFlag:=TRUE;
+	    ELSE
+		bAlarmOccurFlag:=FALSE;	
+	END_IF
+		
+//		IF bWarningEventOccuredFlag OR bErrorEventOccuredFlag THEN
+//		bEventOccuredFlag := TRUE;
+//	ELSE
+// 		bEventOccuredFlag := FALSE;
+//	END_IF
+		
+	 (************ ALARM IO LIST - INPUT - ( ARdsEventCtrl[1].bSignalInput - ARdsEventCtrl[400].bSignalInput )************)
+	
+	ARdsEventCtrl[1].bSignalInput							:=	NOT ARbDI[eX10000_Stn01UltrasonicGeneratorMcb_Trip];
+	ARdsEventCtrl[1].iDelayTimeSV							:=	0; 	 // Second
+	ARdsEventCtrl[1].bHoldingDisable;						 	// False meant holding alarm, if TRUE meants reset automatically when problem solved
+	ARdsEventCtrl[1].bTest_InvertedInputEn;					 	// For alarm signal testing
+	ARdsEventCtrl[1].bEventOutput;
+	ARdsEventCtrl[1].eEventType										:=2;
+	ckktest;
+	
+	ARdsEventCtrl[2].bSignalInput							:=	ARbDO[eY10100_STN01ULTRASONICGENERATORON_OFF] AND NOT (ARbDI[eX10001_Stn01UltrasonicGenerator_Alarm]);
+	ARdsEventCtrl[2].iDelayTimeSV							:=	5;
+	ARdsEventCtrl[2].bHoldingDisable;
+	ARdsEventCtrl[2].bTest_InvertedInputEn;
+	ARdsEventCtrl[2].bEventOutput;
+	
+	ARdsEventCtrl[3].bSignalInput							:=	 NOT (ARbDI[eX10002_Stn02UltrasonicGeneratorMcb_Trip]);
+	ARdsEventCtrl[3].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[3].bHoldingDisable;
+	ARdsEventCtrl[3].bTest_InvertedInputEn;
+	ARdsEventCtrl[3].bEventOutput;
+	
+	ARdsEventCtrl[4].bSignalInput							:=	ARbDO[eY10101_Stn02UltrasonicGeneratorOn_Off] AND NOT (ARbDI[eX10003_Stn02UltrasonicGenerator_Alarm]);
+	ARdsEventCtrl[4].iDelayTimeSV							:=	5;
+	ARdsEventCtrl[4].bHoldingDisable;
+	ARdsEventCtrl[4].bTest_InvertedInputEn;
+	ARdsEventCtrl[4].bEventOutput;
+	
+	ARdsEventCtrl[5].bSignalInput							:=	NOT (ARbDI[eX10004_Stn04UltrasonicGeneratorMcb_Trip]);
+	ARdsEventCtrl[5].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[5].bHoldingDisable;
+	ARdsEventCtrl[5].bTest_InvertedInputEn;
+	ARdsEventCtrl[5].bEventOutput;
+	
+	ARdsEventCtrl[6].bSignalInput							:=	ARbDO[eY10102_Stn04UltrasonicGeneratorOn_Off] AND NOT (ARbDI[eX10005_Stn04UltrasonicGenerator_Alarm]);
+	ARdsEventCtrl[6].iDelayTimeSV							:=	5;
+	ARdsEventCtrl[6].bHoldingDisable;
+	ARdsEventCtrl[6].bTest_InvertedInputEn;
+	ARdsEventCtrl[6].bEventOutput;
+	
+	ARdsEventCtrl[7].bSignalInput							:=	NOT (ARbDI[eX10006_Stn05UltrasonicGeneratorMcb_Trip]);
+	ARdsEventCtrl[7].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[7].bHoldingDisable;
+	ARdsEventCtrl[7].bTest_InvertedInputEn;
+	ARdsEventCtrl[7].bEventOutput;
+	
+	ARdsEventCtrl[8].bSignalInput							:=	ARbDO[eY10103_Stn05UltrasonicGeneratorOn_Off] AND NOT (ARbDI[eX10007_Stn05UltrasonicGenerator_Alarm]);
+	ARdsEventCtrl[8].iDelayTimeSV							:=	5;
+	ARdsEventCtrl[8].bHoldingDisable;
+	ARdsEventCtrl[8].bTest_InvertedInputEn;
+	ARdsEventCtrl[8].bEventOutput;
+	
+	ARdsEventCtrl[9].bSignalInput							:=	NOT (ARbDI[eX10008_Stn07UltrasonicGeneratorMcb_Trip]);
+	ARdsEventCtrl[9].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[9].bHoldingDisable;
+	ARdsEventCtrl[9].bTest_InvertedInputEn;
+	ARdsEventCtrl[9].bEventOutput;
+	
+	ARdsEventCtrl[10].bSignalInput							:=	ARbDO[eY10104_Stn07UltrasonicGeneratorOn_Off] AND NOT (ARbDI[eX10009_Stn07UltrasonicGenerator_Alarm]);
+	ARdsEventCtrl[10].iDelayTimeSV							:=	5;
+	ARdsEventCtrl[10].bHoldingDisable;
+	ARdsEventCtrl[10].bTest_InvertedInputEn;
+	ARdsEventCtrl[10].bEventOutput;
+	
+	ARdsEventCtrl[11].bSignalInput							:=	NOT (ARbDI[eX10010_Stn08UltrasonicGeneratorMcb_Trip]);
+	ARdsEventCtrl[11].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[11].bHoldingDisable;
+	ARdsEventCtrl[11].bTest_InvertedInputEn;
+	ARdsEventCtrl[11].bEventOutput;
+	
+	ARdsEventCtrl[12].bSignalInput							:=	ARbDO[eY10105_Stn08UltrasonicGeneratorOn_Off] AND NOT (ARbDI[eX10011_Stn08UltrasonicGenerator_Alarm]);
+	ARdsEventCtrl[12].iDelayTimeSV							:=	5;
+	ARdsEventCtrl[12].bHoldingDisable;
+	ARdsEventCtrl[12].bTest_InvertedInputEn;
+	ARdsEventCtrl[12].bEventOutput;
+	
+	ARdsEventCtrl[13].bSignalInput							:=	NOT (ARbDI[eX10012_Stn03MegasonicGenerator01Mcb_Trip]);
+	ARdsEventCtrl[13].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[13].bHoldingDisable;
+	ARdsEventCtrl[13].bTest_InvertedInputEn;
+	ARdsEventCtrl[13].bEventOutput;
+	
+	ARdsEventCtrl[14].bSignalInput							:=	NOT (ARbDI[eX10013_Stn03MegasonicGenerator02Mcb_Trip]);
+	ARdsEventCtrl[14].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[14].bHoldingDisable;
+	ARdsEventCtrl[14].bTest_InvertedInputEn;
+	ARdsEventCtrl[14].bEventOutput;
+	
+	ARdsEventCtrl[15].bSignalInput							:=	NOT (ARbDI[eX10014_Stn06MegasonicGenerator01Mcb_Trip]);
+	ARdsEventCtrl[15].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[15].bHoldingDisable;
+	ARdsEventCtrl[15].bTest_InvertedInputEn;
+	ARdsEventCtrl[15].bEventOutput;
+	
+	ARdsEventCtrl[16].bSignalInput							:=	NOT (ARbDI[eX10015_Stn06MegasonicGenerator02Mcb_Trip]);
+	ARdsEventCtrl[16].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[16].bHoldingDisable;
+	ARdsEventCtrl[16].bTest_InvertedInputEn;
+	ARdsEventCtrl[16].bEventOutput;
+
+	ARdsEventCtrl[17].bSignalInput							:=	NOT (ARbDI[eX10100_Reserved]);
+	ARdsEventCtrl[17].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[17].bHoldingDisable;
+	ARdsEventCtrl[17].bTest_InvertedInputEn;
+	ARdsEventCtrl[17].bEventOutput;
+	
+	ARdsEventCtrl[18].bSignalInput							:=	NOT (ARbDI[eX10101_PanelVentilationFanMcb_Trip]);
+	ARdsEventCtrl[18].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[18].bHoldingDisable;
+	ARdsEventCtrl[18].bTest_InvertedInputEn;
+	ARdsEventCtrl[18].bEventOutput;
+	
+	ARdsEventCtrl[19].bSignalInput							:=	NOT (ARbDI[eX10102_PanelLightingMcb_Trip]);
+	ARdsEventCtrl[19].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[19].bHoldingDisable;
+	ARdsEventCtrl[19].bTest_InvertedInputEn;
+	ARdsEventCtrl[19].bEventOutput;
+	
+	ARdsEventCtrl[20].bSignalInput							:=	NOT (ARbDI[eX10103_MachineLighting01Mcb_Trip]);
+	ARdsEventCtrl[20].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[20].bHoldingDisable;
+	ARdsEventCtrl[20].bTest_InvertedInputEn;
+	ARdsEventCtrl[20].bEventOutput;
+	
+	ARdsEventCtrl[21].bSignalInput							:=	NOT (ARbDI[eX10104_MachineLighting02Mcb_Trip]);
+	ARdsEventCtrl[21].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[21].bHoldingDisable;
+	ARdsEventCtrl[21].bTest_InvertedInputEn;
+	ARdsEventCtrl[21].bEventOutput;
+	
+	ARdsEventCtrl[22].bSignalInput							:=	NOT (ARbDI[eX10105_GeneralTouchMonitorSocketMcb_Trip]);
+	ARdsEventCtrl[22].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[22].bHoldingDisable;
+	ARdsEventCtrl[22].bTest_InvertedInputEn;
+	ARdsEventCtrl[22].bEventOutput;
+	
+	ARdsEventCtrl[23].bSignalInput							:=	NOT (ARbDI[eX10106_GeneralPhaseSequenceRelayMcb_Trip]);
+	ARdsEventCtrl[23].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[23].bHoldingDisable;
+	ARdsEventCtrl[23].bTest_InvertedInputEn;
+	ARdsEventCtrl[23].bEventOutput;
+	
+	ARdsEventCtrl[24].bSignalInput							:=	NOT (ARbDI[eX10107_GeneralPhaseSequenceRelay_Trip]);
+	ARdsEventCtrl[24].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[24].bHoldingDisable;
+	ARdsEventCtrl[24].bTest_InvertedInputEn;
+	ARdsEventCtrl[24].bEventOutput;
+	
+	ARdsEventCtrl[25].bSignalInput							:=	NOT (ARbDI[eX10108_Stn09_Stn10FfuUnitMcb_Trip]);
+	ARdsEventCtrl[25].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[25].bHoldingDisable;
+	ARdsEventCtrl[25].bTest_InvertedInputEn;
+	ARdsEventCtrl[25].bEventOutput;
+	
+	ARdsEventCtrl[26].bSignalInput							:=	NOT (ARbDI[eX10109_UnloadingFfuUnitMcb_Trip]);
+	ARdsEventCtrl[26].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[26].bHoldingDisable;
+	ARdsEventCtrl[26].bTest_InvertedInputEn;
+	ARdsEventCtrl[26].bEventOutput;
+	
+	ARdsEventCtrl[27].bSignalInput							:=	NOT (ARbDI[eX10110_UnloadingConveyorFfuUnitMcb_Trip]);
+	ARdsEventCtrl[27].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[27].bHoldingDisable;
+	ARdsEventCtrl[27].bTest_InvertedInputEn;
+	ARdsEventCtrl[27].bEventOutput;
+	
+	ARdsEventCtrl[28].bSignalInput							:=	NOT (ARbDI[eX10111_Stn09SlowPullMechanismServoDriveMcb_Trip]);
+	ARdsEventCtrl[28].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[28].bHoldingDisable;
+	ARdsEventCtrl[28].bTest_InvertedInputEn;
+	ARdsEventCtrl[28].bEventOutput;
+	
+	ARdsEventCtrl[29].bSignalInput							:=	NOT (ARbDI[eX10112_Stn01_08AgitationMotorMcb_Tor_Trip]) ;
+	ARdsEventCtrl[29].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[29].bHoldingDisable;
+	ARdsEventCtrl[29].bTest_InvertedInputEn;
+	ARdsEventCtrl[29].bEventOutput;
+	
+	ARdsEventCtrl[30].bSignalInput							:=	NOT(ARbDI[eX10113_Stn07DiWaterReturnTankPumpMcb_Tor_Trip]);
+	ARdsEventCtrl[30].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[30].bHoldingDisable;
+	ARdsEventCtrl[30].bTest_InvertedInputEn;
+	ARdsEventCtrl[30].bEventOutput;
+	
+	ARdsEventCtrl[31].bSignalInput							:=	NOT (ARbDI[eX10114_Stn01DosingPumpMcb_Trip]);
+	ARdsEventCtrl[31].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[31].bHoldingDisable;
+	ARdsEventCtrl[31].bTest_InvertedInputEn;
+	ARdsEventCtrl[31].bEventOutput;
+	
+	ARdsEventCtrl[32].bSignalInput							:=	NOT (ARbDI[eX10115_Stn03DosingPumpMcb_Trip]);
+	ARdsEventCtrl[32].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[32].bHoldingDisable;
+	ARdsEventCtrl[32].bTest_InvertedInputEn;
+	ARdsEventCtrl[32].bEventOutput;
+	
+	ARdsEventCtrl[33].bSignalInput							:=	NOT (ARbDI[eX10200_Stn05DosingPumpMcb_Trip]);
+	ARdsEventCtrl[33].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[33].bHoldingDisable;
+	ARdsEventCtrl[33].bTest_InvertedInputEn;
+	ARdsEventCtrl[33].bEventOutput;
+	
+	ARdsEventCtrl[34].bSignalInput							:=	NOT (ARbDI[eX10201_Stn01ProcessTankPumpMms_Tor_Trip]);
+	ARdsEventCtrl[34].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[34].bHoldingDisable;
+	ARdsEventCtrl[34].bTest_InvertedInputEn;
+	ARdsEventCtrl[34].bEventOutput;
+	
+	ARdsEventCtrl[35].bSignalInput							:=	NOT (ARbDI[eX10202_Stn02ProcessTankPumpMms_Tor_Trip]);
+	ARdsEventCtrl[35].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[35].bHoldingDisable;
+	ARdsEventCtrl[35].bTest_InvertedInputEn;
+	ARdsEventCtrl[35].bEventOutput;
+	
+	ARdsEventCtrl[36].bSignalInput							:=	NOT (ARbDI[eX10203_Stn03ProcessTankPumpMms_Tor_Trip]);
+	ARdsEventCtrl[36].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[36].bHoldingDisable;
+	ARdsEventCtrl[36].bTest_InvertedInputEn;
+	ARdsEventCtrl[36].bEventOutput;
+	
+	ARdsEventCtrl[37].bSignalInput							:=NOT (ARbDI[eX10204_Stn04ProcessTankPumpMms_Tor_Trip]);
+	ARdsEventCtrl[37].iDelayTimeSV							:=0;
+	ARdsEventCtrl[37].bHoldingDisable;
+	ARdsEventCtrl[37].bTest_InvertedInputEn;
+	ARdsEventCtrl[37].bEventOutput;
+	
+	ARdsEventCtrl[38].bSignalInput							:=NOT (ARbDI[eX10205_Stn05ProcessTankPumpMms_Tor_Trip]);
+	ARdsEventCtrl[38].iDelayTimeSV							:=0;
+	ARdsEventCtrl[38].bHoldingDisable;
+	ARdsEventCtrl[38].bTest_InvertedInputEn;
+	ARdsEventCtrl[38].bEventOutput;
+	
+	ARdsEventCtrl[39].bSignalInput							:= NOT (ARbDI[eX10206_Stn06ProcessTankPumpMms_Tor_Trip]);
+	ARdsEventCtrl[39].iDelayTimeSV							:=0;
+	ARdsEventCtrl[39].bHoldingDisable;
+	ARdsEventCtrl[39].bTest_InvertedInputEn;
+	ARdsEventCtrl[39].bEventOutput;
+	
+	ARdsEventCtrl[40].bSignalInput							:= NOT (ARbDI[eX10207_Stn07ProcessTankPumpMms_Tor_Trip]);
+	ARdsEventCtrl[40].iDelayTimeSV							:=0;
+	ARdsEventCtrl[40].bHoldingDisable;
+	ARdsEventCtrl[40].bTest_InvertedInputEn;
+	ARdsEventCtrl[40].bEventOutput;
+	
+	ARdsEventCtrl[41].bSignalInput							:=	NOT (ARbDI[eX10208_Stn08ProcessTankPumpMms_Tor_Trip]);
+	ARdsEventCtrl[41].iDelayTimeSV							:=0;
+	ARdsEventCtrl[41].bHoldingDisable;
+	ARdsEventCtrl[41].bTest_InvertedInputEn;
+	ARdsEventCtrl[41].bEventOutput;
+	
+	ARdsEventCtrl[42].bSignalInput							:=	NOT (ARbDI[eX10209_Stn09ProcessTankPumpMms_Tor_Trip]);
+	ARdsEventCtrl[42].iDelayTimeSV							:=0;
+	ARdsEventCtrl[42].bHoldingDisable;
+	ARdsEventCtrl[42].bTest_InvertedInputEn;
+	ARdsEventCtrl[42].bEventOutput;
+	
+	ARdsEventCtrl[43].bSignalInput							:=	NOT (ARbDI[eX10210_LoadingConveyor01Mcb_Trip]);
+	ARdsEventCtrl[43].iDelayTimeSV							:=0;
+	ARdsEventCtrl[43].bHoldingDisable;
+	ARdsEventCtrl[43].bTest_InvertedInputEn;
+	ARdsEventCtrl[43].bEventOutput;
+	
+	ARdsEventCtrl[44].bSignalInput							:=	NOT (ARbDI[eX10211_LoadingConveyor02Mcb_Trip]);
+	ARdsEventCtrl[44].iDelayTimeSV							:=0;
+	ARdsEventCtrl[44].bHoldingDisable;
+	ARdsEventCtrl[44].bTest_InvertedInputEn;
+	ARdsEventCtrl[44].bEventOutput;
+	
+	ARdsEventCtrl[45].bSignalInput							:=NOT (ARbDI[eX10212_LoadingConveyor03Mcb_Trip]);
+	ARdsEventCtrl[45].iDelayTimeSV							:=0;
+	ARdsEventCtrl[45].bHoldingDisable;
+	ARdsEventCtrl[45].bTest_InvertedInputEn;
+	ARdsEventCtrl[45].bEventOutput;
+	
+	ARdsEventCtrl[46].bSignalInput							:= NOT (ARbDI[eX10213_LoadingConveyor04Mcb_Trip]);
+	ARdsEventCtrl[46].iDelayTimeSV							:=0;
+	ARdsEventCtrl[46].bHoldingDisable;
+	ARdsEventCtrl[46].bTest_InvertedInputEn;
+	ARdsEventCtrl[46].bEventOutput;
+	
+	ARdsEventCtrl[47].bSignalInput							:=NOT (ARbDI[eX10214_UnloadingConveyor01Mcb_Trip]);
+	ARdsEventCtrl[47].iDelayTimeSV							:=0;
+	ARdsEventCtrl[47].bHoldingDisable;
+	ARdsEventCtrl[47].bTest_InvertedInputEn;
+	ARdsEventCtrl[47].bEventOutput;
+	
+	ARdsEventCtrl[48].bSignalInput							:=NOT (ARbDI[eX10215_UnloadingConveyor02Mcb_Trip]);
+	ARdsEventCtrl[48].iDelayTimeSV							:=0;
+	ARdsEventCtrl[48].bHoldingDisable;
+	ARdsEventCtrl[48].bTest_InvertedInputEn;
+	ARdsEventCtrl[48].bEventOutput;
+	
+	ARdsEventCtrl[49].bSignalInput							:=NOT (ARbDI[eX10300_UnloadingConveyor03Mcb_Trip]);
+	ARdsEventCtrl[49].iDelayTimeSV							:=0;
+	ARdsEventCtrl[49].bHoldingDisable;
+	ARdsEventCtrl[49].bTest_InvertedInputEn;
+	ARdsEventCtrl[49].bEventOutput;
+	
+	ARdsEventCtrl[50].bSignalInput							:=NOT (ARbDI[eX10301_UnloadingConveyor04Mcb_Trip]);
+	ARdsEventCtrl[50].iDelayTimeSV							:=0;
+	ARdsEventCtrl[50].bHoldingDisable;
+	ARdsEventCtrl[50].bTest_InvertedInputEn;
+	ARdsEventCtrl[50].bEventOutput;
+	
+	ARdsEventCtrl[51].bSignalInput							:=NOT (ARbDI[eX10302_Stn01ProcessTankHeaterMcb_Trip]);
+	ARdsEventCtrl[51].iDelayTimeSV							:=0;
+	ARdsEventCtrl[51].bHoldingDisable;
+	ARdsEventCtrl[51].bTest_InvertedInputEn;
+	ARdsEventCtrl[51].bEventOutput;
+	
+	ARdsEventCtrl[52].bSignalInput							:=NOT (ARbDI[eX10303_Stn02ProcessTankHeaterMcb_Trip]);
+	ARdsEventCtrl[52].iDelayTimeSV							:=0;
+	ARdsEventCtrl[52].bHoldingDisable;
+	ARdsEventCtrl[52].bTest_InvertedInputEn;
+	ARdsEventCtrl[52].bEventOutput;
+	
+	ARdsEventCtrl[53].bSignalInput							:=NOT (ARbDI[eX10304_Stn03ProcessTankHeaterMcb_Trip]);
+	ARdsEventCtrl[53].iDelayTimeSV							:=0;
+	ARdsEventCtrl[53].bHoldingDisable;
+	ARdsEventCtrl[53].bTest_InvertedInputEn;
+	ARdsEventCtrl[53].bEventOutput;
+	
+	ARdsEventCtrl[54].bSignalInput							:=NOT (ARbDI[eX10305_Stn04ProcessTankHeaterMcb_Trip]);
+	ARdsEventCtrl[54].iDelayTimeSV							:=0;
+	ARdsEventCtrl[54].bHoldingDisable;
+	ARdsEventCtrl[54].bTest_InvertedInputEn;
+	ARdsEventCtrl[54].bEventOutput;
+	
+	ARdsEventCtrl[55].bSignalInput							:=NOT (ARbDI[eX10306_Stn05ProcessTankHeaterMcb_Trip]);
+	ARdsEventCtrl[55].iDelayTimeSV							:=0;
+	ARdsEventCtrl[55].bHoldingDisable;
+	ARdsEventCtrl[55].bTest_InvertedInputEn;
+	ARdsEventCtrl[55].bEventOutput;
+	
+	ARdsEventCtrl[56].bSignalInput							:=NOT (ARbDI[eX10307_Stn06ProcessTankHeaterMcb_Trip]);
+	ARdsEventCtrl[56].iDelayTimeSV							:=0;
+	ARdsEventCtrl[56].bHoldingDisable;
+	ARdsEventCtrl[56].bTest_InvertedInputEn;
+	ARdsEventCtrl[56].bEventOutput;
+	
+	ARdsEventCtrl[57].bSignalInput							:=NOT (ARbDI[eX10308_Stn07ProcessTankHeaterMcb_Trip]);
+	ARdsEventCtrl[57].iDelayTimeSV							:=0;
+	ARdsEventCtrl[57].bHoldingDisable;
+	ARdsEventCtrl[57].bTest_InvertedInputEn;
+	ARdsEventCtrl[57].bEventOutput;
+	
+	ARdsEventCtrl[58].bSignalInput							:=NOT (ARbDI[eX10309_Stn08ProcessTankHeaterMcb_Trip]) ;
+	ARdsEventCtrl[58].iDelayTimeSV							:=0;
+	ARdsEventCtrl[58].bHoldingDisable;
+	ARdsEventCtrl[58].bTest_InvertedInputEn;
+	ARdsEventCtrl[58].bEventOutput;
+	
+	ARdsEventCtrl[59].bSignalInput							:=NOT (ARbDI[eX10310_Stn10HeaterPidControllerMcb_Trip]);
+	ARdsEventCtrl[59].iDelayTimeSV							:=0;
+	ARdsEventCtrl[59].bHoldingDisable;
+	ARdsEventCtrl[59].bTest_InvertedInputEn;
+	ARdsEventCtrl[59].bEventOutput;
+	
+	ARdsEventCtrl[60].bSignalInput							:=NOT  (ARbDI[eX10311_Stn10HeaterPidControlMcb_Trip]);
+	ARdsEventCtrl[60].iDelayTimeSV							:=0;
+	ARdsEventCtrl[60].bHoldingDisable;
+	ARdsEventCtrl[60].bTest_InvertedInputEn;
+	ARdsEventCtrl[60].bEventOutput;
+	
+	ARdsEventCtrl[61].bSignalInput							:=NOT (ARbDI[eX10312_Stn10HeaterPIDController_Alarm]);
+	ARdsEventCtrl[61].iDelayTimeSV							:=0;
+	ARdsEventCtrl[61].bHoldingDisable;
+	ARdsEventCtrl[61].bTest_InvertedInputEn;
+	ARdsEventCtrl[61].bEventOutput;
+	
+	ARdsEventCtrl[62].bSignalInput							:=FALSE AND NOT (ARbDI[eX10313_Reserved]);
+	ARdsEventCtrl[62].iDelayTimeSV							:=0;
+	ARdsEventCtrl[62].bHoldingDisable;
+	ARdsEventCtrl[62].bTest_InvertedInputEn;
+	ARdsEventCtrl[62].bEventOutput;
+	
+	ARdsEventCtrl[63].bSignalInput							:=NOT (ARbDI[eX10314_GeneralTouchMonitorSocketElcb_Trip]);
+	ARdsEventCtrl[63].iDelayTimeSV							:=0;
+	ARdsEventCtrl[63].bHoldingDisable;
+	ARdsEventCtrl[63].bTest_InvertedInputEn;
+	ARdsEventCtrl[63].bEventOutput;
+	
+	ARdsEventCtrl[64].bSignalInput							:=FALSE AND (ARbDI[eX10315_Reserved]);
+	ARdsEventCtrl[64].iDelayTimeSV							:=0;
+	ARdsEventCtrl[64].bHoldingDisable;
+	ARdsEventCtrl[64].bTest_InvertedInputEn;
+	ARdsEventCtrl[64].bEventOutput;
+	
+	ARdsEventCtrl[65].bSignalInput							:=NOT (ARbDI[eX10400_MainSafetyContactor01_Feedback]);
+	ARdsEventCtrl[65].iDelayTimeSV							:=0;
+	ARdsEventCtrl[65].bHoldingDisable;
+	ARdsEventCtrl[65].bTest_InvertedInputEn;
+	ARdsEventCtrl[65].bEventOutput;
+	
+	ARdsEventCtrl[66].bSignalInput							:=NOT (ARbDI[eX10401_MainSafetyContactor02_Feedback]);
+	ARdsEventCtrl[66].iDelayTimeSV							:=0;
+	ARdsEventCtrl[66].bHoldingDisable;
+	ARdsEventCtrl[66].bTest_InvertedInputEn;
+	ARdsEventCtrl[66].bEventOutput;
+	
+	ARdsEventCtrl[67].bSignalInput							:=NOT (ARbDI[eX10402_DoorSafetyContactor01_Feedback]);
+	ARdsEventCtrl[67].iDelayTimeSV							:=0;
+	ARdsEventCtrl[67].bHoldingDisable;
+	ARdsEventCtrl[67].bTest_InvertedInputEn;
+	ARdsEventCtrl[67].bEventOutput;
+	
+	ARdsEventCtrl[68].bSignalInput							:=NOT (ARbDI[eX10403_DoorSafetyContactor02_Feedback]);
+	ARdsEventCtrl[68].iDelayTimeSV							:=0;
+	ARdsEventCtrl[68].bHoldingDisable;
+	ARdsEventCtrl[68].bTest_InvertedInputEn;
+	ARdsEventCtrl[68].bEventOutput;
+	
+	ARdsEventCtrl[69].bSignalInput							:=NOT (ARbDI[eX10404_Arm01HorizontalServoDriveMcb_Trip]);
+	ARdsEventCtrl[69].iDelayTimeSV							:=0;
+	ARdsEventCtrl[69].bHoldingDisable;
+	ARdsEventCtrl[69].bTest_InvertedInputEn;
+	ARdsEventCtrl[69].bEventOutput;
+	
+	ARdsEventCtrl[70].bSignalInput							:=NOT (ARbDI[eX10405_Arm01VerticalServoDriveMcb_Trip]);
+	ARdsEventCtrl[70].iDelayTimeSV							:=0;
+	ARdsEventCtrl[70].bHoldingDisable;
+	ARdsEventCtrl[70].bTest_InvertedInputEn;
+	ARdsEventCtrl[70].bEventOutput;
+	
+	ARdsEventCtrl[71].bSignalInput							:=FALSE AND (ARbDI[eX10406_Reserved]);
+	ARdsEventCtrl[71].iDelayTimeSV							:=0;
+	ARdsEventCtrl[71].bHoldingDisable;
+	ARdsEventCtrl[71].bTest_InvertedInputEn;
+	ARdsEventCtrl[71].bEventOutput;
+	
+	ARdsEventCtrl[72].bSignalInput							:=FALSE AND (ARbDI[eX10407_Reserved]);
+	ARdsEventCtrl[72].iDelayTimeSV							:=0;
+	ARdsEventCtrl[72].bHoldingDisable;
+	ARdsEventCtrl[72].bTest_InvertedInputEn;
+	ARdsEventCtrl[72].bEventOutput;
+	
+	ARdsEventCtrl[73].bSignalInput							:=FALSE AND (ARbDI[eX10408_Reserved]);
+	ARdsEventCtrl[73].iDelayTimeSV							:=0;
+	ARdsEventCtrl[73].bHoldingDisable;
+	ARdsEventCtrl[73].bTest_InvertedInputEn;
+	ARdsEventCtrl[73].bEventOutput;
+	
+	ARdsEventCtrl[74].bSignalInput							:=FALSE AND (ARbDI[eX10409_Reserved]);
+	ARdsEventCtrl[74].iDelayTimeSV							:=3;
+	ARdsEventCtrl[74].bHoldingDisable;
+	ARdsEventCtrl[74].bTest_InvertedInputEn;
+	ARdsEventCtrl[74].bEventOutput;
+	
+	ARdsEventCtrl[75].bSignalInput							:=FALSE AND (ARbDI[eX10410_Reserved]);
+	ARdsEventCtrl[75].iDelayTimeSV							:=0;
+	ARdsEventCtrl[75].bHoldingDisable;
+	ARdsEventCtrl[75].bTest_InvertedInputEn;
+	ARdsEventCtrl[75].bEventOutput;
+	
+	ARdsEventCtrl[76].bSignalInput							:=FALSE AND (ARbDI[eX10411_Reserved]);
+	ARdsEventCtrl[76].iDelayTimeSV							:=0;
+	ARdsEventCtrl[76].bHoldingDisable;
+	ARdsEventCtrl[76].bTest_InvertedInputEn;
+	ARdsEventCtrl[76].bEventOutput;
+	
+	ARdsEventCtrl[77].bSignalInput							:=FALSE AND (ARbDI[eX10412_Reserved]);
+	ARdsEventCtrl[77].iDelayTimeSV							:=3;
+	ARdsEventCtrl[77].bHoldingDisable;
+	ARdsEventCtrl[77].bTest_InvertedInputEn;
+	ARdsEventCtrl[77].bEventOutput;
+	
+	ARdsEventCtrl[78].bSignalInput							:=FALSE AND (ARbDI[eX10413_Reserved]);
+	ARdsEventCtrl[78].iDelayTimeSV							:=0;
+	ARdsEventCtrl[78].bHoldingDisable;
+	ARdsEventCtrl[78].bTest_InvertedInputEn;
+	ARdsEventCtrl[78].bEventOutput;
+	
+	ARdsEventCtrl[79].bSignalInput							:=FALSE AND (ARbDI[eX10414_Reserved]);
+	ARdsEventCtrl[79].iDelayTimeSV							:=0;
+	ARdsEventCtrl[79].bHoldingDisable;
+	ARdsEventCtrl[79].bTest_InvertedInputEn;
+	ARdsEventCtrl[79].bEventOutput;
+	
+	ARdsEventCtrl[80].bSignalInput							:=FALSE AND (ARbDI[eX10415_Reserved]);
+	ARdsEventCtrl[80].iDelayTimeSV							:=0;
+	ARdsEventCtrl[80].bHoldingDisable;
+	ARdsEventCtrl[80].bTest_InvertedInputEn;
+	ARdsEventCtrl[80].bEventOutput;
+	
+	ARdsEventCtrl[81].bSignalInput							:=   (ARbDI[eX11000_Stn03MegasonicGenerator01_HighPowerAlarm]);
+	ARdsEventCtrl[81].iDelayTimeSV							:=0;
+	ARdsEventCtrl[81].bHoldingDisable;
+	ARdsEventCtrl[81].bTest_InvertedInputEn;
+	ARdsEventCtrl[81].bEventOutput;
+	
+	ARdsEventCtrl[82].bSignalInput							:=  (ARbDI[eX11001_Stn03MegasonicGenerator01_LowPowerAlarm]);
+	ARdsEventCtrl[82].iDelayTimeSV							:=0;
+	ARdsEventCtrl[82].bHoldingDisable;
+	ARdsEventCtrl[82].bTest_InvertedInputEn;
+	ARdsEventCtrl[82].bEventOutput;
+	
+	ARdsEventCtrl[83].bSignalInput							:=(ARbDI[eX11002_Stn03MegasonicGenerator01_LoadAlarmAndOther]);
+	ARdsEventCtrl[83].iDelayTimeSV							:=0;
+	ARdsEventCtrl[83].bHoldingDisable;
+	ARdsEventCtrl[83].bTest_InvertedInputEn;
+	ARdsEventCtrl[83].bEventOutput;
+	
+	ARdsEventCtrl[84].bSignalInput							:= (ARbDI[eX11003_Stn03MegasonicGenerator02_HighPowerAlarm]);
+	ARdsEventCtrl[84].iDelayTimeSV							:=0;
+	ARdsEventCtrl[84].bHoldingDisable;
+	ARdsEventCtrl[84].bTest_InvertedInputEn;
+	ARdsEventCtrl[84].bEventOutput;
+	
+	ARdsEventCtrl[85].bSignalInput							:= (ARbDI[eX11004_Stn03MegasonicGenerator02_LowPowerAlarm]);
+	ARdsEventCtrl[85].iDelayTimeSV							:=0;
+	ARdsEventCtrl[85].bHoldingDisable;
+	ARdsEventCtrl[85].bTest_InvertedInputEn;
+	ARdsEventCtrl[85].bEventOutput;
+	
+	ARdsEventCtrl[86].bSignalInput							:=(ARbDI[eX11005_Stn03MegasonicGenerator02_LoadAlarmAndOther]);
+	ARdsEventCtrl[86].iDelayTimeSV							:=0;
+	ARdsEventCtrl[86].bHoldingDisable;
+	ARdsEventCtrl[86].bTest_InvertedInputEn;
+	ARdsEventCtrl[86].bEventOutput;
+	
+	ARdsEventCtrl[87].bSignalInput							:= (ARbDI[eX11006_GeneralAlarmPb_Reset]);
+	ARdsEventCtrl[87].iDelayTimeSV							:=60;
+	ARdsEventCtrl[87].bHoldingDisable;
+	ARdsEventCtrl[87].bTest_InvertedInputEn;
+	ARdsEventCtrl[87].bEventOutput;
+	
+	ARdsEventCtrl[88].bSignalInput							:=(ARbDI[eX11007_GeneralBuzzerPb_Reset]);
+	ARdsEventCtrl[88].iDelayTimeSV							:=60;
+	ARdsEventCtrl[88].bHoldingDisable;
+	ARdsEventCtrl[88].bTest_InvertedInputEn;
+	ARdsEventCtrl[88].bEventOutput;
+	
+	ARdsEventCtrl[89].bSignalInput							:=NOT (ARbDI[eX11008_GeneralMainPanelPb_E_Stop]);
+	ARdsEventCtrl[89].iDelayTimeSV							:=0;
+	ARdsEventCtrl[89].bHoldingDisable;
+	ARdsEventCtrl[89].bTest_InvertedInputEn;
+	ARdsEventCtrl[89].bEventOutput;
+	
+	ARdsEventCtrl[90].bSignalInput							:=NOT (ARbDI[eX11009_OperatorPullString_E_Stop]);
+	ARdsEventCtrl[90].iDelayTimeSV							:=0;
+	ARdsEventCtrl[90].bHoldingDisable;
+	ARdsEventCtrl[90].bTest_InvertedInputEn;
+	ARdsEventCtrl[90].bEventOutput;
+	
+	ARdsEventCtrl[91].bSignalInput							:=NOT (ARbDI[eX11010_MaintenancePullString_E_Stop]);
+	ARdsEventCtrl[91].iDelayTimeSV							:=0;
+	ARdsEventCtrl[91].bHoldingDisable;
+	ARdsEventCtrl[91].bTest_InvertedInputEn;
+	ARdsEventCtrl[91].bEventOutput;
+	
+	ARdsEventCtrl[92].bSignalInput							:=(ARbDI[eX11011_GeneralSafetyCurtainSensor_Alarm]) AND NOT bSafetyDoorSensorBypass;
+	ARdsEventCtrl[92].iDelayTimeSV							:=0;
+	ARdsEventCtrl[92].bHoldingDisable;
+	ARdsEventCtrl[92].bTest_InvertedInputEn;
+	ARdsEventCtrl[92].bEventOutput;
+	
+	ARdsEventCtrl[93].bSignalInput							:=NOT (ARbDI[eX11012_Stn01ProcessTankSensor_Max_Overflow]);
+	ARdsEventCtrl[93].iDelayTimeSV							:=0;
+	ARdsEventCtrl[93].bHoldingDisable;
+	ARdsEventCtrl[93].bTest_InvertedInputEn;
+	ARdsEventCtrl[93].bEventOutput;
+	
+	ARdsEventCtrl[94].bSignalInput							:=NOT (ARbDI[eX11013_Stn01ProcessTankSensor_Min_Overflow]);
+	ARdsEventCtrl[94].iDelayTimeSV							:=3;
+	ARdsEventCtrl[94].bHoldingDisable;
+	ARdsEventCtrl[94].bTest_InvertedInputEn;
+	ARdsEventCtrl[94].bEventOutput;
+	
+	ARdsEventCtrl[95].bSignalInput							:=NOT (ARbDI[eX11014_Stn01ProcessTankSensor_Min]);
+	ARdsEventCtrl[95].iDelayTimeSV							:=3;
+	ARdsEventCtrl[95].bHoldingDisable;
+	ARdsEventCtrl[95].bTest_InvertedInputEn;
+	ARdsEventCtrl[95].bEventOutput;
+	
+	ARdsEventCtrl[96].bSignalInput							:=NOT (ARbDI[eX11015_Stn02ProcessTankSensor_Max_Overflow]);
+	ARdsEventCtrl[96].iDelayTimeSV							:=0;
+	ARdsEventCtrl[96].bHoldingDisable;
+	ARdsEventCtrl[96].bTest_InvertedInputEn;
+	ARdsEventCtrl[96].bEventOutput;
+	
+	ARdsEventCtrl[97].bSignalInput							:=NOT (ARbDI[eX11100_Stn02ProcessTankSensor_Min]);
+	ARdsEventCtrl[97].iDelayTimeSV							:=3;
+	ARdsEventCtrl[97].bHoldingDisable;
+	ARdsEventCtrl[97].bTest_InvertedInputEn;
+	ARdsEventCtrl[97].bEventOutput;
+	
+	ARdsEventCtrl[98].bSignalInput							:=NOT (ARbDI[eX11101_Stn03ProcessTankSensor_Max_Overflow]);
+	ARdsEventCtrl[98].iDelayTimeSV							:=0;
+	ARdsEventCtrl[98].bHoldingDisable;
+	ARdsEventCtrl[98].bTest_InvertedInputEn;
+	ARdsEventCtrl[98].bEventOutput;
+	
+	ARdsEventCtrl[99].bSignalInput							:=NOT (ARbDI[eX11102_Stn03ProcessTankSensor_Min_Overflow]);
+	ARdsEventCtrl[99].iDelayTimeSV							:=3;
+	ARdsEventCtrl[99].bHoldingDisable;
+	ARdsEventCtrl[99].bTest_InvertedInputEn;
+	ARdsEventCtrl[99].bEventOutput;
+	
+	ARdsEventCtrl[100].bSignalInput							:=NOT (ARbDI[eX11103_Stn03ProcessTankSensor_Min]);
+	ARdsEventCtrl[100].iDelayTimeSV							:=3;
+	ARdsEventCtrl[100].bHoldingDisable;
+	ARdsEventCtrl[100].bTest_InvertedInputEn;
+	ARdsEventCtrl[100].bEventOutput;
+	
+	ARdsEventCtrl[101].bSignalInput							:=NOT (ARbDI[eX11104_Stn01DosingChemicalContainerSensor_WarningLevel]);
+	ARdsEventCtrl[101].iDelayTimeSV							:=3;
+	ARdsEventCtrl[101].bHoldingDisable;
+	ARdsEventCtrl[101].bTest_InvertedInputEn;
+	ARdsEventCtrl[101].bEventOutput;
+	
+	ARdsEventCtrl[102].bSignalInput							:= NOT(ARbDI[eX11105_Stn01DosingChemicalContainerSensor_MinLevel]);
+	ARdsEventCtrl[102].iDelayTimeSV							:=3;
+	ARdsEventCtrl[102].bHoldingDisable;
+	ARdsEventCtrl[102].bTest_InvertedInputEn;
+	ARdsEventCtrl[102].bEventOutput;
+	
+	ARdsEventCtrl[103].bSignalInput							:=	ARbDO[eY11102_STN01DOSINGPUMPON_OFF] AND NOT (ARbDI[eX11106_Stn01DosingChemicalContainerRelaySignal_Feedback]);
+	ARdsEventCtrl[103].iDelayTimeSV							:=	3;
+	ARdsEventCtrl[103].bHoldingDisable;
+	ARdsEventCtrl[103].bTest_InvertedInputEn;
+	ARdsEventCtrl[103].bEventOutput;
+	
+	ARdsEventCtrl[104].bSignalInput							:=NOT (ARbDI[eX11107_Stn03DosingChemicalContainerSensor_WarningLevel]);
+	ARdsEventCtrl[104].iDelayTimeSV							:=3;
+	ARdsEventCtrl[104].bHoldingDisable;
+	ARdsEventCtrl[104].bTest_InvertedInputEn;
+	ARdsEventCtrl[104].bEventOutput;
+	
+	
+	ARdsEventCtrl[105].bSignalInput							:=NOT (ARbDI[eX11108_Stn03DosingChemicalContainerSensor_MinLevel]);
+	ARdsEventCtrl[105].iDelayTimeSV							:=3;
+	ARdsEventCtrl[105].bHoldingDisable;
+	ARdsEventCtrl[105].bTest_InvertedInputEn;
+	ARdsEventCtrl[105].bEventOutput;
+	
+	ARdsEventCtrl[106].bSignalInput							:=	ARbDO[eY11103_STN03DOSINGPUMPON_OFF] AND NOT (ARbDI[eX11109_Stn03DosingChemicalContainerRelaySignal_Feedback]);
+	ARdsEventCtrl[106].iDelayTimeSV							:=	3;
+	ARdsEventCtrl[106].bHoldingDisable;
+	ARdsEventCtrl[106].bTest_InvertedInputEn;
+	ARdsEventCtrl[106].bEventOutput;
+	
+	ARdsEventCtrl[107].bSignalInput							:=	NOT (ARbDI[eX11110_Structure01DripPanSensor_Leak]);
+	ARdsEventCtrl[107].iDelayTimeSV							:=	3;
+	ARdsEventCtrl[107].bHoldingDisable;
+	ARdsEventCtrl[107].bTest_InvertedInputEn;
+	ARdsEventCtrl[107].bEventOutput;
+	
+	ARdsEventCtrl[108].bSignalInput							:=FALSE AND (ARbDI[eX11111_IpcDcOnSignal]);
+	ARdsEventCtrl[108].iDelayTimeSV							:=0;
+	ARdsEventCtrl[108].bHoldingDisable;
+	ARdsEventCtrl[108].bTest_InvertedInputEn;
+	ARdsEventCtrl[108].bEventOutput;
+	
+	ARdsEventCtrl[109].bSignalInput							:=NOT (ARbDI[eX11112_MainIncomingChilledWaterFlowSensor_MinFLow])AND (ARbDO[eY13005_STN03CHILLEDWATERSUPPLYAV3_3] OR ARbDO[eY13010_STN06CHILLEDWATERSUPPLYAV6_2]);
+	ARdsEventCtrl[109].iDelayTimeSV							:=10;
+	ARdsEventCtrl[109].bHoldingDisable;
+	ARdsEventCtrl[109].bTest_InvertedInputEn;
+	ARdsEventCtrl[109].bEventOutput;
+	
+	ARdsEventCtrl[110].bSignalInput							:=NOT (ARbDI[eX11113_CanisterDripPanSensor_Leak]);
+	ARdsEventCtrl[110].iDelayTimeSV							:=3;
+	ARdsEventCtrl[110].bHoldingDisable;
+	ARdsEventCtrl[110].bTest_InvertedInputEn;
+	ARdsEventCtrl[110].bEventOutput;
+	
+	ARdsEventCtrl[111].bSignalInput							:= NOT ARbDI[eX11114_Stn05DosingChemicalContainerSensor_WarningLevel];
+	ARdsEventCtrl[111].iDelayTimeSV							:=3;
+	ARdsEventCtrl[111].bHoldingDisable;
+	ARdsEventCtrl[111].bTest_InvertedInputEn;
+	ARdsEventCtrl[111].bEventOutput;
+	
+	ARdsEventCtrl[112].bSignalInput							:=NOT (ARbDI[eX11115_Stn05DosingChemicalContainerSensor_MinLevel]);
+	ARdsEventCtrl[112].iDelayTimeSV							:=3;
+	ARdsEventCtrl[112].bHoldingDisable;
+	ARdsEventCtrl[112].bTest_InvertedInputEn;
+	ARdsEventCtrl[112].bEventOutput;
+	
+	ARdsEventCtrl[113].bSignalInput							:=NOT (ARbDI[eX12000_Arm01VerticalSensor_Crash]);
+	ARdsEventCtrl[113].iDelayTimeSV							:=0;
+	ARdsEventCtrl[113].bHoldingDisable;
+	ARdsEventCtrl[113].bTest_InvertedInputEn;
+	ARdsEventCtrl[113].bEventOutput;
+	
+	ARbArmMisshook1Alarm1_DelayTimer(IN:=ARbArmMisshook1Alarm[1] , PT:=T#1S , Q=> , ET=> );
+
+	IF 	(NOT ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1]  AND ARbArmMisshook1Alarm[1])
+	OR	(ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1] AND ARbArmMisshook1Alarm1_DelayTimer.Q)
+	THEN
+	ARbArmMisshook1Alarm1_Delay := TRUE;
+	ELSE
+	ARbArmMisshook1Alarm1_Delay := FALSE;
+	END_IF
+
+	ARdsEventCtrl[114].bSignalInput							:=NOT (ARbDI[eX12001_Arm01SensorA_Misshook]) AND ARbArmMisshook1Alarm[1];
+	ARdsEventCtrl[114].iDelayTimeSV							:=0;
+	ARdsEventCtrl[114].bHoldingDisable;
+	ARdsEventCtrl[114].bTest_InvertedInputEn;
+	ARdsEventCtrl[114].bEventOutput;
+	
+	ARbArmMisshook2Alarm1_DelayTimer(IN:=ARbArmMisshook2Alarm[1] , PT:=T#1S , Q=> , ET=> );
+
+	IF 	(NOT ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1]  AND ARbArmMisshook2Alarm[1])
+	OR	(ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1] AND ARbArmMisshook2Alarm1_DelayTimer.Q)
+	THEN
+	ARbArmMisshook2Alarm1_Delay := TRUE;
+	ELSE
+	ARbArmMisshook2Alarm1_Delay := FALSE;
+	END_IF
+	
+	ARdsEventCtrl[115].bSignalInput							:=NOT (ARbDI[eX12002_Arm01SensorB_Misshook])AND ARbArmMisshook2Alarm[1];
+	ARdsEventCtrl[115].iDelayTimeSV							:=0;
+	ARdsEventCtrl[115].bHoldingDisable;
+	ARdsEventCtrl[115].bTest_InvertedInputEn;
+	ARdsEventCtrl[115].bEventOutput;
+	
+	ARdsEventCtrl[116].bSignalInput							:=NOT (ARbDI[eX12003_Stn04ProcessTankSensor_Max_Overflow]);
+	ARdsEventCtrl[116].iDelayTimeSV							:=0;
+	ARdsEventCtrl[116].bHoldingDisable;
+	ARdsEventCtrl[116].bTest_InvertedInputEn;
+	ARdsEventCtrl[116].bEventOutput;
+	
+	ARdsEventCtrl[117].bSignalInput							:=NOT (ARbDI[eX12004_Stn04ProcessTankSensor_Min]);
+	ARdsEventCtrl[117].iDelayTimeSV							:=3;
+	ARdsEventCtrl[117].bHoldingDisable;
+	ARdsEventCtrl[117].bTest_InvertedInputEn;
+	ARdsEventCtrl[117].bEventOutput;
+	
+	ARdsEventCtrl[118].bSignalInput							:=NOT (ARbDI[eX12005_Stn05ProcessTankSensor_Max_Overflow]);
+	ARdsEventCtrl[118].iDelayTimeSV							:=0;
+	ARdsEventCtrl[118].bHoldingDisable;
+	ARdsEventCtrl[118].bTest_InvertedInputEn;
+	ARdsEventCtrl[118].bEventOutput;
+	
+	ARdsEventCtrl[119].bSignalInput							:=NOT (ARbDI[eX12006_Stn05ProcessTankSensor_Min_Overflow]);
+	ARdsEventCtrl[119].iDelayTimeSV							:=3;
+	ARdsEventCtrl[119].bHoldingDisable;
+	ARdsEventCtrl[119].bTest_InvertedInputEn;
+	ARdsEventCtrl[119].bEventOutput;
+	
+	ARdsEventCtrl[120].bSignalInput							:=NOT (ARbDI[eX12007_Stn05ProcessTankSensor_Min]);
+	ARdsEventCtrl[120].iDelayTimeSV							:=3;
+	ARdsEventCtrl[120].bHoldingDisable;
+	ARdsEventCtrl[120].bTest_InvertedInputEn;
+	ARdsEventCtrl[120].bEventOutput;
+	
+	ARdsEventCtrl[121].bSignalInput							:=NOT (ARbDI[eX12008_Stn06ProcessTankSensor_Max_Overflow]);
+	ARdsEventCtrl[121].iDelayTimeSV							:=0;
+	ARdsEventCtrl[121].bHoldingDisable;
+	ARdsEventCtrl[121].bTest_InvertedInputEn;
+	ARdsEventCtrl[121].bEventOutput;
+	
+	ARdsEventCtrl[122].bSignalInput							:= NOT (ARbDI[eX12009_Stn06ProcessTankSensor_Min]);
+	ARdsEventCtrl[122].iDelayTimeSV							:=3;
+	ARdsEventCtrl[122].bHoldingDisable;
+	ARdsEventCtrl[122].bTest_InvertedInputEn;
+	ARdsEventCtrl[122].bEventOutput;
+	
+	ARdsEventCtrl[123].bSignalInput							:= NOT (ARbDI[eX12010_Stn07ProcessTankSensor_Min]);
+	ARdsEventCtrl[123].iDelayTimeSV							:=3;
+	ARdsEventCtrl[123].bHoldingDisable;
+	ARdsEventCtrl[123].bTest_InvertedInputEn;
+	ARdsEventCtrl[123].bEventOutput;
+	
+	ARdsEventCtrl[124].bSignalInput							:=(ARbDI[eX12011_Stn06ProcessTankFlowSensor_MinFlow]) AND ARbDO[eY13009_Stn06RowIncomingSupplyAv6_1] ;
+	ARdsEventCtrl[124].iDelayTimeSV							:=10;
+	ARdsEventCtrl[124].bHoldingDisable;
+	ARdsEventCtrl[124].bTest_InvertedInputEn;
+	ARdsEventCtrl[124].bEventOutput;
+	
+	ARdsEventCtrl[125].bSignalInput							:=NOT (ARbDI[eX12012_Stn07ReturnTankSensor_Max]);
+	ARdsEventCtrl[125].iDelayTimeSV							:=0;
+	ARdsEventCtrl[125].bHoldingDisable;
+	ARdsEventCtrl[125].bTest_InvertedInputEn;
+	ARdsEventCtrl[125].bEventOutput;
+	
+	ARdsEventCtrl[126].bSignalInput							:=FALSE AND (ARbDI[eX12013_Stn07ReturnTankSensor_Reg]); 
+	ARdsEventCtrl[126].iDelayTimeSV							:=0;
+	ARdsEventCtrl[126].bHoldingDisable;
+	ARdsEventCtrl[126].bTest_InvertedInputEn;
+	ARdsEventCtrl[126].bEventOutput;
+	
+	ARdsEventCtrl[127].bSignalInput							:=FALSE AND NOT (ARbDI[eX12014_Stn07ReturnTankSensor_Min]);
+	ARdsEventCtrl[127].iDelayTimeSV							:=3;
+	ARdsEventCtrl[127].bHoldingDisable;
+	ARdsEventCtrl[127].bTest_InvertedInputEn;
+	ARdsEventCtrl[127].bEventOutput;
+	
+	ARdsEventCtrl[128].bSignalInput							:= 	ARbDO[eY12000_STN05DOSINGPUMPON_OFF] AND NOT (ARbDI[eX12015_Stn05DosingChemicalContainerRelaySignal_Feedback]);
+	ARdsEventCtrl[128].iDelayTimeSV							:=	3;
+	ARdsEventCtrl[128].bHoldingDisable;
+	ARdsEventCtrl[128].bTest_InvertedInputEn;
+	ARdsEventCtrl[128].bEventOutput;
+	
+	ARdsEventCtrl[129].bSignalInput							:=FALSE AND NOT (ARbDI[eX12100_Reserved]);
+	ARdsEventCtrl[129].iDelayTimeSV							:=0;
+	ARdsEventCtrl[129].bHoldingDisable;
+	ARdsEventCtrl[129].bTest_InvertedInputEn;
+	ARdsEventCtrl[129].bEventOutput;
+	
+	ARdsEventCtrl[130].bSignalInput							:=FALSE AND NOT (ARbDI[eX12101_Reserved]);
+	ARdsEventCtrl[130].iDelayTimeSV							:=3;
+	ARdsEventCtrl[130].bHoldingDisable;
+	ARdsEventCtrl[130].bTest_InvertedInputEn;
+	ARdsEventCtrl[130].bEventOutput;
+	
+	ARdsEventCtrl[131].bSignalInput							:=	NOT (ARbDI[eX12102_Structure02DripPanSensor_Leak]);
+	ARdsEventCtrl[131].iDelayTimeSV							:=	3;
+	ARdsEventCtrl[131].bHoldingDisable;
+	ARdsEventCtrl[131].bTest_InvertedInputEn;
+	ARdsEventCtrl[131].bEventOutput;
+	
+	ARdsEventCtrl[132].bSignalInput							:=  (ARbDI[eX12103_Stn06MegasonicGenerator01_HighPowerAlarm]);
+	ARdsEventCtrl[132].iDelayTimeSV							:=0;
+	ARdsEventCtrl[132].bHoldingDisable;
+	ARdsEventCtrl[132].bTest_InvertedInputEn;
+	ARdsEventCtrl[132].bEventOutput;
+	
+	ARdsEventCtrl[133].bSignalInput							:=   (ARbDI[eX12104_Stn06MegasonicGenerator01_LowPowerAlarm]);
+	ARdsEventCtrl[133].iDelayTimeSV							:=0;
+	ARdsEventCtrl[133].bHoldingDisable;
+	ARdsEventCtrl[133].bTest_InvertedInputEn;
+	ARdsEventCtrl[133].bEventOutput;
+	
+	ARdsEventCtrl[134].bSignalInput							:=  (ARbDI[eX12105_Stn06MegasonicGenerator01_LoadAlarmAndOther]);
+	ARdsEventCtrl[134].iDelayTimeSV							:=0;
+	ARdsEventCtrl[134].bHoldingDisable;
+	ARdsEventCtrl[134].bTest_InvertedInputEn;
+	ARdsEventCtrl[134].bEventOutput;
+	
+	ARdsEventCtrl[135].bSignalInput							:=  (ARbDI[eX12106_Stn06MegasonicGenerator02_HighPowerAlarm]);
+	ARdsEventCtrl[135].iDelayTimeSV							:=0;
+	ARdsEventCtrl[135].bHoldingDisable;
+	ARdsEventCtrl[135].bTest_InvertedInputEn;
+	ARdsEventCtrl[135].bEventOutput;
+	
+	ARdsEventCtrl[136].bSignalInput							:=   (ARbDI[eX12107_Stn06MegasonicGenerator02_LowPowerAlarm]);
+	ARdsEventCtrl[136].iDelayTimeSV							:=0;
+	ARdsEventCtrl[136].bHoldingDisable;
+	ARdsEventCtrl[136].bTest_InvertedInputEn;
+	ARdsEventCtrl[136].bEventOutput;
+	
+	ARdsEventCtrl[137].bSignalInput							:=  (ARbDI[eX12108_Stn06MegasonicGenerator02_LoadAlarmAndOther]);
+	ARdsEventCtrl[137].iDelayTimeSV							:=0;
+	ARdsEventCtrl[137].bHoldingDisable;
+	ARdsEventCtrl[137].bTest_InvertedInputEn;
+	ARdsEventCtrl[137].bEventOutput;
+	
+	ARdsEventCtrl[138].bSignalInput							:= FALSE AND NOT (ARbDI[eX12109_Reserved]);
+	ARdsEventCtrl[138].iDelayTimeSV							:=0;
+	ARdsEventCtrl[138].bHoldingDisable;
+	ARdsEventCtrl[138].bTest_InvertedInputEn;
+	ARdsEventCtrl[138].bEventOutput;
+	
+	ARdsEventCtrl[139].bSignalInput							:= FALSE AND NOT(ARbDI[eX12110_Reserved]);
+	ARdsEventCtrl[139].iDelayTimeSV							:=0;
+	ARdsEventCtrl[139].bHoldingDisable;
+	ARdsEventCtrl[139].bTest_InvertedInputEn;
+	ARdsEventCtrl[139].bEventOutput;
+	
+	ARdsEventCtrl[140].bSignalInput							:= FALSE AND NOT (ARbDI[eX12111_Reserved]);
+	ARdsEventCtrl[140].iDelayTimeSV							:=0;
+	ARdsEventCtrl[140].bHoldingDisable;
+	ARdsEventCtrl[140].bTest_InvertedInputEn;
+	ARdsEventCtrl[140].bEventOutput;
+	
+	ARdsEventCtrl[141].bSignalInput							:=FALSE AND(ARbDI[eX12112_Reserved]);
+	ARdsEventCtrl[141].iDelayTimeSV							:=20;
+	ARdsEventCtrl[141].bHoldingDisable;
+	ARdsEventCtrl[141].bTest_InvertedInputEn;
+	ARdsEventCtrl[141].bEventOutput;
+	
+	ARdsEventCtrl[142].bSignalInput							:=FALSE AND (ARbDI[eX12113_Reserved]);
+	ARdsEventCtrl[142].iDelayTimeSV							:=20;
+	ARdsEventCtrl[142].bHoldingDisable;
+	ARdsEventCtrl[142].bTest_InvertedInputEn;
+	ARdsEventCtrl[142].bEventOutput;
+	
+	ARdsEventCtrl[143].bSignalInput							:=FALSE AND (ARbDI[eX12114_Reserved]);
+	ARdsEventCtrl[143].iDelayTimeSV							:=20;
+	ARdsEventCtrl[143].bHoldingDisable;
+	ARdsEventCtrl[143].bTest_InvertedInputEn;
+	ARdsEventCtrl[143].bEventOutput;
+	
+	ARdsEventCtrl[144].bSignalInput							:=FALSE AND (ARbDI[eX12115_Reserved]);
+	ARdsEventCtrl[144].iDelayTimeSV							:=20;
+	ARdsEventCtrl[144].bHoldingDisable;
+	ARdsEventCtrl[144].bTest_InvertedInputEn;
+	ARdsEventCtrl[144].bEventOutput;
+	
+	ARdsEventCtrl[145].bSignalInput							:=NOT (ARbDI[eX13000_Stn08ProcessTankSensor_Max_Overflow]);
+	ARdsEventCtrl[145].iDelayTimeSV							:=0;
+	ARdsEventCtrl[145].bHoldingDisable;
+	ARdsEventCtrl[145].bTest_InvertedInputEn;
+	ARdsEventCtrl[145].bEventOutput;
+	
+	ARdsEventCtrl[146].bSignalInput							:=NOT (ARbDI[eX13001_Stn08ProcessTankSensor_Min]);
+	ARdsEventCtrl[146].iDelayTimeSV							:=3;
+	ARdsEventCtrl[146].bHoldingDisable;
+	ARdsEventCtrl[146].bTest_InvertedInputEn;
+	ARdsEventCtrl[146].bEventOutput;
+	
+	ARdsEventCtrl[147].bSignalInput							:=NOT (ARbDI[eX13002_Stn09ProcessTankSensor_Max_Overflow]);
+	ARdsEventCtrl[147].iDelayTimeSV							:=0;
+	ARdsEventCtrl[147].bHoldingDisable;
+	ARdsEventCtrl[147].bTest_InvertedInputEn;
+	ARdsEventCtrl[147].bEventOutput;
+	
+	ARdsEventCtrl[148].bSignalInput							:= NOT (ARbDI[eX13003_Stn09ProcessTankSensor_Min]);
+	ARdsEventCtrl[148].iDelayTimeSV							:=3;
+	ARdsEventCtrl[148].bHoldingDisable;
+	ARdsEventCtrl[148].bTest_InvertedInputEn;
+	ARdsEventCtrl[148].bEventOutput;
+	
+	ARdsEventCtrl[149].bSignalInput							:=(ARbDI[eX13004_Stn09ProcessTankFlowSensor_MinFlow]) AND ARbDO[eY13013_STN09DIWINCOMINGSUPPLYAV9_1];
+	ARdsEventCtrl[149].iDelayTimeSV							:=10;
+	ARdsEventCtrl[149].bHoldingDisable;
+	ARdsEventCtrl[149].bTest_InvertedInputEn;
+	ARdsEventCtrl[149].bEventOutput;
+	
+	ARdsEventCtrl[150].bSignalInput							:=	NOT (ARbDI[eX13005_Structure03DripPanSensor_Leak]);
+	ARdsEventCtrl[150].iDelayTimeSV							:=	3;
+	ARdsEventCtrl[150].bHoldingDisable;
+	ARdsEventCtrl[150].bTest_InvertedInputEn;
+	ARdsEventCtrl[150].bEventOutput;
+	
+	ARdsEventCtrl[151].bSignalInput							:=NOT (ARbDI[eX13006_UnloadingShutterDoorRs_Open])AND ARbDO[eY13100_UnloadingShutterDoor_Open];
+	ARdsEventCtrl[151].iDelayTimeSV							:=20;
+	ARdsEventCtrl[151].bHoldingDisable;
+	ARdsEventCtrl[151].bTest_InvertedInputEn;
+	ARdsEventCtrl[151].bEventOutput;
+	
+	ARdsEventCtrl[152].bSignalInput							:=NOT (ARbDI[eX13007_UnloadingShutterDoorRs_Close])AND ARbDO[eY13101_UnloadingShutterDoor_Close];
+	ARdsEventCtrl[152].iDelayTimeSV							:=20;
+	ARdsEventCtrl[152].bHoldingDisable;
+	ARdsEventCtrl[152].bTest_InvertedInputEn;
+	ARdsEventCtrl[152].bEventOutput;
+	
+	ARdsEventCtrl[153].bSignalInput							:=NOT (ARbDI[eX13008_GeneralIncomingCdaPressureSwitch_MinPressure]);
+	ARdsEventCtrl[153].iDelayTimeSV							:=20;
+	ARdsEventCtrl[153].bHoldingDisable;
+	ARdsEventCtrl[153].bTest_InvertedInputEn;
+	ARdsEventCtrl[153].bEventOutput;
+	
+	ARdsEventCtrl[154].bSignalInput							:= FALSE AND(ARbDI[eX13009_Reserved]);
+	ARdsEventCtrl[154].iDelayTimeSV							:=0;
+	ARdsEventCtrl[154].bHoldingDisable;
+	ARdsEventCtrl[154].bTest_InvertedInputEn;
+	ARdsEventCtrl[154].bEventOutput;
+	
+	ARdsEventCtrl[155].bSignalInput							:=FALSE AND(ARbDI[eX13010_Reserved]);
+	ARdsEventCtrl[155].iDelayTimeSV							:=0;
+	ARdsEventCtrl[155].bHoldingDisable;
+	ARdsEventCtrl[155].bTest_InvertedInputEn;
+	ARdsEventCtrl[155].bEventOutput;
+	
+	ARdsEventCtrl[156].bSignalInput							:= FALSE AND(ARbDI[eX13011_Reserved]);
+	ARdsEventCtrl[156].iDelayTimeSV							:=0;
+	ARdsEventCtrl[156].bHoldingDisable;
+	ARdsEventCtrl[156].bTest_InvertedInputEn;
+	ARdsEventCtrl[156].bEventOutput;
+	
+	ARdsEventCtrl[157].bSignalInput							:= FALSE AND(ARbDI[eX13012_Reserved]);
+	ARdsEventCtrl[157].iDelayTimeSV							:=0;
+	ARdsEventCtrl[157].bHoldingDisable;
+	ARdsEventCtrl[157].bTest_InvertedInputEn;
+	ARdsEventCtrl[157].bEventOutput;
+	
+	ARdsEventCtrl[158].bSignalInput							:= FALSE AND(ARbDI[eX13013_Reserved]);
+	ARdsEventCtrl[158].iDelayTimeSV							:=0;
+	ARdsEventCtrl[158].bHoldingDisable;
+	ARdsEventCtrl[158].bTest_InvertedInputEn;
+	ARdsEventCtrl[158].bEventOutput;
+	
+	ARdsEventCtrl[159].bSignalInput							:= FALSE AND(ARbDI[eX13014_Reserved]);
+	ARdsEventCtrl[159].iDelayTimeSV							:=0;
+	ARdsEventCtrl[159].bHoldingDisable;
+	ARdsEventCtrl[159].bTest_InvertedInputEn;
+	ARdsEventCtrl[159].bEventOutput;
+	
+	ARdsEventCtrl[160].bSignalInput							:= FALSE AND(ARbDI[eX13015_Reserved]);
+	ARdsEventCtrl[160].iDelayTimeSV							:=0;
+	ARdsEventCtrl[160].bHoldingDisable;
+	ARdsEventCtrl[160].bTest_InvertedInputEn;
+	ARdsEventCtrl[160].bEventOutput;
+	
+	ARdsEventCtrl[161].bSignalInput							:=FALSE AND(ARbDI[eX14000_LoadingConveyorSensor_Feed]);
+	ARdsEventCtrl[161].iDelayTimeSV							:=0;
+	ARdsEventCtrl[161].bHoldingDisable;
+	ARdsEventCtrl[161].bTest_InvertedInputEn;
+	ARdsEventCtrl[161].bEventOutput;
+	
+	ARdsEventCtrl[162].bSignalInput							:=FALSE AND(ARbDI[eX14001_LoadingConveyorSensor_Index01]);
+	ARdsEventCtrl[162].iDelayTimeSV							:=0;
+	ARdsEventCtrl[162].bHoldingDisable;
+	ARdsEventCtrl[162].bTest_InvertedInputEn;
+	ARdsEventCtrl[162].bEventOutput;
+	
+	ARdsEventCtrl[163].bSignalInput							:= FALSE AND(ARbDI[eX14002_LoadingConveyorSensor_Index02]);
+	ARdsEventCtrl[163].iDelayTimeSV							:=0;
+	ARdsEventCtrl[163].bHoldingDisable;
+	ARdsEventCtrl[163].bTest_InvertedInputEn;
+	ARdsEventCtrl[163].bEventOutput;
+	
+	ARdsEventCtrl[164].bSignalInput							:=FALSE AND (ARbDI[eX14003_LoadingConveyorSensor_Pick]);
+	ARdsEventCtrl[164].iDelayTimeSV							:=0;
+	ARdsEventCtrl[164].bHoldingDisable;
+	ARdsEventCtrl[164].bTest_InvertedInputEn;
+	ARdsEventCtrl[164].bEventOutput;
+	
+	ARdsEventCtrl[165].bSignalInput							:=NOT (ARbDI[eX14004_GeneralLoadingPb_E_Stop]);
+	ARdsEventCtrl[165].iDelayTimeSV							:=0;
+	ARdsEventCtrl[165].bHoldingDisable;
+	ARdsEventCtrl[165].bTest_InvertedInputEn;
+	ARdsEventCtrl[165].bEventOutput;
+	
+	ARdsEventCtrl[166].bSignalInput							:=FALSE AND (ARbDI[eX14005_Reserved]);
+	ARdsEventCtrl[166].iDelayTimeSV							:=0;
+	ARdsEventCtrl[166].bHoldingDisable;
+	ARdsEventCtrl[166].bTest_InvertedInputEn;
+	ARdsEventCtrl[166].bEventOutput;
+	
+	ARdsEventCtrl[167].bSignalInput							:=FALSE AND (ARbDI[eX14006_Reserved]);
+	ARdsEventCtrl[167].iDelayTimeSV							:=20;
+	ARdsEventCtrl[167].bHoldingDisable;
+	ARdsEventCtrl[167].bTest_InvertedInputEn;
+	ARdsEventCtrl[167].bEventOutput;
+	
+	ARdsEventCtrl[168].bSignalInput							:=FALSE AND (ARbDI[eX14007_Reserved]);
+	ARdsEventCtrl[168].iDelayTimeSV							:=20;
+	ARdsEventCtrl[168].bHoldingDisable;
+	ARdsEventCtrl[168].bTest_InvertedInputEn;
+	ARdsEventCtrl[168].bEventOutput;
+	
+	ARdsEventCtrl[169].bSignalInput							:=FALSE AND (ARbDI[eX14008_Reserved]);
+	ARdsEventCtrl[169].iDelayTimeSV							:=20;
+	ARdsEventCtrl[169].bHoldingDisable;
+	ARdsEventCtrl[169].bTest_InvertedInputEn;
+	ARdsEventCtrl[169].bEventOutput;
+	
+	ARdsEventCtrl[170].bSignalInput							:=FALSE AND(ARbDI[eX14009_Reserved]);
+	ARdsEventCtrl[170].iDelayTimeSV							:=20;
+	ARdsEventCtrl[170].bHoldingDisable;
+	ARdsEventCtrl[170].bTest_InvertedInputEn;
+	ARdsEventCtrl[170].bEventOutput;
+	
+	ARdsEventCtrl[171].bSignalInput							:=FALSE AND(ARbDI[eX14010_Reserved]);
+	ARdsEventCtrl[171].iDelayTimeSV							:=0;
+	ARdsEventCtrl[171].bHoldingDisable;
+	ARdsEventCtrl[171].bTest_InvertedInputEn;
+	ARdsEventCtrl[171].bEventOutput;
+	
+	ARdsEventCtrl[172].bSignalInput							:=FALSE AND(ARbDI[eX14011_Reserved]);                       
+	ARdsEventCtrl[172].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[172].bHoldingDisable;                                                                              
+	ARdsEventCtrl[172].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[172].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[173].bSignalInput							:=FALSE AND(ARbDI[eX14012_Reserved]);                       
+	ARdsEventCtrl[173].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[173].bHoldingDisable;                                                                              
+	ARdsEventCtrl[173].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[173].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[174].bSignalInput							:=FALSE AND(ARbDI[eX14013_Reserved]);                       
+	ARdsEventCtrl[174].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[174].bHoldingDisable;                                                                              
+	ARdsEventCtrl[174].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[174].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[175].bSignalInput							:=FALSE AND(ARbDI[eX14014_Reserved]);                       
+	ARdsEventCtrl[175].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[175].bHoldingDisable;                                                                              
+	ARdsEventCtrl[175].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[175].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[176].bSignalInput							:=FALSE AND(ARbDI[eX14015_Reserved]);                       
+	ARdsEventCtrl[176].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[176].bHoldingDisable;                                                                              
+	ARdsEventCtrl[176].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[176].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[177].bSignalInput							:=FALSE AND (ARbDI[eX15000_UnloadingConveyorSensor_Feed]);  
+	ARdsEventCtrl[177].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[177].bHoldingDisable;                                                                              
+	ARdsEventCtrl[177].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[177].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[178].bSignalInput							:=FALSE AND(ARbDI[eX15001_UnloadingConveyorSensor_Index01]);
+	ARdsEventCtrl[178].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[178].bHoldingDisable;                                                                              
+	ARdsEventCtrl[178].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[178].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[179].bSignalInput							:=FALSE AND(ARbDI[eX15002_UnloadingConveyorSensor_Index02]);
+	ARdsEventCtrl[179].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[179].bHoldingDisable;                                                                              
+	ARdsEventCtrl[179].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[179].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[180].bSignalInput							:=FALSE AND (ARbDI[eX15003_UnloadingConveyorSensor_Pick]);  
+	ARdsEventCtrl[180].iDelayTimeSV							:=20;                                                       
+	ARdsEventCtrl[180].bHoldingDisable;                                                                              
+	ARdsEventCtrl[180].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[180].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[181].bSignalInput							:=NOT (ARbDI[eX15004_GeneralUnloadingPb_E_Stop]);           
+	ARdsEventCtrl[181].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[181].bHoldingDisable;                                                                              
+	ARdsEventCtrl[181].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[181].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[182].bSignalInput							:=NOT (ARbDI[eX15005_UnloadingConveyorShutterDoorRs_Open]) AND ARbDO[eY13102_UnloadingConveyorShutterDoor_Open]; 
+	ARdsEventCtrl[182].iDelayTimeSV							:=30;                                                       
+	ARdsEventCtrl[182].bHoldingDisable;                                                                              
+	ARdsEventCtrl[182].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[182].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[183].bSignalInput							:=NOT (ARbDI[eX15006_UnloadingConveyorShutterDoorRs_Close]) AND ARbDO[eY13103_UnloadingConveyorShutterDoor_Close];
+	ARdsEventCtrl[183].iDelayTimeSV							:=20;                                                       
+	ARdsEventCtrl[183].bHoldingDisable;                                                                              
+	ARdsEventCtrl[183].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[183].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[184].bSignalInput							:=FALSE AND (ARbDI[eX15007_Reserved]);                      
+	ARdsEventCtrl[184].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[184].bHoldingDisable;                                                                              
+	ARdsEventCtrl[184].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[184].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[185].bSignalInput							:=FALSE AND (ARbDI[eX15008_Reserved]);                      
+	ARdsEventCtrl[185].iDelayTimeSV							:=20;                                                       
+	ARdsEventCtrl[185].bHoldingDisable;                                                                              
+	ARdsEventCtrl[185].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[185].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[186].bSignalInput							:= FALSE AND(ARbDI[eX15009_Reserved]);                      
+	ARdsEventCtrl[186].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[186].bHoldingDisable;                                                                              
+	ARdsEventCtrl[186].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[186].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[187].bSignalInput							:= FALSE AND(ARbDI[eX15010_Reserved]);                      
+	ARdsEventCtrl[187].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[187].bHoldingDisable;                                                                              
+	ARdsEventCtrl[187].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[187].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[188].bSignalInput							:= FALSE AND(ARbDI[eX15011_Reserved]);                      
+	ARdsEventCtrl[188].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[188].bHoldingDisable;                                                                              
+	ARdsEventCtrl[188].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[188].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[189].bSignalInput							:= FALSE AND(ARbDI[eX15012_Reserved]);                      
+	ARdsEventCtrl[189].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[189].bHoldingDisable;                                                                              
+	ARdsEventCtrl[189].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[189].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[190].bSignalInput							:= FALSE AND(ARbDI[eX15013_Reserved]);                      
+	ARdsEventCtrl[190].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[190].bHoldingDisable;                                                                              
+	ARdsEventCtrl[190].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[190].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[191].bSignalInput							:=FALSE AND(ARbDI[eX15014_Reserved]);                       
+	ARdsEventCtrl[191].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[191].bHoldingDisable;                                                                              
+	ARdsEventCtrl[191].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[191].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[192].bSignalInput							:=FALSE AND(ARbDI[eX15015_Reserved]);                       
+	ARdsEventCtrl[192].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[192].bHoldingDisable;                                                                              
+	ARdsEventCtrl[192].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[192].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[193].bSignalInput							:=FALSE ;                                                   
+	ARdsEventCtrl[193].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[193].bHoldingDisable;                                                                              
+	ARdsEventCtrl[193].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[193].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[194].bSignalInput							:=FALSE;                                                    
+	ARdsEventCtrl[194].iDelayTimeSV							:=10;                                                       
+	ARdsEventCtrl[194].bHoldingDisable;                                                                              
+	ARdsEventCtrl[194].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[194].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[195].bSignalInput							:=FALSE;                                                    
+	ARdsEventCtrl[195].iDelayTimeSV							:=10;                                                       
+	ARdsEventCtrl[195].bHoldingDisable;                                                                              
+	ARdsEventCtrl[195].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[195].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[196].bSignalInput							:=FALSE;                                                    
+	ARdsEventCtrl[196].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[196].bHoldingDisable;                                                                              
+	ARdsEventCtrl[196].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[196].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[197].bSignalInput							:=FALSE;                                                    
+	ARdsEventCtrl[197].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[197].bHoldingDisable;                                                                              
+	ARdsEventCtrl[197].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[197].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[198].bSignalInput							:=FALSE;                                                    
+	ARdsEventCtrl[198].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[198].bHoldingDisable;                                                                              
+	ARdsEventCtrl[198].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[198].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[199].bSignalInput							:=FALSE;                                                    
+	ARdsEventCtrl[199].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[199].bHoldingDisable;                                                                              
+	ARdsEventCtrl[199].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[199].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[200].bSignalInput							:=FALSE;                                                    
+	ARdsEventCtrl[200].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[200].bHoldingDisable;                                                                              
+	ARdsEventCtrl[200].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[200].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[200].bSignalInput							:=FALSE;                                                    
+	ARdsEventCtrl[200].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[200].bHoldingDisable;                                                                              
+	ARdsEventCtrl[200].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[200].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[200].bSignalInput							:=FALSE;                                                    
+	ARdsEventCtrl[200].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[200].bHoldingDisable;                                                                              
+	ARdsEventCtrl[200].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[200].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[200].bSignalInput							:=FALSE;                                                    
+	ARdsEventCtrl[200].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[200].bHoldingDisable;                                                                              
+	ARdsEventCtrl[200].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[200].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[200].bSignalInput							:=FALSE;                                                    
+	ARdsEventCtrl[200].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[200].bHoldingDisable;                                                                              
+	ARdsEventCtrl[200].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[200].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[200].bSignalInput							:=FALSE;                                                    
+	ARdsEventCtrl[200].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[200].bHoldingDisable;                                                                              
+	ARdsEventCtrl[200].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[200].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[200].bSignalInput							:=FALSE;                                                    
+	ARdsEventCtrl[200].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[200].bHoldingDisable;                                                                              
+	ARdsEventCtrl[200].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[200].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[200].bSignalInput							:=FALSE;                                                    
+	ARdsEventCtrl[200].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[200].bHoldingDisable;                                                                              
+	ARdsEventCtrl[200].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[200].bEventOutput;                                                                                 
+	                                                                                                                 
+	ARdsEventCtrl[200].bSignalInput							:= FALSE;                                                   
+	ARdsEventCtrl[200].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[200].bHoldingDisable;                                                                              
+	ARdsEventCtrl[200].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[200].bEventOutput;                                                                                                                 
+	                                                    	                                                            
+	ARdsEventCtrl[201].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[201].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[201].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[201].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[201].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][201].sEventType    :='Error';                                               
+                                                        	                                                            
+	ARdsEventCtrl[202].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[202].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[202].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[202].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[202].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][202].sEventType    :='Error';                                               
+                                                        	                                                            
+	ARdsEventCtrl[203].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[203].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[203].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[203].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[203].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][203].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[204].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[204].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[204].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[204].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[204].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][204].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[205].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[205].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[205].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[205].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[205].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][205].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[206].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[206].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[206].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[206].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[206].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][206].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[207].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[207].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[207].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[207].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[207].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][207].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[208].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[208].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[208].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[208].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[208].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][208].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[209].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[209].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[209].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[209].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[209].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][209].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[210].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[210].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[210].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[210].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[210].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][210].sEventType    :='Error';                                               
+			                                            	                                                            
+	ARdsEventCtrl[211].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[211].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[211].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[211].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[211].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][211].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[212].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[212].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[212].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[212].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[212].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][212].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[213].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[213].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[213].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[213].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[213].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][213].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[214].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[214].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[214].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[214].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[214].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][214].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[215].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[215].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[215].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[215].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[215].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][215].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[216].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[216].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[216].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[216].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[216].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][216].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[217].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[217].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[217].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[217].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[217].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][217].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[218].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[218].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[218].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[218].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[218].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][218].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[219].bSignalInput						    :=FALSE;                                                 
+	ARdsEventCtrl[219].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[219].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[219].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[219].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][219].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[220].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[220].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[220].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[220].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[220].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][220].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[221].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[221].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[221].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[221].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[221].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][221].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[222].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[222].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[222].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[222].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[222].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][222].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[223].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[223].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[223].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[223].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[223].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][223].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[224].bSignalInput						      := FALSE;                                                            
+	ARdsEventCtrl[224].iDelayTimeSV						    :=0;                                                   
+	ARdsEventCtrl[224].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[224].bTest_InvertedInputEn;           	                                                              
+	ARdsEventCtrl[224].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][224].sEventType      :='Error';                                             
+	                                                                                                   
+	                                                    	                                                            
+	ARdsEventCtrl[225].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[225].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[225].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[225].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[225].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][225].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[226].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[226].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[226].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[226].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[226].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][226].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[227].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[227].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[227].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[227].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[227].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][227].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[228].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[228].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[228].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[228].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[228].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][228].sEventType    :='Error';                                               
+	                                                    	                                                            
+	ARdsEventCtrl[229].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[229].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[229].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[229].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[229].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][229].sEventType    :='Caution';                                             
+	                                                    	                                                            
+	ARdsEventCtrl[230].bSignalInput						    := FALSE;                                                
+	ARdsEventCtrl[230].iDelayTimeSV							:=0;                                                        
+	ARdsEventCtrl[230].bHoldingDisable;                 	                                                            
+	ARdsEventCtrl[230].bTest_InvertedInputEn;                                                                        
+	ARdsEventCtrl[230].bEventOutput;                                                                                 
+	AR2dsEventDescriptionCausedRemedy[1][230].sEventType    :='Caution';                                             
+	                                                    	                  
+
+	
+
+  
+ 
+ 
+	
+	
+	
+	
+	
+	
+]]></ST>
+    </Implementation>
+    <LineIds Name="Alarm_IO">
+      <LineId Id="2056" Count="1" />
+      <LineId Id="87" Count="0" />
+      <LineId Id="30" Count="1" />
+      <LineId Id="1493" Count="1" />
+      <LineId Id="1492" Count="0" />
+      <LineId Id="32" Count="17" />
+      <LineId Id="2028" Count="0" />
+      <LineId Id="2031" Count="1" />
+      <LineId Id="2034" Count="1" />
+      <LineId Id="2033" Count="0" />
+      <LineId Id="2029" Count="0" />
+      <LineId Id="1575" Count="3" />
+      <LineId Id="1574" Count="0" />
+      <LineId Id="1467" Count="0" />
+      <LineId Id="89" Count="0" />
+      <LineId Id="174" Count="0" />
+      <LineId Id="164" Count="0" />
+      <LineId Id="91" Count="3" />
+      <LineId Id="2046" Count="0" />
+      <LineId Id="1501" Count="0" />
+      <LineId Id="173" Count="0" />
+      <LineId Id="124" Count="0" />
+      <LineId Id="1507" Count="0" />
+      <LineId Id="126" Count="1" />
+      <LineId Id="424" Count="0" />
+      <LineId Id="130" Count="3" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="425" Count="0" />
+      <LineId Id="168" Count="2" />
+      <LineId Id="167" Count="0" />
+      <LineId Id="426" Count="0" />
+      <LineId Id="134" Count="0" />
+      <LineId Id="175" Count="3" />
+      <LineId Id="427" Count="0" />
+      <LineId Id="179" Count="4" />
+      <LineId Id="428" Count="0" />
+      <LineId Id="184" Count="3" />
+      <LineId Id="129" Count="0" />
+      <LineId Id="429" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="190" Count="3" />
+      <LineId Id="430" Count="0" />
+      <LineId Id="194" Count="4" />
+      <LineId Id="431" Count="0" />
+      <LineId Id="199" Count="4" />
+      <LineId Id="432" Count="0" />
+      <LineId Id="204" Count="4" />
+      <LineId Id="433" Count="0" />
+      <LineId Id="209" Count="4" />
+      <LineId Id="434" Count="0" />
+      <LineId Id="214" Count="3" />
+      <LineId Id="189" Count="0" />
+      <LineId Id="435" Count="0" />
+      <LineId Id="218" Count="0" />
+      <LineId Id="220" Count="3" />
+      <LineId Id="436" Count="0" />
+      <LineId Id="224" Count="1" />
+      <LineId Id="1979" Count="0" />
+      <LineId Id="227" Count="1" />
+      <LineId Id="437" Count="0" />
+      <LineId Id="229" Count="4" />
+      <LineId Id="438" Count="0" />
+      <LineId Id="234" Count="3" />
+      <LineId Id="219" Count="0" />
+      <LineId Id="439" Count="0" />
+      <LineId Id="240" Count="0" />
+      <LineId Id="242" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="440" Count="0" />
+      <LineId Id="245" Count="0" />
+      <LineId Id="247" Count="2" />
+      <LineId Id="246" Count="0" />
+      <LineId Id="441" Count="0" />
+      <LineId Id="250" Count="0" />
+      <LineId Id="252" Count="2" />
+      <LineId Id="251" Count="0" />
+      <LineId Id="442" Count="0" />
+      <LineId Id="255" Count="0" />
+      <LineId Id="257" Count="2" />
+      <LineId Id="256" Count="0" />
+      <LineId Id="443" Count="0" />
+      <LineId Id="260" Count="0" />
+      <LineId Id="262" Count="2" />
+      <LineId Id="261" Count="0" />
+      <LineId Id="444" Count="0" />
+      <LineId Id="265" Count="0" />
+      <LineId Id="267" Count="2" />
+      <LineId Id="266" Count="0" />
+      <LineId Id="445" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="296" Count="3" />
+      <LineId Id="446" Count="0" />
+      <LineId Id="300" Count="4" />
+      <LineId Id="447" Count="0" />
+      <LineId Id="305" Count="4" />
+      <LineId Id="448" Count="0" />
+      <LineId Id="310" Count="4" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="449" Count="0" />
+      <LineId Id="316" Count="3" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="450" Count="0" />
+      <LineId Id="320" Count="2" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="451" Count="0" />
+      <LineId Id="323" Count="2" />
+      <LineId Id="275" Count="1" />
+      <LineId Id="452" Count="0" />
+      <LineId Id="326" Count="3" />
+      <LineId Id="453" Count="0" />
+      <LineId Id="277" Count="0" />
+      <LineId Id="331" Count="4" />
+      <LineId Id="454" Count="0" />
+      <LineId Id="337" Count="2" />
+      <LineId Id="336" Count="0" />
+      <LineId Id="330" Count="0" />
+      <LineId Id="455" Count="0" />
+      <LineId Id="340" Count="2" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="343" Count="0" />
+      <LineId Id="456" Count="0" />
+      <LineId Id="345" Count="2" />
+      <LineId Id="344" Count="0" />
+      <LineId Id="279" Count="0" />
+      <LineId Id="457" Count="0" />
+      <LineId Id="349" Count="2" />
+      <LineId Id="348" Count="0" />
+      <LineId Id="352" Count="0" />
+      <LineId Id="458" Count="0" />
+      <LineId Id="354" Count="2" />
+      <LineId Id="353" Count="0" />
+      <LineId Id="357" Count="0" />
+      <LineId Id="459" Count="0" />
+      <LineId Id="359" Count="2" />
+      <LineId Id="358" Count="0" />
+      <LineId Id="280" Count="0" />
+      <LineId Id="460" Count="0" />
+      <LineId Id="363" Count="2" />
+      <LineId Id="362" Count="0" />
+      <LineId Id="281" Count="0" />
+      <LineId Id="461" Count="0" />
+      <LineId Id="398" Count="2" />
+      <LineId Id="397" Count="0" />
+      <LineId Id="286" Count="1" />
+      <LineId Id="462" Count="3" />
+      <LineId Id="401" Count="0" />
+      <LineId Id="420" Count="0" />
+      <LineId Id="466" Count="3" />
+      <LineId Id="290" Count="1" />
+      <LineId Id="470" Count="3" />
+      <LineId Id="292" Count="1" />
+      <LineId Id="475" Count="3" />
+      <LineId Id="474" Count="0" />
+      <LineId Id="294" Count="0" />
+      <LineId Id="480" Count="4" />
+      <LineId Id="479" Count="0" />
+      <LineId Id="486" Count="3" />
+      <LineId Id="485" Count="0" />
+      <LineId Id="490" Count="0" />
+      <LineId Id="492" Count="4" />
+      <LineId Id="491" Count="0" />
+      <LineId Id="498" Count="3" />
+      <LineId Id="497" Count="0" />
+      <LineId Id="295" Count="0" />
+      <LineId Id="502" Count="3" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="506" Count="0" />
+      <LineId Id="508" Count="3" />
+      <LineId Id="507" Count="0" />
+      <LineId Id="512" Count="0" />
+      <LineId Id="514" Count="3" />
+      <LineId Id="513" Count="0" />
+      <LineId Id="518" Count="0" />
+      <LineId Id="545" Count="4" />
+      <LineId Id="519" Count="0" />
+      <LineId Id="550" Count="3" />
+      <LineId Id="520" Count="1" />
+      <LineId Id="554" Count="3" />
+      <LineId Id="522" Count="1" />
+      <LineId Id="558" Count="3" />
+      <LineId Id="524" Count="1" />
+      <LineId Id="563" Count="3" />
+      <LineId Id="562" Count="0" />
+      <LineId Id="526" Count="0" />
+      <LineId Id="567" Count="10" />
+      <LineId Id="527" Count="0" />
+      <LineId Id="579" Count="3" />
+      <LineId Id="578" Count="0" />
+      <LineId Id="528" Count="0" />
+      <LineId Id="584" Count="3" />
+      <LineId Id="583" Count="0" />
+      <LineId Id="529" Count="0" />
+      <LineId Id="588" Count="3" />
+      <LineId Id="530" Count="1" />
+      <LineId Id="592" Count="3" />
+      <LineId Id="532" Count="1" />
+      <LineId Id="597" Count="4" />
+      <LineId Id="596" Count="0" />
+      <LineId Id="603" Count="4" />
+      <LineId Id="602" Count="0" />
+      <LineId Id="608" Count="3" />
+      <LineId Id="534" Count="1" />
+      <LineId Id="612" Count="3" />
+      <LineId Id="536" Count="1" />
+      <LineId Id="617" Count="3" />
+      <LineId Id="616" Count="0" />
+      <LineId Id="538" Count="0" />
+      <LineId Id="621" Count="3" />
+      <LineId Id="539" Count="1" />
+      <LineId Id="627" Count="3" />
+      <LineId Id="626" Count="0" />
+      <LineId Id="625" Count="0" />
+      <LineId Id="631" Count="3" />
+      <LineId Id="541" Count="1" />
+      <LineId Id="636" Count="3" />
+      <LineId Id="635" Count="0" />
+      <LineId Id="640" Count="0" />
+      <LineId Id="669" Count="4" />
+      <LineId Id="641" Count="0" />
+      <LineId Id="674" Count="3" />
+      <LineId Id="642" Count="1" />
+      <LineId Id="678" Count="3" />
+      <LineId Id="644" Count="1" />
+      <LineId Id="682" Count="3" />
+      <LineId Id="646" Count="1" />
+      <LineId Id="686" Count="3" />
+      <LineId Id="648" Count="1" />
+      <LineId Id="690" Count="3" />
+      <LineId Id="650" Count="1" />
+      <LineId Id="695" Count="3" />
+      <LineId Id="694" Count="0" />
+      <LineId Id="652" Count="0" />
+      <LineId Id="700" Count="3" />
+      <LineId Id="699" Count="0" />
+      <LineId Id="653" Count="0" />
+      <LineId Id="704" Count="3" />
+      <LineId Id="654" Count="1" />
+      <LineId Id="708" Count="3" />
+      <LineId Id="656" Count="0" />
+      <LineId Id="712" Count="0" />
+      <LineId Id="715" Count="3" />
+      <LineId Id="714" Count="0" />
+      <LineId Id="713" Count="0" />
+      <LineId Id="720" Count="3" />
+      <LineId Id="719" Count="0" />
+      <LineId Id="657" Count="0" />
+      <LineId Id="724" Count="5" />
+      <LineId Id="748" Count="3" />
+      <LineId Id="730" Count="1" />
+      <LineId Id="752" Count="3" />
+      <LineId Id="732" Count="0" />
+      <LineId Id="658" Count="0" />
+      <LineId Id="756" Count="3" />
+      <LineId Id="659" Count="1" />
+      <LineId Id="760" Count="4" />
+      <LineId Id="661" Count="0" />
+      <LineId Id="765" Count="4" />
+      <LineId Id="662" Count="0" />
+      <LineId Id="770" Count="3" />
+      <LineId Id="663" Count="1" />
+      <LineId Id="774" Count="3" />
+      <LineId Id="665" Count="1" />
+      <LineId Id="779" Count="3" />
+      <LineId Id="778" Count="0" />
+      <LineId Id="667" Count="0" />
+      <LineId Id="783" Count="3" />
+      <LineId Id="668" Count="0" />
+      <LineId Id="543" Count="0" />
+      <LineId Id="787" Count="3" />
+      <LineId Id="733" Count="1" />
+      <LineId Id="791" Count="3" />
+      <LineId Id="735" Count="1" />
+      <LineId Id="795" Count="1" />
+      <LineId Id="1987" Count="0" />
+      <LineId Id="798" Count="0" />
+      <LineId Id="737" Count="1" />
+      <LineId Id="799" Count="4" />
+      <LineId Id="739" Count="0" />
+      <LineId Id="804" Count="9" />
+      <LineId Id="740" Count="1" />
+      <LineId Id="814" Count="4" />
+      <LineId Id="742" Count="0" />
+      <LineId Id="821" Count="4" />
+      <LineId Id="820" Count="0" />
+      <LineId Id="826" Count="3" />
+      <LineId Id="743" Count="1" />
+      <LineId Id="830" Count="3" />
+      <LineId Id="745" Count="1" />
+      <LineId Id="835" Count="4" />
+      <LineId Id="1988" Count="0" />
+      <LineId Id="834" Count="0" />
+      <LineId Id="841" Count="3" />
+      <LineId Id="840" Count="0" />
+      <LineId Id="747" Count="0" />
+      <LineId Id="846" Count="3" />
+      <LineId Id="845" Count="0" />
+      <LineId Id="544" Count="0" />
+      <LineId Id="851" Count="3" />
+      <LineId Id="850" Count="0" />
+      <LineId Id="855" Count="0" />
+      <LineId Id="857" Count="3" />
+      <LineId Id="856" Count="0" />
+      <LineId Id="862" Count="0" />
+      <LineId Id="864" Count="3" />
+      <LineId Id="863" Count="0" />
+      <LineId Id="868" Count="0" />
+      <LineId Id="870" Count="3" />
+      <LineId Id="869" Count="0" />
+      <LineId Id="874" Count="0" />
+      <LineId Id="876" Count="3" />
+      <LineId Id="875" Count="0" />
+      <LineId Id="880" Count="0" />
+      <LineId Id="882" Count="3" />
+      <LineId Id="881" Count="0" />
+      <LineId Id="886" Count="0" />
+      <LineId Id="889" Count="3" />
+      <LineId Id="888" Count="0" />
+      <LineId Id="893" Count="0" />
+      <LineId Id="1997" Count="8" />
+      <LineId Id="1996" Count="0" />
+      <LineId Id="920" Count="4" />
+      <LineId Id="2009" Count="0" />
+      <LineId Id="2011" Count="7" />
+      <LineId Id="2010" Count="0" />
+      <LineId Id="894" Count="0" />
+      <LineId Id="925" Count="3" />
+      <LineId Id="895" Count="1" />
+      <LineId Id="929" Count="4" />
+      <LineId Id="897" Count="0" />
+      <LineId Id="934" Count="0" />
+      <LineId Id="955" Count="0" />
+      <LineId Id="936" Count="2" />
+      <LineId Id="898" Count="0" />
+      <LineId Id="940" Count="0" />
+      <LineId Id="956" Count="0" />
+      <LineId Id="941" Count="2" />
+      <LineId Id="939" Count="0" />
+      <LineId Id="945" Count="0" />
+      <LineId Id="957" Count="0" />
+      <LineId Id="946" Count="1" />
+      <LineId Id="944" Count="0" />
+      <LineId Id="899" Count="0" />
+      <LineId Id="948" Count="0" />
+      <LineId Id="958" Count="0" />
+      <LineId Id="949" Count="1" />
+      <LineId Id="900" Count="1" />
+      <LineId Id="951" Count="0" />
+      <LineId Id="959" Count="0" />
+      <LineId Id="952" Count="2" />
+      <LineId Id="902" Count="0" />
+      <LineId Id="961" Count="3" />
+      <LineId Id="960" Count="0" />
+      <LineId Id="903" Count="0" />
+      <LineId Id="965" Count="3" />
+      <LineId Id="904" Count="1" />
+      <LineId Id="970" Count="3" />
+      <LineId Id="969" Count="0" />
+      <LineId Id="906" Count="0" />
+      <LineId Id="974" Count="3" />
+      <LineId Id="907" Count="1" />
+      <LineId Id="979" Count="4" />
+      <LineId Id="978" Count="0" />
+      <LineId Id="984" Count="3" />
+      <LineId Id="909" Count="1" />
+      <LineId Id="989" Count="3" />
+      <LineId Id="988" Count="0" />
+      <LineId Id="911" Count="0" />
+      <LineId Id="994" Count="4" />
+      <LineId Id="993" Count="0" />
+      <LineId Id="1000" Count="4" />
+      <LineId Id="999" Count="0" />
+      <LineId Id="1005" Count="3" />
+      <LineId Id="912" Count="1" />
+      <LineId Id="1009" Count="5" />
+      <LineId Id="1016" Count="3" />
+      <LineId Id="1015" Count="0" />
+      <LineId Id="914" Count="0" />
+      <LineId Id="1020" Count="4" />
+      <LineId Id="915" Count="0" />
+      <LineId Id="1026" Count="3" />
+      <LineId Id="1025" Count="0" />
+      <LineId Id="916" Count="0" />
+      <LineId Id="1031" Count="4" />
+      <LineId Id="1030" Count="0" />
+      <LineId Id="1036" Count="3" />
+      <LineId Id="917" Count="1" />
+      <LineId Id="1041" Count="3" />
+      <LineId Id="1040" Count="0" />
+      <LineId Id="1045" Count="0" />
+      <LineId Id="1090" Count="4" />
+      <LineId Id="1046" Count="0" />
+      <LineId Id="1097" Count="3" />
+      <LineId Id="1096" Count="0" />
+      <LineId Id="1107" Count="0" />
+      <LineId Id="1112" Count="4" />
+      <LineId Id="1048" Count="0" />
+      <LineId Id="1117" Count="4" />
+      <LineId Id="1049" Count="0" />
+      <LineId Id="1122" Count="4" />
+      <LineId Id="1050" Count="0" />
+      <LineId Id="1127" Count="4" />
+      <LineId Id="1051" Count="0" />
+      <LineId Id="1132" Count="3" />
+      <LineId Id="1052" Count="0" />
+      <LineId Id="1068" Count="0" />
+      <LineId Id="1137" Count="4" />
+      <LineId Id="1136" Count="0" />
+      <LineId Id="1143" Count="3" />
+      <LineId Id="1142" Count="0" />
+      <LineId Id="1069" Count="0" />
+      <LineId Id="1147" Count="4" />
+      <LineId Id="1070" Count="0" />
+      <LineId Id="1153" Count="3" />
+      <LineId Id="1152" Count="0" />
+      <LineId Id="1071" Count="0" />
+      <LineId Id="1157" Count="3" />
+      <LineId Id="1072" Count="1" />
+      <LineId Id="1161" Count="4" />
+      <LineId Id="1074" Count="0" />
+      <LineId Id="1167" Count="3" />
+      <LineId Id="1166" Count="0" />
+      <LineId Id="1075" Count="0" />
+      <LineId Id="1172" Count="3" />
+      <LineId Id="1171" Count="0" />
+      <LineId Id="1076" Count="0" />
+      <LineId Id="1176" Count="4" />
+      <LineId Id="1077" Count="0" />
+      <LineId Id="1181" Count="3" />
+      <LineId Id="1078" Count="1" />
+      <LineId Id="1185" Count="3" />
+      <LineId Id="1080" Count="1" />
+      <LineId Id="1189" Count="3" />
+      <LineId Id="1082" Count="1" />
+      <LineId Id="1218" Count="4" />
+      <LineId Id="1084" Count="0" />
+      <LineId Id="1223" Count="3" />
+      <LineId Id="1085" Count="1" />
+      <LineId Id="1227" Count="3" />
+      <LineId Id="1087" Count="1" />
+      <LineId Id="1231" Count="3" />
+      <LineId Id="1089" Count="0" />
+      <LineId Id="1053" Count="0" />
+      <LineId Id="1236" Count="3" />
+      <LineId Id="1235" Count="0" />
+      <LineId Id="1054" Count="0" />
+      <LineId Id="1241" Count="4" />
+      <LineId Id="1240" Count="0" />
+      <LineId Id="1247" Count="3" />
+      <LineId Id="1246" Count="0" />
+      <LineId Id="1055" Count="0" />
+      <LineId Id="1251" Count="4" />
+      <LineId Id="1056" Count="0" />
+      <LineId Id="1256" Count="4" />
+      <LineId Id="1057" Count="0" />
+      <LineId Id="1261" Count="3" />
+      <LineId Id="1058" Count="1" />
+      <LineId Id="1265" Count="4" />
+      <LineId Id="1060" Count="0" />
+      <LineId Id="1270" Count="3" />
+      <LineId Id="1061" Count="1" />
+      <LineId Id="1274" Count="4" />
+      <LineId Id="1063" Count="0" />
+      <LineId Id="1280" Count="4" />
+      <LineId Id="1279" Count="0" />
+      <LineId Id="1285" Count="3" />
+      <LineId Id="1064" Count="1" />
+      <LineId Id="1289" Count="3" />
+      <LineId Id="1066" Count="1" />
+      <LineId Id="1293" Count="3" />
+      <LineId Id="919" Count="0" />
+      <LineId Id="887" Count="0" />
+      <LineId Id="1298" Count="3" />
+      <LineId Id="1297" Count="0" />
+      <LineId Id="1302" Count="0" />
+      <LineId Id="1304" Count="3" />
+      <LineId Id="1303" Count="0" />
+      <LineId Id="1314" Count="0" />
+      <LineId Id="1349" Count="3" />
+      <LineId Id="1315" Count="1" />
+      <LineId Id="1353" Count="4" />
+      <LineId Id="1317" Count="0" />
+      <LineId Id="1358" Count="3" />
+      <LineId Id="1318" Count="1" />
+      <LineId Id="1362" Count="3" />
+      <LineId Id="1320" Count="1" />
+      <LineId Id="1366" Count="4" />
+      <LineId Id="1322" Count="0" />
+      <LineId Id="1371" Count="3" />
+      <LineId Id="1323" Count="1" />
+      <LineId Id="1375" Count="3" />
+      <LineId Id="1325" Count="1" />
+      <LineId Id="1379" Count="3" />
+      <LineId Id="1327" Count="1" />
+      <LineId Id="1383" Count="3" />
+      <LineId Id="1329" Count="1" />
+      <LineId Id="1387" Count="4" />
+      <LineId Id="1331" Count="0" />
+      <LineId Id="1392" Count="3" />
+      <LineId Id="1332" Count="1" />
+      <LineId Id="1396" Count="4" />
+      <LineId Id="1334" Count="0" />
+      <LineId Id="1401" Count="3" />
+      <LineId Id="1335" Count="1" />
+      <LineId Id="1405" Count="3" />
+      <LineId Id="1337" Count="1" />
+      <LineId Id="1409" Count="3" />
+      <LineId Id="1339" Count="1" />
+      <LineId Id="1413" Count="3" />
+      <LineId Id="1341" Count="0" />
+      <LineId Id="1587" Count="0" />
+      <LineId Id="1589" Count="3" />
+      <LineId Id="1588" Count="0" />
+      <LineId Id="1593" Count="0" />
+      <LineId Id="1595" Count="3" />
+      <LineId Id="1594" Count="0" />
+      <LineId Id="1599" Count="0" />
+      <LineId Id="1601" Count="3" />
+      <LineId Id="1600" Count="0" />
+      <LineId Id="1605" Count="0" />
+      <LineId Id="1607" Count="3" />
+      <LineId Id="1606" Count="0" />
+      <LineId Id="1611" Count="0" />
+      <LineId Id="1613" Count="3" />
+      <LineId Id="1612" Count="0" />
+      <LineId Id="1617" Count="0" />
+      <LineId Id="1619" Count="3" />
+      <LineId Id="1618" Count="0" />
+      <LineId Id="1623" Count="0" />
+      <LineId Id="1625" Count="3" />
+      <LineId Id="1624" Count="0" />
+      <LineId Id="1635" Count="0" />
+      <LineId Id="1637" Count="3" />
+      <LineId Id="1636" Count="0" />
+      <LineId Id="1642" Count="0" />
+      <LineId Id="1644" Count="3" />
+      <LineId Id="1643" Count="0" />
+      <LineId Id="1648" Count="0" />
+      <LineId Id="1650" Count="3" />
+      <LineId Id="1649" Count="0" />
+      <LineId Id="1654" Count="0" />
+      <LineId Id="1656" Count="3" />
+      <LineId Id="1655" Count="0" />
+      <LineId Id="1660" Count="0" />
+      <LineId Id="1662" Count="3" />
+      <LineId Id="1661" Count="0" />
+      <LineId Id="1666" Count="0" />
+      <LineId Id="1668" Count="3" />
+      <LineId Id="1667" Count="0" />
+      <LineId Id="1672" Count="0" />
+      <LineId Id="1674" Count="3" />
+      <LineId Id="1673" Count="0" />
+      <LineId Id="1678" Count="0" />
+      <LineId Id="1680" Count="3" />
+      <LineId Id="1679" Count="0" />
+      <LineId Id="1684" Count="0" />
+      <LineId Id="1686" Count="3" />
+      <LineId Id="1685" Count="0" />
+      <LineId Id="1706" Count="0" />
+      <LineId Id="1710" Count="3" />
+      <LineId Id="1707" Count="0" />
+      <LineId Id="1718" Count="6" />
+      <LineId Id="1726" Count="6" />
+      <LineId Id="1716" Count="0" />
+      <LineId Id="1734" Count="0" />
+      <LineId Id="1736" Count="4" />
+      <LineId Id="1735" Count="0" />
+      <LineId Id="1742" Count="0" />
+      <LineId Id="1744" Count="4" />
+      <LineId Id="1743" Count="0" />
+      <LineId Id="1764" Count="0" />
+      <LineId Id="1766" Count="4" />
+      <LineId Id="1772" Count="6" />
+      <LineId Id="1780" Count="6" />
+      <LineId Id="1788" Count="6" />
+      <LineId Id="1796" Count="6" />
+      <LineId Id="1804" Count="6" />
+      <LineId Id="1812" Count="6" />
+      <LineId Id="1820" Count="6" />
+      <LineId Id="1828" Count="6" />
+      <LineId Id="1836" Count="6" />
+      <LineId Id="1844" Count="6" />
+      <LineId Id="1852" Count="6" />
+      <LineId Id="1860" Count="6" />
+      <LineId Id="1868" Count="6" />
+      <LineId Id="1876" Count="6" />
+      <LineId Id="1884" Count="6" />
+      <LineId Id="1892" Count="6" />
+      <LineId Id="1900" Count="6" />
+      <LineId Id="1908" Count="6" />
+      <LineId Id="1916" Count="7" />
+      <LineId Id="1925" Count="6" />
+      <LineId Id="1933" Count="6" />
+      <LineId Id="1941" Count="6" />
+      <LineId Id="1765" Count="0" />
+      <LineId Id="1708" Count="0" />
+      <LineId Id="1751" Count="4" />
+      <LineId Id="1750" Count="0" />
+      <LineId Id="1956" Count="0" />
+      <LineId Id="1958" Count="4" />
+      <LineId Id="1957" Count="0" />
+      <LineId Id="1964" Count="0" />
+      <LineId Id="1709" Count="0" />
+      <LineId Id="1697" Count="1" />
+      <LineId Id="1563" Count="0" />
+      <LineId Id="1566" Count="0" />
+      <LineId Id="1565" Count="0" />
+      <LineId Id="1343" Count="5" />
+      <LineId Id="1309" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

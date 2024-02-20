@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="LIB_GVL_MEMORY_CONSTANT" Id="{ffe1c079-334c-4d9c-bce6-9902128ea61e}" ParameterList="True">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL CONSTANT
+
+	C_iProRepRecipeQty				: INT := 20;		//  the number of Step in Product Recipe Step 
+	C_iProRepStepQty				: INT := 20;		//  the number of Step in Product Recipe Step 
+	
+	C_iSSERRecipeQty				: INT := 20; 		// Number/set of SSER Recipe *Per Station*	
+	C_iSSERStepQty					: INT := 20;		// Define the number of Step in SSER 
+
+	C_iSSURRecipeQty				: INT := 20; 		// Number/set of SSUR Recipe *Per Station*
+
+	C_iSSMRRecipeQty				: INT := 20; 		// Number/set of SSMR Recipe *Per Station*
+
+	C_iSSMROutputValveQty 			: INT := 20; 		// Max Valve Quantity Per Station 
+
+	C_iCarrierPerTankQty			: INT := 1;		(*Number of Carrier per tank, ex: if the arm is transferring x2 baskets together for each of every station -> value: 2*) 
+	C_iWorkPiecePerCarrierQty		: INT := 1;		(*Number of WorkPiece (Parts) per carrier, this declaration will genreate Barcode data storage *)	
+	C_iCarrierInfoQty				: INT := 3;		(*Number of information to be capture or recorded to indentify the Carrier(aka Basket), ex: Product Description + Product Type + WorkOrder + EndUserID = 4xInfo -> value: 4*)	
+
+	
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

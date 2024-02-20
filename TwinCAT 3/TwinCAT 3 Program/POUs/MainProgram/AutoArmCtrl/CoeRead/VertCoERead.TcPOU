@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="VertCoERead" Id="{89c90072-12e2-4bc0-9ffb-9ffe05fc508b}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM VertCoERead
+VAR
+	fbCoERead_TopOT 	: FB_EcCoESdoRead;
+	fbCoERead_BtmOT 	: FB_EcCoESdoRead;
+	fbCoERead_Home 		: FB_EcCoESdoRead;
+	fbCoERead_ErrStop 	: FB_EcCoESdoRead;
+	nUpOT				: PVOID;
+	nDownOT				: PVOID;
+	nHome				: PVOID;
+	nErrStop			: PVOID;	
+	bTopOTReadError		: BOOL;
+	bBtmOTReadError 	: BOOL;
+	bHomeReadError		: BOOL;
+	bErrStopReadError	: BOOL;
+
+	
+	
+	bArm1VertUpOT		: BOOL;
+	bArm1VertDownOT		: BOOL;
+	bArm1VertHome		: BOOL;
+	bArm1ErrStop		: BOOL;
+	bVertCoEReadError	: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//IF bMainCtrl THEN
+	
+	fbCoERead_TopOT(
+		sNetId:= '169.254.184.40.4.1:1032', 
+		nSlaveAddr:= 1032, 
+		nSubIndex:= 16#81, 
+		nIndex:= 16#4631, 
+		pDstBuf:= ADR(nUpOT), 
+		cbBufLen:= SIZEOF(nUpOT), 
+		bExecute:= bClockPulse_10ms, 
+		tTimeout:= , 
+		bBusy=> , 
+		bError=> bTopOTReadError, 
+		nErrId=> , 
+		cbRead=> );
+	
+	fbCoERead_BtmOT(
+		sNetId:= '169.254.184.40.4.1:1032', 
+		nSlaveAddr:= 1032, 
+		nSubIndex:= 16#81, 
+		nIndex:= 16#4630, 
+		pDstBuf:= ADR(nDownOT), 
+		cbBufLen:= SIZEOF(nDownOT), 
+		bExecute:= bClockPulse_10ms, 
+		tTimeout:= , 
+		bBusy=> , 
+		bError=> bBtmOTReadError, 
+		nErrId=> , 
+		cbRead=> );
+		
+	fbCoERead_Home(
+		sNetId:= '169.254.184.40.4.1:1032', 
+		nSlaveAddr:= 1032, 
+		nSubIndex:= 16#81, 
+		nIndex:= 16#4634, 
+		pDstBuf:= ADR(nHome), 
+		cbBufLen:= SIZEOF(nHome), 
+		bExecute:= bClockPulse_10ms, 
+		tTimeout:= , 
+		bBusy=> , 
+		bError=> bHomeReadError, 
+		nErrId=> , 
+		cbRead=> );	
+	
+	// servo ready output	
+	fbCoERead_ErrStop(
+		sNetId:= '169.254.184.40.4.1:1032', 
+		nSlaveAddr:= 1032, 
+		nSubIndex:= 16#81, 
+		nIndex:= 16#4651, 
+		pDstBuf:= ADR(nErrStop), 
+		cbBufLen:= SIZEOF(nErrStop), 
+		bExecute:= bClockPulse_10ms, 
+		tTimeout:= , 
+		bBusy=> , 
+		bError=> bErrStopReadError, 
+		nErrId=> , 
+		cbRead=> ); 
+		
+	bArm1VertUpOT 				:= NOT TO_BOOL(nUpOT);	
+	bArm1VertDownOT 			:= NOT TO_BOOL(nDownOT);	
+	bArm1VertHome 				:= TO_BOOL(nHome);
+	bArm1ErrStop				:= TO_BOOL(nErrStop);	
+	
+	bVertCoEReadError := bTopOTReadError OR bBtmOTReadError OR bHomeReadError OR bErrStopReadError;
+//END_IF
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="VertCoERead">
+      <LineId Id="82" Count="0" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="86" Count="41" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="128" Count="18" />
+      <LineId Id="84" Count="1" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

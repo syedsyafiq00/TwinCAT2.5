@@ -1,0 +1,391 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_InvPosCtrl" Id="{237afb12-4dfc-4aa8-8d96-161ce3fb7834}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_InvPosCtrl
+VAR_INPUT
+	bPositioningEn 							: BOOL;
+	bVertMovementEn							: BOOL;
+	bHorzMovementEn						: BOOL;
+	b4StepsEn								: BOOL;
+	lrCurrentPos								: LREAL;
+
+	rTargetSpdHz							: REAL;
+	r2ndSpdHz								: REAL;
+	i2ndSpdDelayOffTimeSV_ms				: INT;
+
+	lrPosToleranceP : ARRAY [0..3, 0..iStnQty, 0..12] OF LREAL;
+	lrPosToleranceN : ARRAY [0..3, 0..iStnQty, 0..12] OF LREAL;
+
+	DS4StepsMovement						: DS_SA_Movement;
+
+
+	(*DS4StepsUpMovement					: DS_SA_Movement;*)
+
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+
+	DSArmPosition 					: DSV2_ArmPosition;
+
+END_VAR
+VAR_OUTPUT
+	bPositioningDone : BOOL;
+	bPositioningBusy : BOOL;
+
+	bOut_InvMoveFwd : BOOL;
+	bOut_InvMoveRwd : BOOL;
+
+	bOut_InvMove2ndSpd : BOOL;
+	rPosTargetSpdHz : REAL;
+	lrTargetPos		: LREAL;
+
+END_VAR
+VAR
+	iSFLQty: INT;
+	iStep: INT;
+	iTargetPosStFL1 : INT;
+	iTargetPosStFL2 : INT;
+	iTargetPosStFL3 : INT;
+
+	lrBufferTargetPos: LREAL;
+	iBufferFL1: INT;
+	iBufferFL2: INT;
+	iBufferFL3: INT;
+	bPosStRE: R_TRIG;
+	bPosStFE: F_TRIG;
+	DSBuffer4StepsMovement: DS_SA_Movement;
+	bOut_InvMove2ndSpdInternal : BOOL;
+
+	b2ndSpdDelayOffTimer: TON;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*2nd Speed Signal Delay Off*)
+
+b2ndSpdDelayOffTimer(IN:= NOT bOut_InvMove2ndSpdInternal, PT:=INT_TO_TIME(i2ndSpdDelayOffTimeSV_ms) , Q=> , ET=> );
+
+IF bOut_InvMove2ndSpdInternal THEN
+bOut_InvMove2ndSpd := TRUE;
+END_IF
+
+IF b2ndSpdDelayOffTimer.Q THEN
+bOut_InvMove2ndSpd := FALSE;
+END_IF
+
+
+(*Program*)
+bPosStRE(CLK:=(bPositioningEn AND bVertMovementEn AND NOT bHorzMovementEn) OR (bPositioningEn AND NOT bVertMovementEn AND bHorzMovementEn) , Q=> );
+
+IF bPosStRE.Q THEN
+iStep := 1;
+END_IF
+
+IF NOT bPositioningEn OR (bVertMovementEn AND bHorzMovementEn) OR (NOT bVertMovementEn AND NOT bHorzMovementEn)  THEN
+iStep := 0;
+END_IF
+
+
+
+
+CASE iStep OF
+
+0:
+	bPositioningDone := FALSE;
+	bPositioningBusy := FALSE;
+
+	bOut_InvMoveFwd := FALSE;
+	bOut_InvMoveRwd := FALSE;
+
+	bOut_InvMove2ndSpdInternal := FALSE;
+
+	rPosTargetSpdHz := 0;
+	lrTargetPos := 0;
+
+	lrBufferTargetPos := 0;
+	iBufferFL1 := 0;
+	iBufferFL2 := 0;
+	iBufferFL3 := 0;
+
+
+
+1: (*Reset*)
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+bPositioningDone := TRUE;
+bPositioningBusy := FALSE;
+
+bOut_InvMoveFwd := FALSE;
+bOut_InvMoveRwd := FALSE;
+
+bOut_InvMove2ndSpdInternal := FALSE;
+
+iTargetPosStFL1 := 1;
+lrBufferTargetPos := 0;
+(*iBufferFL1 := 0;
+iBufferFL2 := 0;
+iBufferFL3 := 0;
+*)
+rPosTargetSpdHz := 0;
+lrTargetPos := 0;
+
+iStep := 2;
+
+2: (*Search Target Pos St*)
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+FOR iTargetPosStFL1 := 1 TO 3 DO
+	IF iTargetPosStFL1 >= 1 AND iTargetPosStFL1 <= 3 THEN
+
+		IF iTargetPosStFL1 = 1 THEN
+		iSFLQty := iStnQty;
+		ELSIF iTargetPosStFL1 = 2 THEN
+		iSFLQty := iLdStnQty;
+		ELSIF iTargetPosStFL1 = 3 THEN
+		iSFLQty := iUldStnQty;
+		END_IF
+
+		iTargetPosStFL2 := 1;
+
+		FOR iTargetPosStFL2 := 1 TO iSFLQty DO
+			IF iTargetPosStFL2 >= 1 AND iTargetPosStFL2 <= iSFLQty THEN
+
+				iTargetPosStFL3 := 1;
+
+				FOR iTargetPosStFL3 := 1 TO 12 DO
+					IF iTargetPosStFL3 >= 1 AND iTargetPosStFL3 <= 12 THEN
+
+						IF DSArmPosition.AR3slrPosition[iTargetPosStFL1, iTargetPosStFL2, iTargetPosStFL3] <> 0 THEN
+
+							IF (iTargetPosStFL3 >= 1 AND iTargetPosStFL3 <= 6 AND bVertMovementEn) OR
+							(iTargetPosStFL3 >= 7 AND iTargetPosStFL3 <= 10 AND bHorzMovementEn) THEN
+
+								IF DSArmPosition.AR3sbTargetPosSt[iTargetPosStFL1,iTargetPosStFL2,iTargetPosStFL3] AND NOT DSArmPosition.AR3sbPositionCfm[iTargetPosStFL1,iTargetPosStFL2,iTargetPosStFL3] THEN
+
+									lrBufferTargetPos := DSArmPosition.AR3slrPosition[iTargetPosStFL1,iTargetPosStFL2,iTargetPosStFL3];
+									lrTargetPos := DSArmPosition.AR3slrPosition[iTargetPosStFL1,iTargetPosStFL2,iTargetPosStFL3];
+									iBufferFL1 := iTargetPosStFL1;
+									iBufferFL2 := iTargetPosStFL2;
+									iBufferFL3 := iTargetPosStFL3;
+									iTargetPosStFL1 := 99;
+									iTargetPosStFL2 := 99;
+									iTargetPosStFL3 := 99;
+									iStep := 3;
+								END_IF
+
+							END_IF
+
+						END_IF
+
+					END_IF
+				END_FOR
+			END_IF
+		END_FOR
+	END_IF
+END_FOR
+
+IF iTargetPosStFL1 > 3 AND iTargetPosStFL2 > iSFLQty AND iTargetPosStFL3 > 12 AND iStep = 2 THEN
+iStep := 1;
+END_IF
+
+3: (*Determine Up or Down movement -> Swap Data if necessary*)
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+IF lrTargetPos > lrCurrentPos THEN
+
+DSBuffer4StepsMovement := DS4StepsMovement
+;
+(*DSBuffer4StepsMovement.lrZone1Speed		:=	DS4StepsMovement.lrZone4Speed;
+DSBuffer4StepsMovement.lrZone2Speed		:=	DS4StepsMovement.lrZone3Speed;
+DSBuffer4StepsMovement.lrZone3Speed		:=	DS4StepsMovement.lrZone2Speed;
+DSBuffer4StepsMovement.lrZone4Speed		:=	DS4StepsMovement.lrZone1Speed;
+DSBuffer4StepsMovement.lrZone1StartPos	:=	DS4StepsMovement.lrZone4EndPos;
+DSBuffer4StepsMovement.lrZone2StartPos	:=	DS4StepsMovement.lrZone4StartPos;
+DSBuffer4StepsMovement.lrZone3StartPos	:=	DS4StepsMovement.lrZone3StartPos;
+DSBuffer4StepsMovement.lrZone4StartPos	:=	DS4StepsMovement.lrZone2StartPos;
+DSBuffer4StepsMovement.lrZone4EndPos	:=	DS4StepsMovement.lrZone1StartPos;
+*)
+
+ELSE
+DSBuffer4StepsMovement.lrZone1Speed		:=	DS4StepsMovement.lrZone4Speed;
+DSBuffer4StepsMovement.lrZone2Speed		:=	DS4StepsMovement.lrZone3Speed;
+DSBuffer4StepsMovement.lrZone3Speed		:=	DS4StepsMovement.lrZone2Speed;
+DSBuffer4StepsMovement.lrZone4Speed		:=	DS4StepsMovement.lrZone1Speed;
+DSBuffer4StepsMovement.lrZone1StartPos	:=	DS4StepsMovement.lrZone4EndPos;
+DSBuffer4StepsMovement.lrZone2StartPos	:=	DS4StepsMovement.lrZone4StartPos;
+DSBuffer4StepsMovement.lrZone3StartPos	:=	DS4StepsMovement.lrZone3StartPos;
+DSBuffer4StepsMovement.lrZone4StartPos	:=	DS4StepsMovement.lrZone2StartPos;
+DSBuffer4StepsMovement.lrZone4EndPos	:=	DS4StepsMovement.lrZone1StartPos;
+END_IF
+iStep := 4;
+
+
+
+
+
+
+
+4: (*Move To Target Pos*)
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+	bPositioningDone := FALSE;
+	bPositioningBusy := TRUE;
+
+(*Speed Control *)
+
+
+	IF DSArmPosition.AR3sb2ndSpdEn[iBufferFL1,iBufferFL2,iBufferFL3]  AND iBufferFL1 >0 AND iBufferFL2 >0 AND iBufferFL3 >0 THEN
+	rPosTargetSpdHz := r2ndSpdHz;
+	bOut_InvMove2ndSpdInternal := TRUE;
+	ELSIF NOT b4StepsEn THEN
+	rPosTargetSpdHz := rTargetSpdHz;
+	bOut_InvMove2ndSpdInternal := FALSE;
+	ELSIF b4StepsEn THEN
+	bOut_InvMove2ndSpdInternal := FALSE;
+
+
+
+		IF lrCurrentPos(*5*) < lrBufferTargetPos(*5*)THEN
+			IF DSBuffer4StepsMovement.lrZone2StartPos(*125*) > lrCurrentPos THEN
+				rPosTargetSpdHz := DSBuffer4StepsMovement.lrZone1Speed;
+
+			ELSIF DSBuffer4StepsMovement.lrZone2StartPos(*125*) <= lrCurrentPos AND DSBuffer4StepsMovement.lrZone3StartPos(*285*) > lrCurrentPos THEN
+				rPosTargetSpdHz := DSBuffer4StepsMovement.lrZone2Speed;
+
+			ELSIF DSBuffer4StepsMovement.lrZone3StartPos(*285*) <= lrCurrentPos AND DSBuffer4StepsMovement.lrZone4StartPos(*835*) > lrCurrentPos THEN
+				rPosTargetSpdHz := DSBuffer4StepsMovement.lrZone3Speed;
+
+			ELSIF DSBuffer4StepsMovement.lrZone4StartPos(*835*) <= lrCurrentPos THEN
+				rPosTargetSpdHz := DSBuffer4StepsMovement.lrZone4Speed;
+
+			END_IF
+
+		END_IF
+
+
+		IF lrCurrentPos(*5*) >= lrBufferTargetPos(*5*)THEN
+				IF DSBuffer4StepsMovement.lrZone2StartPos(*835*) < lrCurrentPos THEN
+				rPosTargetSpdHz := DSBuffer4StepsMovement.lrZone1Speed;
+
+			ELSIF DSBuffer4StepsMovement.lrZone2StartPos(*835*) >= lrCurrentPos AND DSBuffer4StepsMovement.lrZone3StartPos(*285*) < lrCurrentPos THEN
+				rPosTargetSpdHz := DSBuffer4StepsMovement.lrZone2Speed;
+
+			ELSIF DSBuffer4StepsMovement.lrZone3StartPos(*285*) >= lrCurrentPos AND DSBuffer4StepsMovement.lrZone4StartPos(*125*) < lrCurrentPos THEN
+				rPosTargetSpdHz := DSBuffer4StepsMovement.lrZone3Speed;
+
+			ELSIF DSBuffer4StepsMovement.lrZone4StartPos(*125*) >= lrCurrentPos THEN
+				rPosTargetSpdHz := DSBuffer4StepsMovement.lrZone4Speed;
+
+
+
+(*			IF DSBuffer4StepsMovement.lrZone4StartPos(*835*) < lrCurrentPos THEN
+						_				rPosTargetSpdHz := DSBuffer4StepsMovement.lrZone4Speed;__					
+						___					
+						_			ELSIF DSBuffer4StepsMovement.lrZone4StartPos(*835*) >= lrCurrentPos AND DSBuffer4StepsMovement.lrZone3StartPos(*285*) < lrCurrentPos THEN__					
+						_				rPosTargetSpdHz := DSBuffer4StepsMovement.lrZone3Speed;__					
+						___					
+						_			ELSIF DSBuffer4StepsMovement.lrZone3StartPos(*285*) >= lrCurrentPos AND DSBuffer4StepsMovement.lrZone2StartPos(*125*) < lrCurrentPos THEN__					
+						_				rPosTargetSpdHz := DSBuffer4StepsMovement.lrZone2Speed;__					
+						___					
+						_			ELSIF DSBuffer4StepsMovement.lrZone2StartPos(*125*) >= lrCurrentPos THEN__					
+						_				rPosTargetSpdHz := DSBuffer4StepsMovement.lrZone1Speed;__					
+						___					
+)
+			END_IF
+
+		END_IF
+
+(*
+		IF DSBuffer4StepsMovement.lrZone1StartPos <= lrBufferTargetPos(*DSBuffer4StepsMovement.lrZone4EndPos*) THEN
+			IF (*DSBuffer4StepsMovement.lrZone1StartPos <= lrCurrentPos AND*) DSBuffer4StepsMovement.lrZone2StartPos > lrCurrentPos THEN
+				rPosTargetSpdHz := DSBuffer4StepsMovement.lrZone1Speed;
+
+			ELSIF DSBuffer4StepsMovement.lrZone2StartPos <= lrCurrentPos AND DSBuffer4StepsMovement.lrZone3StartPos > lrCurrentPos THEN
+				rPosTargetSpdHz := DSBuffer4StepsMovement.lrZone2Speed;
+
+			ELSIF DSBuffer4StepsMovement.lrZone3StartPos <= lrCurrentPos AND DSBuffer4StepsMovement.lrZone4StartPos > lrCurrentPos THEN
+				rPosTargetSpdHz := DSBuffer4StepsMovement.lrZone3Speed;
+
+			ELSIF DSBuffer4StepsMovement.lrZone4StartPos <= lrCurrentPos (*AND (*DSBuffer4StepsMovement.lrZone4EndPos*)lrBufferTargetPos >= lrCurrentPos*) THEN
+				rPosTargetSpdHz := DSBuffer4StepsMovement.lrZone4Speed;
+
+			END_IF
+
+		END_IF
+
+
+		IF DSBuffer4StepsMovement.lrZone1StartPos >= lrBufferTargetPos(*DSBuffer4StepsMovement.lrZone4EndPos*) THEN
+			IF (*DSBuffer4StepsMovement.lrZone1StartPos >= lrCurrentPos AND*) DSBuffer4StepsMovement.lrZone2StartPos < lrCurrentPos THEN  ;
+				rPosTargetSpdHz := DSBuffer4StepsMovement.lrZone1Speed;
+
+			ELSIF DSBuffer4StepsMovement.lrZone2StartPos >= lrCurrentPos AND DSBuffer4StepsMovement.lrZone3StartPos < lrCurrentPos THEN  ;
+				rPosTargetSpdHz := DSBuffer4StepsMovement.lrZone2Speed;
+
+			ELSIF DSBuffer4StepsMovement.lrZone3StartPos >= lrCurrentPos AND DSBuffer4StepsMovement.lrZone4StartPos < lrCurrentPos THEN  ;
+				rPosTargetSpdHz := DSBuffer4StepsMovement.lrZone3Speed;
+
+			ELSIF DSBuffer4StepsMovement.lrZone4StartPos >= lrCurrentPos (*AND (*DSBuffer4StepsMovement.lrZone4EndPos*)lrBufferTargetPos <= lrCurrentPos*) THEN  ;
+				rPosTargetSpdHz := DSBuffer4StepsMovement.lrZone4Speed;
+
+			END_IF
+
+		END_IF
+
+*)
+
+(*Tobedelete- Create DS4StepsUpMovement for going Up Pos - by Lee*)
+(*
+		IF DS4StepsUpMovement.lrZone1StartPos >= lrBufferTargetPos(*DS4StepsUpMovement.lrZone4EndPos*) THEN
+			IF DS4StepsUpMovement.lrZone1StartPos >= lrCurrentPos AND DS4StepsUpMovement.lrZone2StartPos < lrCurrentPos THEN  ;
+				rPosTargetSpdHz := DS4StepsUpMovement.lrZone1Speed;
+
+			ELSIF DS4StepsUpMovement.lrZone2StartPos >= lrCurrentPos AND DS4StepsUpMovement.lrZone3StartPos < lrCurrentPos THEN  ;
+				rPosTargetSpdHz := DS4StepsUpMovement.lrZone2Speed;
+
+			ELSIF DS4StepsUpMovement.lrZone3StartPos >= lrCurrentPos AND DS4StepsUpMovement.lrZone4StartPos < lrCurrentPos THEN  ;
+				rPosTargetSpdHz := DS4StepsUpMovement.lrZone3Speed;
+
+			ELSIF DS4StepsUpMovement.lrZone4StartPos >= lrCurrentPos AND (*DS4StepsUpMovement.lrZone4EndPos*)lrBufferTargetPos <= lrCurrentPos THEN  ;
+				rPosTargetSpdHz := DS4StepsUpMovement.lrZone4Speed;
+
+			END_IF
+
+		END_IF
+*)
+
+
+	ELSE
+	rPosTargetSpdHz := 0;
+	bOut_InvMove2ndSpdInternal := FALSE;
+
+	END_IF
+
+
+
+	(*Movement Control*)
+	IF lrCurrentPos > lrBufferTargetPos AND NOT DSArmPosition.AR3sbPositionCfm[iBufferFL1,iBufferFL2,iBufferFL3]
+	AND NOT (lrCurrentPos >= lrPosToleranceN[iBufferFL1, iBufferFL2, iBufferFL3]  AND lrCurrentPos <= lrPosToleranceP[iBufferFL1, iBufferFL2, iBufferFL3]) THEN
+
+	bOut_InvMoveFwd := FALSE;
+	bOut_InvMoveRwd := TRUE;
+
+	ELSIF lrCurrentPos < lrBufferTargetPos AND NOT DSArmPosition.AR3sbPositionCfm[iBufferFL1,iBufferFL2,iBufferFL3]
+	AND NOT (lrCurrentPos >= lrPosToleranceN[iBufferFL1, iBufferFL2, iBufferFL3]  AND lrCurrentPos <= lrPosToleranceP[iBufferFL1, iBufferFL2, iBufferFL3]) THEN
+
+	bOut_InvMoveFwd := TRUE;
+	bOut_InvMoveRwd := FALSE;
+	ELSE
+	bOut_InvMoveFwd := FALSE;
+	bOut_InvMoveRwd := FALSE;
+	END_IF
+
+	IF DSArmPosition.AR3sbPositionCfm[iBufferFL1,iBufferFL2,iBufferFL3] THEN
+	iStep := 1;
+	END_IF
+
+
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_InvPosCtrl">
+      <LineId Id="58" Count="322" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

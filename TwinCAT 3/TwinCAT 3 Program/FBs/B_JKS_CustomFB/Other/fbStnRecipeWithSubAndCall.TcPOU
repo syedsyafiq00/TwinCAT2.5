@@ -1,0 +1,966 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbStnRecipeWithSubAndCall" Id="{737b1a65-dea0-447c-8be4-632f4cec4d08}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbStnRecipeWithSubAndCall
+VAR_INPUT
+	bSavePB : BOOL;
+	bLoadPB : BOOL;
+
+
+
+END_VAR
+
+VAR_OUTPUT PERSISTENT
+
+	bSaveInd : BOOL;
+	bLoadInd : BOOL;
+
+	iSeqCallPresentProgram1 : INT;
+	iSeqCallPresentProgram2 : INT;
+	iSeqCallPresentProgram3 : INT;
+	iSeqCallPresentProgram4 : INT;
+	iSeqCallPresentProgram5 : INT;
+	iSeqCallPresentProgram6 : INT;
+	iSeqCallPresentProgram7 : INT;
+	iSeqCallPresentProgram8 : INT;
+	iSeqCallPresentProgram9 : INT;
+	iSeqCallPresentProgram10 : INT;
+
+	iCallSubProAdd1 : INT;
+	iCallSubProAdd2 : INT;
+	iCallSubProAdd3 : INT;
+	iCallSubProAdd4 : INT;
+	iCallSubProAdd5 : INT;
+	iCallSubProAdd6 : INT;
+	iCallSubProAdd7 : INT;
+	iCallSubProAdd8 : INT;
+	iCallSubProAdd9 : INT;
+	iCallSubProAdd10 : INT;
+	iCallRecipeTotalTime : INT;
+	AR10_iCallSubProTotalTime : ARRAY[1..10] OF INT;
+
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+
+	iMainNo : INT;
+	iSequencePresentProgram1 : INT;
+	iSequencePresentProgram2 : INT;
+	iSequencePresentProgram3 : INT;
+	iSequencePresentProgram4 : INT;
+	iSequencePresentProgram5 : INT;
+	iSequencePresentProgram6 : INT;
+	iSequencePresentProgram7 : INT;
+	iSequencePresentProgram8 : INT;
+	iSequencePresentProgram9 : INT;
+	iSequencePresentProgram10 : INT;
+
+
+
+	iSubNo : INT;
+	iSubProAdd1 : INT;
+	iSubProAdd2 : INT;
+	iSubProAdd3 : INT;
+	iSubProAdd4 : INT;
+	iSubProAdd5 : INT;
+	iSubProAdd6 : INT;
+	iSubProAdd7 : INT;
+	iSubProAdd8 : INT;
+	iSubProAdd9 : INT;
+	iSubProAdd10 : INT;
+	iCallMainRecipeNo : INT;
+	iCallSubRecipeNo : INT;
+	iTotalTimeMainRecipeNo : INT;
+	iTotalTimeSubRecipeNo : INT;
+
+
+
+
+END_VAR
+
+VAR PERSISTENT
+
+	AR200iInterger1 : ARRAY[0..200] OF INT;
+	AR200iInterger2 : ARRAY[0..200] OF INT;
+	AR200iInterger3 : ARRAY[0..200] OF INT;
+	AR200iInterger4 : ARRAY[0..200] OF INT;
+	AR200iInterger5 : ARRAY[0..200] OF INT;
+	AR200iInterger6 : ARRAY[0..200] OF INT;
+	AR200iInterger7 : ARRAY[0..200] OF INT;
+	AR200iInterger8 : ARRAY[0..200] OF INT;
+	AR200iInterger9 : ARRAY[0..200] OF INT;
+	AR200iInterger10 : ARRAY[0..200] OF INT;
+	AR200iInterger11 : ARRAY[0..200] OF INT;
+	AR200iInterger12 : ARRAY[0..200] OF INT;
+	AR200iInterger13 : ARRAY[0..200] OF INT;
+	AR200iInterger14 : ARRAY[0..200] OF INT;
+	AR200iInterger15 : ARRAY[0..200] OF INT;
+	AR200iInterger16 : ARRAY[0..200] OF INT;
+	AR200iInterger17 : ARRAY[0..200] OF INT;
+	AR200iInterger18 : ARRAY[0..200] OF INT;
+	AR200iInterger19 : ARRAY[0..200] OF INT;
+	AR200iInterger20 : ARRAY[0..200] OF INT;
+	AR200iInterger21 : ARRAY[0..200] OF INT;
+	AR200iInterger22 : ARRAY[0..200] OF INT;
+	AR200iInterger23 : ARRAY[0..200] OF INT;
+	AR200iInterger24 : ARRAY[0..200] OF INT;
+	AR200iInterger25 : ARRAY[0..200] OF INT;
+	AR200iInterger26 : ARRAY[0..200] OF INT;
+	AR200iInterger27 : ARRAY[0..200] OF INT;
+	AR200iInterger28 : ARRAY[0..200] OF INT;
+	AR200iInterger29 : ARRAY[0..200] OF INT;
+	AR200iInterger30 : ARRAY[0..200] OF INT;
+	AR200iInterger31 : ARRAY[0..200] OF INT;
+	AR200iInterger32 : ARRAY[0..200] OF INT;
+	AR200iInterger33 : ARRAY[0..200] OF INT;
+	AR200iInterger34 : ARRAY[0..200] OF INT;
+	AR200iInterger35 : ARRAY[0..200] OF INT;
+	AR200iInterger36 : ARRAY[0..200] OF INT;
+	AR200iInterger37 : ARRAY[0..200] OF INT;
+	AR200iInterger38 : ARRAY[0..200] OF INT;
+	AR200iInterger39 : ARRAY[0..200] OF INT;
+	AR200iInterger40 : ARRAY[0..200] OF INT;
+	AR200iInterger41 : ARRAY[0..200] OF INT;
+	AR200iInterger42 : ARRAY[0..200] OF INT;
+	AR200iInterger43 : ARRAY[0..200] OF INT;
+	AR200iInterger44 : ARRAY[0..200] OF INT;
+	AR200iInterger45 : ARRAY[0..200] OF INT;
+	AR200iInterger46 : ARRAY[0..200] OF INT;
+	AR200iInterger47 : ARRAY[0..200] OF INT;
+	AR200iInterger48 : ARRAY[0..200] OF INT;
+	AR200iInterger49 : ARRAY[0..200] OF INT;
+	AR200iInterger50 : ARRAY[0..200] OF INT;
+	AR200iInterger51 : ARRAY[0..200] OF INT;
+	AR200iInterger52 : ARRAY[0..200] OF INT;
+	AR200iInterger53 : ARRAY[0..200] OF INT;
+	AR200iInterger54 : ARRAY[0..200] OF INT;
+	AR200iInterger55 : ARRAY[0..200] OF INT;
+	AR200iInterger56 : ARRAY[0..200] OF INT;
+	AR200iInterger57 : ARRAY[0..200] OF INT;
+	AR200iInterger58 : ARRAY[0..200] OF INT;
+	AR200iInterger59 : ARRAY[0..200] OF INT;
+	AR200iInterger60 : ARRAY[0..200] OF INT;
+	AR200iInterger61 : ARRAY[0..200] OF INT;
+	AR200iInterger62 : ARRAY[0..200] OF INT;
+	AR200iInterger63 : ARRAY[0..200] OF INT;
+	AR200iInterger64 : ARRAY[0..200] OF INT;
+	AR200iInterger65 : ARRAY[0..200] OF INT;
+	AR200iInterger66 : ARRAY[0..200] OF INT;
+	AR200iInterger67 : ARRAY[0..200] OF INT;
+	AR200iInterger68 : ARRAY[0..200] OF INT;
+	AR200iInterger69 : ARRAY[0..200] OF INT;
+	AR200iInterger70 : ARRAY[0..200] OF INT;
+	AR200iInterger71 : ARRAY[0..200] OF INT;
+	AR200iInterger72 : ARRAY[0..200] OF INT;
+	AR200iInterger73 : ARRAY[0..200] OF INT;
+	AR200iInterger74 : ARRAY[0..200] OF INT;
+	AR200iInterger75 : ARRAY[0..200] OF INT;
+	AR200iInterger76 : ARRAY[0..200] OF INT;
+	AR200iInterger77 : ARRAY[0..200] OF INT;
+	AR200iInterger78 : ARRAY[0..200] OF INT;
+	AR200iInterger79 : ARRAY[0..200] OF INT;
+	AR200iInterger80 : ARRAY[0..200] OF INT;
+	AR200iInterger81 : ARRAY[0..200] OF INT;
+	AR200iInterger82 : ARRAY[0..200] OF INT;
+	AR200iInterger83 : ARRAY[0..200] OF INT;
+	AR200iInterger84 : ARRAY[0..200] OF INT;
+	AR200iInterger85 : ARRAY[0..200] OF INT;
+	AR200iInterger86 : ARRAY[0..200] OF INT;
+	AR200iInterger87 : ARRAY[0..200] OF INT;
+	AR200iInterger88 : ARRAY[0..200] OF INT;
+	AR200iInterger89 : ARRAY[0..200] OF INT;
+	AR200iInterger90 : ARRAY[0..200] OF INT;
+	AR200iInterger91 : ARRAY[0..200] OF INT;
+	AR200iInterger92 : ARRAY[0..200] OF INT;
+	AR200iInterger93 : ARRAY[0..200] OF INT;
+	AR200iInterger94 : ARRAY[0..200] OF INT;
+	AR200iInterger95 : ARRAY[0..200] OF INT;
+	AR200iInterger96 : ARRAY[0..200] OF INT;
+	AR200iInterger97 : ARRAY[0..200] OF INT;
+	AR200iInterger98 : ARRAY[0..200] OF INT;
+	AR200iInterger99 : ARRAY[0..200] OF INT;
+	AR200iInterger100 : ARRAY[0..200] OF INT;
+
+	AR200iInterger101 : ARRAY[0..200] OF INT;
+	AR200iInterger102 : ARRAY[0..200] OF INT;
+	AR200iInterger103 : ARRAY[0..200] OF INT;
+	AR200iInterger104 : ARRAY[0..200] OF INT;
+	AR200iInterger105 : ARRAY[0..200] OF INT;
+	AR200iInterger106 : ARRAY[0..200] OF INT;
+	AR200iInterger107 : ARRAY[0..200] OF INT;
+	AR200iInterger108 : ARRAY[0..200] OF INT;
+	AR200iInterger109 : ARRAY[0..200] OF INT;
+	AR200iInterger110 : ARRAY[0..200] OF INT;
+
+	AR200iTotalTimeIntCall : ARRAY[1..200] OF INT;
+
+	iSeqCallTTPresentProgram1 : INT;
+	iSeqCallTTPresentProgram2 : INT;
+	iSeqCallTTPresentProgram3 : INT;
+	iSeqCallTTPresentProgram4 : INT;
+	iSeqCallTTPresentProgram5 : INT;
+	iSeqCallTTPresentProgram6 : INT;
+	iSeqCallTTPresentProgram7 : INT;
+	iSeqCallTTPresentProgram8 : INT;
+	iSeqCallTTPresentProgram9 : INT;
+	iSeqCallTTPresentProgram10 : INT;
+
+	AR200iIntCall : ARRAY[1..200] OF INT;
+	AR200iInt : ARRAY[1..200] OF INT;
+
+END_VAR
+
+VAR
+
+	SaveIndHr: BOOL;
+	SaveTimerDelay: TON;
+	LoadIndHr: BOOL;
+	LoadTimerDelay: TON;
+	SelfCheckTimer: TON;
+	SelfCheckloop: BOOL;
+	LoadDF: R_TRIG;
+	LoadENDF: R_TRIG;
+	SaveDF: R_TRIG;
+
+	i: INT;
+	Partvalid: BOOL;
+
+	SubLoadENDF: R_TRIG;
+	SelfCheckSubTimer: TON;
+	SelfCheckSubloop: BOOL;
+
+
+	PreviousNo: INT;
+	PreviousSubNo: INT;
+	bLoadEn: BOOL;
+	bSubLoadEN: BOOL;
+
+
+	iTotalTimeMainRecipeNoRE : R_TRIG;
+	ScanTTFL : INT;
+
+	bStartTTScan: BOOL;
+END_VAR
+
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF iMainNo < 1 THEN
+iMainNo := 1;
+END_IF
+
+IF iMainNo > 99 THEN
+iMainNo := 99;
+END_IF
+
+IF iSubNo < 1 THEN
+iSubNo := 1;
+END_IF
+
+IF iSubNo > 10 THEN
+iSubNo := 10;
+END_IF
+(*
+IF iCallMainRecipeNo < 1 THEN
+iCallMainRecipeNo := 1;
+END_IF
+
+IF iCallMainRecipeNo > 99 THEN
+iCallMainRecipeNo := 99;
+END_IF
+
+IF iCallSubRecipeNo < 1 THEN
+iCallSubRecipeNo := 1;
+END_IF
+
+IF iCallSubRecipeNo > 10 THEN
+iCallSubRecipeNo := 10;
+END_IF
+*)
+
+IF bSavePB THEN
+SaveIndHr := TRUE;
+END_IF
+
+SaveTimerDelay(IN:=SaveIndHr, PT := T#1s, Q=>, ET=>);
+IF SaveTimerDelay.Q THEN
+SaveIndHr := FALSE;
+END_IF
+
+IF SaveIndHr AND NOT SaveTimerDelay.Q THEN
+bSaveInd := TRUE;
+ELSE
+bSaveInd := FALSE;
+END_IF
+
+IF bLoadPB THEN
+LoadIndHr := TRUE;
+END_IF
+
+LoadTimerDelay(IN:=LoadIndHr, PT := T#1s, Q=>, ET=>);
+IF loadtimerdelay.Q THEN
+LoadIndHr := FALSE;
+END_IF
+
+IF loadIndHr AND NOT LoadTimerDelay.Q THEN
+bLoadInd := TRUE;
+ELSE
+bLoadInd := FALSE;
+END_IF
+
+SelfCheckTimer(IN:=NOT SelfCheckloop, PT := T#0.5s, Q=>, ET=>);
+
+	IF SelfCheckTimer.Q THEN
+	PreviousNo := iMainNo;
+	SelfCheckloop := TRUE;
+	ELSE
+	SelfCheckloop := FALSE;
+	END_IF
+
+IF iMainNo <> PreviousNo THEN
+bLoadEn := TRUE;
+ELSE
+bLoadEn := FALSE;
+END_IF
+
+
+SelfCheckSubTimer(IN:=NOT SelfCheckSubloop, PT := T#0.5s, Q=>, ET=>);
+
+	IF SelfCheckTimer.Q THEN
+	PreviousSubNo := iSubNo;
+	SelfCheckSubloop := TRUE;
+	ELSE
+	SelfCheckSubloop := FALSE;
+	END_IF
+
+IF iSubNo <> PreviousSubNo THEN
+bSubLoadEN := TRUE;
+ELSE
+bSubLoadEN := FALSE;
+END_IF
+
+
+
+LoadDF(CLK:=bLoadPB OR bLoadEn OR bSubLoadEN ,Q=>);
+
+IF LoadDF.Q THEN
+
+
+AR200iInt[1] := AR200iInterger1[iMainNo];
+AR200iInt[2] := AR200iInterger2[iMainNo];
+AR200iInt[3] := AR200iInterger3[iMainNo];
+AR200iInt[4] := AR200iInterger4[iMainNo];
+AR200iInt[5] := AR200iInterger5[iMainNo];
+AR200iInt[6] := AR200iInterger6[iMainNo];
+AR200iInt[7] := AR200iInterger7[iMainNo];
+AR200iInt[8] := AR200iInterger8[iMainNo];
+AR200iInt[9] := AR200iInterger9[iMainNo];
+AR200iInt[10] := AR200iInterger10[iMainNo];
+AR200iInt[11] := AR200iInterger11[iMainNo];
+AR200iInt[12] := AR200iInterger12[iMainNo];
+AR200iInt[13] := AR200iInterger13[iMainNo];
+AR200iInt[14] := AR200iInterger14[iMainNo];
+AR200iInt[15] := AR200iInterger15[iMainNo];
+AR200iInt[16] := AR200iInterger16[iMainNo];
+AR200iInt[17] := AR200iInterger17[iMainNo];
+AR200iInt[18] := AR200iInterger18[iMainNo];
+AR200iInt[19] := AR200iInterger19[iMainNo];
+AR200iInt[20] := AR200iInterger20[iMainNo];
+AR200iInt[21] := AR200iInterger21[iMainNo];
+AR200iInt[22] := AR200iInterger22[iMainNo];
+AR200iInt[23] := AR200iInterger23[iMainNo];
+AR200iInt[24] := AR200iInterger24[iMainNo];
+AR200iInt[25] := AR200iInterger25[iMainNo];
+AR200iInt[26] := AR200iInterger26[iMainNo];
+AR200iInt[27] := AR200iInterger27[iMainNo];
+AR200iInt[28] := AR200iInterger28[iMainNo];
+AR200iInt[29] := AR200iInterger29[iMainNo];
+AR200iInt[30] := AR200iInterger30[iMainNo];
+AR200iInt[31] := AR200iInterger31[iMainNo];
+AR200iInt[32] := AR200iInterger32[iMainNo];
+AR200iInt[33] := AR200iInterger33[iMainNo];
+AR200iInt[34] := AR200iInterger34[iMainNo];
+AR200iInt[35] := AR200iInterger35[iMainNo];
+AR200iInt[36] := AR200iInterger36[iMainNo];
+AR200iInt[37] := AR200iInterger37[iMainNo];
+AR200iInt[38] := AR200iInterger38[iMainNo];
+AR200iInt[39] := AR200iInterger39[iMainNo];
+AR200iInt[40] := AR200iInterger40[iMainNo];
+AR200iInt[41] := AR200iInterger41[iMainNo];
+AR200iInt[42] := AR200iInterger42[iMainNo];
+AR200iInt[43] := AR200iInterger43[iMainNo];
+AR200iInt[44] := AR200iInterger44[iMainNo];
+AR200iInt[45] := AR200iInterger45[iMainNo];
+AR200iInt[46] := AR200iInterger46[iMainNo];
+AR200iInt[47] := AR200iInterger47[iMainNo];
+AR200iInt[48] := AR200iInterger48[iMainNo];
+AR200iInt[49] := AR200iInterger49[iMainNo];
+AR200iInt[50] := AR200iInterger50[iMainNo];
+AR200iInt[51] := AR200iInterger51[iMainNo];
+AR200iInt[52] := AR200iInterger52[iMainNo];
+AR200iInt[53] := AR200iInterger53[iMainNo];
+AR200iInt[54] := AR200iInterger54[iMainNo];
+AR200iInt[55] := AR200iInterger55[iMainNo];
+AR200iInt[56] := AR200iInterger56[iMainNo];
+AR200iInt[57] := AR200iInterger57[iMainNo];
+AR200iInt[58] := AR200iInterger58[iMainNo];
+AR200iInt[59] := AR200iInterger59[iMainNo];
+AR200iInt[60] := AR200iInterger60[iMainNo];
+AR200iInt[61] := AR200iInterger61[iMainNo];
+AR200iInt[62] := AR200iInterger62[iMainNo];
+AR200iInt[63] := AR200iInterger63[iMainNo];
+AR200iInt[64] := AR200iInterger64[iMainNo];
+AR200iInt[65] := AR200iInterger65[iMainNo];
+AR200iInt[66] := AR200iInterger66[iMainNo];
+AR200iInt[67] := AR200iInterger67[iMainNo];
+AR200iInt[68] := AR200iInterger68[iMainNo];
+AR200iInt[69] := AR200iInterger69[iMainNo];
+AR200iInt[70] := AR200iInterger70[iMainNo];
+AR200iInt[71] := AR200iInterger71[iMainNo];
+AR200iInt[72] := AR200iInterger72[iMainNo];
+AR200iInt[73] := AR200iInterger73[iMainNo];
+AR200iInt[74] := AR200iInterger74[iMainNo];
+AR200iInt[75] := AR200iInterger75[iMainNo];
+AR200iInt[76] := AR200iInterger76[iMainNo];
+AR200iInt[77] := AR200iInterger77[iMainNo];
+AR200iInt[78] := AR200iInterger78[iMainNo];
+AR200iInt[79] := AR200iInterger79[iMainNo];
+AR200iInt[80] := AR200iInterger80[iMainNo];
+AR200iInt[81] := AR200iInterger81[iMainNo];
+AR200iInt[82] := AR200iInterger82[iMainNo];
+AR200iInt[83] := AR200iInterger83[iMainNo];
+AR200iInt[84] := AR200iInterger84[iMainNo];
+AR200iInt[85] := AR200iInterger85[iMainNo];
+AR200iInt[86] := AR200iInterger86[iMainNo];
+AR200iInt[87] := AR200iInterger87[iMainNo];
+AR200iInt[88] := AR200iInterger88[iMainNo];
+AR200iInt[89] := AR200iInterger89[iMainNo];
+AR200iInt[90] := AR200iInterger90[iMainNo];
+AR200iInt[91] := AR200iInterger91[iMainNo];
+AR200iInt[92] := AR200iInterger92[iMainNo];
+AR200iInt[93] := AR200iInterger93[iMainNo];
+AR200iInt[94] := AR200iInterger94[iMainNo];
+AR200iInt[95] := AR200iInterger95[iMainNo];
+AR200iInt[96] := AR200iInterger96[iMainNo];
+AR200iInt[97] := AR200iInterger97[iMainNo];
+AR200iInt[98] := AR200iInterger98[iMainNo];
+AR200iInt[99] := AR200iInterger99[iMainNo];
+AR200iInt[100] := AR200iInterger100[iMainNo];
+
+
+
+
+iSequencePresentProgram1 := AR200iInterger101[iMainNo];
+iSequencePresentProgram2 := AR200iInterger102[iMainNo];
+iSequencePresentProgram3 := AR200iInterger103[iMainNo];
+iSequencePresentProgram4 := AR200iInterger104[iMainNo];
+iSequencePresentProgram5 := AR200iInterger105[iMainNo];
+iSequencePresentProgram6 := AR200iInterger106[iMainNo];
+iSequencePresentProgram7 := AR200iInterger107[iMainNo];
+iSequencePresentProgram8 := AR200iInterger108[iMainNo];
+iSequencePresentProgram9 := AR200iInterger109[iMainNo];
+iSequencePresentProgram10 := AR200iInterger110[iMainNo];
+
+
+
+iSubProAdd1 := AR200iInt[((iSubNo*10)+1)-10];
+iSubProAdd2 := AR200iInt[((iSubNo*10)+2)-10];
+iSubProAdd3 := AR200iInt[((iSubNo*10)+3)-10];
+iSubProAdd4 := AR200iInt[((iSubNo*10)+4)-10];
+iSubProAdd5 := AR200iInt[((iSubNo*10)+5)-10];
+iSubProAdd6 := AR200iInt[((iSubNo*10)+6)-10];
+iSubProAdd7 := AR200iInt[((iSubNo*10)+7)-10];
+iSubProAdd8 := AR200iInt[((iSubNo*10)+8)-10];
+iSubProAdd9 := AR200iInt[((iSubNo*10)+9)-10];
+iSubProAdd10 := AR200iInt[((iSubNo*10)+10)-10];
+
+
+
+
+END_IF
+
+SaveDF(CLK:=bSavePB,Q=>);
+
+IF SaveDF.Q AND iMainNo>0 THEN
+
+AR200iInt[((iSubNo*10)+1)-10] := iSubProAdd1;
+AR200iInt[((iSubNo*10)+2)-10] := iSubProAdd2;
+AR200iInt[((iSubNo*10)+3)-10] := iSubProAdd3;
+AR200iInt[((iSubNo*10)+4)-10] := iSubProAdd4;
+AR200iInt[((iSubNo*10)+5)-10] := iSubProAdd5;
+AR200iInt[((iSubNo*10)+6)-10] := iSubProAdd6;
+AR200iInt[((iSubNo*10)+7)-10] := iSubProAdd7;
+AR200iInt[((iSubNo*10)+8)-10] := iSubProAdd8;
+AR200iInt[((iSubNo*10)+9)-10] := iSubProAdd9;
+AR200iInt[((iSubNo*10)+10)-10] := iSubProAdd10;
+
+
+
+AR200iInterger1[iMainNo] := AR200iInt[1];
+AR200iInterger2[iMainNo] := AR200iInt[2];
+AR200iInterger3[iMainNo] := AR200iInt[3];
+AR200iInterger4[iMainNo] := AR200iInt[4];
+AR200iInterger5[iMainNo] := AR200iInt[5];
+AR200iInterger6[iMainNo] := AR200iInt[6];
+AR200iInterger7[iMainNo] := AR200iInt[7];
+AR200iInterger8[iMainNo] := AR200iInt[8];
+AR200iInterger9[iMainNo] := AR200iInt[9];
+AR200iInterger10[iMainNo] := AR200iInt[10];
+AR200iInterger11[iMainNo] := AR200iInt[11];
+AR200iInterger12[iMainNo] := AR200iInt[12];
+AR200iInterger13[iMainNo] := AR200iInt[13];
+AR200iInterger14[iMainNo] := AR200iInt[14];
+AR200iInterger15[iMainNo] := AR200iInt[15];
+AR200iInterger16[iMainNo] := AR200iInt[16];
+AR200iInterger17[iMainNo] := AR200iInt[17];
+AR200iInterger18[iMainNo] := AR200iInt[18];
+AR200iInterger19[iMainNo] := AR200iInt[19];
+AR200iInterger20[iMainNo] := AR200iInt[20];
+AR200iInterger21[iMainNo] := AR200iInt[21];
+AR200iInterger22[iMainNo] := AR200iInt[22];
+AR200iInterger23[iMainNo] := AR200iInt[23];
+AR200iInterger24[iMainNo] := AR200iInt[24];
+AR200iInterger25[iMainNo] := AR200iInt[25];
+AR200iInterger26[iMainNo] := AR200iInt[26];
+AR200iInterger27[iMainNo] := AR200iInt[27];
+AR200iInterger28[iMainNo] := AR200iInt[28];
+AR200iInterger29[iMainNo] := AR200iInt[29];
+AR200iInterger30[iMainNo] := AR200iInt[30];
+AR200iInterger31[iMainNo] := AR200iInt[31];
+AR200iInterger32[iMainNo] := AR200iInt[32];
+AR200iInterger33[iMainNo] := AR200iInt[33];
+AR200iInterger34[iMainNo] := AR200iInt[34];
+AR200iInterger35[iMainNo] := AR200iInt[35];
+AR200iInterger36[iMainNo] := AR200iInt[36];
+AR200iInterger37[iMainNo] := AR200iInt[37];
+AR200iInterger38[iMainNo] := AR200iInt[38];
+AR200iInterger39[iMainNo] := AR200iInt[39];
+AR200iInterger40[iMainNo] := AR200iInt[40];
+AR200iInterger41[iMainNo] := AR200iInt[41];
+AR200iInterger42[iMainNo] := AR200iInt[42];
+AR200iInterger43[iMainNo] := AR200iInt[43];
+AR200iInterger44[iMainNo] := AR200iInt[44];
+AR200iInterger45[iMainNo] := AR200iInt[45];
+AR200iInterger46[iMainNo] := AR200iInt[46];
+AR200iInterger47[iMainNo] := AR200iInt[47];
+AR200iInterger48[iMainNo] := AR200iInt[48];
+AR200iInterger49[iMainNo] := AR200iInt[49];
+AR200iInterger50[iMainNo] := AR200iInt[50];
+AR200iInterger51[iMainNo] := AR200iInt[51];
+AR200iInterger52[iMainNo] := AR200iInt[52];
+AR200iInterger53[iMainNo] := AR200iInt[53];
+AR200iInterger54[iMainNo] := AR200iInt[54];
+AR200iInterger55[iMainNo] := AR200iInt[55];
+AR200iInterger56[iMainNo] := AR200iInt[56];
+AR200iInterger57[iMainNo] := AR200iInt[57];
+AR200iInterger58[iMainNo] := AR200iInt[58];
+AR200iInterger59[iMainNo] := AR200iInt[59];
+AR200iInterger60[iMainNo] := AR200iInt[60];
+AR200iInterger61[iMainNo] := AR200iInt[61];
+AR200iInterger62[iMainNo] := AR200iInt[62];
+AR200iInterger63[iMainNo] := AR200iInt[63];
+AR200iInterger64[iMainNo] := AR200iInt[64];
+AR200iInterger65[iMainNo] := AR200iInt[65];
+AR200iInterger66[iMainNo] := AR200iInt[66];
+AR200iInterger67[iMainNo] := AR200iInt[67];
+AR200iInterger68[iMainNo] := AR200iInt[68];
+AR200iInterger69[iMainNo] := AR200iInt[69];
+AR200iInterger70[iMainNo] := AR200iInt[70];
+AR200iInterger71[iMainNo] := AR200iInt[71];
+AR200iInterger72[iMainNo] := AR200iInt[72];
+AR200iInterger73[iMainNo] := AR200iInt[73];
+AR200iInterger74[iMainNo] := AR200iInt[74];
+AR200iInterger75[iMainNo] := AR200iInt[75];
+AR200iInterger76[iMainNo] := AR200iInt[76];
+AR200iInterger77[iMainNo] := AR200iInt[77];
+AR200iInterger78[iMainNo] := AR200iInt[78];
+AR200iInterger79[iMainNo] := AR200iInt[79];
+AR200iInterger80[iMainNo] := AR200iInt[80];
+AR200iInterger81[iMainNo] := AR200iInt[81];
+AR200iInterger82[iMainNo] := AR200iInt[82];
+AR200iInterger83[iMainNo] := AR200iInt[83];
+AR200iInterger84[iMainNo] := AR200iInt[84];
+AR200iInterger85[iMainNo] := AR200iInt[85];
+AR200iInterger86[iMainNo] := AR200iInt[86];
+AR200iInterger87[iMainNo] := AR200iInt[87];
+AR200iInterger88[iMainNo] := AR200iInt[88];
+AR200iInterger89[iMainNo] := AR200iInt[89];
+AR200iInterger90[iMainNo] := AR200iInt[90];
+AR200iInterger91[iMainNo] := AR200iInt[91];
+AR200iInterger92[iMainNo] := AR200iInt[92];
+AR200iInterger93[iMainNo] := AR200iInt[93];
+AR200iInterger94[iMainNo] := AR200iInt[94];
+AR200iInterger95[iMainNo] := AR200iInt[95];
+AR200iInterger96[iMainNo] := AR200iInt[96];
+AR200iInterger97[iMainNo] := AR200iInt[97];
+AR200iInterger98[iMainNo] := AR200iInt[98];
+AR200iInterger99[iMainNo] := AR200iInt[99];
+AR200iInterger100[iMainNo] := AR200iInt[100];
+
+AR200iInterger101[iMainNo] := iSequencePresentProgram1;
+AR200iInterger102[iMainNo] := iSequencePresentProgram2;
+AR200iInterger103[iMainNo] := iSequencePresentProgram3;
+AR200iInterger104[iMainNo] := iSequencePresentProgram4;
+AR200iInterger105[iMainNo] := iSequencePresentProgram5;
+AR200iInterger106[iMainNo] := iSequencePresentProgram6;
+AR200iInterger107[iMainNo] := iSequencePresentProgram7;
+AR200iInterger108[iMainNo] := iSequencePresentProgram8;
+AR200iInterger109[iMainNo] := iSequencePresentProgram9;
+AR200iInterger110[iMainNo] := iSequencePresentProgram10;
+
+
+END_IF
+
+
+(*Call Recipe*)
+
+
+IF iCallMainRecipeNo>0 AND iCallMainRecipeNo<100 OR iCallSubRecipeNo>0 AND iCallSubRecipeNo<11 THEN
+
+AR200iIntCall[1] := AR200iInterger1[iCallMainRecipeNo];
+AR200iIntCall[2] := AR200iInterger2[iCallMainRecipeNo];
+AR200iIntCall[3] := AR200iInterger3[iCallMainRecipeNo];
+AR200iIntCall[4] := AR200iInterger4[iCallMainRecipeNo];
+AR200iIntCall[5] := AR200iInterger5[iCallMainRecipeNo];
+AR200iIntCall[6] := AR200iInterger6[iCallMainRecipeNo];
+AR200iIntCall[7] := AR200iInterger7[iCallMainRecipeNo];
+AR200iIntCall[8] := AR200iInterger8[iCallMainRecipeNo];
+AR200iIntCall[9] := AR200iInterger9[iCallMainRecipeNo];
+AR200iIntCall[10] := AR200iInterger10[iCallMainRecipeNo];
+AR200iIntCall[11] := AR200iInterger11[iCallMainRecipeNo];
+AR200iIntCall[12] := AR200iInterger12[iCallMainRecipeNo];
+AR200iIntCall[13] := AR200iInterger13[iCallMainRecipeNo];
+AR200iIntCall[14] := AR200iInterger14[iCallMainRecipeNo];
+AR200iIntCall[15] := AR200iInterger15[iCallMainRecipeNo];
+AR200iIntCall[16] := AR200iInterger16[iCallMainRecipeNo];
+AR200iIntCall[17] := AR200iInterger17[iCallMainRecipeNo];
+AR200iIntCall[18] := AR200iInterger18[iCallMainRecipeNo];
+AR200iIntCall[19] := AR200iInterger19[iCallMainRecipeNo];
+AR200iIntCall[20] := AR200iInterger20[iCallMainRecipeNo];
+AR200iIntCall[21] := AR200iInterger21[iCallMainRecipeNo];
+AR200iIntCall[22] := AR200iInterger22[iCallMainRecipeNo];
+AR200iIntCall[23] := AR200iInterger23[iCallMainRecipeNo];
+AR200iIntCall[24] := AR200iInterger24[iCallMainRecipeNo];
+AR200iIntCall[25] := AR200iInterger25[iCallMainRecipeNo];
+AR200iIntCall[26] := AR200iInterger26[iCallMainRecipeNo];
+AR200iIntCall[27] := AR200iInterger27[iCallMainRecipeNo];
+AR200iIntCall[28] := AR200iInterger28[iCallMainRecipeNo];
+AR200iIntCall[29] := AR200iInterger29[iCallMainRecipeNo];
+AR200iIntCall[30] := AR200iInterger30[iCallMainRecipeNo];
+AR200iIntCall[31] := AR200iInterger31[iCallMainRecipeNo];
+AR200iIntCall[32] := AR200iInterger32[iCallMainRecipeNo];
+AR200iIntCall[33] := AR200iInterger33[iCallMainRecipeNo];
+AR200iIntCall[34] := AR200iInterger34[iCallMainRecipeNo];
+AR200iIntCall[35] := AR200iInterger35[iCallMainRecipeNo];
+AR200iIntCall[36] := AR200iInterger36[iCallMainRecipeNo];
+AR200iIntCall[37] := AR200iInterger37[iCallMainRecipeNo];
+AR200iIntCall[38] := AR200iInterger38[iCallMainRecipeNo];
+AR200iIntCall[39] := AR200iInterger39[iCallMainRecipeNo];
+AR200iIntCall[40] := AR200iInterger40[iCallMainRecipeNo];
+AR200iIntCall[41] := AR200iInterger41[iCallMainRecipeNo];
+AR200iIntCall[42] := AR200iInterger42[iCallMainRecipeNo];
+AR200iIntCall[43] := AR200iInterger43[iCallMainRecipeNo];
+AR200iIntCall[44] := AR200iInterger44[iCallMainRecipeNo];
+AR200iIntCall[45] := AR200iInterger45[iCallMainRecipeNo];
+AR200iIntCall[46] := AR200iInterger46[iCallMainRecipeNo];
+AR200iIntCall[47] := AR200iInterger47[iCallMainRecipeNo];
+AR200iIntCall[48] := AR200iInterger48[iCallMainRecipeNo];
+AR200iIntCall[49] := AR200iInterger49[iCallMainRecipeNo];
+AR200iIntCall[50] := AR200iInterger50[iCallMainRecipeNo];
+AR200iIntCall[51] := AR200iInterger51[iCallMainRecipeNo];
+AR200iIntCall[52] := AR200iInterger52[iCallMainRecipeNo];
+AR200iIntCall[53] := AR200iInterger53[iCallMainRecipeNo];
+AR200iIntCall[54] := AR200iInterger54[iCallMainRecipeNo];
+AR200iIntCall[55] := AR200iInterger55[iCallMainRecipeNo];
+AR200iIntCall[56] := AR200iInterger56[iCallMainRecipeNo];
+AR200iIntCall[57] := AR200iInterger57[iCallMainRecipeNo];
+AR200iIntCall[58] := AR200iInterger58[iCallMainRecipeNo];
+AR200iIntCall[59] := AR200iInterger59[iCallMainRecipeNo];
+AR200iIntCall[60] := AR200iInterger60[iCallMainRecipeNo];
+AR200iIntCall[61] := AR200iInterger61[iCallMainRecipeNo];
+AR200iIntCall[62] := AR200iInterger62[iCallMainRecipeNo];
+AR200iIntCall[63] := AR200iInterger63[iCallMainRecipeNo];
+AR200iIntCall[64] := AR200iInterger64[iCallMainRecipeNo];
+AR200iIntCall[65] := AR200iInterger65[iCallMainRecipeNo];
+AR200iIntCall[66] := AR200iInterger66[iCallMainRecipeNo];
+AR200iIntCall[67] := AR200iInterger67[iCallMainRecipeNo];
+AR200iIntCall[68] := AR200iInterger68[iCallMainRecipeNo];
+AR200iIntCall[69] := AR200iInterger69[iCallMainRecipeNo];
+AR200iIntCall[70] := AR200iInterger70[iCallMainRecipeNo];
+AR200iIntCall[71] := AR200iInterger71[iCallMainRecipeNo];
+AR200iIntCall[72] := AR200iInterger72[iCallMainRecipeNo];
+AR200iIntCall[73] := AR200iInterger73[iCallMainRecipeNo];
+AR200iIntCall[74] := AR200iInterger74[iCallMainRecipeNo];
+AR200iIntCall[75] := AR200iInterger75[iCallMainRecipeNo];
+AR200iIntCall[76] := AR200iInterger76[iCallMainRecipeNo];
+AR200iIntCall[77] := AR200iInterger77[iCallMainRecipeNo];
+AR200iIntCall[78] := AR200iInterger78[iCallMainRecipeNo];
+AR200iIntCall[79] := AR200iInterger79[iCallMainRecipeNo];
+AR200iIntCall[80] := AR200iInterger80[iCallMainRecipeNo];
+AR200iIntCall[81] := AR200iInterger81[iCallMainRecipeNo];
+AR200iIntCall[82] := AR200iInterger82[iCallMainRecipeNo];
+AR200iIntCall[83] := AR200iInterger83[iCallMainRecipeNo];
+AR200iIntCall[84] := AR200iInterger84[iCallMainRecipeNo];
+AR200iIntCall[85] := AR200iInterger85[iCallMainRecipeNo];
+AR200iIntCall[86] := AR200iInterger86[iCallMainRecipeNo];
+AR200iIntCall[87] := AR200iInterger87[iCallMainRecipeNo];
+AR200iIntCall[88] := AR200iInterger88[iCallMainRecipeNo];
+AR200iIntCall[89] := AR200iInterger89[iCallMainRecipeNo];
+AR200iIntCall[90] := AR200iInterger90[iCallMainRecipeNo];
+AR200iIntCall[91] := AR200iInterger91[iCallMainRecipeNo];
+AR200iIntCall[92] := AR200iInterger92[iCallMainRecipeNo];
+AR200iIntCall[93] := AR200iInterger93[iCallMainRecipeNo];
+AR200iIntCall[94] := AR200iInterger94[iCallMainRecipeNo];
+AR200iIntCall[95] := AR200iInterger95[iCallMainRecipeNo];
+AR200iIntCall[96] := AR200iInterger96[iCallMainRecipeNo];
+AR200iIntCall[97] := AR200iInterger97[iCallMainRecipeNo];
+AR200iIntCall[98] := AR200iInterger98[iCallMainRecipeNo];
+AR200iIntCall[99] := AR200iInterger99[iCallMainRecipeNo];
+AR200iIntCall[100] := AR200iInterger100[iCallMainRecipeNo];
+
+END_IF
+
+
+IF iCallMainRecipeNo>0 AND iCallMainRecipeNo<100  THEN
+
+iSeqCallPresentProgram1 := AR200iInterger101[iCallMainRecipeNo];
+iSeqCallPresentProgram2 := AR200iInterger102[iCallMainRecipeNo];
+iSeqCallPresentProgram3 := AR200iInterger103[iCallMainRecipeNo];
+iSeqCallPresentProgram4 := AR200iInterger104[iCallMainRecipeNo];
+iSeqCallPresentProgram5 := AR200iInterger105[iCallMainRecipeNo];
+iSeqCallPresentProgram6 := AR200iInterger106[iCallMainRecipeNo];
+iSeqCallPresentProgram7 := AR200iInterger107[iCallMainRecipeNo];
+iSeqCallPresentProgram8 := AR200iInterger108[iCallMainRecipeNo];
+iSeqCallPresentProgram9 := AR200iInterger109[iCallMainRecipeNo];
+iSeqCallPresentProgram10 := AR200iInterger110[iCallMainRecipeNo];
+END_IF
+
+
+IF  iCallSubRecipeNo>0 AND iCallSubRecipeNo<11 THEN
+
+iCallSubProAdd1 :=AR200iIntCall[((iCallSubRecipeNo*10)+1)-10];
+iCallSubProAdd2 :=AR200iIntCall[((iCallSubRecipeNo*10)+2)-10];
+iCallSubProAdd3 :=AR200iIntCall[((iCallSubRecipeNo*10)+3)-10];
+iCallSubProAdd4 :=AR200iIntCall[((iCallSubRecipeNo*10)+4)-10];
+iCallSubProAdd5 :=AR200iIntCall[((iCallSubRecipeNo*10)+5)-10];
+iCallSubProAdd6 :=AR200iIntCall[((iCallSubRecipeNo*10)+6)-10];
+iCallSubProAdd7 :=AR200iIntCall[((iCallSubRecipeNo*10)+7)-10];
+iCallSubProAdd8 :=AR200iIntCall[((iCallSubRecipeNo*10)+8)-10];
+iCallSubProAdd9 :=AR200iIntCall[((iCallSubRecipeNo*10)+9)-10];
+iCallSubProAdd10 :=AR200iIntCall[((iCallSubRecipeNo*10)+10)-10];
+END_IF
+
+IF iCallMainRecipeNo<=0 OR iCallMainRecipeNo >=100 THEN
+
+
+iSeqCallPresentProgram1 := 0;
+iSeqCallPresentProgram2 := 0;
+iSeqCallPresentProgram3 := 0;
+iSeqCallPresentProgram4 := 0;
+iSeqCallPresentProgram5 := 0;
+iSeqCallPresentProgram6 := 0;
+iSeqCallPresentProgram7 := 0;
+iSeqCallPresentProgram8 := 0;
+iSeqCallPresentProgram9 := 0;
+iSeqCallPresentProgram10 := 0;
+END_IF
+
+
+IF iCallMainRecipeNo>=100 OR iCallMainRecipeNo<=0 OR iCallSubRecipeNo>=11 OR iCallSubRecipeNo<=0 THEN
+
+iCallSubProAdd1 :=0;
+iCallSubProAdd2 :=0;
+iCallSubProAdd3 :=0;
+iCallSubProAdd4 :=0;
+iCallSubProAdd5 :=0;
+iCallSubProAdd6 :=0;
+iCallSubProAdd7 :=0;
+iCallSubProAdd8 :=0;
+iCallSubProAdd9 :=0;
+iCallSubProAdd10 :=0;
+END_IF
+
+
+
+(*Scan Total Time*)
+
+
+IF iTotalTimeMainRecipeNo >0 OR iTotalTimeSubRecipeNo > 0 THEN
+
+AR200iTotalTimeIntCall[1] := AR200iInterger1[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[2] := AR200iInterger2[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[3] := AR200iInterger3[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[4] := AR200iInterger4[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[5] := AR200iInterger5[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[6] := AR200iInterger6[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[7] := AR200iInterger7[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[8] := AR200iInterger8[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[9] := AR200iInterger9[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[10] := AR200iInterger10[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[11] := AR200iInterger11[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[12] := AR200iInterger12[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[13] := AR200iInterger13[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[14] := AR200iInterger14[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[15] := AR200iInterger15[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[16] := AR200iInterger16[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[17] := AR200iInterger17[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[18] := AR200iInterger18[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[19] := AR200iInterger19[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[20] := AR200iInterger20[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[21] := AR200iInterger21[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[22] := AR200iInterger22[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[23] := AR200iInterger23[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[24] := AR200iInterger24[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[25] := AR200iInterger25[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[26] := AR200iInterger26[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[27] := AR200iInterger27[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[28] := AR200iInterger28[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[29] := AR200iInterger29[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[30] := AR200iInterger30[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[31] := AR200iInterger31[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[32] := AR200iInterger32[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[33] := AR200iInterger33[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[34] := AR200iInterger34[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[35] := AR200iInterger35[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[36] := AR200iInterger36[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[37] := AR200iInterger37[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[38] := AR200iInterger38[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[39] := AR200iInterger39[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[40] := AR200iInterger40[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[41] := AR200iInterger41[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[42] := AR200iInterger42[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[43] := AR200iInterger43[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[44] := AR200iInterger44[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[45] := AR200iInterger45[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[46] := AR200iInterger46[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[47] := AR200iInterger47[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[48] := AR200iInterger48[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[49] := AR200iInterger49[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[50] := AR200iInterger50[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[51] := AR200iInterger51[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[52] := AR200iInterger52[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[53] := AR200iInterger53[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[54] := AR200iInterger54[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[55] := AR200iInterger55[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[56] := AR200iInterger56[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[57] := AR200iInterger57[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[58] := AR200iInterger58[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[59] := AR200iInterger59[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[60] := AR200iInterger60[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[61] := AR200iInterger61[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[62] := AR200iInterger62[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[63] := AR200iInterger63[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[64] := AR200iInterger64[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[65] := AR200iInterger65[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[66] := AR200iInterger66[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[67] := AR200iInterger67[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[68] := AR200iInterger68[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[69] := AR200iInterger69[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[70] := AR200iInterger70[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[71] := AR200iInterger71[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[72] := AR200iInterger72[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[73] := AR200iInterger73[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[74] := AR200iInterger74[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[75] := AR200iInterger75[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[76] := AR200iInterger76[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[77] := AR200iInterger77[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[78] := AR200iInterger78[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[79] := AR200iInterger79[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[80] := AR200iInterger80[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[81] := AR200iInterger81[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[82] := AR200iInterger82[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[83] := AR200iInterger83[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[84] := AR200iInterger84[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[85] := AR200iInterger85[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[86] := AR200iInterger86[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[87] := AR200iInterger87[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[88] := AR200iInterger88[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[89] := AR200iInterger89[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[90] := AR200iInterger90[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[91] := AR200iInterger91[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[92] := AR200iInterger92[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[93] := AR200iInterger93[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[94] := AR200iInterger94[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[95] := AR200iInterger95[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[96] := AR200iInterger96[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[97] := AR200iInterger97[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[98] := AR200iInterger98[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[99] := AR200iInterger99[iTotalTimeMainRecipeNo];
+AR200iTotalTimeIntCall[100] := AR200iInterger100[iTotalTimeMainRecipeNo];
+
+
+		IF  iTotalTimeMainRecipeNo >0 AND  iCallRecipeTotalTime = 0THEN
+
+
+		iSeqCallTTPresentProgram1 := AR200iInterger101[iTotalTimeMainRecipeNo];
+		iSeqCallTTPresentProgram2 := AR200iInterger102[iTotalTimeMainRecipeNo];
+		iSeqCallTTPresentProgram3 := AR200iInterger103[iTotalTimeMainRecipeNo];
+		iSeqCallTTPresentProgram4 := AR200iInterger104[iTotalTimeMainRecipeNo];
+		iSeqCallTTPresentProgram5 := AR200iInterger105[iTotalTimeMainRecipeNo];
+		iSeqCallTTPresentProgram6 := AR200iInterger106[iTotalTimeMainRecipeNo];
+		iSeqCallTTPresentProgram7 := AR200iInterger107[iTotalTimeMainRecipeNo];
+		iSeqCallTTPresentProgram8 := AR200iInterger108[iTotalTimeMainRecipeNo];
+		iSeqCallTTPresentProgram9 := AR200iInterger109[iTotalTimeMainRecipeNo];
+		iSeqCallTTPresentProgram10 := AR200iInterger110[iTotalTimeMainRecipeNo];
+	
+
+		iCallRecipeTotalTime :=
+		AR200iTotalTimeIntCall[((iSeqCallTTPresentProgram1*10)+1)-10] +
+		AR200iTotalTimeIntCall[((iSeqCallTTPresentProgram2*10)+1)-10] +
+		AR200iTotalTimeIntCall[((iSeqCallTTPresentProgram3*10)+1)-10] +
+		AR200iTotalTimeIntCall[((iSeqCallTTPresentProgram4*10)+1)-10] +
+		AR200iTotalTimeIntCall[((iSeqCallTTPresentProgram5*10)+1)-10] +
+		AR200iTotalTimeIntCall[((iSeqCallTTPresentProgram6*10)+1)-10] +
+		AR200iTotalTimeIntCall[((iSeqCallTTPresentProgram7*10)+1)-10] +
+		AR200iTotalTimeIntCall[((iSeqCallTTPresentProgram8*10)+1)-10] +
+		AR200iTotalTimeIntCall[((iSeqCallTTPresentProgram9*10)+1)-10] +
+		AR200iTotalTimeIntCall[((iSeqCallTTPresentProgram10*10)+1)-10] ;
+
+
+		END_IF
+
+
+		IF iTotalTimeSubRecipeNo > 0 THEN
+
+		AR10_iCallSubProTotalTime[1] :=AR200iTotalTimeIntCall[((iTotalTimeSubRecipeNo*10)+1)-10];
+		AR10_iCallSubProTotalTime[2] :=AR200iTotalTimeIntCall[((iTotalTimeSubRecipeNo*10)+2)-10];
+		AR10_iCallSubProTotalTime[3] :=AR200iTotalTimeIntCall[((iTotalTimeSubRecipeNo*10)+3)-10];
+		AR10_iCallSubProTotalTime[4] :=AR200iTotalTimeIntCall[((iTotalTimeSubRecipeNo*10)+4)-10];
+		AR10_iCallSubProTotalTime[5] :=AR200iTotalTimeIntCall[((iTotalTimeSubRecipeNo*10)+5)-10];
+		AR10_iCallSubProTotalTime[6] :=AR200iTotalTimeIntCall[((iTotalTimeSubRecipeNo*10)+6)-10];
+		AR10_iCallSubProTotalTime[7] :=AR200iTotalTimeIntCall[((iTotalTimeSubRecipeNo*10)+7)-10];
+		AR10_iCallSubProTotalTime[8] :=AR200iTotalTimeIntCall[((iTotalTimeSubRecipeNo*10)+8)-10];
+		AR10_iCallSubProTotalTime[9] :=AR200iTotalTimeIntCall[((iTotalTimeSubRecipeNo*10)+9)-10];
+		AR10_iCallSubProTotalTime[10] :=AR200iTotalTimeIntCall[((iTotalTimeSubRecipeNo*10)+10)-10];
+
+		END_IF
+
+END_IF
+
+
+
+
+IF  iTotalTimeMainRecipeNo <=0 THEN
+iCallRecipeTotalTime := 0;
+END_IF
+
+		IF iTotalTimeSubRecipeNo <=0 THEN
+
+		AR10_iCallSubProTotalTime[1] :=0;
+		AR10_iCallSubProTotalTime[2] :=0;
+		AR10_iCallSubProTotalTime[3] :=0;
+		AR10_iCallSubProTotalTime[4] :=0;
+		AR10_iCallSubProTotalTime[5] :=0;
+		AR10_iCallSubProTotalTime[6] :=0;
+		AR10_iCallSubProTotalTime[7] :=0;
+		AR10_iCallSubProTotalTime[8] :=0;
+		AR10_iCallSubProTotalTime[9] :=0;
+		AR10_iCallSubProTotalTime[10] :=0;
+
+		END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbStnRecipeWithSubAndCall">
+      <LineId Id="243" Count="712" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

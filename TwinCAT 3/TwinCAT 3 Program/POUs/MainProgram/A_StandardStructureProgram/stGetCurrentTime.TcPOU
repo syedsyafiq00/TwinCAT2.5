@@ -1,0 +1,405 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="stGetCurrentTime" Id="{b5fdfba7-b94b-4542-ad2d-4a0aa5425cb9}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM stGetCurrentTime
+VAR
+
+	LocalSystemTime			: FB_LocalSystemTime;
+
+
+	sLangDayOfWeek 			: ARRAY [1..C_iLanguageQty, 0..6] OF STRING;
+	sLangMonth 				: ARRAY [1..C_iLanguageQty, 1..12] OF STRING;
+	sLangAmPm 				: ARRAY [1..C_iLanguageQty, 1..2] OF STRING;
+                                         
+	bOneScanRE				: R_TRIG;
+	
+
+
+	bOverrideCurrentDate: BOOL;
+END_VAR                     
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[	(*---------------------------OUTPUT---------------------------------------------*)
+	(*DISPLAY FORMAT - General Format*)
+
+	DSLocalSystemTimeML.dtCurrentDateTime; 			// Newly Added *Standard DATE_AND_TIME format
+	DSLocalSystemTimeML.sCurrentDateTime; 			// Newly Added *Follow standard DATE_AND_TIME format and take out " DT# "
+	DSLocalSystemTimeML.sCurrentDate_General; 		// Newly Added
+	DSLocalSystemTimeML.sCurrentTime24Hr_General; 	// Newly Added
+
+	DSLocalSystemTimeML.sCurrentDT24Hr_General;
+
+	
+	(*DISPLAY FORMAT - MultiLanguage*)
+	DSLocalSystemTimeML.sCurrentDT12Hr;
+	DSLocalSystemTimeML.sCurrentDT24Hr;
+	
+	DSLocalSystemTimeML.sDayOfWeek;
+	
+	DSLocalSystemTimeML.sYear;
+	DSLocalSystemTimeML.sMonth;
+	DSLocalSystemTimeML.sDay;
+	
+	DSLocalSystemTimeML.s24Hour;
+	
+	DSLocalSystemTimeML.s12Hour;
+	DSLocalSystemTimeML.sMin;
+	DSLocalSystemTimeML.sSec;
+	DSLocalSystemTimeML.s12HrSign;
+	
+	
+	// SELECTED LANGUAGE
+	eHmiLanguage;
+	
+	// Trigger ONE Scan Program
+	acOneScan();
+	
+	
+
+	// Get systen time from Beckhoff Function Block
+	LocalSystemTime(
+		sNetID:='' ,
+		bEnable:=TRUE ,
+		dwCycle:= ,
+		dwOpt:= ,
+		tTimeout:= ,
+		bValid=> ,
+		systemTime=>SysTime,
+		tzID=> );
+	
+	sSysTime := TO_STRING(SYSTEMTIME_TO_DT(TIMESTR:= SysTime));
+ 	sSysTime := DELETE (sSysTime, 3,1);
+		  
+	(* Multi-Language*)
+	// IF KEY IN WRONGLY ,OUT OF RANGE for selection
+	IF eHmiLanguage < 1 THEN
+	eHmiLanguage := 1;
+	ELSIF eHmiLanguage > C_iLanguageQty THEN
+	eHmiLanguage := C_iLanguageQty;
+	END_IF
+		
+	
+	// Manage the info to Data Structure
+IF SysTime.wYear >2000 THEN
+	acMultiLanguageControl();
+END_IF
+
+]]></ST>
+    </Implementation>
+    <Action Name="acMultiLanguageControl" Id="{93ebf317-9f07-4c2d-b4d3-91b1826b6e56}">
+      <Implementation>
+        <ST><![CDATA[	// Push Info to DS - MULTILANGUAGE
+	
+		// sDayOfWeek, sMonth, s24Hour, s12Hour, s12HrSign
+		DSLocalSystemTimeML.sDayOfWeek 	:= sLangDayOfWeek[eHmiLanguage,SysTime.wDayOfWeek];
+		DSLocalSystemTimeML.sMonth 		:= sLangMonth[eHmiLanguage,SysTime.wMonth];
+	
+		IF SysTime.wHour < 10 THEN
+		DSLocalSystemTimeML.s24Hour 	:= CONCAT ('0', WORD_TO_STRING(SysTime.wHour));
+		ELSE
+		DSLocalSystemTimeML.s24Hour  	:= WORD_TO_STRING(SysTime.wHour);
+		END_IF
+		
+		IF SysTime.wHour = 0 THEN
+		DSLocalSystemTimeML.s12Hour 	:= '12';
+		DSLocalSystemTimeML.s12HrSign 	:= sLangAmPm[eHmiLanguage,1];
+		
+		ELSIF SysTime.wHour > 0 AND SysTime.wHour <12 THEN
+		DSLocalSystemTimeML.s12Hour 	:= WORD_TO_STRING(SysTime.wHour);
+		DSLocalSystemTimeML.s12HrSign 	:= sLangAmPm[eHmiLanguage,1];
+		
+		ELSIF SysTime.wHour > 0 AND SysTime.wHour =12 THEN
+		DSLocalSystemTimeML.s12Hour 	:= WORD_TO_STRING(SysTime.wHour);
+		DSLocalSystemTimeML.s12HrSign 	:= sLangAmPm[eHmiLanguage,2];
+		
+		ELSIF SysTime.wHour >= 13 THEN
+		DSLocalSystemTimeML.s12Hour 	:= WORD_TO_STRING(SysTime.wHour-12);
+		DSLocalSystemTimeML.s12HrSign 	:= sLangAmPm[eHmiLanguage,2];
+		
+		END_IF
+	
+		
+		// sYear, sDay
+		DSLocalSystemTimeML.sYear 		:= WORD_TO_STRING(SysTime.wYear);
+		DSLocalSystemTimeML.sDay 		:= WORD_TO_STRING(SysTime.wDay);
+	
+		// sMin, sSec	
+		IF SysTime.wMinute < 10 THEN
+		DSLocalSystemTimeML.sMin 		:= CONCAT ('0', WORD_TO_STRING(SysTime.wMinute));
+		ELSE
+		DSLocalSystemTimeML.sMin 		:= WORD_TO_STRING(SysTime.wMinute);
+		END_IF
+		
+		IF SysTime.wSecond < 10 THEN
+		DSLocalSystemTimeML.sSec 		:= CONCAT ('0', WORD_TO_STRING(SysTime.wSecond));
+		ELSE
+		DSLocalSystemTimeML.sSec 		:= WORD_TO_STRING(SysTime.wSecond);
+		END_IF
+		
+
+		// sCurrentDT12Hr
+
+		DSLocalSystemTimeML.sCurrentDT12Hr  		:= CONCAT(DSLocalSystemTimeML.sDayOfWeek, ', ');
+		DSLocalSystemTimeML.sCurrentDT12Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT12Hr, DSLocalSystemTimeML.sDay);
+		DSLocalSystemTimeML.sCurrentDT12Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT12Hr, ' ');
+		DSLocalSystemTimeML.sCurrentDT12Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT12Hr, DSLocalSystemTimeML.sMonth);
+		DSLocalSystemTimeML.sCurrentDT12Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT12Hr, ' ');
+		DSLocalSystemTimeML.sCurrentDT12Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT12Hr, DSLocalSystemTimeML.sYear);
+		DSLocalSystemTimeML.sCurrentDT12Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT12Hr, ', ');
+		DSLocalSystemTimeML.sCurrentDT12Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT12Hr, DSLocalSystemTimeML.s12Hour);
+		DSLocalSystemTimeML.sCurrentDT12Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT12Hr, ':');
+		DSLocalSystemTimeML.sCurrentDT12Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT12Hr, DSLocalSystemTimeML.sMin);
+		DSLocalSystemTimeML.sCurrentDT12Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT12Hr, ':');
+		DSLocalSystemTimeML.sCurrentDT12Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT12Hr, DSLocalSystemTimeML.sSec);
+		DSLocalSystemTimeML.sCurrentDT12Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT12Hr, ' ');
+		DSLocalSystemTimeML.sCurrentDT12Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT12Hr, DSLocalSystemTimeML.s12HrSign);
+
+
+		// sCurrentDT24Hr
+
+		DSLocalSystemTimeML.sCurrentDT24Hr  		:= CONCAT(DSLocalSystemTimeML.sDayOfWeek, ', ');
+		DSLocalSystemTimeML.sCurrentDT24Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT24Hr, DSLocalSystemTimeML.sDay);
+		DSLocalSystemTimeML.sCurrentDT24Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT24Hr, ' ');
+		DSLocalSystemTimeML.sCurrentDT24Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT24Hr, DSLocalSystemTimeML.sMonth);
+		DSLocalSystemTimeML.sCurrentDT24Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT24Hr, ' ');
+		DSLocalSystemTimeML.sCurrentDT24Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT24Hr, DSLocalSystemTimeML.sYear);
+		DSLocalSystemTimeML.sCurrentDT24Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT24Hr, ', ');
+		DSLocalSystemTimeML.sCurrentDT24Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT24Hr, DSLocalSystemTimeML.s24Hour);
+		DSLocalSystemTimeML.sCurrentDT24Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT24Hr, ':');
+		DSLocalSystemTimeML.sCurrentDT24Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT24Hr, DSLocalSystemTimeML.sMin);
+		DSLocalSystemTimeML.sCurrentDT24Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT24Hr, ':');
+		DSLocalSystemTimeML.sCurrentDT24Hr  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT24Hr, DSLocalSystemTimeML.sSec);
+
+		// sCurrentDT24Hr_General
+		
+		DSLocalSystemTimeML.sCurrentDT24Hr_General  		:= CONCAT(DSLocalSystemTimeML.sDay, '/');
+		DSLocalSystemTimeML.sCurrentDT24Hr_General  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT24Hr_General, TO_STRING(SysTime.wMonth));
+		DSLocalSystemTimeML.sCurrentDT24Hr_General  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT24Hr_General, '/');
+		DSLocalSystemTimeML.sCurrentDT24Hr_General  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT24Hr_General, DSLocalSystemTimeML.sYear);
+		DSLocalSystemTimeML.sCurrentDT24Hr_General  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT24Hr_General, ' - ');
+		DSLocalSystemTimeML.sCurrentDT24Hr_General  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT24Hr_General, DSLocalSystemTimeML.s24Hour);
+		DSLocalSystemTimeML.sCurrentDT24Hr_General  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT24Hr_General, ':');
+		DSLocalSystemTimeML.sCurrentDT24Hr_General  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT24Hr_General, DSLocalSystemTimeML.sMin);
+		DSLocalSystemTimeML.sCurrentDT24Hr_General  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT24Hr_General, ':');
+		DSLocalSystemTimeML.sCurrentDT24Hr_General  		:= CONCAT(DSLocalSystemTimeML.sCurrentDT24Hr_General, DSLocalSystemTimeML.sSec);
+
+		// sCurrentDate_General
+IF NOT bOverrideCurrentDate THEN
+			// sYear & sMonth	
+			IF SysTime.wMonth < 10 THEN
+			DSLocalSystemTimeML.sCurrentDate_General 		:= CONCAT (WORD_TO_STRING(SysTime.wYear),'0');
+			DSLocalSystemTimeML.sCurrentDate_General 		:= CONCAT (DSLocalSystemTimeML.sCurrentDate_General,WORD_TO_STRING(SysTime.wMonth));
+			ELSE
+			DSLocalSystemTimeML.sCurrentDate_General 		:= CONCAT (WORD_TO_STRING(SysTime.wYear),WORD_TO_STRING(SysTime.wMonth));
+			END_IF
+
+			// sDay	
+			IF SysTime.wDay < 10 THEN
+			DSLocalSystemTimeML.sCurrentDate_General 		:= CONCAT (DSLocalSystemTimeML.sCurrentDate_General,'0');
+			DSLocalSystemTimeML.sCurrentDate_General 		:= CONCAT (DSLocalSystemTimeML.sCurrentDate_General,WORD_TO_STRING(SysTime.wDay));
+			ELSE
+			DSLocalSystemTimeML.sCurrentDate_General 		:= CONCAT (DSLocalSystemTimeML.sCurrentDate_General,WORD_TO_STRING(SysTime.wDay));
+			END_IF
+END_IF
+
+		// sCurrentTime24Hr_General
+
+			// sYear & sMonth	
+			DSLocalSystemTimeML.sCurrentTime24Hr_General  	:= CONCAT(DSLocalSystemTimeML.sCurrentTime24Hr_General, DSLocalSystemTimeML.s24Hour);
+			DSLocalSystemTimeML.sCurrentTime24Hr_General  	:= CONCAT(DSLocalSystemTimeML.sCurrentTime24Hr_General, ':');
+			DSLocalSystemTimeML.sCurrentTime24Hr_General  	:= CONCAT(DSLocalSystemTimeML.sCurrentTime24Hr_General, DSLocalSystemTimeML.sMin);
+			DSLocalSystemTimeML.sCurrentTime24Hr_General  	:= CONCAT(DSLocalSystemTimeML.sCurrentTime24Hr_General, ':');
+			DSLocalSystemTimeML.sCurrentTime24Hr_General  	:= CONCAT(DSLocalSystemTimeML.sCurrentTime24Hr_General, DSLocalSystemTimeML.sSec);
+
+		// dtCurrentDateTime
+			DSLocalSystemTimeML.dtCurrentDateTime			:= SYSTEMTIME_TO_DT(SysTime);
+		
+		// sCurrentDateTime
+			DSLocalSystemTimeML.sCurrentDateTime			:= DELETE(STR:= TO_STRING(DSLocalSystemTimeML.dtCurrentDateTime) , LEN:= 3, POS:= 1)		;
+
+	]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="acOneScan" Id="{af4ae675-4cee-451d-8959-4b4fccf6b1a7}">
+      <Implementation>
+        <ST><![CDATA[
+(*PREFIX Language*)
+bOneScanRE(CLK:=TRUE , Q=> );
+
+IF bOneScanRe.Q THEN
+
+// ENGLISH
+		
+		(*DayOfWeek - English*)
+		sLangDayOfWeek[1,1] := 'Mon';
+		sLangDayOfWeek[1,2] := 'Tue';
+		sLangDayOfWeek[1,3] := 'Wed';
+		sLangDayOfWeek[1,4] := 'Thu';
+		sLangDayOfWeek[1,5] := 'Fri';
+		sLangDayOfWeek[1,6] := 'Sat';
+		sLangDayOfWeek[1,0] := 'Sun';
+		
+		(*Month - English*)
+		sLangMonth[1,1] := 'Jan';
+		sLangMonth[1,2] := 'Feb';
+		sLangMonth[1,3] := 'Mar';
+		sLangMonth[1,4] := 'Apr';
+		sLangMonth[1,5] := 'May';
+		sLangMonth[1,6] := 'June';
+		sLangMonth[1,7] := 'July';
+		sLangMonth[1,8] := 'Aug';
+		sLangMonth[1,9] := 'Sept';
+		sLangMonth[1,10] := 'Oct';
+		sLangMonth[1,11] := 'Nov';
+		sLangMonth[1,12] := 'Dec';
+
+		(*AmPm - English*)
+		sLangAmPm[1,1] := 'AM';
+		sLangAmPm[1,2] := 'PM';
+
+
+		
+// CHINESE
+	
+		(*DayOfWeek - Chinese*)
+		sLangDayOfWeek[2,1] := '星期一';
+		sLangDayOfWeek[2,2] := '星期二';
+		sLangDayOfWeek[2,3] := '星期三';
+		sLangDayOfWeek[2,4] := '星期四';
+		sLangDayOfWeek[2,5] := '星期五';
+		sLangDayOfWeek[2,6] := '星期六';
+		sLangDayOfWeek[2,0] := '星期日';	
+		
+		(*Month - Chinese*)
+		sLangMonth[2,1] := '一月';
+		sLangMonth[2,2] := '二月';
+		sLangMonth[2,3] := '三月';
+		sLangMonth[2,4] := '四月';
+		sLangMonth[2,5] := '五月';
+		sLangMonth[2,6] := '六月';
+		sLangMonth[2,7] := '七月';
+		sLangMonth[2,8] := '八月';
+		sLangMonth[2,9] := '九月';
+		sLangMonth[2,10] := '十月';
+		sLangMonth[2,11] := '十一月';
+		sLangMonth[2,12] := '十二月';
+
+		(*AmPm - Chinese*)
+		sLangAmPm[2,1] := '早上';
+		sLangAmPm[2,2] := '下午';
+		
+		
+		
+// GERMAN
+		
+		(*DayOfWeek - German*)
+		sLangDayOfWeek[3,1] := 'Mon';
+		sLangDayOfWeek[3,2] := 'Die';
+		sLangDayOfWeek[3,3] := 'Mit';
+		sLangDayOfWeek[3,4] := 'Don';
+		sLangDayOfWeek[3,5] := 'Fre';
+		sLangDayOfWeek[3,6] := 'Sam';
+		sLangDayOfWeek[3,0] := 'Son';
+		
+		(*Month - German*)
+		sLangMonth[3,1] := 'Jan';
+		sLangMonth[3,2] := 'Feb';
+		sLangMonth[3,3] := 'März';
+		sLangMonth[3,4] := 'Apr';
+		sLangMonth[3,5] := 'Mai';
+		sLangMonth[3,6] := 'Juni';
+		sLangMonth[3,7] := 'Juli';
+		sLangMonth[3,8] := 'Aug';
+		sLangMonth[3,9] := 'Sept';
+		sLangMonth[3,10] := 'Okt';
+		sLangMonth[3,11] := 'Nov';
+		sLangMonth[3,12] := 'Dez';
+
+		(*AmPm - German*)
+		sLangAmPm[3,1] := 'AM';
+		sLangAmPm[3,2] := 'PM';
+
+		
+// FRENCH
+
+		(*DayOfWeek - French*)
+		sLangDayOfWeek[4,1] := 'Lun';
+		sLangDayOfWeek[4,2] := 'Mar';
+		sLangDayOfWeek[4,3] := 'Mer';
+		sLangDayOfWeek[4,4] := 'Jeu';
+		sLangDayOfWeek[4,5] := 'Ven';
+		sLangDayOfWeek[4,6] := 'Sam';
+		sLangDayOfWeek[4,0] := 'Dim';
+		
+		(*Month - French*)
+		sLangMonth[4,1] := 'Janv';
+		sLangMonth[4,2] := 'Févr';
+		sLangMonth[4,3] := 'Mars';
+		sLangMonth[4,4] := 'Avril';
+		sLangMonth[4,5] := 'Mai';
+		sLangMonth[4,6] := 'Juin';
+		sLangMonth[4,7] := 'Juil';
+		sLangMonth[4,8] := 'Août';
+		sLangMonth[4,9] := 'Sept';
+		sLangMonth[4,10] := 'Oct';
+		sLangMonth[4,11] := 'Nov';
+		sLangMonth[4,12] := 'Déc';
+
+		(*AmPm - French*)
+		sLangAmPm[4,1] := 'AM';
+		sLangAmPm[4,2] := 'PM';
+	
+	
+// PORTUGUESE
+		
+		(*DayOfWeek - Portuguese*)
+		sLangDayOfWeek[5,1] := 'Seg';
+		sLangDayOfWeek[5,2] := 'Ter';
+		sLangDayOfWeek[5,3] := 'Qua';
+		sLangDayOfWeek[5,4] := 'Qui';
+		sLangDayOfWeek[5,5] := 'Sex';
+		sLangDayOfWeek[5,6] := 'Sáb';
+		sLangDayOfWeek[5,0] := 'Dom';
+		
+		(*Month - Portuguese*)
+		sLangMonth[5,1] := 'Jan';
+		sLangMonth[5,2] := 'Fev';
+		sLangMonth[5,3] := 'Março';
+		sLangMonth[5,4] := 'Abril';
+		sLangMonth[5,5] := 'Maio';
+		sLangMonth[5,6] := 'Junho';
+		sLangMonth[5,7] := 'Julho';
+		sLangMonth[5,8] := 'Agosto';
+		sLangMonth[5,9] := 'Set';
+		sLangMonth[5,10] := 'Out';
+		sLangMonth[5,11] := 'Nov';
+		sLangMonth[5,12] := 'Dez';
+
+		(*AmPm - Portuguese*)
+		sLangAmPm[5,1] := 'AM';
+		sLangAmPm[5,2] := 'PM';
+
+
+END_IF
+	
+]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="stGetCurrentTime">
+      <LineId Id="3" Count="60" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="stGetCurrentTime.acMultiLanguageControl">
+      <LineId Id="2" Count="112" />
+      <LineId Id="130" Count="0" />
+      <LineId Id="115" Count="14" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="stGetCurrentTime.acOneScan">
+      <LineId Id="2" Count="159" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

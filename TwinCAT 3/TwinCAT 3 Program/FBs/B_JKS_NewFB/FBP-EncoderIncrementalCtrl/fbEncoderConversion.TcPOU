@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbEncoderConversion" Id="{ef60ed82-c580-40f8-b751-d096d5254275}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbEncoderConversion
+VAR_INPUT
+	bCounterValueReset 				: BOOL;
+	bIN_SetCounterDone 				: BOOL;
+	udIN_CounterValue 				: UDINT;
+	bInvertCounterValueEn				: BOOL;
+	bCounterValueErrReset			: BOOL;
+END_VAR
+VAR_OUTPUT
+	bOUT_SetCounterEn 				: BOOL;
+	udOUT_SetCounterValue 			: UDINT;
+	lrPositionMM 						: LREAL;
+	bCounterValueErr					: BOOL;
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+	lrRatioPulseToMM 				: LREAL;
+	iCounterValueResetTime_Sec 		: INT;
+
+END_VAR
+
+VAR
+	bCounterValueResetRE			: R_TRIG;
+	tCounterValueReset				: TON;
+	bCounterValueResetHR			: BOOL;
+	tCounterValueResetOnTime		: TON;
+	tCounterValueResetTimeout: TON;
+	diInternalCounterValue: DINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Set Minimum Control*)
+IF iCounterValueResetTime_Sec < 2 THEN
+iCounterValueResetTime_Sec := 2;
+END_IF
+
+IF lrRatioPulseToMM < 1 THEN
+lrRatioPulseToMM := 1;
+END_IF
+
+
+(*Preparation*)
+bCounterValueResetRE(CLK:= bCounterValueReset, Q=> );
+
+IF bCounterValueResetRE.Q AND NOT bCounterValueErr THEN
+bCounterValueResetHR := TRUE;
+END_IF
+
+tCounterValueResetOnTime(IN:= bCounterValueResetHR, PT:=t#1s , Q=> , ET=> );
+
+(*Counter Reset Start*)
+IF bCounterValueResetHR AND NOT tCounterValueResetOnTime.Q THEN
+bOUT_SetCounterEn := TRUE;
+ELSE
+bOUT_SetCounterEn := FALSE;
+END_IF
+
+(*Counter Reset Completed Flag*)
+IF bIN_SetCounterDone THEN
+bCounterValueResetHR := FALSE;
+END_IF
+
+(*Check If Counter not able to reset*)
+tCounterValueResetTimeout(IN:=bCounterValueResetHR , PT:=INT_TO_TIME(iCounterValueResetTime_Sec*1000) , Q=> , ET=> );
+
+IF tCounterValueResetTimeout.Q THEN
+bCounterValueErr := TRUE;
+END_IF
+
+(*ResetError*)
+IF bCounterValueErrReset THEN
+bCounterValueErr := FALSE;
+END_IF
+
+
+(*Value Convert To Counter with LREAL*)
+(**********************
+0		= -2147483647
+2147483648 	= 0 , 
+4294967295 	= +2147483647
+***********************)
+
+udOUT_SetCounterValue := 2147483648;
+
+IF NOT bInvertCounterValueEn THEN
+diInternalCounterValue := udIN_CounterValue - 2147483648;
+ELSE
+diInternalCounterValue :=  2147483648 - udIN_CounterValue;
+END_IF
+
+lrPositionMM := DINT_TO_LREAL(diInternalCounterValue) / lrRatioPulseToMM;]]></ST>
+    </Implementation>
+    <LineIds Name="fbEncoderConversion">
+      <LineId Id="29" Count="59" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

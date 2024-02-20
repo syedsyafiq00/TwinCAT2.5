@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="stUPSStatusMonitoring" Id="{b345d090-e5e2-40d3-be62-a5fda2617646}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM stUPSStatusMonitoring
+VAR
+	fbGetUpsStatusfb: FB_GetUPSStatus;
+
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[fbGetUpsStatusfb(
+	sNetId:= '',
+	nPort:= 0,
+	bEnable:= bGetUpsStatusEn,
+	bValid=> bGetUpsStatusValid,
+	bError=> bGetUpsStatusError,
+	nErrId=> udiGetUpsStatusErrID,
+	stStatus=> UpsStatus);
+
+(* Check DC Power Status*)
+IF UpsStatus.ePowerStatus = PowerUnknownStatus THEN
+bDCPowerUnknownStatusAlarm := TRUE;
+ELSE
+bDCPowerUnknownStatusAlarm := FALSE;
+END_IF
+
+IF UpsStatus.ePowerStatus = PowerOnLine THEN
+bDCPowerModeActivated := TRUE;
+ELSE
+bDCPowerModeActivated := FALSE;
+END_IF
+
+IF UpsStatus.ePowerStatus = PowerOnBattery THEN
+bBatteryModeActivated := TRUE;
+ELSE
+bBatteryModeActivated := FALSE;
+END_IF
+
+
+(* Check Battery Status*)
+IF UpsStatus.eBatteryStatus = BatteryUnknownStatus THEN
+bBatteryUnknownStatusAlarm := TRUE;
+ELSE
+bBatteryUnknownStatusAlarm := FALSE;
+END_IF
+
+IF UpsStatus.eBatteryStatus = BatteryReplace THEN
+bBatteryReplacementRequestAlarm := TRUE;
+ELSE
+bBatteryReplacementRequestAlarm := FALSE;
+END_IF
+
+(* Check UPS Comm Status *)
+IF UpsStatus.eCommStatus = UpsCommUnknownStatus THEN
+bUpsCommUnknownStatusAlarm := TRUE;
+ELSE
+bUpsCommUnknownStatusAlarm := FALSE;
+END_IF
+
+IF UpsStatus.eCommStatus = UpsCommOk THEN
+bUpsCommOkFlag := TRUE;
+ELSE
+bUpsCommOkFlag := FALSE;
+END_IF
+
+IF UpsStatus.eCommStatus = UpsCommFailed THEN
+bUpsCommErrorAlarm := TRUE;
+ELSE
+bUpsCommErrorAlarm := FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="stUPSStatusMonitoring">
+      <LineId Id="6" Count="59" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

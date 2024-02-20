@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_fbStnSeqProcessCtrl" Id="{963b3a4a-5d20-472f-835f-40beeee71513}">
+    <Declaration><![CDATA[TYPE DS_fbStnSeqProcessCtrl : (*Full Occupied Byte = 200*)
+STRUCT
+
+	In_bProcessStart 								: BOOL; (* Byte "n" *)
+	In_bProcessHalt								: BOOL; (* Byte "n+1" *)
+	In_bProcessReset 							: BOOL; (* Byte "n+2" *)
+
+	Out_bProcessCompleted 					: BOOL; (* Byte "n+3" *)
+	Out_bProcessInProgressFlag 				: BOOL; (* Byte "n+4" *)
+	Out_bProcessHaltFlag 						: BOOL; (* Byte "n+5" *)
+	Err_bCallStnSeqRecipeErr 					: BOOL; (* Byte "n+6" *)
+	Err_bInvalidProcessStepErr 					: BOOL; (* Byte "n+7" *)
+
+	NIL_sReservedBool 							: STRING(50); (* Byte "n+8~n+99" *)
+
+
+
+	Out_iCurrentProcessStep 					: INT; (* Byte "n+100, n+101" *)
+	Out_iComConProcessTimeEV 				: INT; (* Byte "n+102, n+103" *)
+	Out_iCurrentProcessTime 					: INT; (* Byte "n+104, n+105" *)
+	Out_iPreviousProcessTime 					: INT; (* Byte "n+106, n+107" *)
+	Out_iStnSeqProcessCaseNo 				: INT; (* Byte "n+108, n+109" *)
+	Out_iTotalProcessTimeEV					: INT; (* Byte "n+110, n+111" *)									(* Output - Total Process Elapse Time (DownCounting) (Based Total Time) *)
+	Out_ARiCurrentCycle 							: ARRAY [1..iProductRecipeStepArrayQty] OF INT; (* Byte "n+112, n+131" *)
+	Out_AR5iCalledTotalProcessTimeSV		: ARRAY [1..5] OF INT;	(* Byte "n+132, n+141" *)					(* Output -  It can accept concurrently 5 different Recipe Total Time based on the Recipe Number defined in AR5iCallTotalTimeRecipeNo*)
+	In_AR5iCallTotalTimeRecipeNo				: ARRAY [1..5] OF INT;	(* Byte "n+142, n+151" *)					(* Output -  It can accept concurrently 5 different Recipe Total Time based on the Recipe Number defined in AR5iCallTotalTimeRecipeNo*)
+
+	NIL_sReservedInt 							: STRING(50); (* Byte "n+152~n+199" *)
+
+	Out_DSStnSeqProOutput 					: DS_StnSeqProOutput;
+	In_DsStnSeqProInput							: DS_StnSeqProInput;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

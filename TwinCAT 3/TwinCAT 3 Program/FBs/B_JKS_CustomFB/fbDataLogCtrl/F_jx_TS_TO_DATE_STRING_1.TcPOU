@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="F_jx_TS_TO_DATE_STRING_1" Id="{43348f1b-dd78-4c03-9df3-9313b615e05f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION F_jx_TS_TO_DATE_STRING_1 : STRING
+VAR_INPUT
+	ts_TimeNow: TIMESTRUCT;
+	sSeperator: STRING := '/';
+END_VAR
+VAR
+	sDate: STRING;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[sDate:='';
+sDate:=CONCAT(sDate,WORD_TO_STRING(ts_TimeNow.wYear));
+IF ts_TimeNow.wMonth < 10 THEN	(**)
+	sDate:=CONCAT(sDate,'0');
+	sDate:=CONCAT(sDate,WORD_TO_STRING(ts_TimeNow.wMonth));
+ELSE
+	sDate:=CONCAT(sDate,WORD_TO_STRING(ts_TimeNow.wMonth));
+END_IF
+
+IF ts_TimeNow.wDay < 10 THEN
+	sDate:=CONCAT(sDate,'0');
+	sDate:=CONCAT(sDate,WORD_TO_STRING(ts_TimeNow.wDay));
+ELSE
+	sDate:=CONCAT(sDate,WORD_TO_STRING(ts_TimeNow.wDay));
+END_IF
+F_jx_TS_TO_DATE_STRING_1:=sDate;]]></ST>
+    </Implementation>
+    <LineIds Name="F_jx_TS_TO_DATE_STRING_1">
+      <LineId Id="8" Count="15" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

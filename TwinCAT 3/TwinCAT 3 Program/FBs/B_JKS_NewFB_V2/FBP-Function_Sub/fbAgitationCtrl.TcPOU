@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbAgitationCtrl" Id="{de19a531-8179-4382-a6f6-f41b4373e1df}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbAgitationCtrl
+VAR_INPUT
+	bAgitationEn								: BOOL;
+	lrCurrentPos								: LREAL;
+
+END_VAR
+VAR_OUTPUT
+	bAgitation_in_Progress						: BOOL;
+	bAgitation_Completed						: BOOL;
+
+	bOut_InvMoveFwd							 : BOOL;
+	bOut_InvMoveRwd						 : BOOL;
+
+	bOut_InvMove2ndSpd						 : BOOL;
+	rPosTargetSpdHz							 : REAL;
+	lrTargetPos								: LREAL;
+
+END_VAR
+VAR_IN_OUT
+
+	DSAgitationParameterIn		: DSPnpAgitationParameter;
+
+END_VAR
+VAR
+	bPosStRE: R_TRIG;
+	iStep: INT;
+	iCount	: INT;
+	bBtmLowRange: BOOL;
+	bBtmHighRange: BOOL;
+	bTopLowRange: BOOL;
+	bTopHighRange: BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[bPosStRE(CLK:= bAgitationEn , Q=> );
+
+IF bPosStRE.Q THEN
+
+iStep := 1;
+END_IF
+
+IF  NOT bAgitationEn  THEN
+iStep := 0;
+END_IF
+
+CASE iStep OF
+
+0:
+
+	bAgitation_Completed := FALSE;
+	bAgitation_in_Progress := FALSE;
+
+	bOut_InvMoveFwd := FALSE;
+	bOut_InvMoveRwd := FALSE;
+
+	rPosTargetSpdHz := 0;
+	lrTargetPos := 0;
+	iCount := 0;
+
+1:
+	iCount := iCount + 1;
+
+	IF iCount > DSAgitationParameterIn.iRepeatUpDownCycle THEN
+		iStep := 4;
+	ELSE
+		iStep := 2;
+	END_IF
+
+2:
+	rPosTargetSpdHz := DSAgitationParameterIn.lrAgitationSpeed;
+	lrTargetPos		:= DSAgitationParameterIn.lrAgitationBtmPosition;
+
+	IF lrCurrentPos > (DSAgitationParameterIn.lrAgitationBtmPosition-4) THEN
+		bBtmLowRange := TRUE;
+	ELSE
+		bBtmLowRange := FALSE;
+	END_IF
+
+	IF lrCurrentPos < (DSAgitationParameterIn.lrAgitationBtmPosition+4) THEN
+		bBtmHighRange	:= TRUE;
+	ELSE
+		bBtmHighRange	:= FALSE;
+	END_IF
+
+	IF NOT bBtmLowRange  THEN
+		bOut_InvMoveFwd := TRUE;
+		bOut_InvMoveRwd := FALSE;
+	ELSIF NOT bBtmHighRange THEN
+		bOut_InvMoveFwd := FALSE;
+		bOut_InvMoveRwd := TRUE;
+	ELSE
+		bOut_InvMoveFwd := FALSE;
+		bOut_InvMoveRwd := FALSE;
+	END_IF
+
+	IF (bBtmLowRange AND bBtmHighRange ) AND NOT bOut_InvMoveFwd AND NOT bOut_InvMoveRwd AND NOT DSAgitationParameterIn.bAgitationComplete THEN
+		iStep := 3;
+	END_IF
+
+3:
+
+	DSAgitationParameterIn.bAgitationInProgress := TRUE;
+
+	rPosTargetSpdHz := DSAgitationParameterIn.lrAgitationSpeed;
+	lrTargetPos		:= DSAgitationParameterIn.lrAgitationTopPosition;
+
+	IF lrCurrentPos > (DSAgitationParameterIn.lrAgitationTopPosition-4) THEN
+		bTopLowRange := TRUE;
+	ELSE
+		bTopLowRange := FALSE;
+	END_IF
+
+	IF lrCurrentPos < (DSAgitationParameterIn.lrAgitationTopPosition+4) THEN
+		bTopHighRange	:= TRUE;
+	ELSE
+		bTopHighRange	:= FALSE;
+	END_IF
+
+	IF NOT bTopLowRange  THEN
+		bOut_InvMoveFwd := TRUE;
+		bOut_InvMoveRwd := FALSE;
+	ELSIF NOT bTopHighRange THEN
+		bOut_InvMoveFwd := FALSE;
+		bOut_InvMoveRwd := TRUE;
+	ELSE
+		bOut_InvMoveFwd := FALSE;
+		bOut_InvMoveRwd := FALSE;
+	END_IF
+
+	IF (bTopLowRange AND bTopHighRange)AND NOT bOut_InvMoveFwd AND NOT bOut_InvMoveRwd AND NOT DSAgitationParameterIn.bAgitationComplete THEN
+		iStep := 1;
+	END_IF
+
+4:
+
+		DSAgitationParameterIn.bAgitationComplete 	:= TRUE;
+		bAgitation_Completed						:= TRUE;
+		bAgitation_in_Progress := FALSE;
+
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="fbAgitationCtrl">
+      <LineId Id="32" Count="105" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

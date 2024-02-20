@@ -1,0 +1,1045 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="PnPstorageMemory_Arm" Id="{6551c864-874a-4270-b423-7a07a3465a22}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM PnPstorageMemory_Arm
+VAR
+	fbGnrProductRecipeMemory_Main: fbV2_GnrProductRecipeMemory;
+	tProductRecipeClearPb : TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <NWL>
+        <XmlArchive>
+          <Data>
+            <o xml:space="preserve" t="NWLImplementationObject">
+              <v n="NetworkListComment">""</v>
+              <v n="DefaultViewMode">"Ld"</v>
+              <l2 n="NetworkList" cet="Network">
+                <o>
+                  <v n="ILActive">false</v>
+                  <v n="FBDValid">false</v>
+                  <v n="ILValid">false</v>
+                  <l2 n="ILLines" />
+                  <v n="Comment">""</v>
+                  <v n="Title">""</v>
+                  <v n="Label">""</v>
+                  <v n="OutCommented">false</v>
+                  <l2 n="NetworkItems" cet="BoxTreeBox">
+                    <o>
+                      <v n="BoxType">"TON"</v>
+                      <o n="Instance" t="Operand">
+                        <v n="Operand">"tProductRecipeClearPb"</v>
+                        <v n="Type">"TON"</v>
+                        <v n="Comment">""</v>
+                        <v n="SymbolComment">""</v>
+                        <v n="Address">""</v>
+                        <o n="Flags" t="Flags">
+                          <v n="Flags">0</v>
+                          <v n="Fixed">false</v>
+                          <v n="Extensible">false</v>
+                        </o>
+                        <v n="LValue">false</v>
+                        <v n="Boolean">false</v>
+                        <v n="IsInstance">true</v>
+                        <v n="Id">94L</v>
+                      </o>
+                      <o n="OutputItems" t="OutputItemList">
+                        <l2 n="OutputItems" cet="Operand">
+                          <n />
+                          <o>
+                            <v n="Operand">""</v>
+                            <v n="Type">"TIME"</v>
+                            <v n="Comment">""</v>
+                            <v n="SymbolComment">""</v>
+                            <v n="Address">""</v>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">false</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <v n="LValue">true</v>
+                            <v n="Boolean">false</v>
+                            <v n="IsInstance">false</v>
+                            <v n="Id">96L</v>
+                          </o>
+                        </l2>
+                      </o>
+                      <o n="Flags" t="Flags">
+                        <v n="Flags">0</v>
+                        <v n="Fixed">true</v>
+                        <v n="Extensible">false</v>
+                      </o>
+                      <n n="InputFlags" />
+                      <l2 n="InputItems" cet="BoxTreeOperand">
+                        <o>
+                          <o n="Operand" t="Operand">
+                            <v n="Operand">"bProductRecipeClearPb"</v>
+                            <v n="Type">"BOOL"</v>
+                            <v n="Comment">""</v>
+                            <v n="SymbolComment">""</v>
+                            <v n="Address">""</v>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">false</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <v n="LValue">false</v>
+                            <v n="Boolean">false</v>
+                            <v n="IsInstance">false</v>
+                            <v n="Id">89L</v>
+                          </o>
+                          <v n="Id">88L</v>
+                        </o>
+                        <o>
+                          <o n="Operand" t="Operand">
+                            <v n="Operand">"t#3s"</v>
+                            <v n="Type">"TIME"</v>
+                            <v n="Comment">""</v>
+                            <v n="SymbolComment">""</v>
+                            <v n="Address">""</v>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">false</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <v n="LValue">false</v>
+                            <v n="Boolean">false</v>
+                            <v n="IsInstance">false</v>
+                            <v n="Id">93L</v>
+                          </o>
+                          <v n="Id">92L</v>
+                        </o>
+                      </l2>
+                      <o n="InputParam" t="ParamList">
+                        <l2 n="Names" cet="String">
+                          <v>IN</v>
+                          <v>PT</v>
+                        </l2>
+                        <l2 n="Types" cet="String">
+                          <v>BOOL</v>
+                          <v>TIME</v>
+                        </l2>
+                      </o>
+                      <o n="OutputParam" t="ParamList">
+                        <l2 n="Names" cet="String">
+                          <v>Q</v>
+                          <v>ET</v>
+                        </l2>
+                        <l2 n="Types" cet="String">
+                          <v>BOOL</v>
+                          <v>TIME</v>
+                        </l2>
+                      </o>
+                      <v n="CallType" t="Operator">FunctionBlock</v>
+                      <v n="EN">false</v>
+                      <v n="ENO">false</v>
+                      <n n="STSnippet" />
+                      <v n="ContainsExtensibleInputs">false</v>
+                      <v n="ProvidesSTSnippet">false</v>
+                      <v n="Id">95L</v>
+                    </o>
+                  </l2>
+                  <l2 n="Connectors" />
+                  <v n="Id">87L</v>
+                </o>
+                <o>
+                  <v n="ILActive">false</v>
+                  <v n="FBDValid">false</v>
+                  <v n="ILValid">false</v>
+                  <l2 n="ILLines" />
+                  <v n="Comment">""</v>
+                  <v n="Title">""</v>
+                  <v n="Label">""</v>
+                  <v n="OutCommented">false</v>
+                  <l2 n="NetworkItems" cet="BoxTreeAssign">
+                    <o>
+                      <o n="OutputItems" t="OutputItemList">
+                        <l2 n="OutputItems" cet="Operand">
+                          <o>
+                            <v n="Operand">"bRecipeSaveInd"</v>
+                            <v n="Type">"BOOL"</v>
+                            <v n="Comment">""</v>
+                            <v n="SymbolComment">""</v>
+                            <v n="Address">""</v>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">false</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <v n="LValue">true</v>
+                            <v n="Boolean">false</v>
+                            <v n="IsInstance">false</v>
+                            <v n="Id">76L</v>
+                          </o>
+                        </l2>
+                      </o>
+                      <o n="Flags" t="Flags">
+                        <v n="Flags">0</v>
+                        <v n="Fixed">true</v>
+                        <v n="Extensible">false</v>
+                      </o>
+                      <o n="RValue" t="BoxTreeBox">
+                        <v n="BoxType">"fbV2_GnrProductRecipeMemory"</v>
+                        <o n="Instance" t="Operand">
+                          <v n="Operand">"fbGnrProductRecipeMemory_Main"</v>
+                          <v n="Type">"fbV2_GnrProductRecipeMemory"</v>
+                          <v n="Comment">""</v>
+                          <v n="SymbolComment">""</v>
+                          <v n="Address">""</v>
+                          <o n="Flags" t="Flags">
+                            <v n="Flags">0</v>
+                            <v n="Fixed">false</v>
+                            <v n="Extensible">false</v>
+                          </o>
+                          <v n="LValue">false</v>
+                          <v n="Boolean">false</v>
+                          <v n="IsInstance">true</v>
+                          <v n="Id">82L</v>
+                        </o>
+                        <o n="OutputItems" t="OutputItemList">
+                          <l2 n="OutputItems" cet="Operand">
+                            <n />
+                            <o>
+                              <v n="Operand">"bRecipeLoadInd"</v>
+                              <v n="Type">"BOOL"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">9L</v>
+                            </o>
+                            <o>
+                              <v n="Operand">"bRecipeClearInd"</v>
+                              <v n="Type">"BOOL"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">84L</v>
+                            </o>
+                            <o>
+                              <v n="Operand">"ARDSLdZonePosOut"</v>
+                              <v n="Type">"ARRAY [0..iLdStnQty] OF DSA32_StationZonePosOut"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">10L</v>
+                            </o>
+                            <o>
+                              <v n="Operand">"ARDSStationZonePosOut"</v>
+                              <v n="Type">"ARRAY [0..iStnQty] OF DSA32_StationZonePosOut"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">11L</v>
+                            </o>
+                            <o>
+                              <v n="Operand">"ARDSUldZonePosOut"</v>
+                              <v n="Type">"ARRAY [0..iUldStnQty] OF DSA32_StationZonePosOut"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">12L</v>
+                            </o>
+                            <o>
+                              <v n="Operand">"DSfbGnrProductRecipeMemoryOut"</v>
+                              <v n="Type">"DSV2_fbGnrProductRecipeMemoryOut"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">13L</v>
+                            </o>
+                          </l2>
+                        </o>
+                        <o n="Flags" t="Flags">
+                          <v n="Flags">0</v>
+                          <v n="Fixed">true</v>
+                          <v n="Extensible">false</v>
+                        </o>
+                        <n n="InputFlags" />
+                        <l2 n="InputItems" cet="BoxTreeOperand">
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"TRUE"</v>
+                              <v n="Type">"BOOL"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">15L</v>
+                            </o>
+                            <v n="Id">14L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"bRecipeSavePb"</v>
+                              <v n="Type">"BOOL"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">17L</v>
+                            </o>
+                            <v n="Id">16L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"bRecipeLoadInternal"</v>
+                              <v n="Type">"BOOL"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">19L</v>
+                            </o>
+                            <v n="Id">18L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"tProductRecipeClearPb.Q"</v>
+                              <v n="Type">"BOOL"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">true</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">86L</v>
+                            </o>
+                            <v n="Id">85L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"bEnableCallArmNo"</v>
+                              <v n="Type">"BOOL"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">21L</v>
+                            </o>
+                            <v n="Id">20L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"iCallArmNo"</v>
+                              <v n="Type">"INT"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">23L</v>
+                            </o>
+                            <v n="Id">22L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"ARbProductRecipeCallEn"</v>
+                              <v n="Type">"ARRAY [0..iStnQty] OF BOOL"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">25L</v>
+                            </o>
+                            <v n="Id">24L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"ARiProductRecipeNoCall"</v>
+                              <v n="Type">"ARRAY [0..iStnQty] OF INT"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">27L</v>
+                            </o>
+                            <v n="Id">26L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"ARiProductRecipeStepCall"</v>
+                              <v n="Type">"ARRAY [0..iStnQty] OF INT"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">29L</v>
+                            </o>
+                            <v n="Id">28L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"400"</v>
+                              <v n="Type">"INT"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">31L</v>
+                            </o>
+                            <v n="Id">30L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"1500"</v>
+                              <v n="Type">"INT"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">33L</v>
+                            </o>
+                            <v n="Id">32L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"1500"</v>
+                              <v n="Type">"INT"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">35L</v>
+                            </o>
+                            <v n="Id">34L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"1"</v>
+                              <v n="Type">"INT"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">37L</v>
+                            </o>
+                            <v n="Id">36L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"100"</v>
+                              <v n="Type">"INT"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">39L</v>
+                            </o>
+                            <v n="Id">38L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"100"</v>
+                              <v n="Type">"INT"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">41L</v>
+                            </o>
+                            <v n="Id">40L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"ARiVertArmPosOffset"</v>
+                              <v n="Type">"ARRAY [0..iArmQty] OF INT"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">43L</v>
+                            </o>
+                            <v n="Id">42L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"DSA1fbPnpSequenceMemoryCall"</v>
+                              <v n="Type">"DSV2_A1_fbPnpSequenceMemoryCall"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">45L</v>
+                            </o>
+                            <v n="Id">44L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"DSA1fbPnpSequenceMemoryStore"</v>
+                              <v n="Type">"DSV2_A1_fbPnpSequenceMemoryStore"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">47L</v>
+                            </o>
+                            <v n="Id">46L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"DSA21UpDownPatternCall"</v>
+                              <v n="Type">"DSA21_UpDownPatternCall"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">49L</v>
+                            </o>
+                            <v n="Id">48L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"DSA21UpDownPatternStore"</v>
+                              <v n="Type">"DSA21_UpDownPatternStore"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">51L</v>
+                            </o>
+                            <v n="Id">50L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"DSA31ArmSpeedProfileCall"</v>
+                              <v n="Type">"DSA31_ArmSpeedProfileCall"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">53L</v>
+                            </o>
+                            <v n="Id">52L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"DSA31ArmSpeedProfileStore"</v>
+                              <v n="Type">"DSA31_ArmSpeedProfileStore"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">55L</v>
+                            </o>
+                            <v n="Id">54L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"ARDSLdZoneHeight"</v>
+                              <v n="Type">"ARRAY [0..iLdStnQty] OF DSA32_StationZoneHeight"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">57L</v>
+                            </o>
+                            <v n="Id">56L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"ARDSStationZoneHeight"</v>
+                              <v n="Type">"ARRAY [0..iStnQty] OF DSA32_StationZoneHeight"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">59L</v>
+                            </o>
+                            <v n="Id">58L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"ARDSUldZoneHeight"</v>
+                              <v n="Type">"ARRAY [0..iUldStnQty] OF DSA32_StationZoneHeight"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">61L</v>
+                            </o>
+                            <v n="Id">60L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"DSTimeTrackerInput"</v>
+                              <v n="Type">"DSV2_TimeTrackerInput"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">63L</v>
+                            </o>
+                            <v n="Id">62L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"DSV2MTBMinMaxEffTime"</v>
+                              <v n="Type">"DSV2_MinMaxEffTime"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">65L</v>
+                            </o>
+                            <v n="Id">64L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"ARiCurrentHorzStnNo"</v>
+                              <v n="Type">"ARRAY [1..iArmQty] OF INT"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">67L</v>
+                            </o>
+                            <v n="Id">66L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"ARi1StepPatternNo"</v>
+                              <v n="Type">"ARRAY [1..iArmQty] OF INT"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">69L</v>
+                            </o>
+                            <v n="Id">68L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"ARDs1StepUpDownMovement"</v>
+                              <v n="Type">"ARRAY [1..iArmQty] OF DSA1_UpDownMovement"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">71L</v>
+                            </o>
+                            <v n="Id">70L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"ARi4StepPatternNo"</v>
+                              <v n="Type">"ARRAY [1..iArmQty] OF INT"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">73L</v>
+                            </o>
+                            <v n="Id">72L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"ARDs4StepUpDownMovement"</v>
+                              <v n="Type">"ARRAY [1..iArmQty] OF DSA1_UpDownMovement"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">75L</v>
+                            </o>
+                            <v n="Id">74L</v>
+                          </o>
+                        </l2>
+                        <o n="InputParam" t="ParamList">
+                          <l2 n="Names" cet="String">
+                            <v>EN</v>
+                            <v>bSavePB</v>
+                            <v>bLoadPB</v>
+                            <v>bClearPB</v>
+                            <v>bEnableCallArmNo</v>
+                            <v>iCallArmNo</v>
+                            <v>ARbProductRecipeCallEn</v>
+                            <v>ARiProductRecipeNoCall</v>
+                            <v>ARiProductRecipeStepCall</v>
+                            <v>iVertMaxVelo</v>
+                            <v>iVertMaxAcc</v>
+                            <v>iVertMaxDcc</v>
+                            <v>iVertMinVelo</v>
+                            <v>iVertMinAcc</v>
+                            <v>iVertMinDcc</v>
+                            <v>ARiVertArmPosOffset</v>
+                            <v>DSA1fbPnpSequenceMemoryCall</v>
+                            <v>DSA1fbPnpSequenceMemoryStore</v>
+                            <v>DSA21UpDownPatternCall</v>
+                            <v>DSA21UpDownPatternStore</v>
+                            <v>DSA31ArmSpeedProfileCall</v>
+                            <v>DSA31ArmSpeedProfileStore</v>
+                            <v>ARDSLdZoneHeight</v>
+                            <v>ARDSStationZoneHeight</v>
+                            <v>ARDSUldZoneHeight</v>
+                            <v>DSTimeTrackerInput</v>
+                            <v>DSV2MTBMinMaxEffTime</v>
+                            <v>ARiCurrentHorzStnNo</v>
+                            <v>ARi1StepPatternNo</v>
+                            <v>ARDs1StepUpDownMovement</v>
+                            <v>ARi4StepPatternNo</v>
+                            <v>ARDs4StepUpDownMovement</v>
+                          </l2>
+                          <l2 n="Types" cet="String">
+                            <v>BOOL</v>
+                            <v>BOOL</v>
+                            <v>BOOL</v>
+                            <v>BOOL</v>
+                            <v>BOOL</v>
+                            <v>INT</v>
+                            <v>ARRAY [0..iStnQty] OF BOOL</v>
+                            <v>ARRAY [0..iStnQty] OF INT</v>
+                            <v>ARRAY [0..iStnQty] OF INT</v>
+                            <v>INT</v>
+                            <v>INT</v>
+                            <v>INT</v>
+                            <v>INT</v>
+                            <v>INT</v>
+                            <v>INT</v>
+                            <v>ARRAY [0..iArmQty] OF INT[REF]</v>
+                            <v>DSV2_A1_fbPnpSequenceMemoryCall[REF]</v>
+                            <v>DSV2_A1_fbPnpSequenceMemoryStore[REF]</v>
+                            <v>DSA21_UpDownPatternCall[REF]</v>
+                            <v>DSA21_UpDownPatternStore[REF]</v>
+                            <v>DSA31_ArmSpeedProfileCall[REF]</v>
+                            <v>DSA31_ArmSpeedProfileStore[REF]</v>
+                            <v>ARRAY [0..iLdStnQty] OF DSA32_StationZoneHeight[REF]</v>
+                            <v>ARRAY [0..iStnQty] OF DSA32_StationZoneHeight[REF]</v>
+                            <v>ARRAY [0..iUldStnQty] OF DSA32_StationZoneHeight[REF]</v>
+                            <v>DSV2_TimeTrackerInput[REF]</v>
+                            <v>DSV2_MinMaxEffTime[REF]</v>
+                            <v>ARRAY [1..iArmQty] OF INT[REF]</v>
+                            <v>ARRAY [1..iArmQty] OF INT[REF]</v>
+                            <v>ARRAY [1..iArmQty] OF DSA1_UpDownMovement[REF]</v>
+                            <v>ARRAY [1..iArmQty] OF INT[REF]</v>
+                            <v>ARRAY [1..iArmQty] OF DSA1_UpDownMovement[REF]</v>
+                          </l2>
+                        </o>
+                        <o n="OutputParam" t="ParamList">
+                          <l2 n="Names" cet="String">
+                            <v>bSaveInd</v>
+                            <v>bLoadInd</v>
+                            <v>bClearInd</v>
+                            <v>ARDSLdZonePosOut</v>
+                            <v>ARDSStationZonePosOut</v>
+                            <v>ARDSUldZonePosOut</v>
+                            <v>DSfbGnrProductRecipeMemoryOut</v>
+                          </l2>
+                          <l2 n="Types" cet="String">
+                            <v>BOOL</v>
+                            <v>BOOL</v>
+                            <v>BOOL</v>
+                            <v>ARRAY [0..iLdStnQty] OF DSA32_StationZonePosOut</v>
+                            <v>ARRAY [0..iStnQty] OF DSA32_StationZonePosOut</v>
+                            <v>ARRAY [0..iUldStnQty] OF DSA32_StationZonePosOut</v>
+                            <v>DSV2_fbGnrProductRecipeMemoryOut</v>
+                          </l2>
+                        </o>
+                        <v n="CallType" t="Operator">FunctionBlock</v>
+                        <v n="EN">true</v>
+                        <v n="ENO">false</v>
+                        <n n="STSnippet" />
+                        <v n="ContainsExtensibleInputs">false</v>
+                        <v n="ProvidesSTSnippet">false</v>
+                        <v n="Id">83L</v>
+                      </o>
+                      <v n="Id">77L</v>
+                    </o>
+                  </l2>
+                  <l2 n="Connectors" />
+                  <v n="Id">6L</v>
+                </o>
+              </l2>
+              <v n="BranchCounter">0</v>
+              <v n="ValidIds">true</v>
+            </o>
+          </Data>
+          <TypeList>
+            <Type n="Boolean">System.Boolean</Type>
+            <Type n="BoxTreeAssign">{9873c309-1f09-4ebf-9078-42d8057ef11b}</Type>
+            <Type n="BoxTreeBox">{acfc6f68-8e3a-4af5-bf81-3dd512095a46}</Type>
+            <Type n="BoxTreeOperand">{9de7f100-1b87-424c-a62e-45b0cfc85ed2}</Type>
+            <Type n="Flags">{668066f2-6069-46b3-8962-8db8d13d7db2}</Type>
+            <Type n="Int32">System.Int32</Type>
+            <Type n="Int64">System.Int64</Type>
+            <Type n="Network">{d9a99d73-b633-47db-b876-a752acb25871}</Type>
+            <Type n="NWLImplementationObject">{25e509de-33d4-4447-93f8-c9e4ea381c8b}</Type>
+            <Type n="Operand">{c9b2f165-48a2-4a45-8326-3952d8a3d708}</Type>
+            <Type n="Operator">{bffb3c53-f105-4e85-aba2-e30df579d75f}</Type>
+            <Type n="OutputItemList">{f40d3e09-c02c-4522-a88c-dac23558cfc4}</Type>
+            <Type n="ParamList">{71496971-9e0c-4677-a832-b9583b571130}</Type>
+            <Type n="String">System.String</Type>
+          </TypeList>
+        </XmlArchive>
+      </NWL>
+    </Implementation>
+  </POU>
+</TcPlcObject>

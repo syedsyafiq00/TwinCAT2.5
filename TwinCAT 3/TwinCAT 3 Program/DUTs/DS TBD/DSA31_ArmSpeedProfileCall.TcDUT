@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSA31_ArmSpeedProfileCall" Id="{f7ba1dce-951d-4ad5-a71b-8f5b2504371b}">
+    <Declaration><![CDATA[TYPE DSA31_ArmSpeedProfileCall : (*Full Occupied Byte = 500*)
+STRUCT
+	bCallPB: BOOL; (* Byte "n" *)
+	bCallCompleted : BOOL; (* Byte "n+1" *)
+	bInvalidCallArmSpdProfileNoHold : BOOL; (* Byte "n+2" *)
+	bInvalidCallArmSpdProfileNoPulse : BOOL; (* Byte "n+3" *)
+	sReservedBool : STRING(95); (* Byte "n+4~n+99" *)
+
+
+	Call_iArmSpdProfile : INT; (* Byte "n+100, n+101" *)
+	sReservedInt : STRING(97); (* Byte "n+102~n+199" *)
+
+
+(*	Call_sSequenceRecipeDescription : STRING(50); (* Byte "n+200~n+299" *)*)
+
+
+	Call_DSArmSpdProfile : DSA31_ArmSpeedProfileMemory; (* Byte "n+200 onward" *)
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,213 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="AxisServoCtrlMapping_Arm1" Id="{f8f9912d-65ce-4c2f-a84b-9a64689efa9e}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM AxisServoCtrlMapping_Arm1
+VAR
+	dwArm1Vert4StepsPosBuffer: DWORD;
+	dwArm1Vert4StepsPosBufferRE: R_TRIG;
+
+	dwArm1HorzPosBuffer: DWORD;
+	dwArm1HorzPosBufferRE: R_TRIG;
+
+	tArm1HorzPosChangeTimer: TON;
+	bArm1HorzPosChangeTimerSt: BOOL;
+
+	tArm1Vert4StepPosChangeTimer: TON;
+	bArm1Vert4StepPosChangeTimerSt: BOOL;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*ARM 1*)
+IF ARdwVert4StepsPos_In_PositioningEn[1] <> 0 AND ARdwHorzPos_In_PositioningEn[1] = 0 THEN
+	ARDSArmCtrl[1].AR3sbTargetPosSt := AR3s_Vert4Steps_bTargetPosSt;
+ELSIF ARdwHorzPos_In_PositioningEn[1] <> 0 AND ARdwVert4StepsPos_In_PositioningEn[1] = 0THEN
+	ARDSArmCtrl[1].AR3sbTargetPosSt := AR3s_Horz1Step_bTargetPosSt;
+ELSE
+	ARDSArmCtrl[1].AR3sbTargetPosSt := AR3s_Empty_bTargetPosSt;
+END_IF
+
+	bSafetyCurtainAlarmTriggered								:=  ARbDI[eX11011_GeneralSafetyCurtainSensor_Alarm] AND NOT bSafetyDoorSensorBypass ;
+
+(*Home Used*)
+
+(*ARM 1*)
+
+	DSArm1VertConfig.bHome_In_HomingSt							:= dwArm1VertHomeStart <> 0 AND NOT EmergencyStop ;
+	DSArm1VertConfig.bHome_In_HomingReset 						:= ( bArmHomeResetbit OR bAutoOriginFE.Q OR bMainOnOffFE.Q OR bMainOnOffRE.Q ) ;
+	DSArm1VertConfig.bHome_In_HomeSensor 						:= VertCoERead.bArm1VertHome;
+	DSArm1VertConfig.lrHome_In_HighSpeed 						:= ARrArmVertHome1stPercent[1];
+	DSArm1VertConfig.lrHome_In_HighSpeedAcc 					:= ARrArmVertHome1stPercentAcc[1];
+	DSArm1VertConfig.lrHome_In_HighSpeedDcc 					:= ARrArmVertHome1stPercentDcc[1];
+	DSArm1VertConfig.lrHome_In_2ndSpeed 						:= ARrArmVertHome2ndPercent[1];
+	DSArm1VertConfig.lrHome_In_2ndSpeedAcc						:= ARrArmVertHome2ndPercentAcc[1];
+	DSArm1VertConfig.lrHome_In_2ndSpeedDcc 						:= ARrArmVertHome2ndPercentDcc[1];
+
+	DSArm1VertConfig.rHome_In_DccDelayTimeSec 					:= ARrVertHomeDccDelayTimeSec[1];
+
+	ARbArmVertHomeDone[1]										:= DSArm1VertConfig.bHome_Out_HomeDone ;
+	ARbArmVertHomingBusy[1]										:= DSArm1VertConfig.bHome_Out_Busy ;
+
+
+	DSArm1HorzConfig.bHome_In_HomingSt 							:= (( ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1] AND ARbArmVertHomeDone[1] AND ((ARbArmSlowPullHomeDone[1] AND bArmSlowPulldownCFM) OR bStnLiftoutMechanismBypass) AND NOT EmergencyStop) AND dwArm1HorzHomeStart <> 0 ) ;
+	DSArm1HorzConfig.bHome_In_HomingReset 						:= ( bArmHomeResetbit OR bAutoOriginFE.Q OR bMainOnOffFE.Q OR bMainOnOffRE.Q ) ;
+	DSArm1HorzConfig.bHome_In_HomeSensor 						:= HorzCoERead.bArm1HorzHome;
+	DSArm1HorzConfig.lrHome_In_HighSpeed 						:= ARrArmHorzHome1stPercent[1];
+	DSArm1HorzConfig.lrHome_In_HighSpeedAcc 					:= ARrArmHorzHome1stPercentAcc[1];
+	DSArm1HorzConfig.lrHome_In_HighSpeedDcc	 					:= ARrArmHorzHome1stPercentDcc[1];
+	DSArm1HorzConfig.lrHome_In_2ndSpeed 						:= ARrArmHorzHome2ndPercent[1];
+	DSArm1HorzConfig.lrHome_In_2ndSpeedAcc 						:= ARrArmHorzHome2ndPercentAcc[1];
+	DSArm1HorzConfig.lrHome_In_2ndSpeedDcc 						:= ARrArmHorzHome2ndPercentDcc[1];
+
+	DSArm1HorzConfig.rHome_In_DccDelayTimeSec 					:= ARrHorzHomeDccDelayTimeSec[1];
+
+	ARbArmHorzHomeDone[1] 										:= DSArm1HorzConfig.bHome_Out_HomeDone ;
+	ARbArmHorzHomingBusy[1] 									:= DSArm1HorzConfig.bHome_Out_Busy ;
+
+(*Jog Used*)
+
+(*ARM 1*)
+
+	DSArm1VertConfig.bJog_InOut_JogEn							:= bArmJogEnable (*OR DSV2ApolloRemoteHoistInput.bPB_SelectionSwtich_JogEn*) ;
+	DSArm1HorzConfig.bJog_InOut_JogEn                                                		:= bArmJogEnable (*OR DSV2ApolloRemoteHoistInput.bPB_SelectionSwtich_JogEn*) ;
+
+	DSArm1VertConfig.bJog_In_PositiveJogDirectionSt 			:= ARbArmVertJogFwd[1] (*OR ApolloRemoteCtrl.bArmJogDown*);
+	DSArm1VertConfig.bJog_In_NegativeJogDirectionSt 			:= ARbArmVertJogRwd[1] (*OR ApolloRemoteCtrl.bArmJogUp*) ;
+	DSArm1VertConfig.lrJog_In_JogSpeedHz 						:= ARrArmVertJogPercent[1];
+	DSArm1VertConfig.lrJog_In_JogSpeedAcc 						:= ARrArmVertJogAcc[1];
+	DSArm1VertConfig.lrJog_In_JogSpeedDcc 						:= ARrArmVertJogDcc[1];
+
+	DSArm1HorzConfig.bJog_In_PositiveJogDirectionSt 			:= ARbArmHorzJogFwd[1] (*OR ApolloRemoteCtrl.bArmJogRight*);
+	DSArm1HorzConfig.bJog_In_NegativeJogDirectionSt 			:= ARbArmHorzJogRwd[1] (*OR ApolloRemoteCtrl.bArmJogLeft*);
+	DSArm1HorzConfig.lrJog_In_JogSpeedHz 						:= ARrArmHorzJogPercent[1];
+	DSArm1HorzConfig.lrJog_In_JogSpeedAcc 						:= ARrArmHorzJogAcc[1];
+	DSArm1HorzConfig.lrJog_In_JogSpeedDcc 						:= ARrArmHorzJogDcc[1];
+
+(* Arm Positioning Signal Control Used*)
+(* Arm Inv Analog Spd Ctrl Used*)
+
+(*ARM 1*)
+
+	ARbVert_IASC_Out_JogInProgress[1] 							:= DSArm1VertConfig.bOut_JogInProgress;
+	ARbVert_IASC_Out_HomeInProgress[1] 							:= DSArm1VertConfig.bOut_HomeInProgress;
+	ARbVert_IASC_Out_PosInProgress[1] 							:= DSArm1VertConfig.bOut_PosInProgress ;
+
+	ARbHorz_IASC_Out_JogInProgress[1]  							:= DSArm1HorzConfig.bOut_JogInProgress ;
+	ARbHorz_IASC_Out_HomeInProgress[1] 	 						:= DSArm1HorzConfig.bOut_HomeInProgress ;
+	ARbHorz_IASC_Out_PosInProgress[1]  							:= DSArm1HorzConfig.bOut_PosInProgress ;
+
+
+(* General Used*)
+
+(*ARM 1*)
+
+	DSArm1VertConfig.bGen_In_VertMovementEn						:= TRUE;
+	DSArm1VertConfig.bGen_In_HorzMovementEn						:= FALSE;
+
+	DSArm1HorzConfig.bGen_In_HorzMovementEn						:= TRUE;
+	DSArm1HorzConfig.bGen_In_VertMovementEn						:= FALSE;
+
+	DSArm1VertConfig.bGen_In_FwdOverTravelSensorNC 				:= NOT ARdsEventCtrl[422].bEventOutput ; //Vert Down OT
+	DSArm1VertConfig.bGen_In_RwdOverTravelSensorNC 				:= NOT ARdsEventCtrl[421].bEventOutput ; //Vert Up OT
+
+	DSArm1HorzConfig.bGen_In_FwdOverTravelSensorNC 				:= NOT ARdsEventCtrl[425].bEventOutput ; //Horz Uld OT
+	DSArm1HorzConfig.bGen_In_RwdOverTravelSensorNC 				:= NOT ARdsEventCtrl[424].bEventOutput ; //Vert Ld OT  
+
+
+(***********************************************)
+(*ARM 1*)
+dwArm1HorzPosBufferRE(CLK:= ARdwHorzPos_In_PositioningEn[1] <> dwArm1HorzPosBuffer , Q=> );
+IF dwArm1HorzPosBufferRE.Q  THEN
+bArm1HorzPosChangeTimerSt := TRUE;
+END_IF
+
+tArm1HorzPosChangeTimer(IN:=bArm1HorzPosChangeTimerSt , PT:=t#0.1s , Q=> , ET=> );
+
+IF tArm1HorzPosChangeTimer.Q THEN
+dwArm1HorzPosBuffer := ARdwHorzPos_In_PositioningEn[1];
+bArm1HorzPosChangeTimerSt := FALSE;
+END_IF
+
+(***********************************************)
+(***********************************************)
+(*ARM 1*)
+dwArm1Vert4StepsPosBufferRE(CLK:= ARdwVert4StepsPos_In_PositioningEn[1] <> dwArm1Vert4StepsPosBuffer , Q=> );
+IF dwArm1Vert4StepsPosBufferRE.Q THEN
+bArm1Vert4StepPosChangeTimerSt := TRUE;
+END_IF
+
+tArm1Vert4StepPosChangeTimer(IN:=bArm1Vert4StepPosChangeTimerSt , PT:=t#0.1s , Q=> , ET=> );
+
+IF tArm1Vert4StepPosChangeTimer.Q THEN
+dwArm1Vert4StepsPosBuffer := ARdwVert4StepsPos_In_PositioningEn[1];
+bArm1Vert4StepPosChangeTimerSt := FALSE;
+END_IF
+
+(***********************************************)
+
+(* Pos Ctrl Used*)
+
+(*ARM 1*)
+
+	DSArm1VertConfig.bPos_In_4StepsEn							:= DSArmBasketInfo[1].bAvailibility ;
+	DSArm1VertConfig.bPos_In_PositioningEn 						:= ARdwVert4StepsPos_In_PositioningEn[1] <> 0 AND NOT bArm1Vert4StepPosChangeTimerSt ;
+
+	DSArm1VertConfig.lrPos_In_HighSpeed							:= ARlrVertPos_In_HighSpeed[1];
+	DSArm1VertConfig.lrPos_In_Acc								:= ARlrVertPos_In_Acc[1];
+	DSArm1VertConfig.lrPos_In_Dcc								:= ARlrVertPos_In_Dcc[1];
+(*New Added by Lee - 190413*)
+	DSArm1VertConfig.bPos_In_Tolerance 							:= 1;
+
+	ARbArmVertMoveDone[1] 										:= DSArm1VertConfig.bPos_Out_PositioningDone;
+	ARbArmVertMoveBusy[1] 										:= DSArm1VertConfig.bPos_Out_PositioningBusy ;
+
+
+	DSArm1HorzConfig.bPos_In_4StepsEn							:= FALSE;
+	DSArm1HorzConfig.bPos_In_PositioningEn 						:= ( ARdwHorzPos_In_PositioningEn[1] <> 0 ) AND NOT bArm1HorzPosChangeTimerSt ;
+
+	DSArm1HorzConfig.lrPos_In_HighSpeed							:= ARlrHorzPos_In_HighSpeed[1];
+	DSArm1HorzConfig.lrPos_In_Acc								:= ARlrHorzPos_In_Acc[1];
+	DSArm1HorzConfig.lrPos_In_Dcc								:= ARlrHorzPos_In_Dcc[1];
+(*New Added by Lee - 190413*)
+	DSArm1HorzConfig.bPos_In_Tolerance							:= 1;
+
+	ARbArmHorzMoveDone[1] 										:= DSArm1HorzConfig.bPos_Out_PositioningDone ;
+	ARbArmHorzMoveBusy[1]  										:= DSArm1HorzConfig.bPos_Out_PositioningBusy ;
+
+
+	DSArm1VertConfig.bPos_In_Tolerance;
+	DSArm1VertConfig.lrGen_Out_CurrentPos;
+	DSArm1VertConfig.lrOur_RealTimeSpeedDisplay;
+	DSArm1VertConfig.MC_Acc;
+	DSArm1VertConfig.MC_ArmContinuosMotion;
+	DSArm1VertConfig.MC_ArmDisable;
+	DSArm1VertConfig.MC_ArmDiscreteMotion;
+	DSArm1VertConfig.MC_ArmErrorStop;
+	DSArm1VertConfig.MC_ArmHoming;
+	DSArm1VertConfig.MC_ArmStandStill;
+	DSArm1VertConfig.MC_ArmStopping;
+	DSArm1VertConfig.MC_ArmSynchronizeMotion;
+	DSArm1VertConfig.MC_ConstantVelocity;
+	DSArm1VertConfig.MC_Dcc;
+	
+	DSArm1HorzConfig.bPos_In_Tolerance;
+	DSArm1HorzConfig.lrGen_Out_CurrentPos;
+	DSArm1HorzConfig.lrOur_RealTimeSpeedDisplay;
+	DSArm1HorzConfig.MC_Acc;
+	DSArm1HorzConfig.MC_ArmContinuosMotion;
+	DSArm1HorzConfig.MC_ArmDisable;
+	DSArm1HorzConfig.MC_ArmDiscreteMotion;
+	DSArm1HorzConfig.MC_ArmErrorStop;
+	DSArm1HorzConfig.MC_ArmHoming;
+	DSArm1HorzConfig.MC_ArmStandStill;
+	DSArm1HorzConfig.MC_ArmStopping;
+	DSArm1HorzConfig.MC_ArmSynchronizeMotion;
+	DSArm1HorzConfig.MC_ConstantVelocity;
+	DSArm1HorzConfig.MC_Dcc;
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="AxisServoCtrlMapping_Arm1">
+      <LineId Id="15" Count="187" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

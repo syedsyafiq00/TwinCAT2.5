@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSA21_UpDownPatternMemory" Id="{17e91dbb-1d54-4d9c-8c3e-f5562c62db9c}">
+    <Declaration><![CDATA[TYPE DSA21_UpDownPatternMemory : (*Full Occupied Byte = 300*)
+STRUCT
+
+	sReservedBool : STRING(50); (* Byte "n+0 ~ n+99" *)
+
+	iZone1SpdProfileNo : INT; (* Byte "n+100, n+101" *)
+	iZone2SpdProfileNo : INT; (* Byte "n+102, n+103" *)
+	iZone3SpdProfileNo : INT; (* Byte "n+104, n+105" *)
+	iZone4SpdProfileNo : INT; (* Byte "n+106, n+107" *)
+
+	sReservedInt : STRING(91); (* Byte "n+108~n+199" *)
+
+
+
+	sDescription : STRING(50); (* Byte "n+200 ~ n+299" *)
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

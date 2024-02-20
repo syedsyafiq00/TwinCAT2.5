@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_jx_DataLog" Id="{9df629aa-2207-42ae-b7cd-d4a6d89b3074}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_jx_DataLog
+VAR_INPUT
+	bActivate:BOOL;		(*Activate data logging*)
+	FolderDirectory: T_MaxString;		(*Folder to save log file*)
+	Tittle	: T_MaxString;
+	sFileName: STRING:='DataLog';
+	nNumberOfData:INT:=100;		(*number of data going to log*)
+	a_sDataLog_In: ARRAY [1..100] OF ST_DataLog;		(*Log Data name and Value, in string form*)
+	TimeInterval: En_TimeInterval:=Interval_1min;		(*Time interval for data logging *)
+	sCsvSeperator:STRING:=',';		(*Seperator for Csv file*)
+	tsTimeNow: TIMESTRUCT;		(*Time now*)
+	enFIleType: En_LogFileType:=CSV;		(*2 Option: CSV ,  TXT*)
+	bDirectWrite			: BOOL;
+END_VAR
+VAR_OUTPUT
+	sMsg:STRING;
+END_VAR
+VAR
+	nWriteLogState: INT;
+	bTrigWri: BOOL;
+	R_TRIG_Wri: R_TRIG;
+	a_sDataLog: ARRAY [1..100] OF ST_DataLog;		(*Log Data name and Value, in string form*)
+	tsTimeMoment: TIMESTRUCT;
+	fbTimeTriggering: FB_TimeTriggering;
+	fbWriteLog:FB_WriteLog;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*
+Create by: Jun Xian
+Date: 28 May 2014
+Modify: 21 Sep 2015
+
+Purpose: 
+1. Log data Into Csv file
+
+
+Feature:
+1. Selectable csv seperator.
+2. Everyday using a new log file.
+3. Selectable data log time interval.
+4. Currently number of data support up to 1000 data. 
+5. Log File can select save as .CSV or .TXT.
+
+Limitation:
+1. If data name > 50, maybe will cause some word missing.
+*)
+(*
+IF bActivate  THEN
+fbTimeTriggering(en_interval:= TimeInterval, tsTimeNow:= tsTimeNow, bTrigWriLog=> );
+*)
+IF bActivate  THEN
+bTrigWri := TRUE;
+ELSE
+bTrigWri := FALSE;
+END_IF
+
+R_TRIG_Wri(CLK:= bTrigWri , Q=> );
+IF R_TRIG_Wri.Q THEN		(*record the value at that moment*)
+a_sDataLog:=a_sDataLog_In;
+tsTimeMoment:=tsTimeNow;
+END_IF
+
+fbWriteLog(
+	sFolderDirectory:= FolderDirectory,
+	sTittle := Tittle,
+	aDataLog:= a_sDataLog,
+	sSeperator:= sCsvSeperator,
+	tsTimeMoment:= tsTimeMoment,
+	tsTimeNow:= tsTimeNow,
+	bStartWri:= R_TRIG_Wri.Q,
+	nNumOfData:= nNumberOfData,
+	enFileType:= enFIleType,
+	sFileName:= sFileName,
+	sErrMsg=> sMsg);]]></ST>
+    </Implementation>
+    <LineIds Name="FB_jx_DataLog">
+      <LineId Id="26" Count="46" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

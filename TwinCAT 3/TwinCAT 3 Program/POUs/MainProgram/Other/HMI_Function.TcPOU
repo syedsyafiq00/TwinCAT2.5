@@ -1,0 +1,323 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="HMI_Function" Id="{01ce7e1d-5d5b-4a42-91f4-d6742b4bfd79}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM HMI_Function
+VAR
+
+
+	(*fbDetergentPBresetPassword:fbDetergent_BasketQuantityResetPB_PasswordControl;*)
+
+	iRecipeNoFeed:INT;
+
+	MotionX :LREAL;
+	MotionY:LREAL;
+
+	MotionX_1 :LREAL;
+	MotionY_1:LREAL;
+
+	sProductRecipeStepSeqRecipeDescription : ARRAY [1..20] OF STRING(99);
+	ARsUpPickPatternDescription: ARRAY [1..20] OF STRING(99);
+	ARsDownTransferPatternDescription : ARRAY [1..20] OF STRING(99);
+
+(*Recipe Barcode Page Description*)
+
+	iRegNoM				:INT;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Recipe Description*)
+sProductRecipeStepSeqRecipeDescription[1]:=sProductRecipeStep1SeqRecipeDescription;
+sProductRecipeStepSeqRecipeDescription[2]:=sProductRecipeStep2SeqRecipeDescription;
+sProductRecipeStepSeqRecipeDescription[3]:=sProductRecipeStep3SeqRecipeDescription;
+sProductRecipeStepSeqRecipeDescription[4]:=sProductRecipeStep4SeqRecipeDescription;
+sProductRecipeStepSeqRecipeDescription[5]:=sProductRecipeStep5SeqRecipeDescription;
+sProductRecipeStepSeqRecipeDescription[6]:=sProductRecipeStep6SeqRecipeDescription;
+sProductRecipeStepSeqRecipeDescription[7]:=sProductRecipeStep7SeqRecipeDescription;
+sProductRecipeStepSeqRecipeDescription[8]:=sProductRecipeStep8SeqRecipeDescription;
+sProductRecipeStepSeqRecipeDescription[9]:=sProductRecipeStep9SeqRecipeDescription;
+sProductRecipeStepSeqRecipeDescription[10]:=sProductRecipeStep10SeqRecipeDescription;
+sProductRecipeStepSeqRecipeDescription[11]:=sProductRecipeStep11SeqRecipeDescription;
+sProductRecipeStepSeqRecipeDescription[12]:=sProductRecipeStep12SeqRecipeDescription;
+sProductRecipeStepSeqRecipeDescription[13]:=sProductRecipeStep13SeqRecipeDescription;
+sProductRecipeStepSeqRecipeDescription[14]:=sProductRecipeStep14SeqRecipeDescription;
+sProductRecipeStepSeqRecipeDescription[15]:=sProductRecipeStep15SeqRecipeDescription;
+sProductRecipeStepSeqRecipeDescription[16]:=sProductRecipeStep16SeqRecipeDescription;
+sProductRecipeStepSeqRecipeDescription[17]:=sProductRecipeStep17SeqRecipeDescription;
+sProductRecipeStepSeqRecipeDescription[18]:=sProductRecipeStep18SeqRecipeDescription;
+sProductRecipeStepSeqRecipeDescription[19]:=sProductRecipeStep19SeqRecipeDescription;
+sProductRecipeStepSeqRecipeDescription[20]:=sProductRecipeStep20SeqRecipeDescription;
+
+(*Up transfer Description*)
+
+ARsUpPickPatternDescription[1]:=ARsUpPickPatternDescription1;
+ARsUpPickPatternDescription[2]:=ARsUpPickPatternDescription2;
+ARsUpPickPatternDescription[3]:=ARsUpPickPatternDescription3;
+ARsUpPickPatternDescription[4]:=ARsUpPickPatternDescription4;
+ARsUpPickPatternDescription[5]:=ARsUpPickPatternDescription5;
+ARsUpPickPatternDescription[6]:=ARsUpPickPatternDescription6;
+ARsUpPickPatternDescription[7]:=ARsUpPickPatternDescription7;
+ARsUpPickPatternDescription[8]:=ARsUpPickPatternDescription8;
+ARsUpPickPatternDescription[9]:=ARsUpPickPatternDescription9;
+ARsUpPickPatternDescription[10]:=ARsUpPickPatternDescription10;
+ARsUpPickPatternDescription[11]:=ARsUpPickPatternDescription11;
+ARsUpPickPatternDescription[12]:=ARsUpPickPatternDescription12;
+ARsUpPickPatternDescription[13]:=ARsUpPickPatternDescription13;
+ARsUpPickPatternDescription[14]:=ARsUpPickPatternDescription14;
+ARsUpPickPatternDescription[15]:=ARsUpPickPatternDescription15;
+ARsUpPickPatternDescription[16]:=ARsUpPickPatternDescription16;
+ARsUpPickPatternDescription[17]:=ARsUpPickPatternDescription17;
+ARsUpPickPatternDescription[18]:=ARsUpPickPatternDescription18;
+ARsUpPickPatternDescription[19]:=ARsUpPickPatternDescription19;
+ARsUpPickPatternDescription[20]:=ARsUpPickPatternDescription20;
+
+(*Down transfer Description*)
+
+
+ARsDownTransferPatternDescription[1]:=ARsDownTransferPatternDescription1;
+ARsDownTransferPatternDescription[2]:=ARsDownTransferPatternDescription2;
+ARsDownTransferPatternDescription[3]:=ARsDownTransferPatternDescription3;
+ARsDownTransferPatternDescription[4]:=ARsDownTransferPatternDescription4;
+ARsDownTransferPatternDescription[5]:=ARsDownTransferPatternDescription5;
+ARsDownTransferPatternDescription[6]:=ARsDownTransferPatternDescription6;
+ARsDownTransferPatternDescription[7]:=ARsDownTransferPatternDescription7;
+ARsDownTransferPatternDescription[8]:=ARsDownTransferPatternDescription8;
+ARsDownTransferPatternDescription[9]:=ARsDownTransferPatternDescription9;
+ARsDownTransferPatternDescription[10]:=ARsDownTransferPatternDescription10;
+ARsDownTransferPatternDescription[11]:=ARsDownTransferPatternDescription11;
+ARsDownTransferPatternDescription[12]:=ARsDownTransferPatternDescription12;
+ARsDownTransferPatternDescription[13]:=ARsDownTransferPatternDescription13;
+ARsDownTransferPatternDescription[14]:=ARsDownTransferPatternDescription14;
+ARsDownTransferPatternDescription[15]:=ARsDownTransferPatternDescription15;
+ARsDownTransferPatternDescription[16]:=ARsDownTransferPatternDescription16;
+ARsDownTransferPatternDescription[17]:=ARsDownTransferPatternDescription17;
+ARsDownTransferPatternDescription[18]:=ARsDownTransferPatternDescription18;
+ARsDownTransferPatternDescription[19]:=ARsDownTransferPatternDescription19;
+ARsDownTransferPatternDescription[20]:=ARsDownTransferPatternDescription20;
+
+	(*Tracker No Array Set*)
+
+
+
+TrackeriArrayNo[1]:=TimeTrackerPage+1;
+TrackeriArrayNo[2]:=TimeTrackerPage+2;
+TrackeriArrayNo[3]:=TimeTrackerPage+3;
+TrackeriArrayNo[4]:=TimeTrackerPage+4;
+TrackeriArrayNo[5]:=TimeTrackerPage+5;
+TrackeriArrayNo[6]:=TimeTrackerPage+6;
+TrackeriArrayNo[7]:=TimeTrackerPage+7;
+TrackeriArrayNo[8]:=TimeTrackerPage+8;
+TrackeriArrayNo[9]:=TimeTrackerPage+9;
+TrackeriArrayNo[10]:=TimeTrackerPage+10;
+TrackeriArrayNo[11]:=TimeTrackerPage+11;
+TrackeriArrayNo[12]:=TimeTrackerPage+12;
+TrackeriArrayNo[13]:=TimeTrackerPage+13;
+TrackeriArrayNo[14]:=TimeTrackerPage+14;
+TrackeriArrayNo[15]:=TimeTrackerPage+15;
+TrackeriArrayNo[16]:=TimeTrackerPage+16;
+TrackeriArrayNo[17]:=TimeTrackerPage+17;
+TrackeriArrayNo[18]:=TimeTrackerPage+18;
+TrackeriArrayNo[19]:=TimeTrackerPage+19;
+TrackeriArrayNo[20]:=TimeTrackerPage+20;
+
+	(*Recipe Descripin for recipe Editor page*)
+
+sRecipeDescriptionStep[1]:=sProductRecipeStep1SeqRecipeDescription;
+sRecipeDescriptionStep[2]:=sProductRecipeStep2SeqRecipeDescription;
+sRecipeDescriptionStep[3]:=sProductRecipeStep3SeqRecipeDescription;
+sRecipeDescriptionStep[4]:=sProductRecipeStep4SeqRecipeDescription;
+sRecipeDescriptionStep[5]:=sProductRecipeStep5SeqRecipeDescription;
+sRecipeDescriptionStep[6]:=sProductRecipeStep6SeqRecipeDescription;
+sRecipeDescriptionStep[7]:=sProductRecipeStep7SeqRecipeDescription;
+sRecipeDescriptionStep[8]:=sProductRecipeStep8SeqRecipeDescription;
+sRecipeDescriptionStep[9]:=sProductRecipeStep9SeqRecipeDescription;
+sRecipeDescriptionStep[10]:=sProductRecipeStep10SeqRecipeDescription;
+
+sRecipeDescriptionStep[11]:=sProductRecipeStep11SeqRecipeDescription;
+sRecipeDescriptionStep[12]:=sProductRecipeStep12SeqRecipeDescription;
+sRecipeDescriptionStep[13]:=sProductRecipeStep13SeqRecipeDescription;
+sRecipeDescriptionStep[14]:=sProductRecipeStep14SeqRecipeDescription;
+sRecipeDescriptionStep[15]:=sProductRecipeStep15SeqRecipeDescription;
+sRecipeDescriptionStep[16]:=sProductRecipeStep16SeqRecipeDescription;
+sRecipeDescriptionStep[17]:=sProductRecipeStep17SeqRecipeDescription;
+sRecipeDescriptionStep[18]:=sProductRecipeStep18SeqRecipeDescription;
+sRecipeDescriptionStep[19]:=sProductRecipeStep19SeqRecipeDescription;
+sRecipeDescriptionStep[20]:=sProductRecipeStep20SeqRecipeDescription;
+
+(*iCurrentScreenNo:= iAutoInfoNo;*)
+iCurrentScreenNo:= iStationNo;
+
+(*7Days Remap*)
+
+ArbDayOnEn_IN[1]:=Day1En[1];
+ArbDayOnEn_IN[2]:=Day2En[1];
+ArbDayOnEn_IN[3]:=Day3En[1];
+ArbDayOnEn_IN[4]:=Day4En[1];
+ArbDayOnEn_IN[5]:=Day5En[1];
+ArbDayOnEn_IN[6]:=Day6En[1];
+ArbDayOnEn_IN[7]:=Day7En[1];
+
+ArbDayOffEn_IN[1]:=Day1En[2];
+ArbDayOffEn_IN[2]:=Day2En[2];
+ArbDayOffEn_IN[3]:=Day3En[2];
+ArbDayOffEn_IN[4]:=Day4En[2];
+ArbDayOffEn_IN[5]:=Day5En[2];
+ArbDayOffEn_IN[6]:=Day6En[2];
+ArbDayOffEn_IN[7]:=Day7En[2];
+
+
+ArwDayOnHour_IN[1]:=Day1H[1];
+ArwDayOnHour_IN[2]:=Day2H[1];
+ArwDayOnHour_IN[3]:=Day3H[1];
+ArwDayOnHour_IN[4]:=Day4H[1];
+ArwDayOnHour_IN[5]:=Day5H[1];
+ArwDayOnHour_IN[6]:=Day6H[1];
+ArwDayOnHour_IN[7]:=Day7H[1];
+
+ArwDayOffHour_IN[1]:=Day1H[2];
+ArwDayOffHour_IN[2]:=Day2H[2];
+ArwDayOffHour_IN[3]:=Day3H[2];
+ArwDayOffHour_IN[4]:=Day4H[2];
+ArwDayOffHour_IN[5]:=Day5H[2];
+ArwDayOffHour_IN[6]:=Day6H[2];
+ArwDayOffHour_IN[7]:=Day7H[2];
+
+
+ArwDayOnMinute_IN[1]:=Day1M[1];
+ArwDayOnMinute_IN[2]:=Day2M[1];
+ArwDayOnMinute_IN[3]:=Day3M[1];
+ArwDayOnMinute_IN[4]:=Day4M[1];
+ArwDayOnMinute_IN[5]:=Day5M[1];
+ArwDayOnMinute_IN[6]:=Day6M[1];
+ArwDayOnMinute_IN[7]:=Day7M[1];
+
+ArwDayOffMinute_IN[1]:=Day1M[2];
+ArwDayOffMinute_IN[2]:=Day2M[2];
+ArwDayOffMinute_IN[3]:=Day3M[2];
+ArwDayOffMinute_IN[4]:=Day4M[2];
+ArwDayOffMinute_IN[5]:=Day5M[2];
+ArwDayOffMinute_IN[6]:=Day6M[2];
+ArwDayOffMinute_IN[7]:=Day7M[2];
+
+
+(*iArmVertCurrentPos:=LREAL_TO_INT(ARlrVertPositionMM[1]/lrVertHmiRatio);*)
+xRatio(*:=11*);
+YRatio;
+
+xRatio_1;
+yRatio_1:=20;
+
+IF  ARbArmVertHomeDone[1] AND ARbArmHorzHomeDone[1] THEN
+bArmHomingComplete[1]:=TRUE;
+ELSE
+bArmHomingComplete[1]:=FALSE;
+END_IF
+
+IF ARbArmVertHomeDone[2] AND ARbArmHorzHomeDone[2] THEN
+bArmHomingComplete[2]:=TRUE;
+ELSE
+bArmHomingComplete[2]:=FALSE;
+END_IF
+
+
+IF DSArm1HorzConfig.lrGen_Out_CurrentPos (*ARlrHorzPositionMM[1]*)>0 AND (xRatio <> 0) THEN
+	MotionX:=(DSArm1HorzConfig.lrGen_Out_CurrentPos (*ARlrHorzPositionMM[1]*)/xRatio);
+END_IF
+
+IF DSArm1VertConfig.lrGen_Out_CurrentPos (*ARlrVertPositionMM[1]*)>0 AND (yRatio <> 0) THEN
+	MotionY:=DSArm1VertConfig.lrGen_Out_CurrentPos (*ARlrVertPositionMM[1]*)/yRatio;
+END_IF
+
+
+IF DSArm2HorzConfig.lrGen_Out_CurrentPos (*ARlrHorzPositionMM[2]*)>0 AND (xRatio_1 <> 0) THEN
+	MotionX_1:=DSArm2HorzConfig.lrGen_Out_CurrentPos (*ARlrHorzPositionMM[2]*)/xRatio_1;
+END_IF
+
+IF DSArm2VertConfig.lrGen_Out_CurrentPos (*ARlrVertPositionMM[2]*)>0 AND (yRatio_1 <> 0) THEN
+	MotionY_1:=DSArm2VertConfig.lrGen_Out_CurrentPos (*ARlrVertPositionMM[2]*)/yRatio_1;
+END_IF
+
+(*fbDetergentPBresetPassword(
+	UserPassword:=UserPassword,
+	ARiManualDetergentResetPassword:=ARiManualDetergentResetPassword,
+	ARbManualDetergentResetFlag=>ARbManualDetergentResetFlag,);*)
+
+
+(*Barcode Recipe Description*)
+
+IF iRegNoM<30 THEN
+	 iRegNoM:= iRegNoM+1;
+ELSIF  iRegNoM>=30 THEN
+	 iRegNoM:=0;
+END_IF
+
+
+
+IF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=1 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= ARsProductRecipeDescription[1];
+ELSIF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=2 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= ARsProductRecipeDescription[2];
+ELSIF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=3 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= ARsProductRecipeDescription[3];
+ELSIF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=4 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= ARsProductRecipeDescription[4];
+ELSIF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=5 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= ARsProductRecipeDescription[5];
+ELSIF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=6 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= ARsProductRecipeDescription[6];
+ELSIF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=7 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= ARsProductRecipeDescription[7];
+ELSIF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=8 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= ARsProductRecipeDescription[8];
+ELSIF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=9 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= ARsProductRecipeDescription[9];
+ELSIF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=10 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= ARsProductRecipeDescription[10];
+ELSIF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=11 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= ARsProductRecipeDescription[11];
+ELSIF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=12 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= ARsProductRecipeDescription[12];
+ELSIF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=13 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= ARsProductRecipeDescription[13];
+ELSIF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=14 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= ARsProductRecipeDescription[14];
+ELSIF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=15 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= ARsProductRecipeDescription[15];
+ELSIF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=16 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= ARsProductRecipeDescription[16];
+ELSIF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=17 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= ARsProductRecipeDescription[17];
+ELSIF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=18 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= ARsProductRecipeDescription[18];
+ELSIF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=19 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= ARsProductRecipeDescription[19];
+ELSIF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=20THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= ARsProductRecipeDescription[20];
+ELSIF DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].iLinkProductRecipeNo=0 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNoM].sLinkProductRecipeDescription:= '';
+END_IF
+
+
+
+(*Map the  Recipe Description to AR2sDSCv_LdConfirmBasketInfo[1,1].sProgramDescription during barcode Bypass Function*)
+
+IF NOT bBarcodeBypass AND  iSecs_Control_State<>5 THEN
+	iRecipeNoFeed:=iBarcodeRecipeNo_OUT;
+ELSIF bBarcodeBypass AND iSecs_Control_State<>5 THEN
+	iRecipeNoFeed:=iUserDefineProductRecipeNo;
+ELSIF iSecs_Control_State=5 THEN
+	iRecipeNoFeed:=iServerSecsGemProgNo;
+END_IF
+
+(*Map The Recipe desc to the Produc desc at Loading*)
+
+IF AR2sDSCv_LdConfirmBasketInfo[1,1].bAvailibility THEN
+	IF iRecipeNoFeed<>0 THEN
+		AR2sDSCv_LdConfirmBasketInfo[1,1].sProgramDescription:=ARsProductRecipeDescription[iRecipeNoFeed];
+	END_IF
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="HMI_Function">
+      <LineId Id="23" Count="289" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_ClangsonicGenerator" Id="{da852cc3-afa5-444c-9d41-788c0134f2d7}">
+    <Declaration><![CDATA[TYPE DS_ClangsonicGenerator :
+STRUCT
+	wModbusData : ARRAY [1..iModbusRWQty] OF WORD;
+	bModbusWriteEn : ARRAY [1..iModbusRWQty] OF BOOL;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

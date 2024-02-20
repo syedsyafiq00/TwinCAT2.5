@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbHMIAddMappingArrayLreal" Id="{def6d466-47ea-4c5a-b441-b909eb1174ee}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbHMIAddMappingArrayLreal
+
+
+VAR_INPUT
+	bEN : BOOL;
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+	ARlrLrealAddress_Pro 					: ARRAY [0..iAddMapArrayLreal] OF LREAL;
+	ARlrLrealAddress_Hmi 				: ARRAY [0..iAddMapArrayLreal] OF LREAL;
+END_VAR
+
+
+VAR_OUTPUT
+END_VAR
+
+
+VAR
+	ARBufferlrLrealAddress_Pro 				:  ARRAY [1..iAddMapArrayLreal] OF LREAL;
+	ARBufferlrLrealAddress_Hmi 				:  ARRAY [1..iAddMapArrayLreal] OF LREAL;
+
+	ARUpdate_bLrealAddress_Pro 				:  ARRAY [1..iAddMapArrayLreal] OF BOOL;
+	ARUpdate_bLrealAddress_Hmi 				:  ARRAY [1..iAddMapArrayLreal] OF BOOL;
+
+	iInitialFL: INT;
+	iProgramFL: INT;
+	bENRE : R_TRIG;
+
+
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Initialized*)
+bENRE(CLK:=bEN , Q=> );
+IF bENRE.Q THEN
+			(*Lreal*)
+iInitialFL := 1;
+
+	FOR iInitialFL := 1 TO iAddMapArrayLreal DO
+			ARBufferlrLrealAddress_Pro[iInitialFL] := ARlrLrealAddress_Pro[iInitialFL];
+			ARBufferlrLrealAddress_Hmi[iInitialFL] := ARlrLrealAddress_Pro[iInitialFL];
+			ARlrLrealAddress_Hmi[iInitialFL] := ARlrLrealAddress_Pro[iInitialFL];
+	END_FOR
+
+END_IF
+
+(*Program*)
+
+			(**********PRO Side Value Change**********)
+
+iProgramFL:= 1;
+
+	FOR iProgramFL := 1 TO iAddMapArrayLreal DO
+
+		ARUpdate_bLrealAddress_Pro[iProgramFL] := FALSE;
+		
+			IF ARBufferlrLrealAddress_Pro[iProgramFL] <> ARlrLrealAddress_Pro[iProgramFL] THEN
+				ARUpdate_bLrealAddress_Pro[iProgramFL] := TRUE;
+			END_IF
+
+			IF ARUpdate_bLrealAddress_Pro[iProgramFL] THEN
+				ARBufferlrLrealAddress_Pro[iProgramFL] := ARlrLrealAddress_Pro[iProgramFL];
+				ARBufferlrLrealAddress_Hmi[iProgramFL] := ARlrLrealAddress_Pro[iProgramFL];
+				ARlrLrealAddress_Hmi[iProgramFL] := ARlrLrealAddress_Pro[iProgramFL];
+			END_IF
+		
+
+
+					(**********HMI Side Value Change**********)
+
+		ARUpdate_bLrealAddress_Hmi[iProgramFL] := FALSE;
+
+			IF ARBufferlrLrealAddress_Hmi[iProgramFL] <> ARlrLrealAddress_Hmi[iProgramFL] THEN
+				ARUpdate_bLrealAddress_Hmi[iProgramFL] := TRUE;
+			END_IF
+		
+			IF ARUpdate_bLrealAddress_Hmi[iProgramFL] THEN
+				ARBufferlrLrealAddress_Pro[iProgramFL] := ARlrLrealAddress_Hmi[iProgramFL];
+				ARBufferlrLrealAddress_Hmi[iProgramFL] := ARlrLrealAddress_Hmi[iProgramFL];
+				ARlrLrealAddress_Pro[iProgramFL] := ARlrLrealAddress_Hmi[iProgramFL];
+			END_IF
+
+	END_FOR
+(*
+(*Lreal 001*)
+IF NOT ARUpdate_bLrealAddress_Hmi THEN ARlrLrealAddress_Pro := Pro_lrLreal_001; ELSE Pro_lrLreal_001 := ARlrLrealAddress_Pro; END_IF
+IF NOT ARUpdate_bLrealAddress_Pro THEN ARlrLrealAddress_Hmi := Hmi_lrLreal_001; ELSE Hmi_lrLreal_001 := ARlrLrealAddress_Hmi; END_IF
+*)]]></ST>
+    </Implementation>
+    <LineIds Name="fbHMIAddMappingArrayLreal">
+      <LineId Id="32" Count="55" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

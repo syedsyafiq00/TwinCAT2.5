@@ -1,0 +1,1616 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbMasterTimeBlockG2" Id="{3e5bcf70-d7ea-45a3-932c-fdef33cc9e71}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbMasterTimeBlockG2
+
+VAR_INPUT
+	bStartEN : BOOL;
+	bScanEN: BOOL;
+	bWriteEN : BOOL;
+	bCallRTB_CallOK : BOOL; (*From fbFBPTimeTrackerG2*)
+	bMTBResetEN : BOOL;
+	ARiArmID: ARRAY [1..iArmQty] OF INT;
+	ARbAlternateStnEn : ARRAY [1..iAlternateSetQty] OF BOOL;
+	AR2siAlternateStn : ARRAY [1..iAlternateSetQty, 1..iAlternateStnQty] OF INT;
+
+	iScanCompleteDelayOnTime_ms: INT;
+	iWriteRetryQty: INT;
+	iWriteRetryDelayTimeSec : INT;
+	iLoadingCallArmTime : INT;
+
+END_VAR
+
+
+VAR_OUTPUT
+
+	bScanCompletedFlag: BOOL;
+	bWriteDoneFlag : BOOL;
+	bMTBResetDoneFlag : BOOL;
+
+	bWriteArmDataError : BOOL;
+	bWriteStnDataError : BOOL;
+	bNoAvailableSlotError : BOOL;
+	bArmIDAndStnIDNotFound : BOOL;
+
+	iNextTransferScanCounter: INT;
+	iNextNotAvailableScanCounter: INT;
+
+	ARbArmProgress:ARRAY [1..iArmQty] OF BOOL;
+	iNextTransferTime: INT;
+	iNextNotAvailableTime : INT; (*New*)
+
+	bWriteDisable: BOOL;
+	bWriteRetry : BOOL;
+	bWriteExecutedError : BOOL;
+END_VAR
+
+VAR_IN_OUT
+	AR2SiRecipeTimeBlockNoCallArmTime : ARRAY[1..iRecipeBlockQty, 1..3] OF INT;
+	AR2SiRecipeTimeBlockWithCallArmTime : ARRAY[1..iRecipeBlockQty, 1..3] OF INT;
+	AR3SiMasterTimeBlockArm : ARRAY[1..iArmQty, 1..iMasterBlockQty, 1..3] OF INT;
+	AR3SiMasterTimeBlockStn : ARRAY[1..iStnQty, 1..iMasterBlockQty, 1..3] OF INT;
+
+
+
+END_VAR
+
+
+VAR
+
+	AR2SiInternalRepTimeBlockNoCallArmTime : ARRAY[1..iRecipeBlockQty, 1..3] OF INT;
+	AR2SiInternalRepTimeBlockWithCallArmTime : ARRAY[1..iRecipeBlockQty, 1..3] OF INT;
+
+
+	bInternalScanEN : BOOL;
+	bInternalWriteEN : BOOL;
+	OnTime : TON;
+	OffTime : TON;
+	OnTimeRE : R_TRIG;
+
+	AR3SiBufferTimeBlockArm : ARRAY[1..iArmQty, 1..iMasterBlockQty, 1..3] OF INT;
+	AR3SiBufferTimeBlockStn : ARRAY[1..iStnQty, 1..iMasterBlockQty, 1..3] OF INT;
+
+	iScanningCounter: INT;
+	ScanStep: INT;
+
+	MTBResetRE: R_TRIG;
+	BWriteRE: R_TRIG;
+	ScanRE: R_TRIG;
+	bMTBResetDoneFlagRE: R_TRIG;
+	bInternalReScanFlagRE: R_TRIG;
+	bWriteDoneFlagRE: R_TRIG;
+	bNotAvailableTimeRE: R_TRIG;
+
+
+	AR3SiNABufferTimeBlockArm : ARRAY[1..iArmQty, 1..iMasterBlockQty, 1..3] OF INT;
+	AR3SiNABufferTimeBlockStn : ARRAY[1..iStnQty, 1..iMasterBlockQty, 1..3] OF INT;
+
+
+
+	bNotAvailableTimeDetected: BOOL;
+	bInternalReScanFlag: BOOL;
+	bOverrideWriteInterlock: BOOL;
+
+	bWriteElapseTimeST: BOOL;
+	DelayOnScanCompleteTimer: TON;
+
+
+	iArmNo: INT;
+	iStnNo: INT;
+	bArmIDFound: BOOL;
+	bStnIDFound: BOOL;
+	bCrashArm : BOOL;
+	bCrashStn: BOOL;
+
+	iNextTransferTimeTemp: INT;
+
+
+	iNextNotAvailableTimeTemp : INT;
+
+	iNAArmNo: INT;
+	iNAStnNo: INT;
+	bNAArmIDFound: BOOL;
+	bNAStnIDFound: BOOL;
+	bNACrashArm: BOOL;
+	bNACrashStn: BOOL;
+	iFillArmNo: INT;
+	iFillStnNo: INT;
+	bFIllArmIDFound: BOOL;
+	bFillStnIDFound: BOOL;
+	bFillArmDone: BOOL;
+	bFillStnDone: BOOL;
+
+
+	MTBCopyMFL: INT;
+	MTBCopySFL: INT;
+
+	ScanFL: INT;
+	ScanMFL: INT;
+	ScanSFL: INT;
+	iCheckArmIDFL: INT;
+	iCheckStnIDFL: INT;
+	MTBMinusTimeMFL: INT;
+	MTBMinusTimeSFL: INT;
+
+	NAScanFL: INT;
+	NAScanMFL : INT;
+	NAScanSFL : INT;
+	iNACheckArmIDFL: INT;
+	iNACheckStnIDFL: INT;
+	NAMTBMinusTimeMFL: INT;
+	NAMTBMinusTimeSFL: INT;
+
+	FillMFL: INT;
+	FillSFL: INT;
+	iCheckFillArmIDFL: INT;
+	iCheckFillStnIDFL: INT;
+
+(*No need master clear*)
+	MTBResetMFL: INT;
+	MTBResetSFL: INT;
+
+	MTBBufferMinusTimeMFL: INT;
+	MTBBufferMinusTimeSFL: INT;
+	iTransferMFL: INT;
+	iTransferSFL : INT;
+	bWriteHR: BOOL;
+	bOverrideRE: R_TRIG;
+	iWriteStep: INT;
+
+	BWriteOnlyRE: R_TRIG;
+	iAutoRetryDelayTimer: INT;
+	iWriteRetryQtyPV: INT;
+	iCheckAlternateStnEnFL: INT;
+	bAlternateStnEnableFound: BOOL;
+	iAlternateSetFindFL: INT;
+	iAlternateQtyFindFL: INT;
+	iAlternateStnFindFL: INT;
+	bAltStnIDFound: BOOL;
+	iAltStnTransferFL: INT;
+	ARiBufferAltStn: ARRAY [1..iAlternateStnQty] OF INT;
+	iClearBufferAltFL: INT;
+	iScanAltStnFL: INT;
+	bCrashAltStn: BOOL;
+	bAltnStnNoCrashFound: BOOL;
+
+	iCheckMTBEmptyMFL: INT;
+	iCheckMTBEmptySFL: INT;
+	bMTBNotEmpty: BOOL;
+	bScanStep9RE: R_TRIG;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF bStartEN THEN
+
+OnTime(IN:=NOT OffTime.Q , PT:=T#500ms , Q=> , ET=> );
+OffTime(IN:=OnTime.Q , PT:=T#500ms , Q=> , ET=> );
+OnTimeRE(CLK:=OnTime.Q , Q=> );
+
+END_IF
+
+(*Check if MTB is Empty *)
+
+bMTBNotEmpty := FALSE;
+iCheckMTBEmptyMFL := 1;
+iCheckMTBEmptySFL := 1;
+
+
+	IF iCheckMTBEmptyMFL>0 AND iCheckMTBEmptyMFL < iStnQty+1 THEN
+		FOR iCheckMTBEmptyMFL := 1 TO iStnQty DO
+		iCheckMTBEmptySFL := 1;
+			IF iCheckMTBEmptySFL>0 AND iCheckMTBEmptySFL < iMasterBlockQty+1 THEN
+				FOR iCheckMTBEmptySFL := 1 TO iMasterBlockQty DO
+
+					IF AR3SiMasterTimeBlockStn[iCheckMTBEmptyMFL, iCheckMTBEmptySFL, 3] <> 0 THEN
+					bMTBNotEmpty := TRUE;
+					END_IF
+
+					IF iCheckMTBEmptyMFL>0 AND iCheckMTBEmptyMFL <= iArmQty AND AR3SiMasterTimeBlockArm[iCheckMTBEmptyMFL, iCheckMTBEmptySFL, 3] <> 0 THEN
+					bMTBNotEmpty := TRUE;
+					END_IF
+	
+				END_FOR
+			END_IF
+	
+		END_FOR
+	
+	END_IF
+
+
+
+
+(*Check if AlternateStn Enable*)
+bAlternateStnEnableFound := FALSE;
+iCheckAlternateStnEnFL := 1;
+	FOR iCheckAlternateStnEnFL := 1 TO iAlternateSetQty DO
+		IF iCheckAlternateStnEnFL >= 1 AND iCheckAlternateStnEnFL <= iAlternateSetQty THEN
+			IF ARbAlternateStnEn[iCheckAlternateStnEnFL] THEN
+				bAlternateStnEnableFound := TRUE;
+			END_IF
+		END_IF
+	END_FOR
+
+
+(*Interlock for bScanEN and bWriteEN*)
+IF bCallRTB_CallOK AND bScanEN THEN
+bInternalScanEN := TRUE;
+ELSE
+bInternalScanEN := FALSE;
+END_IF
+
+IF bCallRTB_CallOK AND bWriteEN THEN
+bInternalWriteEN := TRUE;
+ELSE
+bInternalWriteEN := FALSE;
+END_IF
+
+(* Minus 1 sec - Simulate actual status in machine*)
+IF OnTimeRE.Q THEN
+MTBMinusTimeMFL := 1;
+MTBMinusTimeSFL := 1;
+END_IF
+IF bStartEN THEN
+
+		IF MTBMinusTimeMFL>0 AND MTBMinusTimeMFL < iStnQty+1 THEN
+			FOR MTBMinusTimeMFL := 1 TO iStnQty DO
+			MTBMinusTimeSFL := 1;
+
+				IF MTBMinusTimeSFL>0 AND MTBMinusTimeSFL < iMasterBlockQty+1 THEN
+					FOR MTBMinusTimeSFL := 1 TO iMasterBlockQty DO
+
+						IF AR3SiMasterTimeBlockStn[MTBMinusTimeMFL, MTBMinusTimeSFL, 1] > 0 THEN
+						AR3SiMasterTimeBlockStn[MTBMinusTimeMFL, MTBMinusTimeSFL, 1] := AR3SiMasterTimeBlockStn[MTBMinusTimeMFL, MTBMinusTimeSFL, 1] - 1;
+						END_IF
+
+						IF AR3SiMasterTimeBlockStn[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] > 0 THEN
+						AR3SiMasterTimeBlockStn[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] := AR3SiMasterTimeBlockStn[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] - 1;
+						END_IF
+
+						IF AR3SiMasterTimeBlockStn[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] <= 0 THEN
+						AR3SiMasterTimeBlockStn[MTBMinusTimeMFL, MTBMinusTimeSFL, 1] := 0;
+						AR3SiMasterTimeBlockStn[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] := 0;
+						AR3SiMasterTimeBlockStn[MTBMinusTimeMFL, MTBMinusTimeSFL, 3] := 0;
+						END_IF
+
+
+
+						IF MTBMinusTimeMFL <= iArmQty THEN
+							ARbArmProgress[MTBMinusTimeMFL] := FALSE;
+							IF AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 1] > 0 THEN
+							AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 1] := AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 1] - 1;
+							END_IF
+
+							IF AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] > 0 THEN
+							AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] := AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] - 1;
+							END_IF
+
+							IF AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] <= 0 THEN
+							AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 1] := 0;
+							AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] := 0;
+							AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 3] := 0;
+							END_IF
+
+						IF AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 1] = 0 AND AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] > 0 THEN
+						ARbArmProgress[MTBMinusTimeMFL] := TRUE;
+						END_IF
+
+
+
+						END_IF
+
+					END_FOR
+				END_IF
+
+			END_FOR
+
+		END_IF
+
+
+END_IF
+
+
+IF bInternalScanEN THEN
+iNextTransferScanCounter:= ScanFL;
+iNextNotAvailableScanCounter := NAScanFL;
+ELSE
+iNextTransferScanCounter:= 0;
+iNextNotAvailableScanCounter := 0;
+END_IF
+
+
+(*Master Time Block Reset Program*)
+MTBResetRE(CLK:=bMTBResetEN , Q=> );
+IF MTBResetRE.Q(* bMTBResetEN*) THEN
+
+(*iWriteElapseTime := 0;*)
+
+MTBResetMFL := 1;
+MTBResetSFL := 1;
+
+
+	IF MTBResetMFL>0 AND MTBResetMFL < iStnQty+1 THEN
+		FOR MTBResetMFL := 1 TO iStnQty DO
+		MTBResetSFL := 1;
+			IF MTBResetSFL>0 AND MTBResetSFL < iMasterBlockQty+1 THEN
+				FOR MTBResetSFL := 1 TO iMasterBlockQty DO
+	
+					AR3SiMasterTimeBlockStn[MTBResetMFL, MTBResetSFL, 1] := 0;
+					AR3SiMasterTimeBlockStn[MTBResetMFL, MTBResetSFL, 2] := 0;
+					AR3SiMasterTimeBlockStn[MTBResetMFL, MTBResetSFL, 3] := 0;
+	
+					AR3SiBufferTimeBlockStn[MTBResetMFL, MTBResetSFL, 1] := 0;
+					AR3SiBufferTimeBlockStn[MTBResetMFL, MTBResetSFL, 2] := 0;
+					AR3SiBufferTimeBlockStn[MTBResetMFL, MTBResetSFL, 3] := 0;
+	
+					AR3SiNABufferTimeBlockStn[MTBResetMFL, MTBResetSFL, 1] := 0;
+					AR3SiNABufferTimeBlockStn[MTBResetMFL, MTBResetSFL, 2] := 0;
+					AR3SiNABufferTimeBlockStn[MTBResetMFL, MTBResetSFL, 3] := 0;
+	
+					IF MTBResetMFL>0 AND MTBResetMFL <= iArmQty THEN
+	
+					AR3SiMasterTimeBlockArm[MTBResetMFL, MTBResetSFL, 1] := 0;
+					AR3SiMasterTimeBlockArm[MTBResetMFL, MTBResetSFL, 2] := 0;
+					AR3SiMasterTimeBlockArm[MTBResetMFL, MTBResetSFL, 3] := 0;
+
+					AR3SiBufferTimeBlockArm[MTBResetMFL, MTBResetSFL, 1] := 0;
+					AR3SiBufferTimeBlockArm[MTBResetMFL, MTBResetSFL, 2] := 0;
+					AR3SiBufferTimeBlockArm[MTBResetMFL, MTBResetSFL, 3] := 0;
+	
+					AR3SiNABufferTimeBlockArm[MTBResetMFL, MTBResetSFL, 1] := 0;
+					AR3SiNABufferTimeBlockArm[MTBResetMFL, MTBResetSFL, 2] := 0;
+					AR3SiNABufferTimeBlockArm[MTBResetMFL, MTBResetSFL, 3] := 0;
+
+					ARbArmProgress[MTBResetMFL] := FALSE;
+
+					END_IF
+	
+				END_FOR
+			END_IF
+	
+		END_FOR
+	
+	END_IF
+
+END_IF
+
+
+IF bMTBResetEN AND MTBResetMFL > iStnQty AND MTBResetSFL > iMasterBlockQty THEN
+bMTBResetDoneFlag := TRUE;
+END_IF
+
+IF NOT bMTBResetEN THEN
+bMTBResetDoneFlag := FALSE;
+END_IF
+
+
+
+(************************************************ScanEN**********************************************************)
+
+IF bInternalScanEN AND NOT bWriteDoneFlag AND OnTimeRE.Q THEN
+iScanningCounter := iScanningCounter +1;
+END_IF
+
+
+IF NOT bInternalScanEN OR bWriteDoneFlag THEN
+
+bNotAvailableTimeDetected:=FALSE;
+bWriteArmDataError:=FALSE;
+bWriteStnDataError:=FALSE;
+bNoAvailableSlotError:=FALSE;
+bArmIDAndStnIDNotFound:=FALSE;
+
+
+iScanningCounter := 0;
+iNextTransferTimeTemp := 0;
+iNextTransferTime := 0;
+ScanMFL := 0;
+ScanStep := 0;
+iNextNotAvailableTimeTemp := 0;
+iNextNotAvailableTime := 0;
+NAScanMFL := 0;
+NAScanSFL := 0;
+
+bScanCompletedFlag := FALSE;
+bInternalReScanFlag := FALSE;
+
+
+END_IF
+
+
+ScanRE(CLK:=bInternalScanEN AND NOT bWriteDoneFlag , Q=> );
+bMTBResetDoneFlagRE(CLK:=bMTBResetDoneFlag , Q=> );
+bInternalReScanFlagRE(CLK:=bInternalReScanFlag AND NOT bInternalWriteEN , Q=> );
+
+
+
+IF ScanRE.Q OR bInternalReScanFlagRE.Q OR bMTBResetDoneFlagRE.Q THEN
+
+bNotAvailableTimeDetected:=FALSE;
+bWriteArmDataError:=FALSE;
+bWriteStnDataError:=FALSE;
+bNoAvailableSlotError:=FALSE;
+bArmIDAndStnIDNotFound:=FALSE;
+
+
+iScanningCounter := 0;
+iNextTransferTimeTemp := 0;
+iNextTransferTime := 0;
+
+iNextNotAvailableTimeTemp := 0;
+iNextNotAvailableTime := 0;
+
+bScanCompletedFlag := FALSE;
+bInternalReScanFlag := FALSE;
+
+
+ScanStep := 1;
+MTBCopyMFL := 1;
+MTBCopySFL := 1;
+
+
+
+END_IF
+
+(**Added to solve Alternate Tank Problem***)
+
+IF bScanEN AND NOT bWriteEN AND ScanStep <=2 THEN
+AR2SiInternalRepTimeBlockNoCallArmTime		:= AR2SiRecipeTimeBlockNoCallArmTime;
+AR2SiInternalRepTimeBlockWithCallArmTime		:= AR2SiRecipeTimeBlockWithCallArmTime;
+END_IF
+
+
+
+
+
+(*Add Loading call arm time - Rising Edge*)
+bScanStep9RE(CLK:=ScanStep=9 , Q=> );
+
+
+CASE ScanStep OF
+
+0:;
+
+
+2: (*Reset ScanMFL and ScanSFL*)
+ScanMFL:=1;
+ScanSFL:=1;
+ScanStep := 3;
+
+
+
+
+
+1:  (*Copy from MasterTimeBlock to BufferTimeBlock*)
+
+
+
+IF MTBCopyMFL> 0 AND MTBCopyMFL < iStnQty+1 THEN
+	FOR MTBCopyMFL := 1 TO iStnQty DO
+	MTBCopySFL := 1;
+		IF MTBCopySFL> 0 AND MTBCopySFL < iMasterBlockQty+1 THEN
+			FOR MTBCopySFL := 1 TO iMasterBlockQty DO
+
+				AR3SiBufferTimeBlockStn[MTBCopyMFL, MTBCopySFL, 1] := AR3SiMasterTimeBlockStn[MTBCopyMFL, MTBCopySFL, 1];
+				AR3SiBufferTimeBlockStn[MTBCopyMFL, MTBCopySFL, 2] := AR3SiMasterTimeBlockStn[MTBCopyMFL, MTBCopySFL, 2];
+				AR3SiBufferTimeBlockStn[MTBCopyMFL, MTBCopySFL, 3] := AR3SiMasterTimeBlockStn[MTBCopyMFL, MTBCopySFL, 3];
+
+				AR3SiNABufferTimeBlockStn[MTBCopyMFL, MTBCopySFL, 1] := AR3SiMasterTimeBlockStn[MTBCopyMFL, MTBCopySFL, 1];
+				AR3SiNABufferTimeBlockStn[MTBCopyMFL, MTBCopySFL, 2] := AR3SiMasterTimeBlockStn[MTBCopyMFL, MTBCopySFL, 2];
+				AR3SiNABufferTimeBlockStn[MTBCopyMFL, MTBCopySFL, 3] := AR3SiMasterTimeBlockStn[MTBCopyMFL, MTBCopySFL, 3];
+
+				IF MTBCopyMFL> 0 AND MTBCopyMFL <= iArmQty THEN
+
+				AR3SiBufferTimeBlockArm[MTBCopyMFL, MTBCopySFL, 1] := AR3SiMasterTimeBlockArm[MTBCopyMFL, MTBCopySFL, 1];
+				AR3SiBufferTimeBlockArm[MTBCopyMFL, MTBCopySFL, 2] := AR3SiMasterTimeBlockArm[MTBCopyMFL, MTBCopySFL, 2];
+				AR3SiBufferTimeBlockArm[MTBCopyMFL, MTBCopySFL, 3] := AR3SiMasterTimeBlockArm[MTBCopyMFL, MTBCopySFL, 3];
+
+				AR3SiNABufferTimeBlockArm[MTBCopyMFL, MTBCopySFL, 1] := AR3SiMasterTimeBlockArm[MTBCopyMFL, MTBCopySFL, 1];
+				AR3SiNABufferTimeBlockArm[MTBCopyMFL, MTBCopySFL, 2] := AR3SiMasterTimeBlockArm[MTBCopyMFL, MTBCopySFL, 2];
+				AR3SiNABufferTimeBlockArm[MTBCopyMFL, MTBCopySFL, 3] := AR3SiMasterTimeBlockArm[MTBCopyMFL, MTBCopySFL, 3];
+
+				END_IF
+
+			END_FOR
+		END_IF
+
+	END_FOR
+
+END_IF
+
+IF MTBCopyMFL > iStnQty AND MTBCopySFL > iMasterBlockQty THEN
+ScanFL := 1;
+ScanStep := 2;
+END_IF
+
+
+3: (*Compare BufferTimeBlock VS RecipeTimeBlock*)
+
+	IF ScanFL < 10000+1 THEN
+	ScanMFL:= 1;
+
+		IF ScanMFL>0 AND ScanMFL < iRecipeBlockQty+1 THEN
+
+			FOR ScanMFL := 1 TO iRecipeBlockQty DO
+
+				IF AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 2] > 0 THEN
+
+					iClearBufferAltFL := 1;
+						FOR iClearBufferAltFL := 1 TO iAlternateStnQty DO
+							IF iClearBufferAltFL >= 1 AND iClearBufferAltFL <= iAlternateStnQty THEN
+							ARiBufferAltStn[iClearBufferAltFL] := 0;
+							END_IF
+						END_FOR
+
+					iArmNo:=0;
+					iStnNo:=0;
+					bArmIDFound:= FALSE;
+					bStnIDFound:= FALSE;
+					bAltStnIDFound := FALSE;
+
+					iCheckArmIDFL := 1;
+					iCheckStnIDFL := 1;
+
+					(*Check ArmID*)
+					IF iCheckArmIDFL>0 AND iCheckArmIDFL < iArmQty+1 THEN
+						FOR iCheckArmIDFL := 1 TO iArmQty DO
+							IF AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL,3] = ARiArmID[iCheckArmIDFL] THEN
+							iArmNo := iCheckArmIDFL;
+							bArmIDFound := TRUE;
+							iCheckArmIDFL := iArmQty+1;
+							END_IF
+						END_FOR
+					END_IF
+	
+					(*Check StnID*)
+					IF iCheckStnIDFL>0 AND iCheckStnIDFL <iStnQty+1 THEN
+						FOR iCheckStnIDFL := 1 TO iStnQty DO
+							IF AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL,3] = iCheckStnIDFL THEN
+							iStnNo := iCheckStnIDFL;
+							bStnIDFound := TRUE;
+							iCheckStnIDFL := iStnQty+1;
+							END_IF
+
+					(*ADD HERE*)
+							IF bStnIDFound AND bAlternateStnEnableFound THEN
+							iAlternateSetFindFL := 1;
+								FOR iAlternateSetFindFL := 1 TO iAlternateSetQty DO
+									IF iAlternateSetFindFL >= 1 AND iAlternateSetFindFL <= iAlternateSetQty THEN
+										IF ARbAlternateStnEn[iAlternateSetFindFL] THEN
+										iAlternateStnFindFL := 1; (*Find Stn ID matching*)
+											FOR iAlternateStnFindFL := 1 TO iAlternateStnQty DO
+												IF iAlternateStnFindFL >= 1 AND iAlternateStnFindFL <= iAlternateStnQty THEN
+													IF iStnNo = AR2SiAlternateStn[iAlternateSetFindFL , iAlternateStnFindFL] THEN
+														bAltStnIDFound := TRUE;
+														iAltStnTransferFL := 1;
+															FOR iAltStnTransferFL := 1 TO iAlternateStnQty DO
+																IF iAltStnTransferFL >= 1 AND iAltStnTransferFL <= iAlternateStnQty THEN
+																	ARiBufferAltStn[iAltStnTransferFL] := AR2SiAlternateStn[iAlternateSetFindFL , iAltStnTransferFL];
+																END_IF
+															END_FOR
+														iAlternateSetFindFL := iAlternateSetQty+1;
+														iAlternateStnFindFL := iAlternateStnQty+1;
+														iAltStnTransferFL := iAlternateStnQty+1;
+
+													END_IF
+												END_IF
+											END_FOR
+										END_IF
+									END_IF
+								END_FOR
+							END_IF
+						END_FOR
+					END_IF
+
+
+
+					IF (bArmIDFound OR bStnIDFound) AND NOT bAltStnIDFound THEN
+
+					ScanSFL := 1;
+					bCrashArm := FALSE;
+					bCrashStn := FALSE;
+
+						IF (bArmIDFound OR bStnIDFound) AND ScanSFL>0 AND ScanSFL < iMasterBlockQty+1 THEN
+							FOR ScanSFL := 1 TO iMasterBlockQty DO
+	
+								(*Arm Scanning*)
+								IF bArmIDFound THEN
+
+									IF AR3SiBufferTimeBlockArm[iArmNo,ScanSFL, 2] > 0 THEN
+		
+										IF
+										AR3SiBufferTimeBlockArm[iArmNo,ScanSFL, 1] (*MD1*) <= AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*)
+										AND
+										AR3SiBufferTimeBlockArm[iArmNo,ScanSFL, 2] (*MD2*) >= AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*)
+										THEN
+										bCrashArm:=TRUE;
+										ScanSFL:=iMasterBlockQty+1;
+										ScanMFL := iRecipeBlockQty+1;
+										END_IF
+		
+										IF
+										AR3SiBufferTimeBlockArm[iArmNo,ScanSFL, 1] (*MD1*) <= AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*)
+										AND
+										AR3SiBufferTimeBlockArm[iArmNo,ScanSFL, 2] (*MD2*) >= AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*)
+										THEN
+										bCrashArm:=TRUE;
+										ScanSFL:=iMasterBlockQty+1;
+										ScanMFL := iRecipeBlockQty+1;
+										END_IF
+	
+										IF
+										AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*) <= AR3SiBufferTimeBlockArm[iArmNo,ScanSFL, 1] (*MD1*)
+										AND
+										AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*) >= AR3SiBufferTimeBlockArm[iArmNo,ScanSFL, 1] (*MD1*)
+										THEN
+										bCrashArm:=TRUE;
+										ScanSFL:=iMasterBlockQty+1;
+										ScanMFL := iRecipeBlockQty+1;
+										END_IF
+		
+										IF
+										AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*) <= AR3SiBufferTimeBlockArm[iArmNo,ScanSFL, 2] (*MD2*)
+										AND
+										AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*) >= AR3SiBufferTimeBlockArm[iArmNo,ScanSFL, 2] (*MD2*)
+										THEN
+										bCrashArm:=TRUE;
+										ScanSFL:=iMasterBlockQty+1;
+										ScanMFL := iRecipeBlockQty+1;
+										END_IF
+	
+	
+									END_IF
+		
+								END_IF
+		
+								(*Stn Scanning without Alternate Stn*)
+								IF bStnIDFound AND NOT bAltStnIDFound THEN
+	
+									IF AR3SiBufferTimeBlockStn[iStnNo,ScanSFL, 2] > 0 THEN
+	
+										IF
+										AR3SiBufferTimeBlockStn[iStnNo,ScanSFL, 1] (*MD1*) <= AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*)
+										AND
+										AR3SiBufferTimeBlockStn[iStnNo,ScanSFL, 2] (*MD2*) >= AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*)
+										THEN
+										bCrashStn:=TRUE;
+										ScanSFL:=iMasterBlockQty+1;
+										ScanMFL := iRecipeBlockQty+1;
+										END_IF
+		
+										IF
+										AR3SiBufferTimeBlockStn[iStnNo,ScanSFL, 1] (*MD1*) <= AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*)
+										AND
+										AR3SiBufferTimeBlockStn[iStnNo,ScanSFL, 2] (*MD2*) >= AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*)
+										THEN
+										bCrashStn:=TRUE;
+										ScanSFL:=iMasterBlockQty+1;
+										ScanMFL := iRecipeBlockQty+1;
+										END_IF
+	
+										IF
+										AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*) <= AR3SiBufferTimeBlockStn[iStnNo,ScanSFL, 1] (*MD1*)
+										AND
+										AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*) >= AR3SiBufferTimeBlockStn[iStnNo,ScanSFL, 1] (*MD1*)
+										THEN
+										bCrashStn:=TRUE;
+										ScanSFL:=iMasterBlockQty+1;
+										ScanMFL := iRecipeBlockQty+1;
+										END_IF
+
+										IF
+										AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*) <= AR3SiBufferTimeBlockStn[iStnNo,ScanSFL, 2] (*MD2*)
+										AND
+										AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*) >= AR3SiBufferTimeBlockStn[iStnNo,ScanSFL, 2] (*MD2*)
+										THEN
+										bCrashStn:=TRUE;
+										ScanSFL:=iMasterBlockQty+1;
+										ScanMFL := iRecipeBlockQty+1;
+										END_IF
+	
+	
+									END_IF
+		
+								END_IF
+
+							END_FOR
+
+						END_IF
+
+					END_IF
+
+					(*Stn Scanning WITH Alternate Stn*)
+					IF bStnIDFound AND bAltStnIDFound THEN
+
+					iScanAltStnFL := 1;
+					bCrashArm := FALSE;
+					bCrashStn := FALSE;
+					bAltnStnNoCrashFound := FALSE;
+						FOR iScanAltStnFL := 1 TO iAlternateStnQty DO
+							IF iScanAltStnFL >= 1 AND iScanAltStnFL <= iAlternateStnQty THEN
+
+								IF ARiBufferAltStn[iScanAltStnFL] > 0 THEN
+								bCrashAltStn := FALSE;
+								ScanSFL := 1;
+
+									FOR ScanSFL := 1 TO iMasterBlockQty DO
+										IF  ScanSFL>= 1 AND ScanSFL <= iMasterBlockQty AND NOT bAltnStnNoCrashFound THEN
+
+											IF AR3SiBufferTimeBlockStn[ARiBufferAltStn[iScanAltStnFL],ScanSFL, 2] > 0 THEN
+
+												IF
+												AR3SiBufferTimeBlockStn[ARiBufferAltStn[iScanAltStnFL],ScanSFL, 1] (*MD1*) <= AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*)
+												AND
+												AR3SiBufferTimeBlockStn[ARiBufferAltStn[iScanAltStnFL],ScanSFL, 2] (*MD2*) >= AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*)
+												THEN
+												bCrashAltStn:=TRUE;
+												ScanSFL:=iMasterBlockQty+1;
+												END_IF
+
+												IF
+												AR3SiBufferTimeBlockStn[ARiBufferAltStn[iScanAltStnFL],ScanSFL, 1] (*MD1*) <= AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*)
+												AND
+												AR3SiBufferTimeBlockStn[ARiBufferAltStn[iScanAltStnFL],ScanSFL, 2] (*MD2*) >= AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*)
+												THEN
+												bCrashAltStn:=TRUE;
+												ScanSFL:=iMasterBlockQty+1;
+												END_IF
+
+												IF
+												AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*) <= AR3SiBufferTimeBlockStn[ARiBufferAltStn[iScanAltStnFL],ScanSFL, 1] (*MD1*)
+												AND
+												AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*) >= AR3SiBufferTimeBlockStn[ARiBufferAltStn[iScanAltStnFL],ScanSFL, 1] (*MD1*)
+												THEN
+												bCrashAltStn:=TRUE;
+												ScanSFL:=iMasterBlockQty+1;
+												END_IF
+
+												IF
+												AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*) <= AR3SiBufferTimeBlockStn[ARiBufferAltStn[iScanAltStnFL],ScanSFL, 2] (*MD2*)
+												AND
+												AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*) >= AR3SiBufferTimeBlockStn[ARiBufferAltStn[iScanAltStnFL],ScanSFL, 2] (*MD2*)
+												THEN
+												bCrashAltStn:=TRUE;
+												ScanSFL:=iMasterBlockQty+1;
+												END_IF
+											END_IF
+										END_IF
+									END_FOR
+
+									IF ScanSFL > iMasterBlockQty AND bCrashAltStn AND (ARiBufferAltStn[iScanAltStnFL+1] <=0 OR iScanAltStnFL >= iAlternateStnQty) AND NOT bAltnStnNoCrashFound THEN
+									bCrashStn := TRUE;
+									iScanAltStnFL := iAlternateStnQty+1;
+									ScanMFL := iRecipeBlockQty+1;
+									END_IF
+
+									IF ScanSFL > iMasterBlockQty AND NOT bCrashAltStn AND NOT bAltnStnNoCrashFound THEN
+									AR2SiInternalRepTimeBlockWithCallArmTime[ScanMFL, 3] := ARiBufferAltStn[iScanAltStnFL];
+									AR2SiInternalRepTimeBlockNoCallArmTime[ScanMFL, 3] := ARiBufferAltStn[iScanAltStnFL];
+									bAltnStnNoCrashFound := TRUE;
+									bCrashAltStn:=FALSE;
+									bCrashStn := FALSE;
+									END_IF
+
+								END_IF
+							END_IF
+						END_FOR
+					END_IF
+
+
+
+				END_IF
+
+			END_FOR
+
+		END_IF
+
+	END_IF
+
+
+
+(* CRASH Found !!!, Shift one Second and Test again*)
+IF ScanMFL > iRecipeBlockQty AND ScanSFL > iMasterBlockQty AND (bCrashArm OR bCrashStn) (*AND (bStepENRE.Q OR bStepAlwaysEN)*) THEN
+MTBBufferMinusTimeMFL := 1;
+MTBBufferMinusTimeSFL := 1;
+ScanStep := 4;
+END_IF
+
+(* No Crash Found, Can proceed to Push In Basket *)
+IF ScanMFL > iRecipeBlockQty AND ScanSFL > iMasterBlockQty AND NOT bCrashArm AND NOT bCrashStn (*AND (bStepENRE.Q OR bStepAlwaysEN)*) THEN
+
+(*		IF bMTBNotEmpty THEN
+			iNextTransferTimeTemp := ScanFL+iLoadingCallArmTime; (*Result FOUND*)
+		ELSE
+			iNextTransferTimeTemp := ScanFL; (*Result FOUND*)
+		END_IF
+*)
+iNextTransferTimeTemp := ScanFL; (*Result FOUND*)
+
+iTransferMFL := 1;
+iTransferSFL := 1;
+ScanStep := 5;
+END_IF
+
+(* No ArmID or StnID found*)
+IF ScanMFL > iRecipeBlockQty AND NOT bStnIDFound AND NOT bArmIDFound THEN
+ScanStep := 23; (*ArmID and StnID not found Error*)
+END_IF
+
+(*Cannot find suitable Slot*)
+IF ScanFL > 10000 AND ScanMFL > iRecipeBlockQty AND ScanSFL > iMasterBlockQty THEN
+ScanStep := 24;
+END_IF
+
+4: (*Minus One Second of BufferFL and Retry*)
+
+
+		IF MTBBufferMinusTimeMFL>0 AND MTBBufferMinusTimeMFL < iStnQty+1 THEN
+			FOR MTBBufferMinusTimeMFL := 1 TO iStnQty DO
+			MTBBufferMinusTimeSFL := 1;
+				IF MTBBufferMinusTimeSFL>0 AND MTBBufferMinusTimeSFL < iMasterBlockQty+1 THEN
+					FOR MTBBufferMinusTimeSFL := 1 TO iMasterBlockQty DO
+
+						IF AR3SiBufferTimeBlockStn[MTBBufferMinusTimeMFL, MTBBufferMinusTimeSFL, 1] > 0 THEN
+						AR3SiBufferTimeBlockStn[MTBBufferMinusTimeMFL, MTBBufferMinusTimeSFL, 1] := AR3SiBufferTimeBlockStn[MTBBufferMinusTimeMFL, MTBBufferMinusTimeSFL, 1] - 1;
+						END_IF
+
+						IF AR3SiBufferTimeBlockStn[MTBBufferMinusTimeMFL, MTBBufferMinusTimeSFL, 2] > 0 THEN
+						AR3SiBufferTimeBlockStn[MTBBufferMinusTimeMFL, MTBBufferMinusTimeSFL, 2] := AR3SiBufferTimeBlockStn[MTBBufferMinusTimeMFL, MTBBufferMinusTimeSFL, 2] - 1;
+						END_IF
+
+						IF AR3SiBufferTimeBlockStn[MTBBufferMinusTimeMFL, MTBBufferMinusTimeSFL, 2] <= 0 THEN
+						AR3SiBufferTimeBlockStn[MTBBufferMinusTimeMFL, MTBBufferMinusTimeSFL, 1] := 0;
+						AR3SiBufferTimeBlockStn[MTBBufferMinusTimeMFL, MTBBufferMinusTimeSFL, 2] := 0;
+						AR3SiBufferTimeBlockStn[MTBBufferMinusTimeMFL, MTBBufferMinusTimeSFL, 3] := 0;
+						END_IF
+
+
+
+						IF MTBBufferMinusTimeMFL>0 AND MTBBufferMinusTimeMFL <= iArmQty THEN
+
+							IF AR3SiBufferTimeBlockArm[MTBBufferMinusTimeMFL, MTBBufferMinusTimeSFL, 1] > 0 THEN
+							AR3SiBufferTimeBlockArm[MTBBufferMinusTimeMFL, MTBBufferMinusTimeSFL, 1] := AR3SiBufferTimeBlockArm[MTBBufferMinusTimeMFL, MTBBufferMinusTimeSFL, 1] - 1;
+							END_IF
+
+							IF AR3SiBufferTimeBlockArm[MTBBufferMinusTimeMFL, MTBBufferMinusTimeSFL, 2] > 0 THEN
+							AR3SiBufferTimeBlockArm[MTBBufferMinusTimeMFL, MTBBufferMinusTimeSFL, 2] := AR3SiBufferTimeBlockArm[MTBBufferMinusTimeMFL, MTBBufferMinusTimeSFL, 2] - 1;
+							END_IF
+
+							IF AR3SiBufferTimeBlockArm[MTBBufferMinusTimeMFL, MTBBufferMinusTimeSFL, 2] <= 0 THEN
+							AR3SiBufferTimeBlockArm[MTBBufferMinusTimeMFL, MTBBufferMinusTimeSFL, 1] := 0;
+							AR3SiBufferTimeBlockArm[MTBBufferMinusTimeMFL, MTBBufferMinusTimeSFL, 2] := 0;
+							AR3SiBufferTimeBlockArm[MTBBufferMinusTimeMFL, MTBBufferMinusTimeSFL, 3] := 0;
+							END_IF
+
+
+						END_IF
+
+					END_FOR
+				END_IF
+
+			END_FOR
+
+		END_IF
+
+
+(*Return to Step 2 for retry*)
+
+ScanFL:=ScanFL+1;
+ScanStep := 2;
+
+
+
+5: (*Copy for Buffer TimeBlock to NA TimeBlock to continue search*)
+
+IF iTransferMFL>0 AND iTransferMFL < iStnQty+1 THEN
+	FOR iTransferMFL := 1 TO iStnQty DO
+	iTransferSFL := 1;
+		IF iTransferSFL>0 AND iTransferSFL < iMasterBlockQty+1 THEN
+			FOR iTransferSFL := 1 TO iMasterBlockQty DO
+
+				AR3SiNABufferTimeBlockStn[iTransferMFL, iTransferSFL, 1] := AR3SiBufferTimeBlockStn[iTransferMFL, iTransferSFL, 1];
+				AR3SiNABufferTimeBlockStn[iTransferMFL, iTransferSFL, 2] := AR3SiBufferTimeBlockStn[iTransferMFL, iTransferSFL, 2];
+				AR3SiNABufferTimeBlockStn[iTransferMFL, iTransferSFL, 3] := AR3SiBufferTimeBlockStn[iTransferMFL, iTransferSFL, 3];
+
+				IF iTransferMFL>0 AND iTransferMFL <= iArmQty THEN
+
+				AR3SiNABufferTimeBlockArm[iTransferMFL, iTransferSFL, 1] := AR3SiBufferTimeBlockArm[iTransferMFL, iTransferSFL, 1];
+				AR3SiNABufferTimeBlockArm[iTransferMFL, iTransferSFL, 2] := AR3SiBufferTimeBlockArm[iTransferMFL, iTransferSFL, 2];
+				AR3SiNABufferTimeBlockArm[iTransferMFL, iTransferSFL, 3] := AR3SiBufferTimeBlockArm[iTransferMFL, iTransferSFL, 3];
+
+				END_IF
+
+			END_FOR
+		END_IF
+
+	END_FOR
+
+END_IF
+
+IF iTransferMFL > iStnQty AND iTransferSFL > iMasterBlockQty THEN
+NAScanFL:= iNextTransferTimeTemp;
+ScanStep := 6;
+END_IF
+
+
+6: (*Reset NAScanMFL and NAScanSFL*)
+NAScanMFL:=1;
+NAScanSFL:=1;
+ScanStep := 7;
+
+7: (*Compare Not Available BufferTimeBlock VS RecipeTimeBlock*)
+
+
+	IF NAScanFL>0 AND NAScanFL < iNextTransferTimeTemp+100+1 THEN
+	NAScanMFL:=1;
+
+		IF NAScanMFL>0 AND NAScanMFL < iRecipeBlockQty+1 THEN
+
+			FOR NAScanMFL := 1 TO iRecipeBlockQty DO
+
+				IF AR2SiInternalRepTimeBlockWithCallArmTime[NAScanMFL, 2] > 0 THEN
+
+					iNAArmNo:=0;
+					iNAStnNo:=0;
+					bNAArmIDFound:= FALSE;
+					bNAStnIDFound:= FALSE;
+
+					iNACheckArmIDFL := 1;
+					iNACheckStnIDFL := 1;
+
+					(*Check ArmID*)
+					IF iNACheckArmIDFL>0 AND iNACheckArmIDFL < iArmQty+1 THEN
+						FOR iNACheckArmIDFL := 1 TO iArmQty DO
+							IF AR2SiInternalRepTimeBlockWithCallArmTime[NAScanMFL,3] = ARiArmID[iNACheckArmIDFL] THEN
+							iNAArmNo := iNACheckArmIDFL;
+							bNAArmIDFound := TRUE;
+							iNACheckArmIDFL := iArmQty+1;
+							END_IF
+						END_FOR
+					END_IF
+
+					(*Check StnID*)
+					IF iNACheckStnIDFL>0 AND iNACheckStnIDFL <iStnQty+1 THEN
+						FOR iNACheckStnIDFL := 1 TO iStnQty DO
+							IF AR2SiInternalRepTimeBlockWithCallArmTime[NAScanMFL,3] = iNACheckStnIDFL THEN
+							iNAStnNo := iNACheckStnIDFL;
+							bNAStnIDFound := TRUE;
+							iNACheckStnIDFL := iStnQty+1;
+							END_IF
+						END_FOR
+					END_IF
+
+					NAScanSFL := 1;
+					bNACrashArm := FALSE;
+					bNACrashStn := FALSE;
+
+
+
+					IF (bNAArmIDFound OR bNAStnIDFound) AND NAScanSFL>0 AND NAScanSFL < iMasterBlockQty+1 THEN
+						FOR NAScanSFL := 1 TO iMasterBlockQty DO
+
+							(*Arm Scanning*)
+							IF bNAArmIDFound THEN
+
+								IF AR3SiNABufferTimeBlockArm[iNAArmNo,NAScanSFL, 2] > 0 THEN
+
+									IF
+									AR3SiNABufferTimeBlockArm[iNAArmNo,NAScanSFL, 1] (*MD1*) <= AR2SiInternalRepTimeBlockWithCallArmTime[NAScanMFL, 1] (*RD1*)
+									AND
+									AR3SiNABufferTimeBlockArm[iNAArmNo,NAScanSFL, 2] (*MD2*) >= AR2SiInternalRepTimeBlockWithCallArmTime[NAScanMFL, 1] (*RD1*)
+									THEN
+									bNACrashArm:=TRUE;
+									NAScanSFL:=iMasterBlockQty+1;
+									NAScanMFL := iRecipeBlockQty+1;
+									END_IF
+
+									IF
+									AR3SiNABufferTimeBlockArm[iNAArmNo,NAScanSFL, 1] (*MD1*) <= AR2SiInternalRepTimeBlockWithCallArmTime[NAScanMFL, 2] (*RD2*)
+									AND
+									AR3SiNABufferTimeBlockArm[iNAArmNo,NAScanSFL, 2] (*MD2*) >= AR2SiInternalRepTimeBlockWithCallArmTime[NAScanMFL, 2] (*RD2*)
+									THEN
+									bNACrashArm:=TRUE;
+									NAScanSFL:=iMasterBlockQty+1;
+									NAScanMFL := iRecipeBlockQty+1;
+									END_IF
+
+									IF
+									AR2SiInternalRepTimeBlockWithCallArmTime[NAScanMFL, 1] (*RD1*) <= AR3SiNABufferTimeBlockArm[iNAArmNo,NAScanSFL, 1] (*MD1*)
+									AND
+									AR2SiInternalRepTimeBlockWithCallArmTime[NAScanMFL, 2] (*RD2*) >= AR3SiNABufferTimeBlockArm[iNAArmNo,NAScanSFL, 1] (*MD1*)
+									THEN
+									bNACrashArm:=TRUE;
+									NAScanSFL:=iMasterBlockQty+1;
+									NAScanMFL := iRecipeBlockQty+1;
+									END_IF
+
+									IF
+									AR2SiInternalRepTimeBlockWithCallArmTime[NAScanMFL, 1] (*RD1*) <= AR3SiNABufferTimeBlockArm[iNAArmNo,NAScanSFL, 2] (*MD2*)
+									AND
+									AR2SiInternalRepTimeBlockWithCallArmTime[NAScanMFL, 2] (*RD2*) >= AR3SiNABufferTimeBlockArm[iNAArmNo,NAScanSFL, 2] (*MD2*)
+									THEN
+									bNACrashArm:=TRUE;
+									NAScanSFL:=iMasterBlockQty+1;
+									NAScanMFL := iRecipeBlockQty+1;
+									END_IF
+
+								END_IF
+
+							END_IF
+
+							(*Stn Scanning*)
+							IF bNAStnIDFound THEN
+
+								IF AR3SiNABufferTimeBlockStn[iNAStnNo,NAScanSFL, 2] > 0 THEN
+
+									IF
+									AR3SiNABufferTimeBlockStn[iNAStnNo,NAScanSFL, 1] (*MD1*) <= AR2SiInternalRepTimeBlockWithCallArmTime[NAScanMFL, 1] (*RD1*)
+									AND
+									AR3SiNABufferTimeBlockStn[iNAStnNo,NAScanSFL, 2] (*MD2*) >= AR2SiInternalRepTimeBlockWithCallArmTime[NAScanMFL, 1] (*RD1*)
+									THEN
+									bNACrashStn:=TRUE;
+									NAScanSFL:=iMasterBlockQty+1;
+									NAScanMFL := iRecipeBlockQty+1;
+									END_IF
+
+									IF
+									AR3SiNABufferTimeBlockStn[iNAStnNo,NAScanSFL, 1] (*MD1*) <= AR2SiInternalRepTimeBlockWithCallArmTime[NAScanMFL, 2] (*RD2*)
+									AND
+									AR3SiNABufferTimeBlockStn[iNAStnNo,NAScanSFL, 2] (*MD2*) >= AR2SiInternalRepTimeBlockWithCallArmTime[NAScanMFL, 2] (*RD2*)
+									THEN
+									bNACrashStn:=TRUE;
+									NAScanSFL:=iMasterBlockQty+1;
+									NAScanMFL := iRecipeBlockQty+1;
+									END_IF
+
+									IF
+									AR2SiInternalRepTimeBlockWithCallArmTime[NAScanMFL, 1] (*RD1*) <= AR3SiNABufferTimeBlockStn[iNAStnNo,NAScanSFL, 1] (*MD1*)
+									AND
+									AR2SiInternalRepTimeBlockWithCallArmTime[NAScanMFL, 2] (*RD2*) >= AR3SiNABufferTimeBlockStn[iNAStnNo,NAScanSFL, 1] (*MD1*)
+									THEN
+									bNACrashStn:=TRUE;
+									NAScanSFL:=iMasterBlockQty+1;
+									NAScanMFL := iRecipeBlockQty+1;
+									END_IF
+
+									IF
+									AR2SiInternalRepTimeBlockWithCallArmTime[NAScanMFL, 1] (*RD1*) <= AR3SiNABufferTimeBlockStn[iNAStnNo,NAScanSFL, 2] (*MD2*)
+									AND
+									AR2SiInternalRepTimeBlockWithCallArmTime[NAScanMFL, 2] (*RD2*) >= AR3SiNABufferTimeBlockStn[iNAStnNo,NAScanSFL, 2] (*MD2*)
+									THEN
+									bNACrashStn:=TRUE;
+									NAScanSFL:=iMasterBlockQty+1;
+									NAScanMFL := iRecipeBlockQty+1;
+									END_IF
+
+								END_IF
+	
+							END_IF
+
+						END_FOR
+	
+					END_IF
+
+				END_IF
+
+			END_FOR
+
+		END_IF
+
+	END_IF
+
+(* No Crash Found, minus one second and retry*)
+IF NAScanMFL > iRecipeBlockQty AND NAScanSFL > iMasterBlockQty AND NOT bNACrashArm AND NOT bNACrashStn (*AND (bStepENRE.Q OR bStepAlwaysEN)*) THEN
+
+		IF NAScanFL < 10000 THEN
+		NAMTBMinusTimeMFL := 1;
+		NAMTBMinusTimeSFL := 1;
+		ScanStep := 8;
+		END_IF
+
+		IF NAScanFL >= iNextTransferTimeTemp+100 THEN
+		iNextNotAvailableTimeTemp := NAScanFL; (*No Crash Found after the full scan*)
+		ScanStep := 9;
+		END_IF
+
+END_IF
+
+
+(* CRASH Found !!!, define next not available time*)
+IF NAScanMFL > iRecipeBlockQty AND NAScanSFL > iMasterBlockQty AND (bNACrashArm OR bNACrashStn) (*AND (bStepENRE.Q OR bStepAlwaysEN)*) THEN
+iNextNotAvailableTimeTemp := NAScanFL; (*Result FOUND*)
+ScanStep := 9;
+END_IF
+
+
+(* No ArmID or StnID found*)
+IF NAScanMFL > iRecipeBlockQty AND NOT bStnIDFound AND NOT bArmIDFound THEN
+ScanStep := 23; (*ArmID and StnID not found Error*)
+END_IF
+
+8: (* No Crash Found, minus one second and retry*)
+
+
+IF NAMTBMinusTimeMFL>0 AND NAMTBMinusTimeMFL < iStnQty+1 THEN
+	FOR NAMTBMinusTimeMFL := 1 TO iStnQty DO
+	NAMTBMinusTimeSFL := 1;
+		IF NAMTBMinusTimeSFL>0 AND NAMTBMinusTimeSFL < iMasterBlockQty+1 THEN
+			FOR NAMTBMinusTimeSFL := 1 TO iMasterBlockQty DO
+
+				IF AR3SiNABufferTimeBlockStn[NAMTBMinusTimeMFL, NAMTBMinusTimeSFL, 1] > 0 THEN
+				AR3SiNABufferTimeBlockStn[NAMTBMinusTimeMFL, NAMTBMinusTimeSFL, 1] := AR3SiNABufferTimeBlockStn[NAMTBMinusTimeMFL, NAMTBMinusTimeSFL, 1] - 1;
+				END_IF
+
+				IF AR3SiNABufferTimeBlockStn[NAMTBMinusTimeMFL, NAMTBMinusTimeSFL, 2] > 0 THEN
+				AR3SiNABufferTimeBlockStn[NAMTBMinusTimeMFL, NAMTBMinusTimeSFL, 2] := AR3SiNABufferTimeBlockStn[NAMTBMinusTimeMFL, NAMTBMinusTimeSFL, 2] - 1;
+				END_IF
+
+				IF AR3SiNABufferTimeBlockStn[NAMTBMinusTimeMFL, NAMTBMinusTimeSFL, 2] <= 0 THEN
+				AR3SiNABufferTimeBlockStn[NAMTBMinusTimeMFL, NAMTBMinusTimeSFL, 1] := 0;
+				AR3SiNABufferTimeBlockStn[NAMTBMinusTimeMFL, NAMTBMinusTimeSFL, 2] := 0;
+				AR3SiNABufferTimeBlockStn[NAMTBMinusTimeMFL, NAMTBMinusTimeSFL, 3] := 0;
+				END_IF
+
+
+
+				IF NAMTBMinusTimeMFL <= iArmQty THEN
+
+					IF AR3SiNABufferTimeBlockArm[NAMTBMinusTimeMFL, NAMTBMinusTimeSFL, 1] > 0 THEN
+					AR3SiNABufferTimeBlockArm[NAMTBMinusTimeMFL, NAMTBMinusTimeSFL, 1] := AR3SiNABufferTimeBlockArm[NAMTBMinusTimeMFL, NAMTBMinusTimeSFL, 1] - 1;
+					END_IF
+
+					IF AR3SiNABufferTimeBlockArm[NAMTBMinusTimeMFL, NAMTBMinusTimeSFL, 2] > 0 THEN
+					AR3SiNABufferTimeBlockArm[NAMTBMinusTimeMFL, NAMTBMinusTimeSFL, 2] := AR3SiNABufferTimeBlockArm[NAMTBMinusTimeMFL, NAMTBMinusTimeSFL, 2] - 1;
+					END_IF
+
+					IF AR3SiNABufferTimeBlockArm[NAMTBMinusTimeMFL, NAMTBMinusTimeSFL, 2] <= 0 THEN
+					AR3SiNABufferTimeBlockArm[NAMTBMinusTimeMFL, NAMTBMinusTimeSFL, 1] := 0;
+					AR3SiNABufferTimeBlockArm[NAMTBMinusTimeMFL, NAMTBMinusTimeSFL, 2] := 0;
+					AR3SiNABufferTimeBlockArm[NAMTBMinusTimeMFL, NAMTBMinusTimeSFL, 3] := 0;
+					END_IF
+
+
+				END_IF
+
+			END_FOR
+		END_IF
+
+	END_FOR
+
+END_IF
+
+
+(*Return to Step 6 for retry*)
+
+NAScanFL:=NAScanFL+1;
+ScanStep := 6;
+
+
+
+9: (* Simulated NextTransferTime Program*)
+
+IF bScanStep9RE.Q THEN
+	IF bMTBNotEmpty THEN
+		iNextTransferTimeTemp := iNextTransferTimeTemp + iLoadingCallArmTime;
+		iNextNotAvailableTimeTemp := iNextNotAvailableTimeTemp + iLoadingCallArmTime;
+	END_IF
+END_IF
+
+
+IF bInternalScanEN THEN
+
+	IF iNextTransferTimeTemp - iScanningCounter >= 0 AND OnTimeRE.Q THEN
+	iNextTransferTime := iNextTransferTimeTemp - iScanningCounter;
+	END_IF
+
+	IF iNextTransferTimeTemp - iScanningCounter < 0  THEN
+	iNextTransferTime := 0;
+	END_IF
+
+
+
+	IF iNextNotAvailableTimeTemp - iScanningCounter >= 0 AND OnTimeRE.Q THEN
+	iNextNotAvailableTime := iNextNotAvailableTimeTemp - iScanningCounter;
+	END_IF
+
+	IF iNextNotAvailableTimeTemp - iScanningCounter < 0  THEN
+	iNextNotAvailableTime := 0;
+	END_IF
+
+	bWriteDoneFlagRE(CLK:=bWriteDoneFlag , Q=> );
+(*	bNotAvailableTimeRE(CLK:=  iNextNotAvailableTimeTemp <= iScanningCounter, Q=> );*)
+
+	IF  iNextNotAvailableTimeTemp <= iScanningCounter THEN
+	bNotAvailableTimeDetected:=TRUE;
+	END_IF
+
+	IF bWriteDoneFlagRE.Q OR bNotAvailableTimeDetected (*bNotAvailableTimeRE.Q*) THEN
+	bInternalReScanFlag := TRUE;
+	END_IF
+
+END_IF
+
+23: (* No ArmID or StnID found*)
+bArmIDAndStnIDNotFound:=TRUE;
+
+
+24: (*Cannot find suitable Slot*)
+bNoAvailableSlotError:=TRUE;
+
+END_CASE
+
+
+(*Generate Scan CompleteFlag*)
+
+DelayOnScanCompleteTimer(IN:=bInternalScanEN AND (ScanStep = 9) , PT:=INT_TO_TIME(iScanCompleteDelayOnTime_ms) , Q=> , ET=> );
+IF DelayOnScanCompleteTimer.Q THEN
+bScanCompletedFlag := TRUE;
+ELSE
+bScanCompletedFlag := FALSE;
+
+END_IF
+
+(*Write Basket into Master Time Block*)
+
+
+(*Trigger Write*)
+
+BWriteOnlyRE(CLK:= bInternalWriteEN AND NOT bWriteDisable AND iWriteStep <> 0 , Q=> );
+bOverrideRE(CLK:= bOverrideWriteInterlock  , Q=> );
+
+
+IF (NOT bStartEN OR NOT bInternalWriteEN OR bMTBResetEN OR NOT bScanCompletedFlag OR iNextTransferTime > 0 ) AND NOT bWriteHR  THEN
+iWriteStep := 0; (*Reset and trigger Write Disable*)
+END_IF
+
+IF bStartEN AND NOT bMTBResetEN AND bScanCompletedFlag  AND NOT bWriteHR AND iNextTransferTime = 0 AND (NOT BWriteOnlyRE.Q AND NOT bOverrideRE.Q) THEN
+iWriteStep := 1; (*Ready to Write*)
+END_IF
+
+IF BWriteOnlyRE.Q OR bOverrideRE.Q THEN
+iWriteStep := 2; (*Write Start*)
+bWriteHR := TRUE;
+END_IF
+
+IF NOT bInternalWriteEN THEN
+bWriteHR := FALSE;
+END_IF
+
+IF iWriteRetryQtyPV < 1 THEN
+iWriteRetryQtyPV := 1;
+END_IF
+
+
+CASE iWriteStep OF
+
+0: (*Reset and trigger Write Disable*)
+(*iWriteElapseTime := 0;*)
+bWriteElapseTimeST:=FALSE;
+bWriteDoneFlag := FALSE;
+bWriteHR := FALSE;
+bWriteDisable := TRUE;
+bWriteArmDataError := FALSE;
+bWriteStnDataError := FALSE;
+iAutoRetryDelayTimer := 0;
+iWriteRetryQtyPV := 1;
+
+1:
+bWriteDisable := FALSE;
+bWriteHR := FALSE;
+iWriteRetryQtyPV := 1;
+
+2:
+IF iNextTransferTime = 0 AND iNextNotAvailableTime >0 OR bOverrideRE.Q THEN
+iWriteStep:=3; (*Prepare to Write*)
+ELSE
+iAutoRetryDelayTimer := 0;
+iWriteStep := 11; (*Error Write -> Retry*)
+END_IF
+
+
+3: (*Prepare to Write*)
+(*iWriteElapseTime:=0;*)
+bWriteElapseTimeST:=TRUE;
+bWriteDoneFlag := FALSE;
+bWriteDisable := FALSE;
+FillMFL := 1;
+iWriteStep := 4;
+
+
+4:
+IF FillMFL>0 AND FillMFL < iRecipeBlockQty+1 THEN
+
+	FOR FillMFL := 1 TO iRecipeBlockQty DO
+
+		IF AR2SiInternalRepTimeBlockNoCallArmTime[FillMFL, 2] > 0 THEN
+
+			iFillArmNo:=0;
+			iFillStnNo:=0;
+			bFIllArmIDFound:= FALSE;
+			bFillStnIDFound:= FALSE;
+
+			iCheckFillArmIDFL := 1;
+			iCheckFillStnIDFL := 1;
+
+			(*Check ArmID*)
+			IF iCheckFillArmIDFL>0 AND  iCheckFillArmIDFL < iArmQty+1 THEN
+				FOR iCheckFillArmIDFL := 1 TO iArmQty DO
+					IF AR2SiInternalRepTimeBlockNoCallArmTime[FillMFL,3] = ARiArmID[iCheckFillArmIDFL] THEN
+					iFillArmNo := iCheckFillArmIDFL;
+					bFillArmIDFound := TRUE;
+					iCheckFillArmIDFL := iArmQty+1;
+					END_IF
+				END_FOR
+			END_IF
+
+			(*Check StnID*)
+			IF iCheckFillStnIDFL>0 AND  iCheckFillStnIDFL <iStnQty+1 THEN
+				FOR iCheckFillStnIDFL := 1 TO iStnQty DO
+					IF AR2SiInternalRepTimeBlockNoCallArmTime[FillMFL,3] = iCheckFillStnIDFL THEN
+					iFillStnNo := iCheckFillStnIDFL;
+					bFIllStnIDFound := TRUE;
+					iCheckFillStnIDFL := iStnQty+1;
+					END_IF
+				END_FOR
+			END_IF
+
+			FillSFL := 1;
+			bFillArmDone := FALSE;
+			bFillStnDone := FALSE;
+
+			IF (bFillArmIDFound OR bFillStnIDFound) AND FillSFL>0 AND FillSFL < iMasterBlockQty+1 THEN
+					FOR FillSFL := 1 TO iMasterBlockQty DO
+
+						(*Arm Scanning*)
+						IF bFillArmIDFound THEN
+
+							IF AR3SiMasterTimeBlockArm[iFillArmNo,FillSFL, 2] = 0 THEN
+
+							AR3SiMasterTimeBlockArm[iFillArmNo,FillSFL, 1] := AR2SiInternalRepTimeBlockNoCallArmTime[FillMFL, 1];
+							AR3SiMasterTimeBlockArm[iFillArmNo,FillSFL, 2] := AR2SiInternalRepTimeBlockNoCallArmTime[FillMFL, 2];
+							AR3SiMasterTimeBlockArm[iFillArmNo,FillSFL, 3] := AR2SiInternalRepTimeBlockNoCallArmTime[FillMFL, 3];
+							bFillArmDone := TRUE;
+							FillSFL:=iMasterBlockQty+1;
+							END_IF
+
+						END_IF
+
+						(*Stn Scanning*)
+						IF bFillStnIDFound THEN
+
+							IF AR3SiMasterTimeBlockStn[iFillStnNo,FillSFL, 2] = 0 THEN
+
+							AR3SiMasterTimeBlockStn[iFillStnNo,FillSFL, 1] := AR2SiInternalRepTimeBlockNoCallArmTime[FillMFL, 1];
+							AR3SiMasterTimeBlockStn[iFillStnNo,FillSFL, 2] := AR2SiInternalRepTimeBlockNoCallArmTime[FillMFL, 2];
+							AR3SiMasterTimeBlockStn[iFillStnNo,FillSFL, 3] := AR2SiInternalRepTimeBlockNoCallArmTime[FillMFL, 3];
+							bFillStnDone := TRUE;
+							FillSFL:=iMasterBlockQty+1;
+							END_IF
+
+						END_IF
+
+					END_FOR
+
+				IF FillSFL > iMasterBlockQty AND bFillArmIDFound AND NOT bFillArmDone THEN
+				iWriteStep := 21;  (*Error!!! No Space for Arm data to fill*)
+				END_IF
+
+				IF FillSFL > iMasterBlockQty AND bFillStnIDFound AND NOT bFillStnDone THEN
+				iWriteStep := 22;  (*Error!!! No Space for Stn data to fill*)
+				END_IF
+
+			END_IF
+
+		END_IF
+
+	END_FOR
+
+END_IF
+
+IF FillMFL > iRecipeBlockQty AND FillSFL > iMasterBlockQty AND bWriteHR AND (bInternalWriteEN OR bOverrideWriteInterlock) THEN
+iWriteStep := 5;
+END_IF
+
+5: (*Write Complete Without Error*)
+bWriteDoneFlag := TRUE;
+bWriteElapseTimeST :=FALSE;
+
+11: (*Error Write -> Retry*)
+
+IF OnTimeRE.Q THEN
+iAutoRetryDelayTimer := iAutoRetryDelayTimer+1;
+END_IF
+
+IF iAutoRetryDelayTimer >= iWriteRetryDelayTimeSec AND iWriteRetryQtyPV < iWriteRetryQty THEN
+iWriteRetryQtyPV := iWriteRetryQtyPV +1;
+iWriteStep := 2;
+END_IF
+
+
+
+
+IF iWriteRetryQtyPV >= iWriteRetryQty THEN
+bWriteRetry := FALSE;
+iWriteStep := 12;
+ELSE
+bWriteRetry := TRUE;
+END_IF
+
+
+12:
+
+bWriteExecutedError := TRUE;
+
+
+
+21: (*Error!!! No Space for Arm data to fill*)
+bWriteArmDataError := TRUE; (*Error!!! No Space for Arm data to fill*)
+bWriteElapseTimeST :=FALSE;
+(*bWriteHR := FALSE;*)
+bWriteDoneFlag := FALSE;
+
+22: (*Error!!! No Space for Stn data to fill*)
+bWriteStnDataError := TRUE; (*Error!!! No Space for Stn data to fill*)
+bWriteElapseTimeST :=FALSE;
+(*bWriteHR := FALSE;*)
+bWriteDoneFlag := FALSE;
+
+
+
+END_CASE
+
+
+
+
+
+
+
+
+(*___________________________________ NOT IN USED ________________________________________*)
+(*Write Program*)
+
+(*
+IF NOT bStartEN THEN
+iWriteElapseTime:=0;
+bWriteElapseTimeST:=FALSE;
+bWriteHR := FALSE;
+END_IF
+
+
+
+
+IF NOT bInternalWriteEN THEN
+(*FillMFL := 1;
+FillSFL := 1;*)
+bWriteDoneFlag := FALSE;
+bWriteHR := FALSE;
+
+
+IF BWriteRE.Q THEN
+iWriteElapseTime:=0;
+bWriteElapseTimeST :=TRUE;
+bWriteHR := FALSE;
+END_IF
+
+END_IF
+
+BWriteRE(CLK:= bInternalWriteEN AND bScanCompletedFlag  , Q=> );
+
+bOverrideRE(CLK:= bOverrideWriteInterlock  , Q=> );
+
+IF (BWriteRE.Q AND NOT bWriteDoneFlag AND bInternalScanEN AND  iNextTransferTime = 0 AND iNextNotAvailableTime >0  ) OR bOverrideRE.Q THEN
+FillMFL := 1;
+bWriteHR := TRUE;
+END_IF
+
+	IF (BWriteRE.Q OR bOverrideRE.Q)AND bWriteHR THEN
+
+			IF FillMFL>0 AND FillMFL < iRecipeBlockQty+1 THEN
+			
+				FOR FillMFL := 1 TO iRecipeBlockQty DO
+			
+					IF AR2SiInternalRepTimeBlockWithCallArmTime[FillMFL, 2] > 0 THEN
+
+						iFillArmNo:=0;
+						iFillStnNo:=0;
+						bFIllArmIDFound:= FALSE;
+						bFillStnIDFound:= FALSE;
+			
+						iCheckFillArmIDFL := 1;
+						iCheckFillStnIDFL := 1;
+			
+						(*Check ArmID*)
+						IF iCheckFillArmIDFL>0 AND  iCheckFillArmIDFL < iArmQty+1 THEN
+							FOR iCheckFillArmIDFL := 1 TO iArmQty DO
+								IF AR2SiInternalRepTimeBlockWithCallArmTime[FillMFL,3] = ARiArmID[iCheckFillArmIDFL] THEN
+								iFillArmNo := iCheckFillArmIDFL;
+								bFillArmIDFound := TRUE;
+								iCheckFillArmIDFL := iArmQty+1;
+								END_IF
+							END_FOR
+						END_IF
+			
+						(*Check StnID*)
+						IF iCheckFillStnIDFL>0 AND  iCheckFillStnIDFL <iStnQty+1 THEN
+							FOR iCheckFillStnIDFL := 1 TO iStnQty DO
+								IF AR2SiInternalRepTimeBlockWithCallArmTime[FillMFL,3] = iCheckFillStnIDFL THEN
+								iFillStnNo := iCheckFillStnIDFL;
+								bFIllStnIDFound := TRUE;
+								iCheckFillStnIDFL := iStnQty+1;
+								END_IF
+							END_FOR
+						END_IF
+			
+						FillSFL := 1;
+						bFillArmDone := FALSE;
+						bFillStnDone := FALSE;
+			
+						IF (bFillArmIDFound OR bFillStnIDFound) AND FillSFL>0 AND FillSFL < iMasterBlockQty+1 THEN
+								FOR FillSFL := 1 TO iMasterBlockQty DO
+			
+									(*Arm Scanning*)
+									IF bFillArmIDFound THEN
+
+										IF AR3SiMasterTimeBlockArm[iFillArmNo,FillSFL, 2] = 0 THEN
+			
+										AR3SiMasterTimeBlockArm[iFillArmNo,FillSFL, 1] := AR2SiInternalRepTimeBlockWithCallArmTime[FillMFL, 1];
+										AR3SiMasterTimeBlockArm[iFillArmNo,FillSFL, 2] := AR2SiInternalRepTimeBlockWithCallArmTime[FillMFL, 2];
+										AR3SiMasterTimeBlockArm[iFillArmNo,FillSFL, 3] := AR2SiInternalRepTimeBlockWithCallArmTime[FillMFL, 3];
+										bFillArmDone := TRUE;
+										FillSFL:=iMasterBlockQty+1;
+										END_IF
+
+									END_IF
+			
+									(*Stn Scanning*)
+									IF bFillStnIDFound THEN
+			
+										IF AR3SiMasterTimeBlockStn[iFillStnNo,FillSFL, 2] = 0 THEN
+			
+										AR3SiMasterTimeBlockStn[iFillStnNo,FillSFL, 1] := AR2SiInternalRepTimeBlockWithCallArmTime[FillMFL, 1];
+										AR3SiMasterTimeBlockStn[iFillStnNo,FillSFL, 2] := AR2SiInternalRepTimeBlockWithCallArmTime[FillMFL, 2];
+										AR3SiMasterTimeBlockStn[iFillStnNo,FillSFL, 3] := AR2SiInternalRepTimeBlockWithCallArmTime[FillMFL, 3];
+										bFillStnDone := TRUE;
+										FillSFL:=iMasterBlockQty+1;
+										END_IF
+			
+									END_IF
+			
+								END_FOR
+			
+							IF FillSFL > iMasterBlockQty AND bFillArmIDFound AND NOT bFillArmDone THEN
+							bWriteArmDataError := TRUE; (*Error!!! No Space for Arm data to fill*)
+							END_IF
+			
+							IF FillSFL > iMasterBlockQty AND bFillStnIDFound AND NOT bFillStnDone THEN
+							bWriteStnDataError := TRUE; (*Error!!! No Space for Stn data to fill*)
+							END_IF
+			
+						END_IF
+			
+					END_IF
+
+				END_FOR
+			
+			END_IF
+
+	END_IF
+
+
+(*Generate iWriteElapseTime *)
+IF bStartEN AND  OnTimeRE.Q AND bWriteElapseTimeST THEN
+iWriteElapseTime := iWriteElapseTime +1;
+END_IF
+
+
+
+IF FillMFL > iRecipeBlockQty AND FillSFL > iMasterBlockQty AND bWriteHR AND (bInternalWriteEN OR bOverrideWriteInterlock) THEN
+bWriteDoneFlag := TRUE;
+bWriteElapseTimeST :=FALSE;
+bWriteHR := FALSE;
+END_IF
+*)]]></ST>
+    </Implementation>
+    <LineIds Name="fbMasterTimeBlockG2">
+      <LineId Id="177" Count="1428" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

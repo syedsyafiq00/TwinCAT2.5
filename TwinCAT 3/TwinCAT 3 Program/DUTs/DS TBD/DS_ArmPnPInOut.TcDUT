@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_ArmPnPInOut" Id="{641d71ec-3506-453d-a529-2f14d5d53ff1}">
+    <Declaration><![CDATA[TYPE DS_ArmPnPInOut :
+STRUCT
+
+	lrHorzLdHookPos : LREAL;
+	lrHorzUldHookPos : LREAL;
+	ARlrHorzStnHookPos : ARRAY [1..iStnQty] OF LREAL;
+
+	lrHorzLdUnhookPos : LREAL;
+	lrHorzUldUnhookPos : LREAL;
+	ARlrHorzStnUnhookPos : ARRAY [1..iStnQty] OF LREAL;
+
+	lrVertLdSafeHeightPos : LREAL;
+	lrVertUldSafeHeightPos : LREAL;
+	ARlrVertStnSafeHeightPos : ARRAY [1..iStnQty] OF LREAL;
+
+	ArlrVertTopPos			: ARRAY [1..iArmQty] OF LREAL;
+
+	lrVertLdDownPos		: LREAL;
+	lrVertUldDownPos		: LREAL;
+	ARlrVertStnDownPos	: ARRAY [1..iStnQty] OF LREAL;
+
+	ARlrVertStnSlowPullDownPos	: ARRAY [1..iStnQty] OF LREAL;
+
+	lrSlowPullDownPos    : LREAL;
+	lrSlowPullUpPos    : LREAL;
+	lrSlowPullDownAgitationPos : LREAL;
+	lrSlowPullUpAgitationPos : LREAL;
+
+	Fix_VertSpeed	: LREAL;
+	Fix_VertAcc		: LREAL;
+	Fix_VertDcc		: LREAL;
+
+	Fix_HorzSpeed	: LREAL;
+	Fix_HorzAcc		: LREAL;
+	Fix_HorzDcc		: LREAL;
+
+	lrSlowPullDownVelo      : LREAL;
+	lrSlowPullDownAcc      : LREAL;
+	lrSlowPullDownDcc      : LREAL;
+
+	lrSlowPullDown2ndVelo      : LREAL;
+	lrSlowPullDown2ndAcc      : LREAL;
+	lrSlowPullDown2ndDcc      : LREAL;
+
+	lrSlowPullUpVelo      : LREAL;
+	lrSlowPullUpAcc      : LREAL;
+	lrSlowPullUpDcc      : LREAL;
+
+	lrSlowPullUp2ndVelo      : LREAL;
+	lrSlowPullUp2ndAcc      : LREAL;
+	lrSlowPullUp2ndDcc      : LREAL;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

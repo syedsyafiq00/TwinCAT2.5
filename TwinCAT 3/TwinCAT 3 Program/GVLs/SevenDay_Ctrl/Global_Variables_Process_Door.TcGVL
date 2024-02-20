@@ -1,0 +1,810 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_Process_Door" Id="{191866d0-c135-4d91-b935-306ccb6b363f}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Ld Door Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	wLdDoorOpen									: WORD;
+	bLdDoorOpen_00									: BOOL;
+	bLdDoorOpen_01									: BOOL;
+	bLdDoorOpen_02									: BOOL;
+	bLdDoorOpen_03									: BOOL;
+	bLdDoorOpen_04									: BOOL;
+	bLdDoorOpen_05									: BOOL;
+	bLdDoorOpen_06									: BOOL;
+	bLdDoorOpen_07									: BOOL;
+	bLdDoorOpen_08									: BOOL;
+	bLdDoorOpen_09									: BOOL;
+	bLdDoorOpen_10									: BOOL;
+	bLdDoorOpen_11									: BOOL;
+	bLdDoorOpen_12									: BOOL;
+	bLdDoorOpen_13									: BOOL;
+	bLdDoorOpen_14									: BOOL;
+	bLdDoorOpen_15									: BOOL;
+
+	wLdDoorClose									: WORD;
+	bLdDoorClose_00									: BOOL;
+	bLdDoorClose_01									: BOOL;
+	bLdDoorClose_02									: BOOL;
+	bLdDoorClose_03									: BOOL;
+	bLdDoorClose_04									: BOOL;
+	bLdDoorClose_05									: BOOL;
+	bLdDoorClose_06									: BOOL;
+	bLdDoorClose_07									: BOOL;
+	bLdDoorClose_08									: BOOL;
+	bLdDoorClose_09									: BOOL;
+	bLdDoorClose_10									: BOOL;
+	bLdDoorClose_11									: BOOL;
+	bLdDoorClose_12									: BOOL;
+	bLdDoorClose_13									: BOOL;
+	bLdDoorClose_14									: BOOL;
+	bLdDoorClose_15									: BOOL;
+
+	bLdDoorOpenCompleted							: BOOL;
+	bLdDoorCloseCompleted							: BOOL;
+
+	bLdDoorOpenAct									: BOOL;
+	bLdDoorCloseAct									: BOOL;
+
+(*HoldingBitSV*)
+
+	bLdDoorOpenHolding								: BOOL;
+	bLdDoorCloseHolding								: BOOL;
+	bLdDoorClampHolding								: BOOL;
+	bLdDoorUnClampHolding							: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Stn1 Door Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	wStn1DoorOpen										: WORD;
+	bStn1DoorOpen_00									: BOOL;
+	bStn1DoorOpen_01									: BOOL;
+	bStn1DoorOpen_02									: BOOL;
+	bStn1DoorOpen_03									: BOOL;
+	bStn1DoorOpen_04									: BOOL;
+	bStn1DoorOpen_05									: BOOL;
+	bStn1DoorOpen_06									: BOOL;
+	bStn1DoorOpen_07									: BOOL;
+	bStn1DoorOpen_08									: BOOL;
+	bStn1DoorOpen_09									: BOOL;
+	bStn1DoorOpen_10									: BOOL;
+	bStn1DoorOpen_11									: BOOL;
+	bStn1DoorOpen_12									: BOOL;
+	bStn1DoorOpen_13									: BOOL;
+	bStn1DoorOpen_14									: BOOL;
+	bStn1DoorOpen_15									: BOOL;
+
+	wStn1DoorClose										: WORD;
+	bStn1DoorClose_00									: BOOL;
+	bStn1DoorClose_01									: BOOL;
+	bStn1DoorClose_02									: BOOL;
+	bStn1DoorClose_03									: BOOL;
+	bStn1DoorClose_04									: BOOL;
+	bStn1DoorClose_05									: BOOL;
+	bStn1DoorClose_06									: BOOL;
+	bStn1DoorClose_07									: BOOL;
+	bStn1DoorClose_08									: BOOL;
+	bStn1DoorClose_09									: BOOL;
+	bStn1DoorClose_10									: BOOL;
+	bStn1DoorClose_11									: BOOL;
+	bStn1DoorClose_12									: BOOL;
+	bStn1DoorClose_13									: BOOL;
+	bStn1DoorClose_14									: BOOL;
+	bStn1DoorClose_15									: BOOL;
+
+	bStn1DoorOpenCompleted								: BOOL;
+	bStn1DoorCloseCompleted								: BOOL;
+
+	bStn1DoorOpenAct									: BOOL;
+	bStn1DoorCloseAct									: BOOL;
+
+(*HoldingBitSV*)
+
+	bStn1DoorOpenHolding								: BOOL;
+	bStn1DoorCloseHolding								: BOOL;
+	bStn1DoorClampHolding								: BOOL;
+	bStn1DoorUnClampHolding								: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Stn2 Door Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	wStn2DoorOpen										: WORD;
+	bStn2DoorOpen_00									: BOOL;
+	bStn2DoorOpen_01									: BOOL;
+	bStn2DoorOpen_02									: BOOL;
+	bStn2DoorOpen_03									: BOOL;
+	bStn2DoorOpen_04									: BOOL;
+	bStn2DoorOpen_05									: BOOL;
+	bStn2DoorOpen_06									: BOOL;
+	bStn2DoorOpen_07									: BOOL;
+	bStn2DoorOpen_08									: BOOL;
+	bStn2DoorOpen_09									: BOOL;
+	bStn2DoorOpen_10									: BOOL;
+	bStn2DoorOpen_11									: BOOL;
+	bStn2DoorOpen_12									: BOOL;
+	bStn2DoorOpen_13									: BOOL;
+	bStn2DoorOpen_14									: BOOL;
+	bStn2DoorOpen_15									: BOOL;
+
+	wStn2DoorClose										: WORD;
+	bStn2DoorClose_00									: BOOL;
+	bStn2DoorClose_01									: BOOL;
+	bStn2DoorClose_02									: BOOL;
+	bStn2DoorClose_03									: BOOL;
+	bStn2DoorClose_04									: BOOL;
+	bStn2DoorClose_05									: BOOL;
+	bStn2DoorClose_06									: BOOL;
+	bStn2DoorClose_07									: BOOL;
+	bStn2DoorClose_08									: BOOL;
+	bStn2DoorClose_09									: BOOL;
+	bStn2DoorClose_10									: BOOL;
+	bStn2DoorClose_11									: BOOL;
+	bStn2DoorClose_12									: BOOL;
+	bStn2DoorClose_13									: BOOL;
+	bStn2DoorClose_14									: BOOL;
+	bStn2DoorClose_15									: BOOL;
+
+	bStn2DoorOpenCompleted								: BOOL;
+	bStn2DoorCloseCompleted								: BOOL;
+
+	bStn2DoorOpenAct									: BOOL;
+	bStn2DoorCloseAct									: BOOL;
+
+(*HoldingBitSV*)
+
+	bStn2DoorOpenHolding								: BOOL;
+	bStn2DoorCloseHolding								: BOOL;
+	bStn2DoorClampHolding								: BOOL;
+	bStn2DoorUnClampHolding								: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Stn3 Door Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	wStn3DoorOpen										: WORD;
+	bStn3DoorOpen_00									: BOOL;
+	bStn3DoorOpen_01									: BOOL;
+	bStn3DoorOpen_02									: BOOL;
+	bStn3DoorOpen_03									: BOOL;
+	bStn3DoorOpen_04									: BOOL;
+	bStn3DoorOpen_05									: BOOL;
+	bStn3DoorOpen_06									: BOOL;
+	bStn3DoorOpen_07									: BOOL;
+	bStn3DoorOpen_08									: BOOL;
+	bStn3DoorOpen_09									: BOOL;
+	bStn3DoorOpen_10									: BOOL;
+	bStn3DoorOpen_11									: BOOL;
+	bStn3DoorOpen_12									: BOOL;
+	bStn3DoorOpen_13									: BOOL;
+	bStn3DoorOpen_14									: BOOL;
+	bStn3DoorOpen_15									: BOOL;
+
+	wStn3DoorClose										: WORD;
+	bStn3DoorClose_00									: BOOL;
+	bStn3DoorClose_01									: BOOL;
+	bStn3DoorClose_02									: BOOL;
+	bStn3DoorClose_03									: BOOL;
+	bStn3DoorClose_04									: BOOL;
+	bStn3DoorClose_05									: BOOL;
+	bStn3DoorClose_06									: BOOL;
+	bStn3DoorClose_07									: BOOL;
+	bStn3DoorClose_08									: BOOL;
+	bStn3DoorClose_09									: BOOL;
+	bStn3DoorClose_10									: BOOL;
+	bStn3DoorClose_11									: BOOL;
+	bStn3DoorClose_12									: BOOL;
+	bStn3DoorClose_13									: BOOL;
+	bStn3DoorClose_14									: BOOL;
+	bStn3DoorClose_15									: BOOL;
+
+	bStn3DoorOpenCompleted								: BOOL;
+	bStn3DoorCloseCompleted								: BOOL;
+
+	bStn3DoorOpenAct									: BOOL;
+	bStn3DoorCloseAct									: BOOL;
+
+(*HoldingBitSV*)
+
+	bStn3DoorOpenHolding								: BOOL;
+	bStn3DoorCloseHolding								: BOOL;
+	bStn3DoorClampHolding								: BOOL;
+	bStn3DoorUnClampHolding								: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Stn4 Door Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	wStn4DoorOpen										: WORD;
+	bStn4DoorOpen_00									: BOOL;
+	bStn4DoorOpen_01									: BOOL;
+	bStn4DoorOpen_02									: BOOL;
+	bStn4DoorOpen_03									: BOOL;
+	bStn4DoorOpen_04									: BOOL;
+	bStn4DoorOpen_05									: BOOL;
+	bStn4DoorOpen_06									: BOOL;
+	bStn4DoorOpen_07									: BOOL;
+	bStn4DoorOpen_08									: BOOL;
+	bStn4DoorOpen_09									: BOOL;
+	bStn4DoorOpen_10									: BOOL;
+	bStn4DoorOpen_11									: BOOL;
+	bStn4DoorOpen_12									: BOOL;
+	bStn4DoorOpen_13									: BOOL;
+	bStn4DoorOpen_14									: BOOL;
+	bStn4DoorOpen_15									: BOOL;
+
+	wStn4DoorClose										: WORD;
+	bStn4DoorClose_00									: BOOL;
+	bStn4DoorClose_01									: BOOL;
+	bStn4DoorClose_02									: BOOL;
+	bStn4DoorClose_03									: BOOL;
+	bStn4DoorClose_04									: BOOL;
+	bStn4DoorClose_05									: BOOL;
+	bStn4DoorClose_06									: BOOL;
+	bStn4DoorClose_07									: BOOL;
+	bStn4DoorClose_08									: BOOL;
+	bStn4DoorClose_09									: BOOL;
+	bStn4DoorClose_10									: BOOL;
+	bStn4DoorClose_11									: BOOL;
+	bStn4DoorClose_12									: BOOL;
+	bStn4DoorClose_13									: BOOL;
+	bStn4DoorClose_14									: BOOL;
+	bStn4DoorClose_15									: BOOL;
+
+	bStn4DoorOpenCompleted								: BOOL;
+	bStn4DoorCloseCompleted								: BOOL;
+
+	bStn4DoorOpenAct									: BOOL;
+	bStn4DoorCloseAct									: BOOL;
+
+(*HoldingBitSV*)
+
+	bStn4DoorOpenHolding								: BOOL;
+	bStn4DoorCloseHolding								: BOOL;
+	bStn4DoorClampHolding								: BOOL;
+	bStn4DoorUnClampHolding								: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Stn5 Door Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	wStn5DoorOpen										: WORD;
+	bStn5DoorOpen_00									: BOOL;
+	bStn5DoorOpen_01									: BOOL;
+	bStn5DoorOpen_02									: BOOL;
+	bStn5DoorOpen_03									: BOOL;
+	bStn5DoorOpen_04									: BOOL;
+	bStn5DoorOpen_05									: BOOL;
+	bStn5DoorOpen_06									: BOOL;
+	bStn5DoorOpen_07									: BOOL;
+	bStn5DoorOpen_08									: BOOL;
+	bStn5DoorOpen_09									: BOOL;
+	bStn5DoorOpen_10									: BOOL;
+	bStn5DoorOpen_11									: BOOL;
+	bStn5DoorOpen_12									: BOOL;
+	bStn5DoorOpen_13									: BOOL;
+	bStn5DoorOpen_14									: BOOL;
+	bStn5DoorOpen_15									: BOOL;
+
+	wStn5DoorClose										: WORD;
+	bStn5DoorClose_00									: BOOL;
+	bStn5DoorClose_01									: BOOL;
+	bStn5DoorClose_02									: BOOL;
+	bStn5DoorClose_03									: BOOL;
+	bStn5DoorClose_04									: BOOL;
+	bStn5DoorClose_05									: BOOL;
+	bStn5DoorClose_06									: BOOL;
+	bStn5DoorClose_07									: BOOL;
+	bStn5DoorClose_08									: BOOL;
+	bStn5DoorClose_09									: BOOL;
+	bStn5DoorClose_10									: BOOL;
+	bStn5DoorClose_11									: BOOL;
+	bStn5DoorClose_12									: BOOL;
+	bStn5DoorClose_13									: BOOL;
+	bStn5DoorClose_14									: BOOL;
+	bStn5DoorClose_15									: BOOL;
+
+	bStn5DoorOpenCompleted								: BOOL;
+	bStn5DoorCloseCompleted								: BOOL;
+
+	bStn5DoorOpenAct									: BOOL;
+	bStn5DoorCloseAct									: BOOL;
+
+(*HoldingBitSV*)
+
+	bStn5DoorOpenHolding								: BOOL;
+	bStn5DoorCloseHolding								: BOOL;
+	bStn5DoorClampHolding								: BOOL;
+	bStn5DoorUnClampHolding								: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Stn6 Door Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	wStn6DoorOpen										: WORD;
+	bStn6DoorOpen_00									: BOOL;
+	bStn6DoorOpen_01									: BOOL;
+	bStn6DoorOpen_02									: BOOL;
+	bStn6DoorOpen_03									: BOOL;
+	bStn6DoorOpen_04									: BOOL;
+	bStn6DoorOpen_05									: BOOL;
+	bStn6DoorOpen_06									: BOOL;
+	bStn6DoorOpen_07									: BOOL;
+	bStn6DoorOpen_08									: BOOL;
+	bStn6DoorOpen_09									: BOOL;
+	bStn6DoorOpen_10									: BOOL;
+	bStn6DoorOpen_11									: BOOL;
+	bStn6DoorOpen_12									: BOOL;
+	bStn6DoorOpen_13									: BOOL;
+	bStn6DoorOpen_14									: BOOL;
+	bStn6DoorOpen_15									: BOOL;
+
+	wStn6DoorClose										: WORD;
+	bStn6DoorClose_00									: BOOL;
+	bStn6DoorClose_01									: BOOL;
+	bStn6DoorClose_02									: BOOL;
+	bStn6DoorClose_03									: BOOL;
+	bStn6DoorClose_04									: BOOL;
+	bStn6DoorClose_05									: BOOL;
+	bStn6DoorClose_06									: BOOL;
+	bStn6DoorClose_07									: BOOL;
+	bStn6DoorClose_08									: BOOL;
+	bStn6DoorClose_09									: BOOL;
+	bStn6DoorClose_10									: BOOL;
+	bStn6DoorClose_11									: BOOL;
+	bStn6DoorClose_12									: BOOL;
+	bStn6DoorClose_13									: BOOL;
+	bStn6DoorClose_14									: BOOL;
+	bStn6DoorClose_15									: BOOL;
+
+	bStn6DoorOpenCompleted								: BOOL;
+	bStn6DoorCloseCompleted								: BOOL;
+
+	bStn6DoorOpenAct									: BOOL;
+	bStn6DoorCloseAct									: BOOL;
+
+(*HoldingBitSV*)
+
+	bStn6DoorOpenHolding								: BOOL;
+	bStn6DoorCloseHolding								: BOOL;
+	bStn6DoorClampHolding								: BOOL;
+	bStn6DoorUnClampHolding								: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Stn7 Door Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	wStn7DoorOpen										: WORD;
+	bStn7DoorOpen_00									: BOOL;
+	bStn7DoorOpen_01									: BOOL;
+	bStn7DoorOpen_02									: BOOL;
+	bStn7DoorOpen_03									: BOOL;
+	bStn7DoorOpen_04									: BOOL;
+	bStn7DoorOpen_05									: BOOL;
+	bStn7DoorOpen_06									: BOOL;
+	bStn7DoorOpen_07									: BOOL;
+	bStn7DoorOpen_08									: BOOL;
+	bStn7DoorOpen_09									: BOOL;
+	bStn7DoorOpen_10									: BOOL;
+	bStn7DoorOpen_11									: BOOL;
+	bStn7DoorOpen_12									: BOOL;
+	bStn7DoorOpen_13									: BOOL;
+	bStn7DoorOpen_14									: BOOL;
+	bStn7DoorOpen_15									: BOOL;
+
+	wStn7DoorClose										: WORD;
+	bStn7DoorClose_00									: BOOL;
+	bStn7DoorClose_01									: BOOL;
+	bStn7DoorClose_02									: BOOL;
+	bStn7DoorClose_03									: BOOL;
+	bStn7DoorClose_04									: BOOL;
+	bStn7DoorClose_05									: BOOL;
+	bStn7DoorClose_06									: BOOL;
+	bStn7DoorClose_07									: BOOL;
+	bStn7DoorClose_08									: BOOL;
+	bStn7DoorClose_09									: BOOL;
+	bStn7DoorClose_10									: BOOL;
+	bStn7DoorClose_11									: BOOL;
+	bStn7DoorClose_12									: BOOL;
+	bStn7DoorClose_13									: BOOL;
+	bStn7DoorClose_14									: BOOL;
+	bStn7DoorClose_15									: BOOL;
+
+	bStn7DoorOpenCompleted								: BOOL;
+	bStn7DoorCloseCompleted								: BOOL;
+
+	bStn7DoorOpenAct									: BOOL;
+	bStn7DoorCloseAct									: BOOL;
+
+(*HoldingitSV*)
+
+	bStn7DoorOpenHolding								: BOOL;
+	bStn7DoorCloseHolding								: BOOL;
+	bStn7DoorClampHolding								: BOOL;
+	bStn7DoorUnClampHolding								: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Stn8 Door Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	wStn8DoorOpen										: WORD;
+	bStn8DoorOpen_00									: BOOL;
+	bStn8DoorOpen_01									: BOOL;
+	bStn8DoorOpen_02									: BOOL;
+	bStn8DoorOpen_03									: BOOL;
+	bStn8DoorOpen_04									: BOOL;
+	bStn8DoorOpen_05									: BOOL;
+	bStn8DoorOpen_06									: BOOL;
+	bStn8DoorOpen_07									: BOOL;
+	bStn8DoorOpen_08									: BOOL;
+	bStn8DoorOpen_09									: BOOL;
+	bStn8DoorOpen_10									: BOOL;
+	bStn8DoorOpen_11									: BOOL;
+	bStn8DoorOpen_12									: BOOL;
+	bStn8DoorOpen_13									: BOOL;
+	bStn8DoorOpen_14									: BOOL;
+	bStn8DoorOpen_15									: BOOL;
+
+	wStn8DoorClose										: WORD;
+	bStn8DoorClose_00									: BOOL;
+	bStn8DoorClose_01									: BOOL;
+	bStn8DoorClose_02									: BOOL;
+	bStn8DoorClose_03									: BOOL;
+	bStn8DoorClose_04									: BOOL;
+	bStn8DoorClose_05									: BOOL;
+	bStn8DoorClose_06									: BOOL;
+	bStn8DoorClose_07									: BOOL;
+	bStn8DoorClose_08									: BOOL;
+	bStn8DoorClose_09									: BOOL;
+	bStn8DoorClose_10									: BOOL;
+	bStn8DoorClose_11									: BOOL;
+	bStn8DoorClose_12									: BOOL;
+	bStn8DoorClose_13									: BOOL;
+	bStn8DoorClose_14									: BOOL;
+	bStn8DoorClose_15									: BOOL;
+
+	bStn8DoorOpenCompleted								: BOOL;
+	bStn8DoorCloseCompleted								: BOOL;
+
+	bStn8DoorOpenAct									: BOOL;
+	bStn8DoorCloseAct									: BOOL;
+
+(*HoldingBitSV*)
+
+	bStn8DoorOpenHolding								: BOOL;
+	bStn8DoorCloseHolding								: BOOL;
+	bStn8DoorClampHolding								: BOOL;
+	bStn8DoorUnClampHolding								: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Stn9 Door Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	wStn9DoorOpen										: WORD;
+	bStn9DoorOpen_00									: BOOL;
+	bStn9DoorOpen_01									: BOOL;
+	bStn9DoorOpen_02									: BOOL;
+	bStn9DoorOpen_03									: BOOL;
+	bStn9DoorOpen_04									: BOOL;
+	bStn9DoorOpen_05									: BOOL;
+	bStn9DoorOpen_06									: BOOL;
+	bStn9DoorOpen_07									: BOOL;
+	bStn9DoorOpen_08									: BOOL;
+	bStn9DoorOpen_09									: BOOL;
+	bStn9DoorOpen_10									: BOOL;
+	bStn9DoorOpen_11									: BOOL;
+	bStn9DoorOpen_12									: BOOL;
+	bStn9DoorOpen_13									: BOOL;
+	bStn9DoorOpen_14									: BOOL;
+	bStn9DoorOpen_15									: BOOL;
+
+	wStn9DoorClose										: WORD;
+	bStn9DoorClose_00									: BOOL;
+	bStn9DoorClose_01									: BOOL;
+	bStn9DoorClose_02									: BOOL;
+	bStn9DoorClose_03									: BOOL;
+	bStn9DoorClose_04									: BOOL;
+	bStn9DoorClose_05									: BOOL;
+	bStn9DoorClose_06									: BOOL;
+	bStn9DoorClose_07									: BOOL;
+	bStn9DoorClose_08									: BOOL;
+	bStn9DoorClose_09									: BOOL;
+	bStn9DoorClose_10									: BOOL;
+	bStn9DoorClose_11									: BOOL;
+	bStn9DoorClose_12									: BOOL;
+	bStn9DoorClose_13									: BOOL;
+	bStn9DoorClose_14									: BOOL;
+	bStn9DoorClose_15									: BOOL;
+
+	bStn9DoorOpenCompleted								: BOOL;
+	bStn9DoorCloseCompleted								: BOOL;
+
+	bStn9DoorOpenAct									: BOOL;
+	bStn9DoorCloseAct									: BOOL;
+
+(*HoldingBitSV*)
+
+	bStn9DoorOpenHolding								: BOOL;
+	bStn9DoorCloseHolding								: BOOL;
+	bStn9DoorClampHolding								: BOOL;
+	bStn9DoorUnClampHolding								: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Stn10 Door Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	wStn10DoorOpen										: WORD;
+	bStn10DoorOpen_00									: BOOL;
+	bStn10DoorOpen_01									: BOOL;
+	bStn10DoorOpen_02									: BOOL;
+	bStn10DoorOpen_03									: BOOL;
+	bStn10DoorOpen_04									: BOOL;
+	bStn10DoorOpen_05									: BOOL;
+	bStn10DoorOpen_06									: BOOL;
+	bStn10DoorOpen_07									: BOOL;
+	bStn10DoorOpen_08									: BOOL;
+	bStn10DoorOpen_09									: BOOL;
+	bStn10DoorOpen_10									: BOOL;
+	bStn10DoorOpen_11									: BOOL;
+	bStn10DoorOpen_12									: BOOL;
+	bStn10DoorOpen_13									: BOOL;
+	bStn10DoorOpen_14									: BOOL;
+	bStn10DoorOpen_15									: BOOL;
+
+	wStn10DoorClose										: WORD;
+	bStn10DoorClose_00									: BOOL;
+	bStn10DoorClose_01									: BOOL;
+	bStn10DoorClose_02									: BOOL;
+	bStn10DoorClose_03									: BOOL;
+	bStn10DoorClose_04									: BOOL;
+	bStn10DoorClose_05									: BOOL;
+	bStn10DoorClose_06									: BOOL;
+	bStn10DoorClose_07									: BOOL;
+	bStn10DoorClose_08									: BOOL;
+	bStn10DoorClose_09									: BOOL;
+	bStn10DoorClose_10									: BOOL;
+	bStn10DoorClose_11									: BOOL;
+	bStn10DoorClose_12									: BOOL;
+	bStn10DoorClose_13									: BOOL;
+	bStn10DoorClose_14									: BOOL;
+	bStn10DoorClose_15									: BOOL;
+
+	bStn10DoorOpenCompleted							: BOOL;
+	bStn10DoorCloseCompleted							: BOOL;
+
+	bStn10DoorOpenAct									: BOOL;
+	bStn10DoorCloseAct									: BOOL;
+
+(*HoldingBitSV*)
+
+	bStn10DoorOpenHolding								: BOOL;
+	bStn10DoorCloseHolding								: BOOL;
+	bStn10DoorClampHolding								: BOOL;
+	bStn10DoorUnClampHolding							: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Stn11 Door Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	wStn11DoorOpen										: WORD;
+	bStn11DoorOpen_00									: BOOL;
+	bStn11DoorOpen_01									: BOOL;
+	bStn11DoorOpen_02									: BOOL;
+	bStn11DoorOpen_03									: BOOL;
+	bStn11DoorOpen_04									: BOOL;
+	bStn11DoorOpen_05									: BOOL;
+	bStn11DoorOpen_06									: BOOL;
+	bStn11DoorOpen_07									: BOOL;
+	bStn11DoorOpen_08									: BOOL;
+	bStn11DoorOpen_09									: BOOL;
+	bStn11DoorOpen_10									: BOOL;
+	bStn11DoorOpen_11									: BOOL;
+	bStn11DoorOpen_12									: BOOL;
+	bStn11DoorOpen_13									: BOOL;
+	bStn11DoorOpen_14									: BOOL;
+	bStn11DoorOpen_15									: BOOL;
+
+	wStn11DoorClose										: WORD;
+	bStn11DoorClose_00									: BOOL;
+	bStn11DoorClose_01									: BOOL;
+	bStn11DoorClose_02									: BOOL;
+	bStn11DoorClose_03									: BOOL;
+	bStn11DoorClose_04									: BOOL;
+	bStn11DoorClose_05									: BOOL;
+	bStn11DoorClose_06									: BOOL;
+	bStn11DoorClose_07									: BOOL;
+	bStn11DoorClose_08									: BOOL;
+	bStn11DoorClose_09									: BOOL;
+	bStn11DoorClose_10									: BOOL;
+	bStn11DoorClose_11									: BOOL;
+	bStn11DoorClose_12									: BOOL;
+	bStn11DoorClose_13									: BOOL;
+	bStn11DoorClose_14									: BOOL;
+	bStn11DoorClose_15									: BOOL;
+
+	bStn11DoorOpenCompleted							: BOOL;
+	bStn11DoorCloseCompleted							: BOOL;
+
+	bStn11DoorOpenAct									: BOOL;
+	bStn11DoorCloseAct									: BOOL;
+
+(*HoldingBitSV*)
+
+	bStn11DoorOpenHolding								: BOOL;
+	bStn11DoorCloseHolding								: BOOL;
+	bStn11DoorClampHolding								: BOOL;
+	bStn11DoorUnClampHolding							: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Stn12 Door Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	wStn12DoorOpen										: WORD;
+	bStn12DoorOpen_00									: BOOL;
+	bStn12DoorOpen_01									: BOOL;
+	bStn12DoorOpen_02									: BOOL;
+	bStn12DoorOpen_03									: BOOL;
+	bStn12DoorOpen_04									: BOOL;
+	bStn12DoorOpen_05									: BOOL;
+	bStn12DoorOpen_06									: BOOL;
+	bStn12DoorOpen_07									: BOOL;
+	bStn12DoorOpen_08									: BOOL;
+	bStn12DoorOpen_09									: BOOL;
+	bStn12DoorOpen_10									: BOOL;
+	bStn12DoorOpen_11									: BOOL;
+	bStn12DoorOpen_12									: BOOL;
+	bStn12DoorOpen_13									: BOOL;
+	bStn12DoorOpen_14									: BOOL;
+	bStn12DoorOpen_15									: BOOL;
+
+	wStn12DoorClose										: WORD;
+	bStn12DoorClose_00									: BOOL;
+	bStn12DoorClose_01									: BOOL;
+	bStn12DoorClose_02									: BOOL;
+	bStn12DoorClose_03									: BOOL;
+	bStn12DoorClose_04									: BOOL;
+	bStn12DoorClose_05									: BOOL;
+	bStn12DoorClose_06									: BOOL;
+	bStn12DoorClose_07									: BOOL;
+	bStn12DoorClose_08									: BOOL;
+	bStn12DoorClose_09									: BOOL;
+	bStn12DoorClose_10									: BOOL;
+	bStn12DoorClose_11									: BOOL;
+	bStn12DoorClose_12									: BOOL;
+	bStn12DoorClose_13									: BOOL;
+	bStn12DoorClose_14									: BOOL;
+	bStn12DoorClose_15									: BOOL;
+
+	bStn12DoorOpenCompleted							: BOOL;
+	bStn12DoorCloseCompleted							: BOOL;
+
+	bStn12DoorOpenAct									: BOOL;
+	bStn12DoorCloseAct									: BOOL;
+
+(*HoldingBitSV*)
+
+	bStn12DoorOpenHolding								: BOOL;
+	bStn12DoorCloseHolding								: BOOL;
+	bStn12DoorClampHolding								: BOOL;
+	bStn12DoorUnClampHolding							: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Uld Door Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	wUldDoorOpen										: WORD;
+	bUldDoorOpen_00										: BOOL;
+	bUldDoorOpen_01										: BOOL;
+	bUldDoorOpen_02										: BOOL;
+	bUldDoorOpen_03										: BOOL;
+	bUldDoorOpen_04										: BOOL;
+	bUldDoorOpen_05										: BOOL;
+	bUldDoorOpen_06										: BOOL;
+	bUldDoorOpen_07										: BOOL;
+	bUldDoorOpen_08										: BOOL;
+	bUldDoorOpen_09										: BOOL;
+	bUldDoorOpen_10										: BOOL;
+	bUldDoorOpen_11										: BOOL;
+	bUldDoorOpen_12										: BOOL;
+	bUldDoorOpen_13										: BOOL;
+	bUldDoorOpen_14										: BOOL;
+	bUldDoorOpen_15										: BOOL;
+
+	wUldDoorClose										: WORD;
+	bUldDoorClose_00									: BOOL;
+	bUldDoorClose_01									: BOOL;
+	bUldDoorClose_02									: BOOL;
+	bUldDoorClose_03									: BOOL;
+	bUldDoorClose_04									: BOOL;
+	bUldDoorClose_05									: BOOL;
+	bUldDoorClose_06									: BOOL;
+	bUldDoorClose_07									: BOOL;
+	bUldDoorClose_08									: BOOL;
+	bUldDoorClose_09									: BOOL;
+	bUldDoorClose_10									: BOOL;
+	bUldDoorClose_11									: BOOL;
+	bUldDoorClose_12									: BOOL;
+	bUldDoorClose_13									: BOOL;
+	bUldDoorClose_14									: BOOL;
+	bUldDoorClose_15									: BOOL;
+
+	bUldDoorOpenCompleted								: BOOL;
+	bUldDoorCloseCompleted								: BOOL;
+
+	bUldDoorOpenAct										: BOOL;
+	bUldDoorCloseAct									: BOOL;
+
+(*HoldingBitSV*)
+
+	bUldDoorOpenHolding									: BOOL;
+	bUldDoorCloseHolding								: BOOL;
+	bUldDoorClampHolding								: BOOL;
+	bUldDoorUnClampHolding								: BOOL;
+
+	bUldTransferInHolding									: BOOL;
+	bUldTransferOutHolding								: BOOL;
+
+
+(*Conveyor holding*)
+
+
+	bLdConveyorPopupInHolding							: BOOL;
+	bLdConveyorPopupOutHolding							: BOOL;
+	bUldConveyorPopupInHolding							: BOOL;
+	bUldConveyorPopupOutHolding							: BOOL;
+
+	bLdConveyorUpHolding								: BOOL;
+	bLdConveyorDownHolding								: BOOL;
+	bUldConveyorUpHolding								: BOOL;
+	bUldConveyorDownHolding								: BOOL;
+
+	bLdConveyorPusherInHolding							: BOOL;
+	bLdConveyorPusherOutHolding							: BOOL;
+	bUldConveyorPusherInHolding							: BOOL;
+	bUldConveyorPusherOutHolding						: BOOL;
+	
+	bUldConveyorOpenHolding								: BOOL;
+	bUldConveyorCloseHolding							: BOOL;
+	
+	wUldConveyorOpen									: WORD;	
+	bUldConveyorOpen_00									: BOOL;
+	bUldConveyorOpen_01									: BOOL;
+	bUldConveyorOpen_02									: BOOL;
+	bUldConveyorOpen_03									: BOOL;
+	bUldConveyorOpen_04									: BOOL;
+	bUldConveyorOpen_05									: BOOL;
+	bUldConveyorOpen_06									: BOOL;
+	bUldConveyorOpen_07									: BOOL;
+	bUldConveyorOpen_08									: BOOL;
+	bUldConveyorOpen_09									: BOOL;
+	bUldConveyorOpen_10									: BOOL;
+	bUldConveyorOpen_11									: BOOL;
+	bUldConveyorOpen_12									: BOOL;
+	bUldConveyorOpen_13									: BOOL;
+	bUldConveyorOpen_14									: BOOL;
+	bUldConveyorOpen_15									: BOOL;
+
+	wUldConveyorClose									: WORD;
+	bUldConveyorClose_00								: BOOL;
+	bUldConveyorClose_01								: BOOL;
+	bUldConveyorClose_02								: BOOL;
+	bUldConveyorClose_03								: BOOL;
+	bUldConveyorClose_04								: BOOL;
+	bUldConveyorClose_05								: BOOL;
+	bUldConveyorClose_06								: BOOL;
+	bUldConveyorClose_07								: BOOL;
+	bUldConveyorClose_08								: BOOL;
+	bUldConveyorClose_09								: BOOL;
+	bUldConveyorClose_10								: BOOL;
+	bUldConveyorClose_11								: BOOL;
+	bUldConveyorClose_12								: BOOL;
+	bUldConveyorClose_13								: BOOL;
+	bUldConveyorClose_14								: BOOL;
+	bUldConveyorClose_15								: BOOL;
+
+	
+	bUldConveyorOpenCompleted							: BOOL;
+	bUldConveyorCloseCompleted							: BOOL;
+	
+	
+
+(*StnCylinderReciprocating*)
+
+	bStnCylinderReciprocating								: BOOL;
+
+END_VAR
+
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSA1_UpDownMovement" Id="{30f5c92a-9715-4f3c-98d4-0a57bad6a9b9}">
+    <Declaration><![CDATA[TYPE DSA1_UpDownMovement : (*Full Occupied Byte = 300*)
+STRUCT
+(*	sReservedBool : STRING(50); (* Byte "n+0 ~ n+99" *)*)
+	lrZone1StartPos : LREAL; (* Byte "n+0~n+7" *)
+	lrZone1EndPos : LREAL; (* Byte "n+8~n+15" *)
+	lrZone2StartPos : LREAL; (* Byte "n+16~n+23" *)
+	lrZone2EndPos : LREAL; (* Byte "n+24~n+31" *)
+	lrZone3StartPos : LREAL; (* Byte "n+32~n+39" *)
+	lrZone3EndPos : LREAL; (* Byte "n+40~n+47" *)
+	lrZone4StartPos : LREAL; (* Byte "n+48~n+55" *)
+	lrZone4EndPos : LREAL; (* Byte "n+56~n+63" *)
+
+
+	lrZone1SpeedVelo : LREAL; (* Byte "64+0~n+71" *)
+	lrZone2SpeedVelo : LREAL; (* Byte "72+0~n+79" *)
+	lrZone3SpeedVelo : LREAL; (* Byte "80+0~n+87" *)
+	lrZone4SpeedVelo : LREAL; (* Byte "88+0~n+95" *)
+
+	lrZone1Acc : LREAL; (* Byte "n+96~n+103" *)
+	lrZone1Dcc : LREAL; (* Byte "n+104~n+111" *)
+	lrZone2Acc : LREAL; (* Byte "n+112~n+119" *)
+	lrZone2Dcc : LREAL; (* Byte "n+120~n+127" *)
+	lrZone3Acc : LREAL; (* Byte "n+128~n+135" *)
+	lrZone3Dcc : LREAL; (* Byte "n+136~n+143" *)
+	lrZone4Acc : LREAL; (* Byte "n+144~n+151" *)
+	lrZone4Dcc : LREAL; (* Byte "n+152~n+159" *)
+
+	lrMidPos		: LREAL; (* Byte "n+160~n+167" *) (*Added*)
+
+	sReservedLreal : STRING(31); (* Byte "n+168~n+199" *)
+
+	sUpDownPatternDescription : STRING(50); (* Byte "n+200 ~ n+299*)
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,197 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_SubRTBBusyLinkMTSUpdate" Id="{437e09d2-a325-46a8-896a-d132bcd9d2c4}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_SubRTBBusyLinkMTSUpdate
+VAR_INPUT
+	bReset			: BOOL;
+
+
+END_VAR
+
+VAR_IN_OUT
+	bEn				: BOOL;
+	AR2SiRecipeTimeBlockWithCallArmTime 			: ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+
+(* RecipeTimeBlockDetail
+	1 - Start Time
+	2 - End Time
+	3 - Stn ID
+	4 - Step No (Based on Product Recipe PnP Step No)
+	5 - Busy Time <Duration> = EndTime - StartTime + 1; 
+	6 - Min Time (Define by User -> Process Time Per Station)
+	7 - Max Time (Define by User -> For Process Tank only)
+	8 - Eff Time (Final Process Time, Used on Station Timer and Call Arm Used)
+	9 - BusyLink Reference 
+		0		=Non
+		11-19 	= BusyLinkGroupMaster No 1
+		21-29 	= BusyLinkGroupMaster No 2
+		=================================
+		91-99 	= BusyLinkGroupMaster No 9
+
+		111-119 	= BusyLinkGroupMaster No 1 - 1st Stn ID
+		121-129 	= BusyLinkGroupMaster No 1 - 2nd Stn ID
+		131-139 	= BusyLinkGroupMaster No 1 - 3rd Stn ID
+
+		211-219 	= BusyLinkGroupMaster No 2 - 1st Stn ID
+		221-229 	= BusyLinkGroupMaster No 2 - 2nd Stn ID
+		231-239 	= BusyLinkGroupMaster No 2 - 3rd Stn ID
+
+		911-919 	= BusyLinkGroupMaster No 9 - 1st Stn ID
+		921-929 	= BusyLinkGroupMaster No 9 - 2nd Stn ID
+		931-939 	= BusyLinkGroupMaster No 9 - 3rd Stn ID
+
+		
+
+*)
+
+END_VAR
+
+
+
+VAR_OUTPUT
+	bDone : BOOL;
+END_VAR
+
+VAR
+	bResetRE: R_TRIG;
+	iStep: INT;
+
+	iRtbFL: INT;
+	iBufferBusyLinkGroup : ARRAY[1..iBusyLinkUpSetQty(*5*),1..iBusyLinkUpStnQty(*6*), 1..9] OF INT; (* 9 Groups Max*)
+	iBusySetFL: INT;
+	iBusyStnFL: INT;
+	iRecipeCheckFL: INT;
+END_VAR
+
+VAR_INPUT
+
+
+(* RecipeTimeBlockDetail
+	1 - Start Time
+	2 - End Time
+	3 - Stn ID
+	4 - Step No (Based on Product Recipe PnP Step No)
+	5 - Busy Time <Duration> = EndTime - StartTime + 1; 
+	6 - Min Time (Define by User -> Process Time Per Station)
+	7 - Max Time (Define by User -> For Process Tank only)
+	8 - Eff Time (Final Process Time, Used on Station Timer and Call Arm Used)
+	9 - BusyLink Reference ( 0=Non, 1~9=BusyLinkGroupMaster No, 11-19=Group1Slave, 21-29=Group2Slave ~ 91-99=Group9Slave)
+*)
+
+END_VAR
+
+
+VAR PERSISTENT
+
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[bResetRE(CLK:=bReset , Q=> );
+
+IF bResetRE.Q THEN
+bDone := FALSE;
+END_IF
+
+(*
+IF NOT bEn THEN
+bDone := FALSE;
+END_IF
+*)
+
+
+IF NOT bReset AND bEn THEN
+bDone := FALSE;
+(*
+CASE iStep OF
+
+1:
+*)
+	iRecipeCheckFL := 1;
+	IF iRecipeCheckFL>0 AND iRecipeCheckFL <= iRecipeBlockQty THEN
+		FOR iRecipeCheckFL := 1 TO iRecipeBlockQty DO
+
+			iBusySetFL := 1;
+			IF iBusySetFL>= 1 AND iBusySetFL <= iBusyLinkUpSetQty THEN
+				FOR iBusySetFL := 1 TO iBusyLinkUpSetQty DO
+
+
+					iBusyStnFL := 1;
+					IF iBusyStnFL>= 1 AND iBusyStnFL <= iBusyLinkUpStnQty THEN
+						FOR iBusyStnFL := 1 TO iBusyLinkUpStnQty DO
+							IF AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,9] = (iBusySetFL*10)+iBusyStnFL THEN
+		
+								iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,1] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,1];
+								iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,2] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,2];
+								iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,3] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,3];
+								iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,4] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,4];
+								iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,5] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,5];
+								iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,6] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,6];
+								iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,7] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,7];
+								iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,8] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,8];
+								iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,9] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,9];
+		
+							END_IF
+						END_FOR
+					END_IF
+
+				END_FOR
+			END_IF
+
+		END_FOR
+	END_IF
+(*iStep := 11;
+2:
+*)	iRecipeCheckFL := 1;
+	IF iRecipeCheckFL>0 AND iRecipeCheckFL <= iRecipeBlockQty THEN
+		FOR iRecipeCheckFL := 1 TO iRecipeBlockQty DO
+
+			iBusySetFL := 1;
+			IF iBusySetFL>= 1 AND iBusySetFL <= iBusyLinkUpSetQty THEN
+				FOR iBusySetFL := 1 TO iBusyLinkUpSetQty DO
+
+					iBusyStnFL := 1;
+					IF iBusyStnFL>= 1 AND iBusyStnFL <= iBusyLinkUpStnQty THEN
+						FOR iBusyStnFL := 1 TO iBusyLinkUpStnQty DO
+		
+							IF iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,9] > 0 THEN
+								IF AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,9] > (iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,9]*10)
+								AND AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,9] < ((iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,9]+1)*10) THEN
+		
+									AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,1] := iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,1];
+									AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,2] := iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,2];
+									(*AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,3] := iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,3];*)
+									AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,4] := iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,4];
+									AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,5] := iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,5];
+									AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,6] := iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,6];
+									AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,7] := iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,7];
+									AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,8] := iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,8];
+									(*AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,9] := iBufferBusyLinkGroup[iBusySetFL, iBusyStnFL,9];*)
+		
+								END_IF
+							END_IF
+
+						END_FOR
+					END_IF
+				END_FOR
+			END_IF
+		END_FOR
+	END_IF
+
+
+bDone := TRUE;
+bEn := FALSE;
+
+(*
+iStep := 12;
+3:;
+
+END_CASE
+*)
+
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_SubRTBBusyLinkMTSUpdate">
+      <LineId Id="84" Count="102" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

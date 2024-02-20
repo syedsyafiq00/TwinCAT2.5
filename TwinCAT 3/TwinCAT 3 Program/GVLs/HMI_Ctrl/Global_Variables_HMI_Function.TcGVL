@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_HMI_Function" Id="{d9da9d50-93eb-4d82-a1d1-ba26071590ee}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL PERSISTENT
+(*Recipe Setting Page*)
+
+	iStepNo:INT; (*RecipeEditorStepNoAssign*)
+	iStationNo:INT;(*BasicRecipeStationNoAssign*)
+	iArmStnNo :INT;(*ARm Setting Page*)
+	iUsonicID:INT;(*UsonicIDno*)
+	iUsonicID2:INT;
+	sUltrasonicLabel:STRING;(*UsonicLabel/Name*)
+	sUltrasonicLabel2 : STRING;
+	iAutoInfoNo:INT;(*AutoMode Station Info Page No*)
+	iManuPageNo:INT;(*Manul mode PAge No*)
+	iArmControlPageNo:INT; (*Arm Page Control No*)
+	OnOffStatus:INT; (*1=System Auto On, 2=System Auto Off*)
+	lrVertHmiRatio:LREAL;(*ArmGraphicRatioMovement*)
+	lrHorzHmiRatio:LREAL;(*ArmGraphicRatioMovement*)
+	bFreqBtmChange: ARRAY [1..iStnQty] OF BOOL;
+	bFreqSideChange: ARRAY [1..iStnQty] OF BOOL;	
+
+
+	(*7day Auto On/Off(array1-On,2=off*)
+
+	Day1En:ARRAY [1..2] OF BOOL;
+	Day2En:ARRAY [1..2] OF BOOL;
+	Day3En: ARRAY [1..2] OF BOOL;
+	Day4En:ARRAY [1..2] OF BOOL;
+	Day5En:ARRAY [1..2] OF BOOL;
+	Day6En: ARRAY [1..2] OF BOOL;
+	Day7En: ARRAY [1..2] OF BOOL;
+
+	Day1H:ARRAY [1..2] OF INT;
+	Day2H:ARRAY [1..2] OF INT;
+	Day3H: ARRAY [1..2] OF INT;
+	Day4H:ARRAY [1..2] OF INT;
+	Day5H:ARRAY [1..2] OF INT;
+	Day6H: ARRAY [1..2] OF INT;
+	Day7H: ARRAY [1..2] OF INT;
+
+	Day1M:ARRAY [1..2] OF INT;
+	Day2M:ARRAY [1..2] OF INT;
+	Day3M: ARRAY [1..2] OF INT;
+	Day4M:ARRAY [1..2] OF INT;
+	Day5M:ARRAY [1..2] OF INT;
+	Day6M: ARRAY [1..2] OF INT;
+	Day7M: ARRAY [1..2] OF INT;
+
+	(*Arm Horizontal Position Remap*)
+	Arm1HookPos: ARRAY [0..20] OF LREAL;
+	Arm1UnHookPos: ARRAY [0..20] OF LREAL;
+
+	Arm2HookPos: ARRAY [0..20] OF LREAL;
+	Arm2UnHookPos: ARRAY [0..20] OF LREAL;
+
+	bAutoPageOn:BOOL;
+	bManuPageOn:BOOL;
+	bRecipePageOn: BOOL;	(*  *)
+	bUserPageOn:BOOL;
+	bJRS_PageOn:BOOL;
+	bGeneral_PageOn:BOOL;
+         bDetergentMonitorAPageOn:BOOL;
+         bDetergentMonitorBPageOn:BOOL;
+         bVacuumMonitorPageOn:BOOL;
+	bManualCalibratePageOn:BOOL;
+
+	xRatio:LREAL;
+	yRatio:LREAL;
+	xRatio_1:LREAL;
+	yRatio_1:LREAL;
+
+	Arm1TopPos: ARRAY [0..iAddMapArrayLreal] OF LREAL;
+	Arm1Pos1stStage: ARRAY [0..iAddMapArrayLreal] OF LREAL;
+	Arm1Pos2ndStage: ARRAY [0..iAddMapArrayLreal] OF LREAL;
+	Arm1Pos3rdStage: ARRAY [0..iAddMapArrayLreal] OF LREAL;
+	Arm1Pos4thStage: ARRAY [0..iAddMapArrayLreal] OF LREAL;
+	Arm1BottomPos: ARRAY [0..iAddMapArrayLreal] OF LREAL;
+	Arm1MidPos: ARRAY [0..iAddMapArrayLreal] OF LREAL;
+
+	Arm2TopPos: ARRAY [0..iAddMapArrayLreal] OF LREAL;
+	Arm2Pos1stStage: ARRAY [0..iAddMapArrayLreal] OF LREAL;
+	Arm2Pos2ndStage: ARRAY [0..iAddMapArrayLreal] OF LREAL;
+	Arm2Pos3rdStage: ARRAY [0..iAddMapArrayLreal] OF LREAL;
+	Arm2Pos4thStage: ARRAY [0..iAddMapArrayLreal] OF LREAL;
+	Arm2BottomPos: ARRAY [0..iAddMapArrayLreal] OF LREAL;
+	Arm2MidPos: ARRAY [0..iAddMapArrayLreal] OF LREAL;
+
+END_VAR
+
+VAR_GLOBAL
+
+	iArmVertCurrentPos:INT;
+	iArmHorzCurrentPos:INT;
+
+	bArmPosSetPage:BOOL;
+	bArm2PosSetPage : BOOL;
+
+
+	bDeactivatePageOn:BOOL; (*Sensor Deactivated*)
+	bStatusPreparationPageOn:BOOL;
+
+	bArmJog2PageOn: BOOL;
+
+	RecipeEditOn:BOOL; (*RecipeEditorEditPageCallUp*)
+
+	bXML_ImportExportPageOn : BOOL;
+
+
+	bStatusPreparePageOn:BOOL; (*Open Prepare Status Page*)
+	bStatusOriginPageOn:BOOL;	(*Open Origin Status Page*)
+	(*bAutoModeOtherDeactPageOn:BOOL;(*Open Deact. Others Page*)*)
+
+	(*Time Tracker & Time Optimize Page*)
+
+	TrackeriArrayNo: ARRAY [1..20] OF INT; (*Assign for tracker Array NO*)
+	TimeTrackerPage:INT; (*Assign for tracker Page No*)
+
+
+	(*Remap Arm Position Function*-because loading/unloading not in array form*)
+
+	(*Produt Description for Recipe Edit*)
+	sRecipeDescriptionStep : ARRAY [1..20] OF STRING;
+
+	(*Arm Homing Complete Indicator*)
+	bArmVertHomingComplete:BOOL;
+	bArmHorzHomingComplete:BOOL;
+	bArmHomingComplete: ARRAY [1..iArmQty] OF BOOL;
+
+	(*Page On bit*)
+
+	bAlarmPageOn:BOOL;
+	bRecipeSubMenuPageOn:BOOL;
+
+	(*Auto Mode Recipe Select*)
+	bAutoModeRecipeSelect:BOOL;
+
+	JogSlowPullOn:BOOL;
+	JogArmOn:BOOL;
+
+	(*Station On page bit*)
+	bStationOnPage:BOOL;
+	bManualStationOnPage:BOOL;
+	bManualStationOffPage:BOOL;
+
+	(*Manual Mode U/Sonic Power Set*)
+
+	iUsonicA_PowerManuSV : ARRAY [1..20] OF INT;
+	iUsonicB_PowerManuSV : ARRAY [1..20] OF INT;
+
+
+	(*Detergent Basket Quatity (PV) Reset PB user password control*)
+	ARiManualDetergentResetPassword 	: ARRAY [0..iStnQty] OF STRING;
+	ARbManualDetergentResetFlag			: ARRAY [0..iStnQty] OF BOOL;
+
+	bInputListOn:BOOL;
+	bOutputListOn:BOOL;
+	bRecipeListOn:BOOL;
+
+
+	Xmove:INT;
+	Ymove:INT;
+
+	bStationOffPage: BOOL;
+	RecipeEditOff:BOOL;
+END_VAR
+
+VAR_GLOBAL
+
+
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

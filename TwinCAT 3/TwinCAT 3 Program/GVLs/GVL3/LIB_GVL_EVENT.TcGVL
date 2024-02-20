@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="LIB_GVL_EVENT" Id="{5d8577d1-7c71-4f17-a0a6-eb9e4cc66845}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+
+VAR_GLOBAL
+
+	ARdsEventActiveLog						: ARRAY [0..C_iEventActiveLogQty] 						OF DS_Event;	// Keep certain quantity of Active Event Log to allow view in HMI
+	ARdsEventActiveDisplay					: ARRAY [1..C_iEventActiveDisplayQty] 					OF DS_ActiveEventDisplay; // compiled Event info with Active Language Reference	
+	ARdsEventHistoryDisplay					: ARRAY [1..C_iEventHistoryDisplayQty] 					OF DS_HistoryEventDisplay; // compiled Event info with Active Language Reference	
+
+	ARdsEventCtrl		 					: ARRAY [0..C_iEventQty] 								OF DS_EventControl ; 				//XML_AutoRO_ManualRW	// Signal, Timer and Output variable for Event	
+
+//	ARdsEventActiveLog_Empty				: ARRAY [0..C_iEventActiveLogQty] 						OF DS_Event;	// Keep certain quantity of Active Event Log to allow view in HMI
+
+	dsEventCtrlEmpty						: DS_EventControl;
+	dsEventActiveDisplayEmpty				: DS_ActiveEventDisplay;
+	dsEventHistoryDisplayEmpty				: DS_HistoryEventDisplay;
+	dsEventActiveLogEmpty					: DS_Event;																
+
+	dsEventHistoryLogEmpty					: DS_EventHistory;
+	dsEventHistoryLogToFileEmpty			: DS_EventHistory;
+
+
+
+
+END_VAR
+
+VAR_GLOBAL PERSISTENT
+	
+
+
+	AR2dsEventDescriptionCausedRemedy		: ARRAY [1..C_iLanguageQty] OF ARRAY [0..C_iEventQty] 	OF DS_EventDescriptionCausedRemedy; //XML_AutoRO_ManualRW, keep multi-language info
+
+	
+	ARdsEventHistoryLog		 				: ARRAY [0..C_iEventHistoryLogQty] 						OF DS_EventHistory; // Keep certain quantity of History Event Log to allow view in HMI
+//	ARdsEventHistoryLog_Empty 				: ARRAY [0..C_iEventHistoryLogQty] 						OF DS_EventHistory; // Keep certain quantity of History Event Log to allow view in HMI
+
+//	ARdsEventHistoryLogToFile 				: ARRAY [0..C_iRingBufferQty] 							OF DS_EventHistory;  // Buffer data to get ready to store in XML/CSV	
+END_VAR
+
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

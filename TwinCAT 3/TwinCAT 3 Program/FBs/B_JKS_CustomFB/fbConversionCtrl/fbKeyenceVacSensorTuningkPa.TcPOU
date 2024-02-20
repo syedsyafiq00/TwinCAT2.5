@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbKeyenceVacSensorTuningkPa" Id="{c37ea59c-fd77-4353-b355-16c794b8615b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbKeyenceVacSensorTuningkPa
+VAR_INPUT
+	bZeroVacuumLvlSavePB : BOOL;
+	bHighVacuumLvlSavePB : BOOL;
+	iAnalogInput :INT;
+	lrHighVacuumRefReading : LREAL;
+
+END_VAR
+VAR_OUTPUT
+	rVacuumPV_kPa : REAL;
+	iVacuumPV_kPa :INT;
+
+END_VAR
+
+VAR
+	iVacuumSoftRange :INT;
+	lrVacuumSoftRatio :LREAL;
+	rBuffer :REAL;
+END_VAR
+VAR PERSISTENT
+
+	iZeroVacuumRefValue : INT;
+	iHighVacuumRefValue :INT;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF bZeroVacuumLvlSavePB THEN
+iZeroVacuumRefValue := iAnalogInput;
+END_IF
+
+IF bHighVacuumLvlSavePB THEN
+iHighVacuumRefValue := iAnalogInput;
+END_IF
+
+
+IF iHighVacuumRefValue > iZeroVacuumRefValue THEN
+iVacuumSoftRange := iHighVacuumRefValue - iZeroVacuumRefValue;
+END_IF
+IF iHighVacuumRefValue < iZeroVacuumRefValue THEN
+iVacuumSoftRange := iZeroVacuumRefValue - iHighVacuumRefValue;
+END_IF
+
+lrHighVacuumRefReading;
+
+IF lrHighVacuumRefReading <>0 THEN
+lrVacuumSoftRatio := INT_TO_LREAL(iVacuumSoftRange) /lrHighVacuumRefReading;
+END_IF
+
+
+IF iAnalogInput > (32767/10) THEN
+rBuffer := INT_TO_LREAL(iZeroVacuumRefValue) - INT_TO_LREAL(iAnalogInput);
+ELSE
+rBuffer := INT_TO_LREAL(iZeroVacuumRefValue) - 3276;  (*zero- 0*)
+END_IF
+
+IF  lrVacuumSoftRatio <>0 THEN
+rVacuumPV_kPa :=rBuffer/ lrVacuumSoftRatio;
+END_IF
+
+iVacuumPV_kPa := REAL_TO_INT (rVacuumPV_kPa);]]></ST>
+    </Implementation>
+    <LineIds Name="fbKeyenceVacSensorTuningkPa">
+      <LineId Id="25" Count="33" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

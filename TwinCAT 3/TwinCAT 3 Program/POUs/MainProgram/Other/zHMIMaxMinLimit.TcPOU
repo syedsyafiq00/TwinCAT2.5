@@ -1,0 +1,499 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="zHMIMaxMinLimit" Id="{8c879ed1-c23c-49e0-8f7f-ab0fe8696c61}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM zHMIMaxMinLimit
+VAR
+
+	iStnFL: INT;
+	iArmFL: INT;
+	i7DFL: INT;
+	iArmSlowPullFL: INT;
+	iIRHeaterFL : INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*VacuumPumpLimitAlarmSetMonitoring*) (*For VacPump*)
+(*=========================================================*)
+(*
+iStnFL := 1;
+FOR iStnFL := 1 TO iStnQty DO
+	IF iStnFL >= 1 AND iStnFL <= iStnQty THEN
+
+		IF  ARdiVacPump1stLimitTimerSV[iStnFL] > 1500 	THEN ARdiVacPump1stLimitTimerSV[iStnFL] := 1500; 	ELSIF ARdiVacPump1stLimitTimerSV[iStnFL] < 1 	THEN ARdiVacPump1stLimitTimerSV[iStnFL] := 1; 	END_IF
+		IF  ARdiVacPump2ndLimitTimerSV[iStnFL] > 2000 	THEN ARdiVacPump2ndLimitTimerSV[iStnFL] := 2000; 	ELSIF ARdiVacPump2ndLimitTimerSV[iStnFL] < 1 	THEN ARdiVacPump2ndLimitTimerSV[iStnFL] := 1; 	END_IF
+
+	END_IF
+END_FOR
+*)
+
+(*StnBasketCounterLimitAlarmSetMonitoring*)
+(*=========================================================*)
+IF ARdiStnBasketCounter1stLimitSV[1] > 9999 THEN ARdiStnBasketCounter1stLimitSV[1] := 9999; ELSIF ARdiStnBasketCounter1stLimitSV[1] < 1 THEN ARdiStnBasketCounter1stLimitSV[1] := 1; END_IF
+IF ARdiStnBasketCounter2ndLimitSV[1] > 9999 THEN ARdiStnBasketCounter2ndLimitSV[1] := 9999; ELSIF ARdiStnBasketCounter2ndLimitSV[1] < 1 THEN ARdiStnBasketCounter2ndLimitSV[1] := 1; END_IF
+
+IF ARdiStnBasketCounter1stLimitSV[2] > 9999 THEN ARdiStnBasketCounter1stLimitSV[2] := 9999; ELSIF ARdiStnBasketCounter1stLimitSV[2] < 1 THEN ARdiStnBasketCounter1stLimitSV[2] := 1; END_IF
+IF ARdiStnBasketCounter2ndLimitSV[2] > 9999 THEN ARdiStnBasketCounter2ndLimitSV[2] := 9999; ELSIF ARdiStnBasketCounter2ndLimitSV[2] < 1 THEN ARdiStnBasketCounter2ndLimitSV[2] := 1; END_IF
+
+
+(*AllStationCallArmTime*)
+(*=========================================================*)
+IF  tAllStnArmTake > 50 THEN tAllStnArmTake := 50; ELSIF tAllStnArmTake < 10 THEN tAllStnArmTake := 10; END_IF
+
+
+(*UnloadingBasketConfirmBuzzerTimer*)
+(*=========================================================*)
+IF  diUnloadingTimer > 999 THEN diUnloadingTimer := 999; ELSIF diUnloadingTimer < 10 THEN diUnloadingTimer := 10; END_IF
+IF  diUnloadingSingleBasketReachedTimer > 999 THEN diUnloadingSingleBasketReachedTimer := 999; ELSIF diUnloadingSingleBasketReachedTimer < 10 THEN diUnloadingSingleBasketReachedTimer := 10; END_IF
+IF  diUnloadingBuzzerOffHeaterTimer > 999 THEN diUnloadingBuzzerOffHeaterTimer := 999; ELSIF diUnloadingBuzzerOffHeaterTimer < 10 THEN diUnloadingBuzzerOffHeaterTimer := 10; END_IF
+
+
+(*Flow Box Delay Timer Ctrl*)
+(*=========================================================*)
+IF  iFFUDelayOffTimerSV_min > 6000 THEN iFFUDelayOffTimerSV_min := 6000; ELSIF iFFUDelayOffTimerSV_min < 60 THEN iFFUDelayOffTimerSV_min := 60; END_IF
+
+(*Agitation Mechanism Delay Timer Ctrl*)
+(*=========================================================*)
+IF  iStnAgitation1DelayOffTimerSV_min > 60 		THEN iStnAgitation1DelayOffTimerSV_min := 60; 		ELSIF iStnAgitation1DelayOffTimerSV_min < 0 		THEN iStnAgitation1DelayOffTimerSV_min := 0; END_IF
+IF  iStnAgitation2DelayOffTimerSV_min > 60 		THEN iStnAgitation2DelayOffTimerSV_min := 60; 		ELSIF iStnAgitation2DelayOffTimerSV_min < 0 		THEN iStnAgitation2DelayOffTimerSV_min := 0; END_IF
+
+
+(*7 Days AutoMachineOnOff Limit Ctrl*)
+(*=========================================================*)
+i7DFL := 1;
+FOR i7DFL := 1 TO 7 DO
+	IF i7DFL >= 1 AND i7DFL <= 7 THEN
+
+		IF  ArwDayOnMinute_IN[i7DFL] > 59 	THEN ArwDayOnMinute_IN[i7DFL] := 59; 	ELSIF ArwDayOnMinute_IN[i7DFL] < 0 	THEN ArwDayOnMinute_IN[i7DFL] := 0; 	END_IF
+		IF  ArwDayOffMinute_IN[i7DFL] > 59 	THEN ArwDayOffMinute_IN[i7DFL] := 59; 	ELSIF ArwDayOffMinute_IN[i7DFL] < 0 	THEN ArwDayOffMinute_IN[i7DFL] := 0; 	END_IF
+		IF  ArwDayOnHour_IN[i7DFL] > 23 	THEN ArwDayOnHour_IN[i7DFL] := 23; 	ELSIF ArwDayOnHour_IN[i7DFL] < 0 		THEN ArwDayOnHour_IN[i7DFL] := 0; 	END_IF
+		IF  ArwDayOffHour_IN[i7DFL] > 23 	THEN ArwDayOffHour_IN[i7DFL] := 23; 	ELSIF ArwDayOffHour_IN[i7DFL] < 0 		THEN ArwDayOffHour_IN[i7DFL] := 0; 	END_IF
+
+	END_IF
+END_FOR
+
+
+(*Conductivity 1st Limit, 2nd Limit Alarm Control*)
+(*=========================================================*)
+iStnFL := 1;
+FOR iStnFL := 1 TO iStnQty DO
+	IF iStnFL >= 1 AND iStnFL <= iStnQty THEN
+
+		IF  ARrStnConductivity1stLimitSv[iStnFL] > 9999 THEN ARrStnConductivity1stLimitSv[iStnFL] := 9999; ELSIF ARrStnConductivity1stLimitSv[iStnFL] < 0 THEN ARrStnConductivity1stLimitSv[iStnFL] := 0; END_IF
+		IF  ARrStnConductivity2ndLimitSv[iStnFL] > 9999 THEN ARrStnConductivity2ndLimitSv[iStnFL] := 9999; ELSIF ARrStnConductivity2ndLimitSv[iStnFL] < 0 THEN ARrStnConductivity2ndLimitSv[iStnFL] := 0; END_IF
+		IF  ARrStnLowConductivitySv[iStnFL] > 99999 THEN ARrStnLowConductivitySv[iStnFL] := 99999; ELSIF ARrStnLowConductivitySv[iStnFL] < 0 THEN ARrStnLowConductivitySv[iStnFL] := 0; END_IF
+		IF  ARrStnHighConductivitySv[iStnFL] > 99999 THEN ARrStnHighConductivitySv[iStnFL] := 99999; ELSIF ARrStnHighConductivitySv[iStnFL] < 0 THEN ARrStnHighConductivitySv[iStnFL] := 0; END_IF
+
+	END_IF
+END_FOR
+
+
+(*Ultrasonic Manual Power Setting Control*) (*For Fix Power*)
+(*=========================================================*)
+iStnFL := 1;
+FOR iStnFL := 1 TO iStnQty DO
+	IF iStnFL >= 1 AND iStnFL <= iStnQty THEN
+
+		IF  ARiStnManualUSBtmAsv[iStnFL] > 100 THEN ARiStnManualUSBtmAsv[iStnFL] := 100; ELSIF ARiStnManualUSBtmAsv[iStnFL] < 10 THEN ARiStnManualUSBtmAsv[iStnFL] := 10; END_IF
+		IF  ARiStnManualUSBtmBsv[iStnFL] > 100 THEN ARiStnManualUSBtmBsv[iStnFL] := 100; ELSIF ARiStnManualUSBtmBsv[iStnFL] < 10 THEN ARiStnManualUSBtmBsv[iStnFL] := 10; END_IF
+		IF  ARiStnManualUSBtmCsv[iStnFL] > 100 THEN ARiStnManualUSBtmCsv[iStnFL] := 100; ELSIF ARiStnManualUSBtmCsv[iStnFL] < 10 THEN ARiStnManualUSBtmCsv[iStnFL] := 10; END_IF
+		IF  ARiStnManualUSBtmDsv[iStnFL] > 100 THEN ARiStnManualUSBtmDsv[iStnFL] := 100; ELSIF ARiStnManualUSBtmDsv[iStnFL] < 10 THEN ARiStnManualUSBtmDsv[iStnFL] := 10; END_IF
+
+		IF  ARiStnManualUSSideAsv[iStnFL] > 100 THEN ARiStnManualUSSideAsv[iStnFL] := 100; ELSIF ARiStnManualUSSideAsv[iStnFL] < 10 THEN ARiStnManualUSSideAsv[iStnFL] := 10; END_IF
+		IF  ARiStnManualUSSideBsv[iStnFL] > 100 THEN ARiStnManualUSSideBsv[iStnFL] := 100; ELSIF ARiStnManualUSSideBsv[iStnFL] < 10 THEN ARiStnManualUSSideBsv[iStnFL] := 10; END_IF
+		IF  ARiStnManualUSSideCsv[iStnFL] > 100 THEN ARiStnManualUSSideCsv[iStnFL] := 100; ELSIF ARiStnManualUSSideCsv[iStnFL] < 10 THEN ARiStnManualUSSideCsv[iStnFL] := 10; END_IF
+		IF  ARiStnManualUSSideDsv[iStnFL] > 100 THEN ARiStnManualUSSideDsv[iStnFL] := 100; ELSIF ARiStnManualUSSideDsv[iStnFL] < 10 THEN ARiStnManualUSSideDsv[iStnFL] := 10; END_IF
+
+	END_IF
+END_FOR
+
+(*Blower Inverter Manual Hz Setting Control*) (*For Fix Frequency*)
+(*=========================================================*)
+iStnFL := 1;
+FOR iStnFL := 1 TO iStnQty DO
+	IF iStnFL >= 1 AND iStnFL <= iStnQty THEN
+
+		IF  ARiStnManualBlowerInvPercentSV[iStnFL] > 100 THEN ARiStnManualBlowerInvPercentSV[iStnFL] := 100; ELSIF ARiStnManualBlowerInvPercentSV[iStnFL] < 40 THEN ARiStnManualBlowerInvPercentSV[iStnFL] := 40; END_IF
+
+	END_IF
+END_FOR
+
+
+(*Station Dripping, StnArmDetectZoneRange, StnTolerance, Stn Water TopUp Ctrl*)
+(*=========================================================*)
+iStnFL := 1;
+FOR iStnFL := 1 TO iStnQty DO
+	IF iStnFL >= 1 AND iStnFL <= iStnQty THEN
+
+		IF  ARiStnDippingTimeSV[iStnFL] > 100 		THEN ARiStnDippingTimeSV[iStnFL] := 100; 		ELSIF ARiStnDippingTimeSV[iStnFL] < 0 			THEN ARiStnDippingTimeSV[iStnFL] := 0; 		END_IF
+		IF  ARiStationDippingTime[iStnFL] > 100 		THEN ARiStationDippingTime[iStnFL] := 100; 		ELSIF ARiStationDippingTime[iStnFL] < 0 			THEN ARiStationDippingTime[iStnFL] := 0; 		END_IF
+
+		IF  ARlrArmDetectZoneRange[iStnFL] > 200 	THEN ARlrArmDetectZoneRange[iStnFL] := 200; 	ELSIF ARlrArmDetectZoneRange[iStnFL] < 1 		THEN ARlrArmDetectZoneRange[iStnFL] := 1; 		END_IF
+
+		IF  ARiStnToleranceTimeSV[iStnFL] > 999 		THEN ARiStnToleranceTimeSV[iStnFL] := 999; 	ELSIF ARiStnToleranceTimeSV[iStnFL] < 0 		THEN ARiStnToleranceTimeSV[iStnFL] := 0; 		END_IF
+
+		IF  ARiStnTopUpDelayOffTimeSV[iStnFL] > 20 	THEN ARiStnTopUpDelayOffTimeSV[iStnFL] := 20; 	ELSIF ARiStnTopUpDelayOffTimeSV[iStnFL] < 0 	THEN ARiStnTopUpDelayOffTimeSV[iStnFL] := 0; 	END_IF
+
+		IF  ARiStnTopUpMaxTimeCutOffSV[iStnFL] > 10 	THEN ARiStnTopUpMaxTimeCutOffSV[iStnFL] := 10; 	ELSIF ARiStnTopUpMaxTimeCutOffSV[iStnFL] < 6 	THEN ARiStnTopUpMaxTimeCutOffSV[iStnFL] := 6; 	END_IF
+
+	END_IF
+END_FOR
+
+IF  ARrStnSubTankTempSV[1] > 80 				THEN ARrStnSubTankTempSV[1] := 80; 			ELSIF ARrStnSubTankTempSV[1] < 20 			THEN ARrStnSubTankTempSV[1] := 20; 			END_IF
+IF  ARrStnSubTankTempSV[2] > 80 				THEN ARrStnSubTankTempSV[2] := 80; 			ELSIF ARrStnSubTankTempSV[2] < 20 			THEN ARrStnSubTankTempSV[2] := 20; 			END_IF
+IF  ARrStnSubTankTempSV[3] > 80 				THEN ARrStnSubTankTempSV[3] := 80; 			ELSIF ARrStnSubTankTempSV[3] < 20 			THEN ARrStnSubTankTempSV[3] := 20; 			END_IF
+IF  ARrStnSubTankTempSV[4] > 80 				THEN ARrStnSubTankTempSV[4] := 80; 			ELSIF ARrStnSubTankTempSV[4] < 20 			THEN ARrStnSubTankTempSV[4] := 20; 			END_IF
+
+IF  rJRSInlineHeaterTempSV > 140 				THEN rJRSInlineHeaterTempSV := 140; 			ELSIF rJRSInlineHeaterTempSV < 20 			THEN rJRSInlineHeaterTempSV := 20; 			END_IF
+
+IF  ARrStnWaterJacketTempSV[4] > 130 			THEN ARrStnWaterJacketTempSV[4] := 130; 		ELSIF ARrStnWaterJacketTempSV[4] < 20 		THEN ARrStnWaterJacketTempSV[4] := 20; 		END_IF
+IF  ARrStnWaterJacketTempSV[5] > 130 			THEN ARrStnWaterJacketTempSV[5] := 130; 		ELSIF ARrStnWaterJacketTempSV[5] < 20 		THEN ARrStnWaterJacketTempSV[5] := 20; 		END_IF
+
+IF  ARrStnSubTankTempHALsv[1] > 100 			THEN ARrStnSubTankTempHALsv[1] := 100; 		ELSIF ARrStnSubTankTempHALsv[1] < 20 		THEN ARrStnSubTankTempHALsv[1] := 20; 		END_IF
+IF  ARrStnSubTankTempHALsv[2] > 100 			THEN ARrStnSubTankTempHALsv[2] := 100; 		ELSIF ARrStnSubTankTempHALsv[2] < 20 		THEN ARrStnSubTankTempHALsv[2] := 20; 		END_IF
+IF  ARrStnSubTankTempHALsv[3] > 100 			THEN ARrStnSubTankTempHALsv[3] := 100; 		ELSIF ARrStnSubTankTempHALsv[3] < 20 		THEN ARrStnSubTankTempHALsv[3] := 20; 		END_IF
+IF  ARrStnSubTankTempHALsv[4] > 100 			THEN ARrStnSubTankTempHALsv[4] := 100; 		ELSIF ARrStnSubTankTempHALsv[4] < 20 		THEN ARrStnSubTankTempHALsv[4] := 20; 		END_IF
+
+IF  rJRSInlineHeaterTempHALsv > 150 			THEN rJRSInlineHeaterTempHALsv := 150; 		ELSIF rJRSInlineHeaterTempHALsv < 20 			THEN rJRSInlineHeaterTempHALsv := 20; 		END_IF
+
+IF  ARrStnWaterJacketTempHALsv[4] > 150 		THEN ARrStnWaterJacketTempHALsv[4] := 150; 	ELSIF ARrStnWaterJacketTempHALsv[4] < 20 		THEN ARrStnWaterJacketTempHALsv[4] := 20; 	END_IF
+IF  ARrStnWaterJacketTempHALsv[5] > 150 		THEN ARrStnWaterJacketTempHALsv[5] := 150; 	ELSIF ARrStnWaterJacketTempHALsv[5] < 20 		THEN ARrStnWaterJacketTempHALsv[5] := 20; 	END_IF
+
+
+IF  rJRSInlineHeaterTempSV > 140 THEN rJRSInlineHeaterTempSV := 140; ELSIF rJRSInlineHeaterTempSV < 20 THEN rJRSInlineHeaterTempSV := 20; END_IF
+IF  rJRSInlineHeaterTempHALsv > 150 THEN rJRSInlineHeaterTempHALsv := 150; ELSIF rJRSInlineHeaterTempHALsv < 20 THEN rJRSInlineHeaterTempHALsv := 20; END_IF
+IF  rJRSInlineHeaterTempRDYsv > 100 THEN rJRSInlineHeaterTempRDYsv := 100; ELSIF rJRSInlineHeaterTempRDYsv < 1 THEN rJRSInlineHeaterTempRDYsv := 1; END_IF
+IF  rJRSInlineHeaterTempHYSsv > 20 THEN rJRSInlineHeaterTempHYSsv := 20; ELSIF rJRSInlineHeaterTempHYSsv < 1 THEN rJRSInlineHeaterTempHYSsv := 1; END_IF
+IF  rJRSInlineHeaterTemp1stLimitSv > 100 THEN rJRSInlineHeaterTemp1stLimitSv := 100; ELSIF rJRSInlineHeaterTemp1stLimitSv < 1 THEN rJRSInlineHeaterTemp1stLimitSv := 1; END_IF
+IF  iJRSInlineHeaterPreparationTempSv > 9999 THEN iJRSInlineHeaterPreparationTempSv := 9999; ELSIF iJRSInlineHeaterPreparationTempSv < 100 THEN iJRSInlineHeaterPreparationTempSv := 100; END_IF (*Temperature Not Ready Alarm*)
+
+IF  rIncTempSV > 80 THEN rIncTempSV := 80; ELSIF rIncTempSV < 20 THEN rIncTempSV := 20; END_IF
+IF  rIncTempHALsv > 100 THEN rIncTempHALsv := 100; ELSIF rIncTempHALsv < 20 THEN rIncTempHALsv := 20; END_IF
+IF  rIncTempRDYsv > 100 THEN rIncTempRDYsv := 100; ELSIF rIncTempRDYsv < 1 THEN rIncTempRDYsv := 1; END_IF
+IF  rIncTempHYSsv > 20 THEN rIncTempHYSsv := 20; ELSIF rIncTempHYSsv < 1 THEN rIncTempHYSsv := 1; END_IF
+IF  rIncTemp1stLimitSv > 100 THEN rIncTemp1stLimitSv := 100; ELSIF rIncTemp1stLimitSv < 1 THEN rIncTemp1stLimitSv := 1; END_IF
+IF  iIncPreparationTempSv > 9999 THEN iIncPreparationTempSv := 9999; ELSIF iIncPreparationTempSv < 100 THEN iIncPreparationTempSv := 100; END_IF (*Temperature Not Ready Alarm*)
+
+IF  rOilSeparatorTempSV > 80 THEN rOilSeparatorTempSV := 80; ELSIF rOilSeparatorTempSV < 20 THEN rOilSeparatorTempSV := 20; END_IF
+IF  rOilSeparatorTempHALsv > 100 THEN rOilSeparatorTempHALsv := 100; ELSIF rOilSeparatorTempHALsv < 20 THEN rOilSeparatorTempHALsv := 20; END_IF
+IF  rOilSeparatorTempRDYsv > 100 THEN rOilSeparatorTempRDYsv := 100; ELSIF rOilSeparatorTempRDYsv < 1 THEN rOilSeparatorTempRDYsv := 1; END_IF
+IF  rOilSeparatorTempHYSsv > 20 THEN rOilSeparatorTempHYSsv := 20; ELSIF rOilSeparatorTempHYSsv < 1 THEN rOilSeparatorTempHYSsv := 1; END_IF
+IF  rOilSeparatorTemp1stLimitSv > 100 THEN rOilSeparatorTemp1stLimitSv := 100; ELSIF rOilSeparatorTemp1stLimitSv < 1 THEN rOilSeparatorTemp1stLimitSv := 1; END_IF
+IF  iOilSeparatorPreparationTempSv > 9999 THEN iOilSeparatorPreparationTempSv := 9999; ELSIF iOilSeparatorPreparationTempSv < 100 THEN iOilSeparatorPreparationTempSv := 100; END_IF (*Temperature Not Ready Alarm*)
+
+
+IF  rChillerSystemTempSV > rChillerSystemTempMAXsv THEN rChillerSystemTempSV := rChillerSystemTempMAXsv; ELSIF rChillerSystemTempSV < rChillerSystemTempMINsv THEN rChillerSystemTempSV := rChillerSystemTempMINsv; END_IF
+IF  rChillerSystemTempHALsv > rChillerSystemTempHALMAXsv THEN rChillerSystemTempHALsv := rChillerSystemTempHALMAXsv; ELSIF rChillerSystemTempHALsv < rChillerSystemTempHALMINsv THEN rChillerSystemTempHALsv := rChillerSystemTempHALMINsv; END_IF
+IF  rChillerSystemTempRDYsv > rChillerSystemTempRDYMAXsv THEN rChillerSystemTempRDYsv := rChillerSystemTempRDYMAXsv; ELSIF rChillerSystemTempRDYsv < rChillerSystemTempRDYMINsv THEN rChillerSystemTempRDYsv := rChillerSystemTempRDYMINsv; END_IF
+IF  rChillerSystemTempHYSsv > rChillerSystemTempHYSMAXsv THEN rChillerSystemTempHYSsv := rChillerSystemTempHYSMAXsv; ELSIF rChillerSystemTempHYSsv < rChillerSystemTempHYSMINsv THEN rChillerSystemTempHYSsv := rChillerSystemTempHYSMINsv; END_IF
+IF  rChillerSystemTemp1stLimitSv > rChillerSystemTemp1stLimitMAXsv THEN rChillerSystemTemp1stLimitSv := rChillerSystemTemp1stLimitMAXsv; ELSIF rChillerSystemTemp1stLimitSv < rChillerSystemTemp1stLimitMINsv THEN rChillerSystemTemp1stLimitSv := rChillerSystemTemp1stLimitMINsv; END_IF
+IF  iChillerSystemPreparationTempSv > iChillerSystemPreparationTempMAXsv THEN iChillerSystemPreparationTempSv := iChillerSystemPreparationTempMAXsv; ELSIF iChillerSystemPreparationTempSv < iChillerSystemPreparationTempMINsv THEN iChillerSystemPreparationTempSv := iChillerSystemPreparationTempMINsv; END_IF (*Temperature Not Ready Alarm*)
+
+rChillerSystemTempMAXSVHMIDisplay := rChillerSystemTempMAXsv; 		
+rChillerSystemTempMINSVHMIDisplay := rChillerSystemTempMINsv;		
+			
+rChillerSystemTempHALMAXSVHMIDisplay := rChillerSystemTempHALMAXsv;		
+rChillerSystemTempHALMINSVHMIDisplay := rChillerSystemTempHALMINsv;		
+
+rChillerSystemTemp1stLimitMAXSVHMIDisplay := rChillerSystemTemp1stLimitMAXsv; 		
+rChillerSystemTemp1stLimitMINSVHMIDisplay := rChillerSystemTemp1stLimitMINsv;
+
+rChillerSystemTempHYSMAXSVHMIDisplay := rChillerSystemTempHYSMAXsv;		
+rChillerSystemTempHYSMINSVHMIDisplay := rChillerSystemTempHYSMINsv;
+
+rChillerSystemTempRDYMAXSVHMIDisplay := rChillerSystemTempRDYMAXsv;		
+rChillerSystemTempRDYMINSVHMIDisplay := rChillerSystemTempRDYMINsv;
+
+iChillerSystemPreparationTempMAXSVHMIDisplay := iChillerSystemPreparationTempMAXsv;		
+iChillerSystemPreparationTempMINSVHMIDisplay := iChillerSystemPreparationTempMINsv;
+
+
+(*Temperature Ctrl*)
+(*=========================================================*)
+iStnFL := 1;
+FOR iStnFL := 1 TO iStnQty DO
+	IF iStnFL >= 1 AND iStnFL <= iStnQty THEN
+
+		IF  ARiStnPreparationTempSv[iStnFL] > ARiStnPreparationTempMAXsv[iStnFL] THEN ARiStnPreparationTempSv[iStnFL] := ARiStnPreparationTempMAXsv[iStnFL]; ELSIF ARiStnPreparationTempSv[iStnFL] < ARiStnPreparationTempMINsv[iStnFL] THEN ARiStnPreparationTempSv[iStnFL] := ARiStnPreparationTempMINsv[iStnFL]; END_IF (*Temperature No Ready Alarm*)
+		IF  ARrStnTempSV[iStnFL] > ARrStnTempMAXsv[iStnFL] THEN ARrStnTempSV[iStnFL] := ARrStnTempMAXsv[iStnFL]; ELSIF ARrStnTempSV[iStnFL] < ARrStnTempMINsv[iStnFL] THEN ARrStnTempSV[iStnFL] := ARrStnTempMINsv[iStnFL]; END_IF
+		IF  ARrStnTempHALsv[iStnFL] > ARrStnTempHALMAXsv[iStnFL] THEN ARrStnTempHALsv[iStnFL] := ARrStnTempHALMAXsv[iStnFL]; ELSIF ARrStnTempHALsv[iStnFL] < ARrStnTempHALMINsv[iStnFL] THEN ARrStnTempHALsv[iStnFL] := ARrStnTempHALMINsv[iStnFL]; END_IF
+		IF  ARrStnTempRDYsv[iStnFL] > ARrStnTempRDYMAXsv[iStnFL] THEN ARrStnTempRDYsv[iStnFL] := ARrStnTempRDYMAXsv[iStnFL]; ELSIF ARrStnTempRDYsv[iStnFL] < ARrStnTempRDYMINsv[iStnFL] THEN ARrStnTempRDYsv[iStnFL] := ARrStnTempRDYMINsv[iStnFL]; END_IF
+		IF  ARrStnTempHYSsv[iStnFL] > ARrStnTempHYSMAXsv[iStnFL] THEN ARrStnTempHYSsv[iStnFL] := ARrStnTempHYSMAXsv[iStnFL]; ELSIF ARrStnTempHYSsv[iStnFL] < ARrStnTempHYSMINsv[iStnFL] THEN ARrStnTempHYSsv[iStnFL] := ARrStnTempHYSMINsv[iStnFL]; END_IF
+		IF  ARrStnTemp1stLimitSv[iStnFL] > ARrStnTemp1stLimitMAXsv[iStnFL] THEN ARrStnTemp1stLimitSv[iStnFL] := ARrStnTemp1stLimitMAXsv[iStnFL]; ELSIF ARrStnTemp1stLimitSv[iStnFL] < ARrStnTemp1stLimitMINsv[iStnFL] THEN ARrStnTemp1stLimitSv[iStnFL] := ARrStnTemp1stLimitMINsv[iStnFL]; END_IF
+(*		IF  ARrStnTemp2ndLimitSv[iStnFL] > 100 THEN ARrStnTemp2ndLimitSv[iStnFL] := 100; ELSIF ARrStnTemp2ndLimitSv[iStnFL] < 1 THEN ARrStnTemp2ndLimitSv[iStnFL] := 1; END_IF*)
+
+		IF  ARiStnWaterJacketPreparationTempSv[iStnFL] > 9999 THEN ARiStnWaterJacketPreparationTempSv[iStnFL] := 9999; ELSIF ARiStnWaterJacketPreparationTempSv[iStnFL] < 100 THEN ARiStnWaterJacketPreparationTempSv[iStnFL] := 100; END_IF (*Temperature No Ready Alarm*)
+		IF  ARrStnWaterJacketTempRDYsv[iStnFL] > 100 THEN ARrStnWaterJacketTempRDYsv[iStnFL] := 100; ELSIF ARrStnWaterJacketTempRDYsv[iStnFL] < 1 THEN ARrStnWaterJacketTempRDYsv[iStnFL] := 1; END_IF
+		IF  ARrStnWaterJacketTempHYSsv[iStnFL] > 20 THEN ARrStnWaterJacketTempHYSsv[iStnFL] := 20; ELSIF ARrStnWaterJacketTempHYSsv[iStnFL] < 1 THEN ARrStnWaterJacketTempHYSsv[iStnFL] := 1; END_IF
+		IF  ARrStnWaterJacketTemp1stLimitSv[iStnFL] > 100 THEN ARrStnWaterJacketTemp1stLimitSv[iStnFL] := 100; ELSIF ARrStnWaterJacketTemp1stLimitSv[iStnFL] < 1 THEN ARrStnWaterJacketTemp1stLimitSv[iStnFL] := 1; END_IF
+
+		IF  ARiStnSubTankPreparationTempSv[iStnFL] > 9999 THEN ARiStnSubTankPreparationTempSv[iStnFL] := 9999; ELSIF ARiStnSubTankPreparationTempSv[iStnFL] < 100 THEN ARiStnSubTankPreparationTempSv[iStnFL] := 100; END_IF (*Temperature No Ready Alarm*)
+		IF  ARrStnSubTankTempRDYsv[iStnFL] > 100 THEN ARrStnSubTankTempRDYsv[iStnFL] := 100; ELSIF ARrStnSubTankTempRDYsv[iStnFL] < 1 THEN ARrStnSubTankTempRDYsv[iStnFL] := 1; END_IF
+		IF  ARrStnSubTankTempHYSsv[iStnFL] > 20 THEN ARrStnSubTankTempHYSsv[iStnFL] := 20; ELSIF ARrStnSubTankTempHYSsv[iStnFL] < 1 THEN ARrStnSubTankTempHYSsv[iStnFL] := 1; END_IF
+		IF  ARrStnSubTankTemp1stLimitSv[iStnFL] > 100 THEN ARrStnSubTankTemp1stLimitSv[iStnFL] := 100; ELSIF ARrStnSubTankTemp1stLimitSv[iStnFL] < 1 THEN ARrStnSubTankTemp1stLimitSv[iStnFL] := 1; END_IF
+
+		IF 	iSettingStnNo = iStnFL THEN
+			rStnTempMAXSVHMIDisplay := ARrStnTempMAXSV[iStnFL]; 		
+ 			rStnTempMINSVHMIDisplay := ARrStnTempMINSV[iStnFL];		
+			
+			rStnTempHALMAXSVHMIDisplay := ARrStnTempHALMAXSV[iStnFL]; 		
+ 			rStnTempHALMINSVHMIDisplay := ARrStnTempHALMINSV[iStnFL];		
+			
+			rStnTemp1stLimitMAXSVHMIDisplay := ARrStnTemp1stLimitMAXSV[iStnFL]; 		
+ 			rStnTemp1stLimitMINSVHMIDisplay := ARrStnTemp1stLimitMINSV[iStnFL];	
+			
+			rStnTempHYSMAXSVHMIDisplay := ARrStnTempHYSMAXSV[iStnFL]; 		
+ 			rStnTempHYSMINSVHMIDisplay := ARrStnTempHYSMINSV[iStnFL];	
+			
+			rStnTempRDYMAXSVHMIDisplay := ARrStnTempRDYMAXSV[iStnFL]; 		
+ 			rStnTempRDYMINSVHMIDisplay := ARrStnTempRDYMINSV[iStnFL];	
+			
+			iStnPreparationTempMAXSVHMIDisplay := ARiStnPreparationTempMAXSV[iStnFL]; 		
+ 			iStnPreparationTempMINSVHMIDisplay := ARiStnPreparationTempMINSV[iStnFL];	
+			
+		END_IF	
+	
+	END_IF
+END_FOR
+
+(*External Temperature Ctrl - IR Heater*)
+(*=========================================================*)
+iIRHeaterFL := 1;
+FOR iIRHeaterFL := 1 TO 4 DO
+	IF iIRHeaterFL >= 1 AND iIRHeaterFL <= 4 THEN
+
+		IF  ARrStnExternalTempSV[iIRHeaterFL] > ARrStnExternalTempMAXsv[iIRHeaterFL] THEN ARrStnExternalTempSV[iIRHeaterFL] := ARrStnExternalTempMAXsv[iIRHeaterFL]; ELSIF ARrStnExternalTempSV[iIRHeaterFL] < ARrStnExternalTempMINsv[iIRHeaterFL] THEN ARrStnExternalTempSV[iIRHeaterFL] := ARrStnExternalTempMINsv[iIRHeaterFL]; END_IF
+		IF  ARrStnExternalTempHALsv[iIRHeaterFL] > ARrStnExternalTempHALMAXsv[iIRHeaterFL] THEN ARrStnExternalTempHALsv[iIRHeaterFL] := ARrStnExternalTempHALMAXsv[iIRHeaterFL]; ELSIF ARrStnExternalTempHALsv[iIRHeaterFL] < ARrStnExternalTempHALMINsv[iIRHeaterFL] THEN ARrStnExternalTempHALsv[iIRHeaterFL] := ARrStnExternalTempHALMINsv[iIRHeaterFL]; END_IF
+		IF  ARrStnExternalTempRDYsv[iIRHeaterFL] > ARrStnExternalTempRDYMAXsv[iIRHeaterFL] THEN ARrStnExternalTempRDYsv[iIRHeaterFL] := ARrStnExternalTempRDYMAXsv[iIRHeaterFL]; ELSIF ARrStnExternalTempRDYsv[iIRHeaterFL] < ARrStnExternalTempRDYMINsv[iIRHeaterFL] THEN ARrStnExternalTempRDYsv[iIRHeaterFL] := ARrStnExternalTempRDYMINsv[iIRHeaterFL]; END_IF
+		IF  ARrStnExternalTempHYSsv[iIRHeaterFL] > ARrStnExternalTempHYSMAXsv[iIRHeaterFL] THEN ARrStnExternalTempHYSsv[iIRHeaterFL] := ARrStnExternalTempHYSMAXsv[iIRHeaterFL]; ELSIF ARrStnExternalTempHYSsv[iIRHeaterFL] < ARrStnExternalTempHYSMINsv[iIRHeaterFL] THEN ARrStnExternalTempHYSsv[iIRHeaterFL] := ARrStnExternalTempHYSMINsv[iIRHeaterFL]; END_IF
+		IF  ARrStnExternalTemp1stLimitSv[iIRHeaterFL] > ARrStnExternalTemp1stLimitMAXsv[iIRHeaterFL] THEN ARrStnExternalTemp1stLimitSv[iIRHeaterFL] := ARrStnExternalTemp1stLimitMAXsv[iIRHeaterFL]; ELSIF ARrStnExternalTemp1stLimitSv[iIRHeaterFL] < ARrStnExternalTemp1stLimitMINsv[iIRHeaterFL]	THEN ARrStnExternalTemp1stLimitSv[iIRHeaterFL] := ARrStnExternalTemp1stLimitMINsv[iIRHeaterFL]; END_IF
+
+			rStnExternalTempMAXSVHMIDisplay := ARrStnExternalTempMAXSV[iIRHeaterFL]; 		
+ 			rStnExternalTempMINSVHMIDisplay := ARrStnExternalTempMINSV[iIRHeaterFL];		
+			
+			rStnExternalTempHALMAXSVHMIDisplay := ARrStnExternalTempHALMAXSV[iIRHeaterFL]; 		
+ 			rStnExternalTempHALMINSVHMIDisplay := ARrStnExternalTempHALMINSV[iIRHeaterFL];		
+			
+			rStnExternalTemp1stLimitMAXSVHMIDisplay := ARrStnExternalTemp1stLimitMAXSV[iIRHeaterFL]; 		
+ 			rStnExternalTemp1stLimitMINSVHMIDisplay := ARrStnExternalTemp1stLimitMINSV[iIRHeaterFL];	
+			
+			rStnExternalTempHYSMAXSVHMIDisplay := ARrStnExternalTempHYSMAXSV[iIRHeaterFL]; 		
+ 			rStnExternalTempHYSMINSVHMIDisplay := ARrStnExternalTempHYSMINSV[iIRHeaterFL];	
+			
+			rStnExternalTempRDYMAXSVHMIDisplay := ARrStnExternalTempRDYMAXSV[iIRHeaterFL]; 		
+ 			rStnExternalTempRDYMINSVHMIDisplay := ARrStnExternalTempRDYMINSV[iIRHeaterFL];	
+			
+			iStnExternalPreparationTempMAXSVHMIDisplay := ARiStnExternalPreparationTempMAXSV[iIRHeaterFL]; 		
+ 			iStnExternalPreparationTempMINSVHMIDisplay := ARiStnExternalPreparationTempMINSV[iIRHeaterFL];		
+		
+	END_IF
+END_FOR
+
+
+
+(*4 Steps Velo/Acc/Dcc for Manual Mode*)
+(*=========================================================*)
+(*ARM 1*)
+IF  DSManual4StepsMovement.lrZone1Speed > 400 THEN DSManual4StepsMovement.lrZone1Speed := 400; ELSIF DSManual4StepsMovement.lrZone1Speed < 2 THEN DSManual4StepsMovement.lrZone1Speed := 2; END_IF
+IF  DSManual4StepsMovement.lrZone1Acc > 1500 THEN DSManual4StepsMovement.lrZone1Acc := 1500; ELSIF DSManual4StepsMovement.lrZone1Acc < 200 THEN DSManual4StepsMovement.lrZone1Acc := 200; END_IF
+IF  DSManual4StepsMovement.lrZone1Dcc > 1500 THEN DSManual4StepsMovement.lrZone1Dcc := 1500; ELSIF DSManual4StepsMovement.lrZone1Dcc < 200 THEN DSManual4StepsMovement.lrZone1Dcc := 200; END_IF
+
+IF  DSManual4StepsMovement.lrZone2Speed > 400 THEN DSManual4StepsMovement.lrZone2Speed := 400; ELSIF DSManual4StepsMovement.lrZone2Speed < 2 THEN DSManual4StepsMovement.lrZone2Speed := 2; END_IF
+IF  DSManual4StepsMovement.lrZone2Acc > 1500 THEN DSManual4StepsMovement.lrZone2Acc := 1500; ELSIF DSManual4StepsMovement.lrZone2Acc < 200 THEN DSManual4StepsMovement.lrZone2Acc := 200; END_IF
+IF  DSManual4StepsMovement.lrZone2Dcc > 1500 THEN DSManual4StepsMovement.lrZone2Dcc := 1500; ELSIF DSManual4StepsMovement.lrZone2Dcc < 200 THEN DSManual4StepsMovement.lrZone2Dcc := 200; END_IF
+
+IF  DSManual4StepsMovement.lrZone3Speed > 400 THEN DSManual4StepsMovement.lrZone3Speed := 400; ELSIF DSManual4StepsMovement.lrZone3Speed < 2 THEN DSManual4StepsMovement.lrZone3Speed := 2; END_IF
+IF  DSManual4StepsMovement.lrZone3Acc > 1500 THEN DSManual4StepsMovement.lrZone3Acc := 1500; ELSIF DSManual4StepsMovement.lrZone3Acc < 200 THEN DSManual4StepsMovement.lrZone3Acc := 200; END_IF
+IF  DSManual4StepsMovement.lrZone3Dcc > 1500 THEN DSManual4StepsMovement.lrZone3Dcc := 1500; ELSIF DSManual4StepsMovement.lrZone3Dcc < 200 THEN DSManual4StepsMovement.lrZone3Dcc := 200; END_IF
+
+IF  DSManual4StepsMovement.lrZone4Speed > 50 THEN DSManual4StepsMovement.lrZone4Speed := 50; ELSIF DSManual4StepsMovement.lrZone4Speed < 2 THEN DSManual4StepsMovement.lrZone4Speed := 2; END_IF
+IF  DSManual4StepsMovement.lrZone4Acc > 1500 THEN DSManual4StepsMovement.lrZone4Acc := 1500; ELSIF DSManual4StepsMovement.lrZone4Acc < 200 THEN DSManual4StepsMovement.lrZone4Acc := 200; END_IF
+IF  DSManual4StepsMovement.lrZone4Dcc > 1500 THEN DSManual4StepsMovement.lrZone4Dcc := 1500; ELSIF DSManual4StepsMovement.lrZone4Dcc < 200 THEN DSManual4StepsMovement.lrZone4Dcc := 200; END_IF
+
+(*ARM 2*)
+IF  DSManual4StepsMovementArm2.lrZone1Speed > 400 THEN DSManual4StepsMovementArm2.lrZone1Speed := 400; ELSIF DSManual4StepsMovementArm2.lrZone1Speed < 2 THEN DSManual4StepsMovementArm2.lrZone1Speed := 2; END_IF
+IF  DSManual4StepsMovementArm2.lrZone1Acc > 1500 THEN DSManual4StepsMovementArm2.lrZone1Acc := 1500; ELSIF DSManual4StepsMovementArm2.lrZone1Acc < 200 THEN DSManual4StepsMovementArm2.lrZone1Acc := 200; END_IF
+IF  DSManual4StepsMovementArm2.lrZone1Dcc > 1500 THEN DSManual4StepsMovementArm2.lrZone1Dcc := 1500; ELSIF DSManual4StepsMovementArm2.lrZone1Dcc < 200 THEN DSManual4StepsMovementArm2.lrZone1Dcc := 200; END_IF
+
+IF  DSManual4StepsMovementArm2.lrZone2Speed > 400 THEN DSManual4StepsMovementArm2.lrZone2Speed := 400; ELSIF DSManual4StepsMovementArm2.lrZone2Speed < 2 THEN DSManual4StepsMovementArm2.lrZone2Speed := 2; END_IF
+IF  DSManual4StepsMovementArm2.lrZone2Acc > 1500 THEN DSManual4StepsMovementArm2.lrZone2Acc := 1500; ELSIF DSManual4StepsMovementArm2.lrZone2Acc < 200 THEN DSManual4StepsMovementArm2.lrZone2Acc := 200; END_IF
+IF  DSManual4StepsMovementArm2.lrZone2Dcc > 1500 THEN DSManual4StepsMovementArm2.lrZone2Dcc := 1500; ELSIF DSManual4StepsMovementArm2.lrZone2Dcc < 200 THEN DSManual4StepsMovementArm2.lrZone2Dcc := 200; END_IF
+
+IF  DSManual4StepsMovementArm2.lrZone3Speed > 400 THEN DSManual4StepsMovementArm2.lrZone3Speed := 400; ELSIF DSManual4StepsMovementArm2.lrZone3Speed < 2 THEN DSManual4StepsMovementArm2.lrZone3Speed := 2; END_IF
+IF  DSManual4StepsMovementArm2.lrZone3Acc > 1500 THEN DSManual4StepsMovementArm2.lrZone3Acc := 1500; ELSIF DSManual4StepsMovementArm2.lrZone3Acc < 200 THEN DSManual4StepsMovementArm2.lrZone3Acc := 200; END_IF
+IF  DSManual4StepsMovementArm2.lrZone3Dcc > 1500 THEN DSManual4StepsMovementArm2.lrZone3Dcc := 1500; ELSIF DSManual4StepsMovementArm2.lrZone3Dcc < 200 THEN DSManual4StepsMovementArm2.lrZone3Dcc := 200; END_IF
+
+IF  DSManual4StepsMovementArm2.lrZone4Speed > 50 THEN DSManual4StepsMovementArm2.lrZone4Speed := 50; ELSIF DSManual4StepsMovementArm2.lrZone4Speed < 2 THEN DSManual4StepsMovementArm2.lrZone4Speed := 2; END_IF
+IF  DSManual4StepsMovementArm2.lrZone4Acc > 1500 THEN DSManual4StepsMovementArm2.lrZone4Acc := 1500; ELSIF DSManual4StepsMovementArm2.lrZone4Acc < 200 THEN DSManual4StepsMovementArm2.lrZone4Acc := 200; END_IF
+IF  DSManual4StepsMovementArm2.lrZone4Dcc > 1500 THEN DSManual4StepsMovementArm2.lrZone4Dcc := 1500; ELSIF DSManual4StepsMovementArm2.lrZone4Dcc < 200 THEN DSManual4StepsMovementArm2.lrZone4Dcc := 200; END_IF
+
+(*ArmParameter Ctrl*)
+(*=========================================================*)
+iArmFL := 1;
+FOR iArmFL := 1 TO iArmQty DO
+	IF iArmFL >= 1 AND iArmFL <= iArmQty THEN
+		IF  ARiArmToleranceTimeSV[iArmFL] > 999 THEN ARiArmToleranceTimeSV[iArmFL] := 999; ELSIF ARiArmToleranceTimeSV[iArmFL] < 10 THEN ARiArmToleranceTimeSV[iArmFL] := 10; END_IF
+		IF  ARiArmDeactDetectZoneRange[iArmFL] > 9999 THEN ARiArmDeactDetectZoneRange[iArmFL] := 9999; ELSIF ARiArmDeactDetectZoneRange[iArmFL] < 10 THEN ARiArmDeactDetectZoneRange[iArmFL] := 10; END_IF
+
+		IF  ARlrArmVertFix_PosCfmTolerance[iArmFL] > 5 THEN ARlrArmVertFix_PosCfmTolerance[iArmFL] := 5; ELSIF ARlrArmVertFix_PosCfmTolerance[iArmFL] < 1 THEN ARlrArmVertFix_PosCfmTolerance[iArmFL] := 1; END_IF
+		IF  ARlrArmVertFix_2ndSpdRange[iArmFL] > 500 THEN ARlrArmVertFix_2ndSpdRange[iArmFL] := 500; ELSIF ARlrArmVertFix_2ndSpdRange[iArmFL] < 1 THEN ARlrArmVertFix_2ndSpdRange[iArmFL] := 1; END_IF
+
+		IF  ARlrArmHorzFix_PosCfmTolerance[iArmFL] > 5 THEN ARlrArmHorzFix_PosCfmTolerance[iArmFL] := 5; ELSIF ARlrArmHorzFix_PosCfmTolerance[iArmFL] < 1 THEN ARlrArmHorzFix_PosCfmTolerance[iArmFL] := 1; END_IF
+		IF  ARlrArmHorzFix_2ndSpdRange[iArmFL] > 500 THEN ARlrArmHorzFix_2ndSpdRange[iArmFL] := 500; ELSIF ARlrArmHorzFix_2ndSpdRange[iArmFL] < 1 THEN ARlrArmHorzFix_2ndSpdRange[iArmFL] := 1; END_IF
+
+		IF  ARrVertPos_In_TargetSpdHz[iArmFL] > 100 THEN ARrVertPos_In_TargetSpdHz[iArmFL] := 100; ELSIF ARrVertPos_In_TargetSpdHz[iArmFL] < 2 THEN ARrVertPos_In_TargetSpdHz[iArmFL] := 2; END_IF
+		IF  ARrVertPos_In_2ndSpdHz[iArmFL] > 10 THEN ARrVertPos_In_2ndSpdHz[iArmFL] := 10; ELSIF ARrVertPos_In_2ndSpdHz[iArmFL] < 2 THEN ARrVertPos_In_2ndSpdHz[iArmFL] := 2; END_IF
+
+		IF  ARrHorzPos_In_TargetSpdHz[iArmFL] > 100 THEN ARrHorzPos_In_TargetSpdHz[iArmFL] := 100; ELSIF ARrHorzPos_In_TargetSpdHz[iArmFL] < 2 THEN ARrHorzPos_In_TargetSpdHz[iArmFL] := 2; END_IF
+		IF  ARrHorzPos_In_2ndSpdHz[iArmFL] > 10 THEN ARrHorzPos_In_2ndSpdHz[iArmFL] := 10; ELSIF ARrHorzPos_In_2ndSpdHz[iArmFL] < 2 THEN ARrHorzPos_In_2ndSpdHz[iArmFL] := 2; END_IF
+
+		IF  ARrArmVertJogPercent[iArmFL] > 100 	THEN ARrArmVertJogPercent[iArmFL] := 100; 	ELSIF ARrArmVertJogPercent[iArmFL] < 2 	THEN ARrArmVertJogPercent[iArmFL] := 2; 	END_IF
+		IF  ARrArmVertJogAcc[iArmFL] > 1500 	THEN ARrArmVertJogAcc[iArmFL] := 1500; 	ELSIF ARrArmVertJogAcc[iArmFL] < 1500 		THEN ARrArmVertJogAcc[iArmFL] := 1500; 	END_IF
+		IF  ARrArmVertJogDcc[iArmFL] > 1500 	THEN ARrArmVertJogDcc[iArmFL] := 1500; 	ELSIF ARrArmVertJogDcc[iArmFL] < 1500 		THEN ARrArmVertJogDcc[iArmFL] := 1500; 	END_IF
+
+		IF ARrArmHorzJogPercent[iArmFL] > 100 	THEN ARrArmHorzJogPercent[iArmFL] := 100; 	ELSIF ARrArmHorzJogPercent[iArmFL] < 2 	THEN ARrArmHorzJogPercent[iArmFL] := 2; 	END_IF
+		IF ARrArmHorzJogAcc[iArmFL] > 1500 	THEN ARrArmHorzJogAcc[iArmFL] := 1500; 	ELSIF ARrArmHorzJogAcc[iArmFL] < 1500 	THEN ARrArmHorzJogAcc[iArmFL] := 1500; 	END_IF
+		IF ARrArmHorzJogDcc[iArmFL] > 1500 	THEN ARrArmHorzJogDcc[iArmFL] := 1500; 	ELSIF ARrArmHorzJogDcc[iArmFL] < 1500 	THEN ARrArmHorzJogDcc[iArmFL] := 1500; 	END_IF
+
+(*Axis Position Move*) (*For Fix Speed Movement - No Basket Arm Movement*)
+(*=========================================================*)
+
+		IF ARlrVertPos_In_HighSpeed[iArmFL] > 400 	THEN ARlrVertPos_In_HighSpeed[iArmFL] := 400; 	ELSIF ARlrVertPos_In_HighSpeed[iArmFL] < 2 		THEN ARlrVertPos_In_HighSpeed[iArmFL] := 2; 	END_IF
+		IF ARlrVertPos_In_Acc[iArmFL] > 1500 		THEN ARlrVertPos_In_Acc[iArmFL] := 1500; 		ELSIF ARlrVertPos_In_Acc[iArmFL] < 200 			THEN ARlrVertPos_In_Acc[iArmFL] := 200; 		END_IF
+		IF ARlrVertPos_In_Dcc[iArmFL] > 1500 		THEN ARlrVertPos_In_Dcc[iArmFL] := 1500; 		ELSIF ARlrVertPos_In_Dcc[iArmFL] < 200 			THEN ARlrVertPos_In_Dcc[iArmFL] := 200; 		END_IF
+
+		IF ARlrHorzPos_In_HighSpeed[iArmFL] > 600 	THEN ARlrHorzPos_In_HighSpeed[iArmFL] := 600; 	ELSIF ARlrHorzPos_In_HighSpeed[iArmFL] < 50 	THEN ARlrHorzPos_In_HighSpeed[iArmFL] := 50; 	END_IF
+		IF ARlrHorzPos_In_Acc[iArmFL] > 1500 		THEN ARlrHorzPos_In_Acc[iArmFL] := 1500; 		ELSIF ARlrHorzPos_In_Acc[iArmFL] < 100 			THEN ARlrHorzPos_In_Acc[iArmFL] := 100; 		END_IF
+		IF ARlrHorzPos_In_Dcc[iArmFL] > 1500 		THEN ARlrHorzPos_In_Dcc[iArmFL] := 1500; 		ELSIF ARlrHorzPos_In_Dcc[iArmFL] < 100 		THEN ARlrHorzPos_In_Dcc[iArmFL] := 100; 		END_IF
+
+	END_IF
+END_FOR
+
+
+iArmSlowPullFL := 1;
+FOR iArmSlowPullFL := 1 TO iArmSlowPullQty DO
+	IF iArmSlowPullFL >= 1 AND iArmSlowPullFL <= iArmSlowPullQty THEN
+
+		IF  ARlrArmSlowPullJogVelo[iArmSlowPullFL] > 20 THEN ARlrArmSlowPullJogVelo[iArmSlowPullFL] := 20; ELSIF ARlrArmSlowPullJogVelo[iArmSlowPullFL] < 2 THEN ARlrArmSlowPullJogVelo[iArmSlowPullFL] := 2; END_IF
+		IF  ARlrArmSlowPullJogAcc[iArmSlowPullFL] > 200 THEN ARlrArmSlowPullJogAcc[iArmSlowPullFL] := 200; ELSIF ARlrArmSlowPullJogAcc[iArmSlowPullFL] < 200 THEN ARlrArmSlowPullJogAcc[iArmSlowPullFL] := 200; END_IF
+		IF  ARlrArmSlowPullJogDcc[iArmSlowPullFL] > 200 THEN ARlrArmSlowPullJogDcc[iArmSlowPullFL] := 200; ELSIF ARlrArmSlowPullJogDcc[iArmSlowPullFL] < 200 THEN ARlrArmSlowPullJogDcc[iArmSlowPullFL] := 200; END_IF
+
+	END_IF
+END_FOR
+
+
+IF  DS_ArmLifterPosition.lrSlowPullUpVelo > 20 THEN DS_ArmLifterPosition.lrSlowPullUpVelo := 20; ELSIF DS_ArmLifterPosition.lrSlowPullUpVelo < 1 THEN DS_ArmLifterPosition.lrSlowPullUpVelo := 1; END_IF
+(*IF  DS_ArmLifterPosition.lrSlowPullUpAcc > 200 THEN DS_ArmLifterPosition.lrSlowPullUpAcc := 200; ELSIF DS_ArmLifterPosition.lrSlowPullUpAcc < 2 THEN DS_ArmLifterPosition.lrSlowPullUpAcc := 2; END_IF*)
+(*IF  DS_ArmLifterPosition.lrSlowPullUpDcc > 200 THEN DS_ArmLifterPosition.lrSlowPullUpDcc := 200; ELSIF DS_ArmLifterPosition.lrSlowPullUpDcc < 2 THEN DS_ArmLifterPosition.lrSlowPullUpDcc := 2; END_IF*)
+
+IF  DS_ArmLifterPosition.lrSlowPullDownVelo > 20 THEN DS_ArmLifterPosition.lrSlowPullDownVelo := 20; ELSIF DS_ArmLifterPosition.lrSlowPullDownVelo < 2 THEN DS_ArmLifterPosition.lrSlowPullDownVelo := 2; END_IF
+IF  DS_ArmLifterPosition.lrSlowPullDownAcc > 200 THEN DS_ArmLifterPosition.lrSlowPullDownAcc := 200; ELSIF DS_ArmLifterPosition.lrSlowPullDownAcc < 2 THEN DS_ArmLifterPosition.lrSlowPullDownAcc := 2; END_IF
+IF  DS_ArmLifterPosition.lrSlowPullDownDcc > 200 THEN DS_ArmLifterPosition.lrSlowPullDownDcc := 200; ELSIF DS_ArmLifterPosition.lrSlowPullDownDcc < 2 THEN DS_ArmLifterPosition.lrSlowPullDownDcc := 2; END_IF
+
+
+IF  xRatio > 999 THEN xRatio := 999; ELSIF xRatio < -100 THEN xRatio := -100; END_IF
+IF  yRatio > 999 THEN yRatio := 999; ELSIF yRatio < -100 THEN yRatio := -100; END_IF
+IF  xRatio_1 > 999 THEN xRatio_1 := 999; ELSIF xRatio_1 < -100 THEN xRatio_1 := -100; END_IF
+IF  yRatio_1 > 999 THEN yRatio_1 := 999; ELSIF yRatio_1 < -100 THEN yRatio_1 := -100; END_IF
+
+
+(*
+(*Basket Memory - Product Recipe*)
+(*=========================================================*)
+IF DSLdBasketInfoConfirm[1].iProductRecipeNo > iProductRecipeArrayQty THEN DSLdBasketInfoConfirm[1].iProductRecipeNo := iProductRecipeArrayQty; ELSIF DSLdBasketInfoConfirm[1].iProductRecipeNo < 0 THEN DSLdBasketInfoConfirm[1].iProductRecipeNo := 0; END_IF
+IF DSLdBasketInfoTransfer[1].iProductRecipeNo > iProductRecipeArrayQty THEN DSLdBasketInfoTransfer[1].iProductRecipeNo := iProductRecipeArrayQty; ELSIF DSLdBasketInfoTransfer[1].iProductRecipeNo < 0 THEN DSLdBasketInfoTransfer[1].iProductRecipeNo := 0; END_IF
+IF DSUldBasketInfoConfirm[1].iProductRecipeNo > iProductRecipeArrayQty THEN DSUldBasketInfoConfirm[1].iProductRecipeNo := iProductRecipeArrayQty; ELSIF DSUldBasketInfoConfirm[1].iProductRecipeNo < 0 THEN DSUldBasketInfoConfirm[1].iProductRecipeNo := 0; END_IF
+IF DSUldBasketInfoTransfer[1].iProductRecipeNo > iProductRecipeArrayQty THEN DSUldBasketInfoTransfer[1].iProductRecipeNo := iProductRecipeArrayQty; ELSIF DSUldBasketInfoTransfer[1].iProductRecipeNo < 0 THEN DSUldBasketInfoTransfer[1].iProductRecipeNo := 0; END_IF
+
+IF DSStnBasketInfo[1].iProductRecipeNo > iProductRecipeArrayQty THEN DSStnBasketInfo[1].iProductRecipeNo := iProductRecipeArrayQty; ELSIF DSStnBasketInfo[1].iProductRecipeNo < 0 THEN DSStnBasketInfo[1].iProductRecipeNo := 0; END_IF
+IF DSStnBasketInfo[2].iProductRecipeNo > iProductRecipeArrayQty THEN DSStnBasketInfo[2].iProductRecipeNo := iProductRecipeArrayQty; ELSIF DSStnBasketInfo[2].iProductRecipeNo < 0 THEN DSStnBasketInfo[2].iProductRecipeNo := 0; END_IF
+IF DSStnBasketInfo[3].iProductRecipeNo > iProductRecipeArrayQty THEN DSStnBasketInfo[3].iProductRecipeNo := iProductRecipeArrayQty; ELSIF DSStnBasketInfo[3].iProductRecipeNo < 0 THEN DSStnBasketInfo[3].iProductRecipeNo := 0; END_IF
+IF DSStnBasketInfo[5].iProductRecipeNo > iProductRecipeArrayQty THEN DSStnBasketInfo[4].iProductRecipeNo := iProductRecipeArrayQty; ELSIF DSStnBasketInfo[4].iProductRecipeNo < 0 THEN DSStnBasketInfo[4].iProductRecipeNo := 0; END_IF
+IF DSStnBasketInfo[5].iProductRecipeNo > iProductRecipeArrayQty THEN DSStnBasketInfo[5].iProductRecipeNo := iProductRecipeArrayQty; ELSIF DSStnBasketInfo[5].iProductRecipeNo < 0 THEN DSStnBasketInfo[5].iProductRecipeNo := 0; END_IF
+
+IF DSArmBasketInfo[1].iProductRecipeNo > iProductRecipeArrayQty THEN DSArmBasketInfo[1].iProductRecipeNo := iProductRecipeArrayQty; ELSIF DSArmBasketInfo[1].iProductRecipeNo < 0 THEN DSArmBasketInfo[1].iProductRecipeNo := 0; END_IF
+
+
+(*Basket Memory - Product Recipe Step No*)
+(*=========================================================*)
+IF DSLdBasketInfoConfirm[1].iProductRecipeStepNo > iProductRecipeStepArrayQty THEN DSLdBasketInfoConfirm[1].iProductRecipeStepNo := iProductRecipeStepArrayQty; ELSIF DSLdBasketInfoConfirm[1].iProductRecipeStepNo < 0 THEN DSLdBasketInfoConfirm[1].iProductRecipeStepNo := 0; END_IF
+IF DSLdBasketInfoTransfer[1].iProductRecipeStepNo > iProductRecipeStepArrayQty THEN DSLdBasketInfoTransfer[1].iProductRecipeStepNo := iProductRecipeStepArrayQty; ELSIF DSLdBasketInfoTransfer[1].iProductRecipeStepNo < 0 THEN DSLdBasketInfoTransfer[1].iProductRecipeStepNo := 0; END_IF
+IF DSUldBasketInfoConfirm[1].iProductRecipeStepNo > iProductRecipeStepArrayQty THEN DSUldBasketInfoConfirm[1].iProductRecipeStepNo := iProductRecipeStepArrayQty; ELSIF DSUldBasketInfoConfirm[1].iProductRecipeStepNo < 1 THEN DSUldBasketInfoConfirm[1].iProductRecipeStepNo := 0; END_IF
+IF DSUldBasketInfoTransfer[1].iProductRecipeStepNo > iProductRecipeStepArrayQty THEN DSUldBasketInfoTransfer[1].iProductRecipeStepNo := iProductRecipeStepArrayQty; ELSIF DSUldBasketInfoTransfer[1].iProductRecipeStepNo < 1 THEN DSUldBasketInfoTransfer[1].iProductRecipeStepNo := 0; END_IF
+
+IF DSStnBasketInfo[1].iProductRecipeStepNo > iProductRecipeStepArrayQty THEN DSStnBasketInfo[1].iProductRecipeStepNo := iProductRecipeStepArrayQty; ELSIF DSStnBasketInfo[1].iProductRecipeStepNo < 0 THEN DSStnBasketInfo[1].iProductRecipeStepNo := 0; END_IF
+IF DSStnBasketInfo[2].iProductRecipeStepNo > iProductRecipeStepArrayQty THEN DSStnBasketInfo[2].iProductRecipeStepNo := iProductRecipeStepArrayQty; ELSIF DSStnBasketInfo[2].iProductRecipeStepNo < 0 THEN DSStnBasketInfo[2].iProductRecipeStepNo := 0; END_IF
+IF DSStnBasketInfo[3].iProductRecipeStepNo > iProductRecipeStepArrayQty THEN DSStnBasketInfo[3].iProductRecipeStepNo := iProductRecipeStepArrayQty; ELSIF DSStnBasketInfo[3].iProductRecipeStepNo < 0 THEN DSStnBasketInfo[3].iProductRecipeStepNo := 0; END_IF
+IF DSStnBasketInfo[5].iProductRecipeStepNo > iProductRecipeStepArrayQty THEN DSStnBasketInfo[4].iProductRecipeStepNo := iProductRecipeStepArrayQty; ELSIF DSStnBasketInfo[4].iProductRecipeStepNo < 0 THEN DSStnBasketInfo[4].iProductRecipeStepNo := 0; END_IF
+IF DSStnBasketInfo[5].iProductRecipeStepNo > iProductRecipeStepArrayQty THEN DSStnBasketInfo[5].iProductRecipeStepNo := iProductRecipeStepArrayQty; ELSIF DSStnBasketInfo[5].iProductRecipeStepNo < 0 THEN DSStnBasketInfo[5].iProductRecipeStepNo := 0; END_IF
+
+IF DSArmBasketInfo[1].iProductRecipeStepNo > iProductRecipeStepArrayQty THEN DSArmBasketInfo[1].iProductRecipeStepNo := iProductRecipeStepArrayQty; ELSIF DSArmBasketInfo[1].iProductRecipeStepNo < 0 THEN DSArmBasketInfo[1].iProductRecipeStepNo := 0; END_IF
+
+
+(*Basket Memory - Station Sequence Recipe No*)
+(*=========================================================*)
+
+IF DSLdBasketInfoConfirm[1].iStationSeqenceRecipeNo > iStationSequenceRecipeArrayQty THEN DSLdBasketInfoConfirm[1].iStationSeqenceRecipeNo := iStationSequenceRecipeArrayQty; ELSIF DSLdBasketInfoConfirm[1].iStationSeqenceRecipeNo < 1 THEN DSLdBasketInfoConfirm[1].iStationSeqenceRecipeNo := 1; END_IF
+IF DSLdBasketInfoTransfer[1].iStationSeqenceRecipeNo > iStationSequenceRecipeArrayQty THEN DSLdBasketInfoTransfer[1].iStationSeqenceRecipeNo := iStationSequenceRecipeArrayQty; ELSIF DSLdBasketInfoTransfer[1].iStationSeqenceRecipeNo < 1 THEN DSLdBasketInfoTransfer[1].iStationSeqenceRecipeNo := 1; END_IF
+IF DSUldBasketInfoConfirm[1].iStationSeqenceRecipeNo > iStationSequenceRecipeArrayQty THEN DSUldBasketInfoConfirm[1].iStationSeqenceRecipeNo := iStationSequenceRecipeArrayQty; ELSIF DSUldBasketInfoConfirm[1].iStationSeqenceRecipeNo < 1 THEN DSUldBasketInfoConfirm[1].iStationSeqenceRecipeNo := 1; END_IF
+IF DSUldBasketInfoTransfer[1].iStationSeqenceRecipeNo > iStationSequenceRecipeArrayQty THEN DSUldBasketInfoTransfer[1].iStationSeqenceRecipeNo := iStationSequenceRecipeArrayQty; ELSIF DSUldBasketInfoTransfer[1].iStationSeqenceRecipeNo < 1 THEN DSUldBasketInfoTransfer[1].iStationSeqenceRecipeNo := 1; END_IF
+
+IF DSStnBasketInfo[1].iStationSeqenceRecipeNo > iStationSequenceRecipeArrayQty THEN DSStnBasketInfo[1].iStationSeqenceRecipeNo := iStationSequenceRecipeArrayQty; ELSIF DSStnBasketInfo[1].iStationSeqenceRecipeNo < 1 THEN DSStnBasketInfo[1].iStationSeqenceRecipeNo := 1; END_IF
+IF DSStnBasketInfo[2].iStationSeqenceRecipeNo > iStationSequenceRecipeArrayQty THEN DSStnBasketInfo[2].iStationSeqenceRecipeNo := iStationSequenceRecipeArrayQty; ELSIF DSStnBasketInfo[2].iStationSeqenceRecipeNo < 1 THEN DSStnBasketInfo[2].iStationSeqenceRecipeNo := 1; END_IF
+IF DSStnBasketInfo[3].iStationSeqenceRecipeNo > iStationSequenceRecipeArrayQty THEN DSStnBasketInfo[3].iStationSeqenceRecipeNo := iStationSequenceRecipeArrayQty; ELSIF DSStnBasketInfo[3].iStationSeqenceRecipeNo < 1 THEN DSStnBasketInfo[3].iStationSeqenceRecipeNo := 1; END_IF
+IF DSStnBasketInfo[5].iStationSeqenceRecipeNo > iStationSequenceRecipeArrayQty THEN DSStnBasketInfo[4].iStationSeqenceRecipeNo := iStationSequenceRecipeArrayQty; ELSIF DSStnBasketInfo[4].iStationSeqenceRecipeNo < 1 THEN DSStnBasketInfo[4].iStationSeqenceRecipeNo := 1; END_IF
+IF DSStnBasketInfo[5].iStationSeqenceRecipeNo > iStationSequenceRecipeArrayQty THEN DSStnBasketInfo[5].iStationSeqenceRecipeNo := iStationSequenceRecipeArrayQty; ELSIF DSStnBasketInfo[5].iStationSeqenceRecipeNo < 1 THEN DSStnBasketInfo[5].iStationSeqenceRecipeNo := 1; END_IF
+
+IF DSArmBasketInfo[1].iStationSeqenceRecipeNo > iStationSequenceRecipeArrayQty THEN DSArmBasketInfo[1].iStationSeqenceRecipeNo := iStationSequenceRecipeArrayQty; ELSIF DSArmBasketInfo[1].iStationSeqenceRecipeNo < 1 THEN DSArmBasketInfo[1].iStationSeqenceRecipeNo := 1; END_IF
+
+*)
+;]]></ST>
+    </Implementation>
+    <LineIds Name="zHMIMaxMinLimit">
+      <LineId Id="8" Count="1" />
+      <LineId Id="397" Count="0" />
+      <LineId Id="10" Count="27" />
+      <LineId Id="587" Count="1" />
+      <LineId Id="38" Count="91" />
+      <LineId Id="147" Count="9" />
+      <LineId Id="418" Count="0" />
+      <LineId Id="172" Count="8" />
+      <LineId Id="182" Count="21" />
+      <LineId Id="532" Count="0" />
+      <LineId Id="435" Count="6" />
+      <LineId Id="549" Count="0" />
+      <LineId Id="533" Count="15" />
+      <LineId Id="531" Count="0" />
+      <LineId Id="550" Count="0" />
+      <LineId Id="204" Count="23" />
+      <LineId Id="488" Count="0" />
+      <LineId Id="485" Count="1" />
+      <LineId Id="228" Count="0" />
+      <LineId Id="493" Count="0" />
+      <LineId Id="489" Count="0" />
+      <LineId Id="492" Count="0" />
+      <LineId Id="506" Count="1" />
+      <LineId Id="490" Count="0" />
+      <LineId Id="509" Count="1" />
+      <LineId Id="508" Count="0" />
+      <LineId Id="512" Count="1" />
+      <LineId Id="511" Count="0" />
+      <LineId Id="515" Count="1" />
+      <LineId Id="514" Count="0" />
+      <LineId Id="520" Count="0" />
+      <LineId Id="483" Count="0" />
+      <LineId Id="487" Count="0" />
+      <LineId Id="229" Count="1" />
+      <LineId Id="420" Count="5" />
+      <LineId Id="553" Count="2" />
+      <LineId Id="427" Count="0" />
+      <LineId Id="556" Count="0" />
+      <LineId Id="429" Count="0" />
+      <LineId Id="561" Count="17" />
+      <LineId Id="559" Count="0" />
+      <LineId Id="432" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="551" Count="1" />
+      <LineId Id="433" Count="0" />
+      <LineId Id="233" Count="156" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

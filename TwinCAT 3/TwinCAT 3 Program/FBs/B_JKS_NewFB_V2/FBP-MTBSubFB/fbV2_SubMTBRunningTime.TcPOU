@@ -1,0 +1,493 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_SubMTBRunningTime" Id="{e1c2ff61-2816-4dda-8ed5-04e418db23af}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_SubMTBRunningTime
+VAR_INPUT
+	bStart 																		: BOOL;
+	bHalt 																		: BOOL;
+	bReset 																		: BOOL;
+	bCopyBusyToFreeMTB														: BOOL;
+	bWrite_RTBtoMTB															: BOOL;
+	iLoadingCallArmTime	 														: INT;
+	AR2SiRecipeTimeBlockWithCallArmTime 										: ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+	ARbAlternateStnEn 															: ARRAY [1..iAlternateSetQty] OF BOOL;
+	AR2siAlternateStn 																: ARRAY [1..iAlternateSetQty, 1..iAlternateStnQty] OF INT;
+	ARiArmID																	: ARRAY [1..iArmQty] OF INT;
+	ARiUldStnID																	: ARRAY [1..iUldStnQty] OF INT;		(* To Define Unloading Station ID*)
+(*
+	iRTBScanBlockNo															: INT;
+*)
+END_VAR
+
+VAR_OUTPUT
+	bBusy 														 : BOOL;
+	ARbArmProgress												 : ARRAY [1..iArmQty] OF BOOL;
+	bCopyDone													: BOOL;
+	bCopiedMTBEmptyFlag										: BOOL;
+
+	bWriteBusy													 : BOOL;
+	bWriteDone 													 : BOOL;
+	bWriteMTBArmBlockFullError									 : BOOL;
+	bWriteMTBStnBlockFullError									 : BOOL;
+	bWriteMTBUldBlockFullError									 : BOOL;
+
+	diSinceStartRunningTime										 : DINT;
+	diSinceCopyRunningTime										 : DINT;
+
+END_VAR
+
+VAR
+	tWriteDoneTimer									: TON;
+	tOneSecClockPulse								: TON;
+
+	tOneSecClockPulseRE								: R_TRIG;
+	bResetRE										: R_TRIG;
+	bCopyMTBRE									: R_TRIG;
+	bWrite_RTBtoMTBRE								: R_TRIG;
+
+	AR3SiMTBBusyArm_Empty				: ARRAY[1..iArmQty, 1..iMasterBlockQty, 1..3] OF INT;
+	AR3SiMTBBusyStn_Empty		 		: ARRAY[1..iStnQty, 1..iMasterBlockQty, 1..3] OF INT;
+	AR3SiMTBBusyUld_Empty 				: ARRAY[1..iUldStnQty, 1..iMasterBlockQty, 1..3] OF INT;
+
+	AR2SiRecipeTimeBlockNoCallArmTime 				: ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+
+	fbV2SubRTBGenerateNoCallArmTime				: fbV2_SubRTBGenerateNoCallArmTime;
+	fbV2SubRTBEndStepFinder						: fbV2_SubRTBEndStepFinder;
+	fbV2SubRTBStnTypeAltIDFinder					: fbV2_SubRTBStnTypeAltIDFinder;
+
+
+	bEndStepFinderEn: BOOL;
+	bEndStepFinderDone: BOOL;
+	bEndStepFinderReset: BOOL;
+	bNoCallArmTimeReset: BOOL;
+	bNoCallArmTimeDone: BOOL;
+	bNoCallArmTimeEn: BOOL;
+
+	bFBEn 					: ARRAY [1..10] OF BOOL;
+	bFBDone 				: ARRAY [1..10] OF BOOL;
+	bFBReset 				: ARRAY [1..10] OF BOOL;
+	bFBBusy 				: ARRAY [1..10] OF BOOL;
+
+	iWriteStep: INT;
+	iRTBEndStep: INT;
+
+	iWriteMFL								: INT;
+	iWriteSFL								: INT;
+
+	bWriteArmDone							: BOOL;
+	bWriteStnDone							: BOOL;
+	bWriteUldDone							: BOOL;
+
+
+(*fbV2SubRTBStnTypeAltIDFinder Used*)
+	bRTBEmptyBlockFound					: BOOL;
+	bRTBArmIDFound							: BOOL;
+	bRTBStnIDFound							: BOOL;
+	bRTBUldIDFound							: BOOL;
+	bRTBAltStnIDFound						: BOOL;
+	iRTBArmAdd								: INT;
+	iRTBStnAdd								: INT;
+	iRTBUldAdd								: INT;
+	ARiRTBAltStnIDFound						: ARRAY [1..iAlternateStnQty] OF INT;
+	ARiRTBAltStnAddFound					: ARRAY [1..iAlternateStnQty] OF INT;
+
+	bMinusOneSecSt: BOOL;
+	iMinusOneArmMFL: INT;
+	iMinusOneStnMFL: INT;
+	iMinusOneUldMFL: INT;
+	iMinusOneArmSFL: INT;
+	iMinusOneStnSFL: INT;
+	iMinusOneUldSFL: INT;
+	iArmProgressClearFL: INT;
+	bMinusOneSecStRE: R_TRIG;
+	fbV2SubMTBFreeSlotGenerator: fbV2_SubMTBFreeSlotGenerator;
+	bConvertBusyToFreeMTBRE: R_TRIG;
+	bCopyBusyToFreeMTBRE: R_TRIG;
+	bWaitForReset: BOOL;
+END_VAR
+
+VAR_IN_OUT
+	AR3SiMTBBusyArm_Main 										: ARRAY[1..iArmQty, 1..iMasterBlockQty, 1..3] OF INT;
+	AR3SiMTBBusyStn_Main 										: ARRAY[1..iStnQty, 1..iMasterBlockQty, 1..3] OF INT;
+	AR3SiMTBBusyUld_Main 										: ARRAY[1..iUldStnQty, 1..iMasterBlockQty, 1..3] OF INT;
+	AR3SiSortedMTBFreeArm_Out									: ARRAY[1..iArmQty, 1..iMasterBlockQty, 1..3] OF INT;
+	AR3SiSortedMTBFreeStn_Out									: ARRAY[1..iStnQty, 1..iMasterBlockQty, 1..3] OF INT;
+	AR3SiSortedMTBFreeUld_Out									: ARRAY[1..iUldStnQty, 1..iMasterBlockQty, 1..3] OF INT;
+	ARiMTBFreeSlotDataQtyArm									: ARRAY[1..iArmQty] OF INT;
+	ARiMTBFreeSlotDataQtyStn									: ARRAY[1..iStnQty] OF INT;
+	ARiMTBFreeSlotDataQtyUld									: ARRAY[1..iUldStnQty] OF INT;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[tOneSecClockPulse			(IN:=NOT tOneSecClockPulse.Q , 	PT:=t#1s , Q=> , ET=> );
+tWriteDoneTimer				(IN:=iWriteStep = 4 , 				PT:=t#0.5s , Q=> , ET=> );
+
+tOneSecClockPulseRE			(CLK:=tOneSecClockPulse.Q , 				Q=> );
+bResetRE					(CLK:=bReset , 							Q=> );
+bCopyBusyToFreeMTBRE		(CLK:=bCopyBusyToFreeMTB , 				Q=> );
+bWrite_RTBtoMTBRE			(CLK:=bWrite_RTBtoMTB , 					Q=> );
+bMinusOneSecStRE			(CLK:=bMinusOneSecSt , 					Q=> );
+
+
+
+
+
+(*Running Time*)
+IF bStart AND NOT bHalt AND NOT bReset THEN
+	bBusy := TRUE;
+	IF tOneSecClockPulseRE.Q THEN
+		diSinceCopyRunningTime := diSinceCopyRunningTime +1;
+		diSinceStartRunningTime := diSinceStartRunningTime +1;
+		bMinusOneSecSt := TRUE;
+	END_IF
+ELSE
+	bBusy := FALSE;
+	bMinusOneSecSt := FALSE;
+
+
+	iArmProgressClearFL := 1;
+	FOR iArmProgressClearFL := 1 TO iArmQty DO
+		IF iArmProgressClearFL >= 1 AND iArmProgressClearFL <= iArmQty THEN
+		ARbArmProgress[iArmProgressClearFL] := FALSE;
+		END_IF
+	END_FOR
+
+END_IF
+
+(*MTB - Minus One Sec*)
+IF bMinusOneSecStRE.Q THEN
+
+
+	(*Arm Section*)
+	iMinusOneArmMFL := 1;
+	FOR iMinusOneArmMFL := 1 TO iArmQty DO
+		IF iMinusOneArmMFL >= 1 AND iMinusOneArmMFL <= iArmQty THEN
+
+			ARbArmProgress[iMinusOneArmMFL] := FALSE;
+
+			iMinusOneArmSFL := 1;
+			FOR iMinusOneArmSFL := 1 TO iMasterBlockQty DO
+				IF iMinusOneArmSFL >= 1 AND iMinusOneArmSFL <= iMasterBlockQty THEN
+
+					IF AR3SiMTBBusyArm_Main[iMinusOneArmMFL, iMinusOneArmSFL, 1] > 0 THEN
+					AR3SiMTBBusyArm_Main[iMinusOneArmMFL, iMinusOneArmSFL, 1] := AR3SiMTBBusyArm_Main[iMinusOneArmMFL, iMinusOneArmSFL, 1] -1;
+					END_IF
+
+					IF AR3SiMTBBusyArm_Main[iMinusOneArmMFL, iMinusOneArmSFL, 2] > 0 THEN
+					AR3SiMTBBusyArm_Main[iMinusOneArmMFL, iMinusOneArmSFL, 2] := AR3SiMTBBusyArm_Main[iMinusOneArmMFL, iMinusOneArmSFL, 2] -1;
+					ELSE
+					AR3SiMTBBusyArm_Main[iMinusOneArmMFL, iMinusOneArmSFL, 1] := 0;
+					AR3SiMTBBusyArm_Main[iMinusOneArmMFL, iMinusOneArmSFL, 2] := 0;
+					AR3SiMTBBusyArm_Main[iMinusOneArmMFL, iMinusOneArmSFL, 3] := 0;
+					END_IF
+
+					IF AR3SiMTBBusyArm_Main[iMinusOneArmMFL, iMinusOneArmSFL, 1] = 0 AND AR3SiMTBBusyArm_Main[iMinusOneArmMFL, iMinusOneArmSFL, 2] > 0	 THEN
+					ARbArmProgress[iMinusOneArmMFL] := TRUE;
+					END_IF
+
+				END_IF
+			END_FOR
+		END_IF
+	END_FOR
+
+
+	(*Stn Section*)
+	iMinusOneStnMFL := 1;
+	FOR iMinusOneStnMFL := 1 TO iStnQty DO
+		IF iMinusOneStnMFL >= 1 AND iMinusOneStnMFL <= iStnQty THEN
+
+			iMinusOneStnSFL := 1;
+			FOR iMinusOneStnSFL := 1 TO iMasterBlockQty DO
+				IF iMinusOneStnSFL >= 1 AND iMinusOneStnSFL <= iMasterBlockQty THEN
+
+					IF AR3SiMTBBusyStn_Main[iMinusOneStnMFL, iMinusOneStnSFL, 1] > 0 THEN
+					AR3SiMTBBusyStn_Main[iMinusOneStnMFL, iMinusOneStnSFL, 1] := AR3SiMTBBusyStn_Main[iMinusOneStnMFL, iMinusOneStnSFL, 1] -1;
+					END_IF
+
+					IF AR3SiMTBBusyStn_Main[iMinusOneStnMFL, iMinusOneStnSFL, 2] > 0 THEN
+					AR3SiMTBBusyStn_Main[iMinusOneStnMFL, iMinusOneStnSFL, 2] := AR3SiMTBBusyStn_Main[iMinusOneStnMFL, iMinusOneStnSFL, 2] -1;
+					ELSE
+					AR3SiMTBBusyStn_Main[iMinusOneStnMFL, iMinusOneStnSFL, 1] := 0;
+					AR3SiMTBBusyStn_Main[iMinusOneStnMFL, iMinusOneStnSFL, 2] := 0;
+					AR3SiMTBBusyStn_Main[iMinusOneStnMFL, iMinusOneStnSFL, 3] := 0;
+					END_IF
+
+				END_IF
+			END_FOR
+		END_IF
+	END_FOR
+
+
+	(*Uld Section*)
+	iMinusOneUldMFL := 1;
+	FOR iMinusOneUldMFL := 1 TO iUldStnQty DO
+		IF iMinusOneUldMFL >= 1 AND iMinusOneUldMFL <= iUldStnQty THEN
+
+			iMinusOneUldSFL := 1;
+			FOR iMinusOneUldSFL := 1 TO iMasterBlockQty DO
+				IF iMinusOneUldSFL >= 1 AND iMinusOneUldSFL <= iMasterBlockQty THEN
+
+					IF AR3SiMTBBusyUld_Main[iMinusOneUldMFL, iMinusOneUldSFL, 1] > 0 THEN
+					AR3SiMTBBusyUld_Main[iMinusOneUldMFL, iMinusOneUldSFL, 1] := AR3SiMTBBusyUld_Main[iMinusOneUldMFL, iMinusOneUldSFL, 1] -1;
+					END_IF
+
+					IF AR3SiMTBBusyUld_Main[iMinusOneUldMFL, iMinusOneUldSFL, 2] > 0 THEN
+					AR3SiMTBBusyUld_Main[iMinusOneUldMFL, iMinusOneUldSFL, 2] := AR3SiMTBBusyUld_Main[iMinusOneUldMFL, iMinusOneUldSFL, 2] -1;
+					ELSE
+					AR3SiMTBBusyUld_Main[iMinusOneUldMFL, iMinusOneUldSFL, 1] := 0;
+					AR3SiMTBBusyUld_Main[iMinusOneUldMFL, iMinusOneUldSFL, 2] := 0;
+					AR3SiMTBBusyUld_Main[iMinusOneUldMFL, iMinusOneUldSFL, 3] := 0;
+					END_IF
+
+				END_IF
+			END_FOR
+		END_IF
+	END_FOR
+
+bMinusOneSecSt := FALSE;
+
+END_IF
+
+
+(*MTB Reset*)
+IF bResetRE.Q THEN
+	AR3SiMTBBusyArm_Main 		:=	AR3SiMTBBusyArm_Empty;
+	AR3SiMTBBusyStn_Main 		:=	AR3SiMTBBusyStn_Empty;
+	AR3SiMTBBusyUld_Main 		:=	AR3SiMTBBusyUld_Empty;
+	diSinceStartRunningTime := 0;
+	diSinceCopyRunningTime := 0;
+END_IF
+
+
+(***************************************************************** MTB Copy *******************************************************************************)
+(*MTB Copy*)
+IF NOT bCopyBusyToFreeMTB THEN
+bFBReset[4] := TRUE;
+END_IF
+
+IF bCopyBusyToFreeMTBRE.Q THEN
+	bFBEn[4] := TRUE;
+	bFBReset[4] := FALSE;
+	diSinceCopyRunningTime := 0;
+END_IF
+
+
+
+	(* Convert Busy to Free MTB with Compact and sorting*)
+
+	fbV2SubMTBFreeSlotGenerator(
+		bReset									:=			bFBReset[4] ,
+		AR3SiMTBBusyArm_In						:=			AR3SiMTBBusyArm_Main ,
+		AR3SiMTBBusyStn_In						:=			AR3SiMTBBusyStn_Main ,
+		AR3SiMTBBusyUld_In						:=			AR3SiMTBBusyUld_Main ,
+		ARiArmID								:=			ARiArmID ,
+		ARiUldStnID								:=			ARiUldStnID ,
+		bEn										:=			bFBEn[4] ,
+		AR3SiSortedMTBFreeArm_Out				:=			AR3SiSortedMTBFreeArm_Out ,
+		AR3SiSortedMTBFreeStn_Out				:=			AR3SiSortedMTBFreeStn_Out ,
+		AR3SiSortedMTBFreeUld_Out				:=			AR3SiSortedMTBFreeUld_Out ,
+		ARiMTBFreeSlotDataQtyArm				:=			ARiMTBFreeSlotDataQtyArm ,
+		ARiMTBFreeSlotDataQtyStn				:=			ARiMTBFreeSlotDataQtyStn ,
+		ARiMTBFreeSlotDataQtyUld				:=			ARiMTBFreeSlotDataQtyUld  ,
+		bMTBEmpty								=>			bCopiedMTBEmptyFlag ,
+		bDone									=>			bFBDone[4] );
+
+IF bCopyBusyToFreeMTB AND bFBDone[4] THEN
+bCopyDone := TRUE;
+ELSE
+bCopyDone := FALSE;
+END_IF
+
+
+
+(***************************************************************** MTB Write *******************************************************************************)
+(*MTB Write*)
+IF bWrite_RTBtoMTBRE.Q THEN
+iWriteStep := 1;
+END_IF
+
+CASE iWriteStep OF
+
+0:
+bWriteBusy := FALSE;
+bWriteDone := FALSE;
+bWriteMTBArmBlockFullError := FALSE;
+bWriteMTBStnBlockFullError := FALSE;
+bWriteMTBUldBlockFullError := FALSE;
+
+
+
+1: (*Generate No Call Arm Time*)
+bWriteBusy := TRUE;
+bWriteMTBArmBlockFullError := FALSE;
+bWriteMTBStnBlockFullError := FALSE;
+bWriteMTBUldBlockFullError := FALSE;
+
+bFBEn[1] := TRUE;
+fbV2SubRTBGenerateNoCallArmTime(
+	bReset									:=bFBReset[1]		,
+	iLoadingCallArmTime						:=iLoadingCallArmTime		,
+	AR2SiRecipeTimeBlockWithCallArmTime		:=AR2SiRecipeTimeBlockWithCallArmTime		,
+	bEn										:=bFBEn[1]		,
+	bDone									=>bFBDone[1]		,
+	AR2SiRecipeTimeBlockNoCallArmTime		=>AR2SiRecipeTimeBlockNoCallArmTime		);
+
+IF bFBDone[1] THEN
+iWriteStep := 2;
+bFBEn[1] := FALSE;
+END_IF
+
+
+2: (*Check RTB Block Qty - End Step*)
+
+bFBEn[2] := TRUE;
+iRTBEndStep := 0;
+
+fbV2SubRTBEndStepFinder(
+	bReset								:= bFBReset[2] ,
+	AR2SiRecipeTimeBlock				:= AR2SiRecipeTimeBlockNoCallArmTime ,
+	bEn									:= bFBEn[2],
+	iRTB_EndStep						:= iRTBEndStep,
+	bDone								=> bFBDone[2]);
+
+IF bFBDone[2] THEN
+iWriteStep := 3;
+bFBEn[2] := FALSE;
+END_IF
+
+3: (*Write RTB into MTB*)
+bFBEn[3] := TRUE;
+
+
+	iWriteMFL := 1;
+	FOR iWriteMFL := 1 TO iRTBEndStep DO
+		IF iWriteMFL >= 1 AND iWriteMFL <= iRTBEndStep THEN
+			iWriteSFL := 1;
+			bWriteArmDone := FALSE;
+			bWriteStnDone := FALSE;
+			bWriteUldDone := FALSE;
+
+			(*Check Stn types*)
+			fbV2SubRTBStnTypeAltIDFinder(
+				bReset									:=bFBReset[3] ,
+				ARbAlternateStnEn						:=ARbAlternateStnEn ,
+				AR2siAlternateStn							:=AR2siAlternateStn ,
+				ARiArmID								:=ARiArmID ,
+				ARiUldStnID								:=ARiUldStnID ,
+				iRTBScanBlockNo						:=iWriteMFL ,
+				AR2SiRecipeTimeBlock					:=AR2SiRecipeTimeBlockNoCallArmTime ,
+				bEn										:=bFBEn[3] ,
+				bEmptyBlockFound						=> bRTBEmptyBlockFound ,
+				bArmIDFound								=> bRTBArmIDFound ,
+				bStnIDFound								=> bRTBStnIDFound,
+				bUldIDFound								=> bRTBUldIDFound,
+				bAltStnIDFound							=> bRTBAltStnIDFound,
+				iArmAdd									=> iRTBArmAdd,
+				iStnAdd									=> iRTBStnAdd,
+				iUldAdd									=> iRTBUldAdd,
+				ARiAltStnIDFound							=> ARiRTBAltStnIDFound ,
+				ARiAltStnAddFound						=> ARiRTBAltStnAddFound ,
+				bDone									=> bFBDone[3]);
+
+
+			(*Write Start*)
+			IF (bRTBArmIDFound OR bRTBStnIDFound OR bRTBUldIDFound) AND iWriteSFL>=1 AND iWriteSFL <= iMasterBlockQty THEN
+
+				FOR iWriteSFL := 1 TO iMasterBlockQty DO
+
+					(*Arm Scanning*)
+					IF bRTBArmIDFound THEN
+
+						IF AR3SiMTBBusyArm_Main[iRTBArmAdd,iWriteSFL, 2] = 0 THEN
+
+						AR3SiMTBBusyArm_Main[iRTBArmAdd,iWriteSFL, 1] := AR2SiRecipeTimeBlockNoCallArmTime[iWriteMFL, 1];
+						AR3SiMTBBusyArm_Main[iRTBArmAdd,iWriteSFL, 2] := AR2SiRecipeTimeBlockNoCallArmTime[iWriteMFL, 2];
+						AR3SiMTBBusyArm_Main[iRTBArmAdd,iWriteSFL, 3] := AR2SiRecipeTimeBlockNoCallArmTime[iWriteMFL, 3];
+						bWriteArmDone := TRUE;
+						iWriteSFL:=iMasterBlockQty+1;
+						END_IF
+
+					END_IF
+
+					(*Stn Scanning*)
+					IF bRTBStnIDFound THEN
+
+						IF AR3SiMTBBusyStn_Main[iRTBStnAdd,iWriteSFL, 2] = 0 THEN
+
+						AR3SiMTBBusyStn_Main[iRTBStnAdd,iWriteSFL, 1] := AR2SiRecipeTimeBlockNoCallArmTime[iWriteMFL, 1];
+						AR3SiMTBBusyStn_Main[iRTBStnAdd,iWriteSFL, 2] := AR2SiRecipeTimeBlockNoCallArmTime[iWriteMFL, 2];
+						AR3SiMTBBusyStn_Main[iRTBStnAdd,iWriteSFL, 3] := AR2SiRecipeTimeBlockNoCallArmTime[iWriteMFL, 3];
+						bWriteStnDone := TRUE;
+						iWriteSFL:=iMasterBlockQty+1;
+						END_IF
+
+					END_IF
+
+
+					(*Uld Scanning*)
+					IF bRTBUldIDFound THEN
+
+						IF AR3SiMTBBusyUld_Main[iRTBUldAdd,iWriteSFL, 2] = 0 THEN
+
+						AR3SiMTBBusyUld_Main[iRTBUldAdd,iWriteSFL, 1] := AR2SiRecipeTimeBlockNoCallArmTime[iWriteMFL, 1];
+						AR3SiMTBBusyUld_Main[iRTBUldAdd,iWriteSFL, 2] := AR2SiRecipeTimeBlockNoCallArmTime[iWriteMFL, 2];
+						AR3SiMTBBusyUld_Main[iRTBUldAdd,iWriteSFL, 3] := AR2SiRecipeTimeBlockNoCallArmTime[iWriteMFL, 3];
+						bWriteUldDone := TRUE;
+						iWriteSFL:=iMasterBlockQty+1;
+						END_IF
+
+					END_IF
+
+				END_FOR
+
+
+
+
+				IF iWriteSFL > iMasterBlockQty AND bRTBArmIDFound AND NOT bWriteArmDone THEN
+				iWriteStep := 21;  (*Error!!! No Space for Arm data to fill*)
+				END_IF
+
+				IF iWriteSFL > iMasterBlockQty AND bRTBStnIDFound AND NOT bWriteStnDone THEN
+				iWriteStep := 22;  (*Error!!! No Space for Stn data to fill*)
+				END_IF
+
+				IF iWriteSFL > iMasterBlockQty AND bRTBUldIDFound AND NOT bWriteUldDone THEN
+				iWriteStep := 23;  (*Error!!! No Space for Uld data to fill*)
+				END_IF
+
+			END_IF
+
+		END_IF
+
+	END_FOR
+
+
+IF iWriteMFL > iRTBEndStep AND iWriteSFL > iMasterBlockQty THEN
+iWriteStep := 4;
+bWriteDone := TRUE;
+END_IF
+
+
+4: (*Write Done Indicator*)
+IF tWriteDoneTimer.Q THEN
+iWriteStep := 0;
+END_IF
+
+
+21:; (*Error!!! No Space for Arm data to fill*)
+bWriteMTBArmBlockFullError := TRUE;
+
+22:; (*Error!!! No Space for Stn data to fill*)
+bWriteMTBStnBlockFullError := TRUE;
+
+23:; (*Error!!! No Space for Uld data to fill*)
+bWriteMTBUldBlockFullError := TRUE;
+
+
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_SubMTBRunningTime">
+      <LineId Id="117" Count="365" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

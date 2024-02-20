@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_Servo" Id="{e285f535-a620-4e14-96bd-efc669ef7107}">
+    <Declaration><![CDATA[TYPE DS_Servo :
+STRUCT
+(*Homing Used*)
+
+	bHome_In_HomingSt 									: BOOL;
+	bHome_In_HomingReset 								: BOOL;
+	bHome_In_HomeSensor 								: BOOL;
+	lrHome_In_HighSpeed	 								: LREAL;
+	lrHome_In_HighSpeedAcc	 							: LREAL;
+	lrHome_In_HighSpeedDcc	 							: LREAL;
+	lrHome_In_2ndSpeed	 								: LREAL;
+	lrHome_In_2ndSpeedAcc	 							: LREAL;
+	lrHome_In_2ndSpeedDcc	 							: LREAL;
+	rHome_In_DccDelayTimeSec 							: REAL;
+	bHome_Out_HomeDone 								: BOOL;
+	bHome_Out_Busy 									: BOOL;
+
+(*Jog Used*)
+
+	bJog_InOut_JogEn 									: BOOL;
+	bJog_In_PositiveJogDirectionSt 							: BOOL;
+	bJog_In_NegativeJogDirectionSt 						: BOOL;
+	lrJog_In_JogSpeedHz 									: LREAL;
+	lrJog_In_JogSpeedAcc 								: LREAL;
+	lrJog_In_JogSpeedDcc 								: LREAL;
+	bJog_Out_InvMoveFwd 								: BOOL;
+	bJog_Out_InvMoveRwd 								: BOOL;
+
+(* Arm Inv Analog Spd Ctrl*)
+
+	bOut_JogInProgress 									: BOOL;
+	bOut_HomeInProgress 								: BOOL;
+	bOut_PosInProgress 									: BOOL;
+	lrOur_RealTimeSpeedDisplay		 					: LREAL;
+
+
+(* General Used*)
+
+	bGen_In_VertMovementEn								: BOOL;
+	bGen_In_HorzMovementEn								: BOOL;
+(*	bGen_In_ServoErrorReset								: BOOL;*)
+
+	bGen_In_FwdOverTravelSensorNC 						: BOOL;
+	bGen_In_RwdOverTravelSensorNC 						: BOOL;
+	lrGen_Out_CurrentPos									: LREAL;
+
+(* Pos Ctrl Used*)
+
+	bPos_In_4StepsEn									: BOOL;
+	bPos_In_PositioningEn 								: BOOL;
+	bPos_In_Tolerance									: LREAL;
+	bPos_Out_PositioningDone 							: BOOL;
+	bPos_Out_PositioningBusy 								: BOOL;
+	lrPos_In_HighSpeed									: LREAL;
+	lrPos_In_Acc											: LREAL;
+	lrPos_In_Dcc											: LREAL;
+
+(*	lrPos_In_LowSpeed									: LREAL;*)
+(*	Axis_In_Define										: Axis_Ref;*)
+
+(*MC read status *)
+
+	MC_ArmValid											: BOOL;
+	MC_ArmBusy											: BOOL;
+	MC_ArmError											: BOOL;
+	MC_ArmErrorID										: UDINT;
+	MC_ArmErrorStop										: BOOL;
+	MC_ArmDisable										: BOOL;
+	MC_ArmStopping 										: BOOL;
+	MC_ArmStandStill										: BOOL;
+	MC_ArmDiscreteMotion								: BOOL;
+	MC_ArmContinuosMotion								: BOOL;
+	MC_ArmSynchronizeMotion								: BOOL;
+	MC_ArmHoming										: BOOL;
+	MC_ConstantVelocity									: BOOL;
+	MC_Acc												: BOOL;
+	MC_Dcc												: BOOL;
+	MC_Status											: ST_AxisStatus;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

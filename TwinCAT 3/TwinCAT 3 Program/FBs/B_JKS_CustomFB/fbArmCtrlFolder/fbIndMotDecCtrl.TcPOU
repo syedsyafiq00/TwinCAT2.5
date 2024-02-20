@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbIndMotDecCtrl" Id="{afa7ecd6-3da3-4e27-accc-44e94ad405b6}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbIndMotDecCtrl
+VAR_INPUT
+	bHighSpeedEN : BOOL;
+	b2ndSpeedEN : BOOL;
+	iTargetHighSpeed : INT;
+	iTarget2ndSpeed : INT;
+	iDccTime : INT;
+	iDccStep : INT;
+	lrPercentToAnalogRatio : LREAL;
+	bRampEnable : BOOL;
+
+END_VAR
+VAR_OUTPUT
+
+
+END_VAR
+
+VAR_IN_OUT
+	iAnalogSpeed : INT;
+	iPercentageSpeed : INT;
+END_VAR
+
+VAR
+	tRefreshTime: TIME;
+	RefreshTimer: TON;
+	RefreshTimerRE: R_TRIG;
+	lrAnalogSpeed : LREAL;
+
+
+	iValueToDeduce: INT;
+	iPercentPerStep: INT;
+	iRampValue: INT;
+	b2ndSpeedRE: R_TRIG;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*  No EN Signal for both HighSpeed and 2ndSpeed *)
+IF NOT  bHighSpeedEN AND NOT b2ndSpeedEN THEN
+iPercentageSpeed := 0;
+END_IF
+
+(* HighSpeed Enable *)
+IF bHighSpeedEN AND NOT b2ndSpeedEN THEN
+iPercentageSpeed := iTargetHighSpeed;
+END_IF
+
+(*Convertion from Percentage to Analog *)
+IF lrPercentToAnalogRatio > 0 AND iPercentageSpeed > 0 THEN
+lrAnalogSpeed := lrPercentToAnalogRatio * INT_TO_LREAL(iPercentageSpeed);
+ELSE
+lrAnalogSpeed := 0;
+END_IF
+
+iAnalogSpeed := LREAL_TO_INT(lrAnalogSpeed);
+
+
+(* 2ndSpeed Enable *)
+IF NOT b2ndSpeedEN THEN
+iRampValue := 0;
+END_IF
+
+IF iTargetHighSpeed > 0 AND iTarget2ndSpeed > 0 AND iDccStep > 0 THEN
+iPercentPerStep := (iTargetHighSpeed - iTarget2ndSpeed)/iDccStep;
+END_IF
+
+IF iDccTime > 0 AND iDccStep > 0 THEN
+tRefreshTime := INT_TO_TIME(iDccTime*1000/iDccStep);
+END_IF
+
+IF b2ndSpeedEN AND NOT bHighSpeedEN AND bRampEnable THEN
+
+	IF iPercentageSpeed > iTarget2ndSpeed THEN
+		RefreshTimer(IN:=NOT RefreshTimer.Q , PT:= tRefreshTime , Q=> , ET=> );
+		RefreshTimerRE(CLK:=RefreshTimer.Q , Q=> );
+	END_IF
+
+b2ndSpeedRE(CLK:=b2ndSpeedEN , Q=> );
+
+	IF b2ndSpeedRE.Q THEN
+	iRampValue := 0;
+	END_IF
+
+	IF RefreshTimerRE.Q AND iPercentageSpeed > iTarget2ndSpeed THEN
+	iRampValue := iRampValue + iPercentPerStep;
+	END_IF
+
+iPercentageSpeed := iTargetHighSpeed - iRampValue;
+
+END_IF
+
+IF NOT bRampEnable THEN
+	IF b2ndSpeedEN THEN
+	iPercentageSpeed := iTarget2ndSpeed;
+	END_IF
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbIndMotDecCtrl">
+      <LineId Id="34" Count="58" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

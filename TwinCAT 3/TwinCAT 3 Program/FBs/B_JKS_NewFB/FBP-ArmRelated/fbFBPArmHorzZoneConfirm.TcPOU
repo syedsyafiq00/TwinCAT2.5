@@ -1,0 +1,233 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbFBPArmHorzZoneConfirm" Id="{954e7e12-f1ca-4adb-a11b-922d7a2925fd}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbFBPArmHorzZoneConfirm
+VAR_INPUT
+	bEnable 					: BOOL;
+(*	iLdStnID					: INT;
+	iUldStnID					: INT;
+*)	lrHorzActualPos 			: LREAL;
+	lrHorzStartPoint 			: LREAL;
+	lrHorzEndPoint 			: LREAL;
+	lrLdHorzCentrePoint 		: LREAL;
+	ARlrStnHorzCentrePoint 	: ARRAY [1..iStnQty] OF LREAL;
+	lrUldHorzCentrePoint 		: LREAL;
+	ARiStnHorzListing 		: ARRAY [1..50] OF INT;
+
+END_VAR
+
+
+VAR_OUTPUT
+	bLdHorzZoneConfirm 		: BOOL;
+	ARbHorzStnZoneConfirm 	: ARRAY [1..iStnQty] OF BOOL;
+	bUldHorzZoneConfirm 		: BOOL;
+	ICurrentHorzZoneNo 			: INT;
+	bInvalidListingErr				: BOOL;
+
+
+
+END_VAR
+(*
+VAR_IN_OUT
+	iZoneEndPoint : ARRAY [1..20] OF INT;
+	iActualPos: INT;
+
+END_VAR
+*)
+VAR
+
+	iActualPos: INT;
+
+
+	bEnableRE: R_TRIG;
+	iGenZoneFL: INT;
+	ARlrZoneCentrePoint : ARRAY [1..50] OF LREAL;
+	ARlrZoneEndPoint : ARRAY [1..50] OF LREAL;
+	ARbZonePosConfirmInt : ARRAY [1..50] OF BOOL;
+	iCheckListFL: INT;
+	iEndPointFL: INT;
+	bEnableFE: F_TRIG;
+	iClearFL: INT;
+	IZonePosCfFL: INT;
+	iCurrentStnFL: INT;
+	bCheckStnConfirm: BOOL;
+	iCheckStnBitFL: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*bEnable Rising Edge*)
+bEnableRE(CLK:=bEnable , Q=> );
+bEnableFE(CLK:=bEnable , Q=> );
+
+(*Generate Zone Centre Point and Transfer Confirm Bit*)
+IF bEnable THEN
+iGenZoneFL := 1;
+	FOR iGenZoneFL := 1 TO 50 DO
+		IF iGenZoneFL >= 1 AND iGenZoneFL <= 50 THEN
+
+			IF ARiStnHorzListing[iGenZoneFL] = iLdStnID THEN
+				ARlrZoneCentrePoint[iGenZoneFL] := lrLdHorzCentrePoint;
+				bLdHorzZoneConfirm := ARbZonePosConfirmInt[iGenZoneFL];
+			END_IF
+
+			IF ARiStnHorzListing[iGenZoneFL] = iUldStnID THEN
+				ARlrZoneCentrePoint[iGenZoneFL] := lrUldHorzCentrePoint;
+				bUldHorzZoneConfirm := ARbZonePosConfirmInt[iGenZoneFL];
+			END_IF
+
+			IF ARiStnHorzListing[iGenZoneFL] <> iUldStnID AND ARiStnHorzListing[iGenZoneFL] <> iUldStnID AND ARiStnHorzListing[iGenZoneFL] <> 0 AND ARiStnHorzListing[iGenZoneFL] <= iStnQty THEN
+				ARlrZoneCentrePoint[iGenZoneFL] := ARlrStnHorzCentrePoint[ARiStnHorzListing[iGenZoneFL]];
+				ARbHorzStnZoneConfirm[ARiStnHorzListing[iGenZoneFL]] := ARbZonePosConfirmInt[iGenZoneFL];
+			END_IF
+		END_IF
+	END_FOR
+END_IF
+
+
+(*Check invalid Stn Listing*)
+IF bEnableRE.Q THEN
+bInvalidListingErr := FALSE;
+iCheckListFL := 1;
+	FOR iCheckListFL := 1 TO 50 DO
+		IF iCheckListFL >= 1 AND iCheckListFL <= 50 THEN
+
+			IF iCheckListFL = 1 AND ARlrZoneCentrePoint[1] <= 0 THEN
+			bInvalidListingErr := TRUE;
+			iCheckListFL := 50+1;
+			END_IF
+
+			IF iCheckListFL > 1 AND ARlrZoneCentrePoint[iCheckListFL] <= ARlrZoneCentrePoint[iCheckListFL-1] AND ARiStnHorzListing[iCheckListFL] >0 THEN
+			bInvalidListingErr := TRUE;
+			iCheckListFL := 50+1;
+			END_IF
+		END_IF
+	END_FOR
+END_IF
+
+
+
+
+(*Generate End Point *)
+IF bEnableRE.Q THEN
+iEndPointFL := 1;
+	FOR iEndPointFL := 1 TO 50 DO
+		IF iEndPointFL >= 1 AND iEndPointFL <= 50-1 THEN
+
+(*			IF iEndPointFL >1 THEN*)
+				IF ((ARlrZoneCentrePoint[iEndPointFL+1] - ARlrZoneCentrePoint[iEndPointFL])/2) >0 THEN
+				ARlrZoneEndPoint[iEndPointFL] := ((ARlrZoneCentrePoint[iEndPointFL+1] - ARlrZoneCentrePoint[iEndPointFL])/2)+ARlrZoneCentrePoint[iEndPointFL];
+				ELSIF lrHorzEndPoint <= ARlrZoneCentrePoint[iEndPointFL] THEN
+				ARlrZoneEndPoint[iEndPointFL] := ARlrZoneCentrePoint[iEndPointFL]+5000;
+				iEndPointFL := 50+1;
+				ELSIF lrHorzEndPoint > ARlrZoneCentrePoint[iEndPointFL] THEN
+				ARlrZoneEndPoint[iEndPointFL] := lrHorzEndPoint+1;
+				iEndPointFL := 50+1;
+				END_IF
+(*			END_IF*)
+		END_IF
+	END_FOR
+END_IF
+
+
+(*Clear Data*)
+IF bEnableFE.Q THEN
+iClearFL := 1;
+	FOR iClearFL := 1 TO 50 DO
+		IF iClearFL >= 1 AND iClearFL <= 50 THEN
+
+			ARlrZoneCentrePoint[iClearFL] := 0;
+			ARlrZoneEndPoint[iClearFL] := 0;
+			ARbZonePosConfirmInt[iClearFL] := FALSE;
+
+			IF iClearFL >= 1 AND iClearFL <= iStnQty THEN
+			ARbHorzStnZoneConfirm[iClearFL] := FALSE;
+			END_IF
+
+		END_IF
+	END_FOR
+bLdHorzZoneConfirm := FALSE;
+bUldHorzZoneConfirm := FALSE;
+ICurrentHorzZoneNo := 0;
+bInvalidListingErr := FALSE;
+END_IF
+
+
+(*Convert LREAL to INT*)
+
+
+iActualPos := LREAL_TO_INT(lrHorzActualPos);
+
+
+
+
+IF bEnable AND NOT bInvalidListingErr THEN
+
+
+(*General Zone Pos Confirm Internal*)
+IZonePosCfFL := 1;
+	FOR IZonePosCfFL := 1 TO 50 DO
+		IF IZonePosCfFL >= 1 AND IZonePosCfFL <= 50 THEN
+
+			IF IZonePosCfFL = 1 THEN
+				IF (iActualPos >= lrHorzStartPoint) AND (iActualPos < ARlrZoneEndPoint[IZonePosCfFL]) AND iActualPos >0 THEN
+				ARbZonePosConfirmInt[IZonePosCfFL] := TRUE;
+				ELSE
+				ARbZonePosConfirmInt[IZonePosCfFL] := FALSE;
+				END_IF
+			END_IF
+
+			IF IZonePosCfFL > 1 THEN
+				IF (iActualPos >= ARlrZoneEndPoint[IZonePosCfFL-1]) AND (iActualPos < ARlrZoneEndPoint[IZonePosCfFL]) AND iActualPos >0 THEN
+				ARbZonePosConfirmInt[IZonePosCfFL] := TRUE;
+				ELSE
+				ARbZonePosConfirmInt[IZonePosCfFL] := FALSE;
+				END_IF
+			END_IF
+		END_IF
+	END_FOR
+
+(*Generate ICurrentHorzZoneNo *)
+
+
+	IF bLdHorzZoneConfirm THEN
+	ICurrentHorzZoneNo := iLdStnID;
+	ELSIF bUldHorzZoneConfirm THEN
+	ICurrentHorzZoneNo := iUldStnID;
+	ELSE
+	iCurrentStnFL := 1;
+	
+		FOR iCurrentStnFL := 1 TO iStnQty DO
+			IF iCurrentStnFL >= 1 AND iCurrentStnFL <= iStnQty THEN
+
+				IF ARbHorzStnZoneConfirm[iCurrentStnFL] THEN
+				ICurrentHorzZoneNo := iCurrentStnFL;
+				END_IF
+	
+			END_IF
+		END_FOR
+	
+	END_IF
+
+(*Check if any Ld/Uld/Stn Pos Confirm Bit is on, else -> ICurrentHorzZoneNo := 0; *)
+bCheckStnConfirm := FALSE;
+iCheckStnBitFL := 1;
+
+	FOR iCheckStnBitFL := 1 TO iStnQty DO
+		IF iCheckStnBitFL >= 1 AND iCheckStnBitFL <= iStnQty THEN
+			IF ARbHorzStnZoneConfirm[iCheckStnBitFL] THEN
+			bCheckStnConfirm := TRUE;
+			END_IF
+		END_IF
+	END_FOR
+
+
+	IF NOT bLdHorzZoneConfirm AND NOT bUldHorzZoneConfirm AND NOT bCheckStnConfirm THEN
+	ICurrentHorzZoneNo := 0;
+	END_IF
+
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbFBPArmHorzZoneConfirm">
+      <LineId Id="52" Count="170" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

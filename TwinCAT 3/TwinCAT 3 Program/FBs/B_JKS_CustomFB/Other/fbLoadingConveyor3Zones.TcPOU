@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbLoadingConveyor3Zones" Id="{072fe1b2-0d6c-48f2-b3e3-a1f0c7931a17}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM fbLoadingConveyor3Zones
+VAR
+	bEnable: BOOL;
+	bLd1ConfirmAvailable: BOOL;
+	bLd1TransferAvailable: BOOL;
+
+	bLd2ConfirmAvailable: BOOL;
+	bLd2TransferAvailable: BOOL;
+
+	bLd3ConfirmAvailable: BOOL;
+	bLd3TransferAvailable: BOOL;
+
+	bLdSensor1: BOOL;
+	bLdSensor2: BOOL;
+	bLdSensor3: BOOL;
+
+	bRapidPB : BOOL;
+
+	bBarcodeValid: BOOL;
+
+	bMotor: BOOL;
+
+
+	tLdSensor1OffDelay: TON;
+	bMotorRE: R_TRIG;
+	bMotorFE: F_TRIG;
+	bLdSensor1RE: R_TRIG;
+	bLdSensor2RE: R_TRIG;
+	bLdSensor3RE: R_TRIG;
+	bBarcodeValidRE: R_TRIG;
+	bRapidPBRE: R_TRIG;
+	tLdSensor3OnDelay: TON;
+	tLdSensor3withMotorOnDelay: TON;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Rising Edge*)
+bMotorRE(CLK:=bMotor , Q=> );
+bLdSensor1RE(CLK:=bLdSensor1 , Q=> );
+bLdSensor2RE(CLK:=bLdSensor2 , Q=> );
+bLdSensor3RE(CLK:=bLdSensor3 , Q=> );
+bBarcodeValidRE(CLK:=bBarcodeValid , Q=> );
+bRapidPBRE(CLK:=bRapidPB , Q=> );
+
+(*Falling Edge*)
+bMotorFE(CLK:=bMotor , Q=> );
+
+
+
+(*Loading Sequence*)
+
+tLdSensor3OnDelay(IN:=bLdSensor3  , PT:=t#3s , Q=> , ET=> );
+
+IF tLdSensor3OnDelay.Q THEN
+	bLd1TransferAvailable := FALSE;
+END_IF
+
+
+IF bEnable THEN
+
+	IF (bLd1ConfirmAvailable OR bLd1TransferAvailable OR bLd2TransferAvailable OR (NOT bLdSensor1 AND bRapidPBRE.Q))  AND NOT tLdSensor3OnDelay.Q THEN
+	bMotor := TRUE;
+	ELSE
+	bMotor := FALSE;
+	END_IF
+
+
+ELSE
+
+	bMotor := FALSE;
+
+END_IF
+
+
+(*Basket Memory Control*)
+
+tLdSensor1OffDelay(IN:=NOT bLdSensor1 , PT:=t#2s , Q=> , ET=> );
+
+IF bLdSensor1 AND bBarcodeValidRE.Q THEN
+bLd1ConfirmAvailable := TRUE;
+END_IF
+
+IF tLdSensor1OffDelay.Q THEN
+bLd1ConfirmAvailable := FALSE;
+END_IF
+
+(*Confirm to Transfer*)
+IF bMotorRE.Q AND bLd1ConfirmAvailable THEN
+bLd1TransferAvailable := TRUE;
+bLd1ConfirmAvailable := FALSE;
+END_IF
+
+IF bMotorRE.Q AND bLd2ConfirmAvailable THEN
+bLd2TransferAvailable := TRUE;
+bLd2ConfirmAvailable := FALSE;
+END_IF
+
+(*Transfer to Confirm*)
+IF bLdSensor2RE.Q AND bLd1TransferAvailable THEN
+bLd2ConfirmAvailable := TRUE;
+bLd1TransferAvailable := FALSE;
+END_IF
+
+IF bLdSensor3RE.Q AND bLd2TransferAvailable THEN
+bLd3ConfirmAvailable := TRUE;
+bLd2TransferAvailable := FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbLoadingConveyor3Zones">
+      <LineId Id="34" Count="70" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

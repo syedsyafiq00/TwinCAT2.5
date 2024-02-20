@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="PID_FB" Id="{2e8ae5ab-0b1b-475f-8754-64a6a782f2a8}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PID_FB
+VAR_INPUT
+	fSetpointValue_INT			: INT						;
+	PID_fKp						: REAL (*:= 1.0	*)				;
+	PID_tTn						: TIME (*:= T#1s*)				;
+	PID_tTv						: TIME (*:= T#30ms*)				;
+	PID_tTd						: TIME (*:= T#40ms	*)			;
+
+END_VAR
+
+VAR_IN_OUT
+	fActualValueINT		: INT				;	(*this is the measured value. you need to map this variable to the hardware input*)
+END_VAR
+VAR_OUTPUT
+	fOutREAL_INT AT %Q*			: INT				;	(*this is the output value. you need to map this variable to the hardware output*)
+	iOutPercent					: INT				;
+END_VAR
+
+
+VAR
+	fSetpointValue				: FLOAT				; 	(*this is your set point value*)
+
+	fActualValue					: FLOAT				;
+	fActualValueINT_REAL			:REAL				;
+
+	fOut 							: FLOAT				;
+	bHold						: BOOL				;
+
+	fManSyncValue				: FLOAT				;
+	bSync						: BOOL				;
+
+
+	eMode						: E_CTRL_MODE		;
+	stCTRL_PID_PARAMS			: ST_CTRL_PID_PARAMS;
+
+	eErrorId					: E_CTRL_ERRORCODES;
+	bError						: BOOL				;
+	bARWactive					: BOOL				;
+
+	(* controller *)
+	fbCTRL_PID					: FB_CTRL_PID		;
+
+	bInit							: BOOL	:= TRUE		;
+	fbTON						: TON				;
+
+	fSetpointValueToScope		: FLOAT				;
+	fActualValueToScope			: FLOAT				;
+	fOutToScope					: FLOAT				;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[;IF bInit
+THEN
+	(* init parameter struct *)
+	stCTRL_PID_PARAMS.tCtrlCycleTime		:= T#10ms;
+	stCTRL_PID_PARAMS.tTaskCycleTime		:= T#10ms;
+	stCTRL_PID_PARAMS.fKp					:= PID_fKp;			(* proportional gain Kp*)
+	stCTRL_PID_PARAMS.tTn					:= PID_tTn;			(*  Tn *)
+	stCTRL_PID_PARAMS.tTv					:= PID_tTv;		(*  Tv *)
+	stCTRL_PID_PARAMS.tTd					:= PID_tTd;		(*  Td *)
+	stCTRL_PID_PARAMS.fOutMaxLimit			:=  100;			(* maximum output limit	*)
+	stCTRL_PID_PARAMS.fOutMinLimit			:= 0;			(* minimum output limit	*)
+
+	(* set the mode to ACTIVE --> normal operation *)
+	eMode							:= eCTRL_MODE_ACTIVE;
+
+	(* reset the init flag *)
+	bInit							:= FALSE;
+END_IF
+
+fSetpointValue:=INT_TO_FLOAT(fSetpointValue_INT);
+
+(*fActualValueINT_REAL:=INT_TO_REAL(fActualValueINT);
+fActualValueINT_REAL:=fActualValueINT_REAL*10/32767;*)
+fActualValue:=INT_TO_FLOAT(fActualValueINT);
+
+fOutREAL_INT:=FLOAT_TO_INT(fOut*327.67);
+iOutPercent:=FLOAT_TO_INT(fOut);
+(*fOutREAL_INT:=fOutREAL_INT*32767/100;*)
+
+fSetpointValueToScope 	:= fSetpointValue;
+fActualValueToScope 		:= fActualValue;
+
+(* call controller *)
+fbCTRL_PID(			fSetpointValue		:= fSetpointValue,
+					fActualValue			:= fActualValue,
+					fManSyncValue		:= fManSyncValue,
+					bSync				:= bSync,
+					eMode				:= eMode,
+					bHold				:= bHold,
+					stParams			:= stCTRL_PID_PARAMS,
+					fOut					=> fOut,
+					bARWactive			=> bARWactive,
+					eErrorId				=> eErrorId,
+					bError				=> bError
+				);
+(* copy var to scope var *)
+fOutToScope := fOutREAL_INT;]]></ST>
+    </Implementation>
+    <LineIds Name="PID_FB">
+      <LineId Id="49" Count="25" />
+      <LineId Id="144" Count="0" />
+      <LineId Id="75" Count="19" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

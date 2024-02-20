@@ -1,0 +1,217 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbCallStnSeqSubPro" Id="{c7cf4a72-f3f2-4a6b-877d-56304d275268}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbCallStnSeqSubPro
+VAR_INPUT
+	bCallSt: BOOL;
+	iCurrentProcessStep: INT;
+END_VAR
+VAR_OUTPUT PERSISTENT
+	bCallCompleted : BOOL;
+	bInvalidProcessStepErrHold : BOOL;
+	bInvalidProcessStepErrPulse: BOOL;
+	bCallStnSeqRecipeErr : BOOL;
+	bCallStnSubRecipeErr : BOOL;
+	BuffersSubDescription : STRING(50);
+	BufferDsSubRecipeMemory : DS_SubRecipeMemory;
+(*	BufferAR30iInt : ARRAY [0..30] OF INT;
+	BufferAR50bBool : ARRAY [0..50] OF BOOL;
+	BufferAR5sString : ARRAY [0..5] OF STRING(50);
+	BufferAR5lrLreal : ARRAY [0..5] OF LREAL;*)
+	iSeqStep: INT;
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+
+	DSStnSeqRepCall: DS_fbStationSequenceRecipeCall;
+	DSStnSeqSubCall: DS_fbStationSubRecipeCall;
+	DSBasketInfo : DS_BasketInfo;
+
+
+END_VAR
+
+VAR PERSISTENT
+
+
+END_VAR
+VAR
+	CallSelfCheckHR: BOOL;
+	iPreviousProcessStep: INT;
+	CallSelfCheckRE : R_TRIG;
+	febInvalidProcessStep : F_TRIG;
+
+	reCallCompleted: R_TRIG;
+	CallCompletedTimer: TON;
+
+	rebInvalidStnSeqRepCall: R_TRIG;
+	rebInvalidStnSubRepCall: R_TRIG;
+	rebCallSt: R_TRIG;
+	tCallStnSeqRecipeErrTimer: TON;
+	tCallStnSubRecipeErrTimer: TON;
+	tInvalidProcessStepErrTimer: TON;
+	rebInvalidProcessStep: R_TRIG;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Reset fb*)
+IF NOT bCallSt THEN
+DSStnSeqRepCall.bCallPB := FALSE;
+DSStnSeqSubCall.bCallPB := FALSE;
+bCallCompleted := FALSE;
+bCallStnSeqRecipeErr := FALSE;
+bCallStnSubRecipeErr := FALSE;
+iSeqStep := 0;
+
+END_IF
+
+
+(*Reset Err after 0.5Sec*)
+
+tCallStnSeqRecipeErrTimer(IN:= bCallStnSeqRecipeErr , PT:=t#0.5s , Q=> , ET=> );
+
+IF tCallStnSeqRecipeErrTimer.Q OR NOT bCallSt THEN
+bCallStnSeqRecipeErr := FALSE;
+END_IF
+
+
+tCallStnSubRecipeErrTimer(IN:= bCallStnSubRecipeErr , PT:=t#0.5s , Q=> , ET=> );
+
+IF tCallStnSubRecipeErrTimer.Q OR NOT bCallSt THEN
+bCallStnSubRecipeErr := FALSE;
+END_IF
+
+
+
+(*Check if CurrentProcessStep changed, pull data from SSER and SSUR again*)
+
+(*
+CallSelfCheckRE(CLK:=iPreviousProcessStep <> iCurrentProcessStep , Q=> );
+
+IF CallSelfCheckRE.Q THEN
+CallSelfCheckHR := TRUE;
+END_IF
+*)
+IF( iCurrentProcessStep <= 0 OR iCurrentProcessStep > iProductRecipeStepArrayQty) AND bCallSt THEN
+bInvalidProcessStepErrHold := TRUE;
+ELSE
+bInvalidProcessStepErrHold := FALSE;
+END_IF
+(*
+febInvalidProcessStep(CLK:=bInvalidProcessStepErrHold , Q=> );
+*)
+rebInvalidProcessStep(CLK:=bInvalidProcessStepErrHold AND bCallSt , Q=> );
+
+IF rebInvalidProcessStep.Q THEN
+bInvalidProcessStepErrPulse := TRUE;
+END_IF
+
+
+tInvalidProcessStepErrTimer(IN:= bInvalidProcessStepErrPulse , PT:=t#0.5s , Q=> , ET=> );
+
+IF tInvalidProcessStepErrTimer.Q OR NOT bCallSt THEN
+bInvalidProcessStepErrPulse := FALSE;
+END_IF
+
+(*Sequence Start*)
+(*
+IF NOT bSequenceSt THEN
+iSeqStep := 0;
+END_IF
+*)
+rebCallSt(CLK:=bCallSt , Q=> );
+IF rebCallSt.Q (*OR (CallSelfCheckRE.Q*) AND NOT bInvalidProcessStepErrHold(*) OR febInvalidProcessStep.Q*) THEN
+iSeqStep := 1;
+(*iCurrentProcessStep := 1;*)
+END_IF
+
+rebInvalidStnSeqRepCall(CLK:=DSStnSeqRepCall.bInvalidCallStationSequenceNoPulse , Q=> );
+rebInvalidStnSubRepCall(CLK:=DSStnSeqSubCall.bInvalidCallSubRecipeNoPulse , Q=> );
+
+
+CASE iSeqStep OF
+
+0:;
+
+1: (*Select Sequence Recipe By Refering Basket Information*)
+bCallStnSeqRecipeErr := FALSE;
+bCallStnSubRecipeErr := FALSE;
+
+DSStnSeqRepCall.Call_iStationSequenceRecipe := DSBasketInfo.iStationSeqenceRecipeNo(*iProgramNo*);
+DSStnSeqRepCall.bCallPB := TRUE;
+
+IF DSStnSeqRepCall.bCallCompleted THEN
+DSStnSeqRepCall.bCallPB := FALSE;
+
+iSeqStep:=2;
+
+END_IF
+
+IF rebInvalidStnSeqRepCall.Q THEN
+DSStnSeqRepCall.bCallPB := FALSE;
+
+iSeqStep:=11;
+END_IF
+
+
+
+2: (*Select Sub Recipe By Refering Selected Sequence Recipe Number*)
+
+DSStnSeqSubCall.Call_iSubRecipe := DSStnSeqRepCall.Call_DsStationSequenceRecipeMemory.AR10iStationSubProNo[iCurrentProcessStep];
+DSStnSeqSubCall.bCallPB := TRUE;
+
+
+IF DSStnSeqSubCall.bCallCompleted THEN
+DSStnSeqSubCall.bCallPB := FALSE;
+
+iSeqStep:=3;
+END_IF
+
+IF rebInvalidStnSubRepCall.Q THEN
+DSStnSeqSubCall.bCallPB := FALSE;
+
+iSeqStep:=12;
+END_IF
+
+
+3: (*Transfer Sub Recipe Detail to Buffer*)
+
+	BuffersSubDescription := DSStnSeqSubCall.Call_sSubDescription ;
+	BufferDsSubRecipeMemory := DSStnSeqSubCall.Call_DsSubRecipeMemory;
+
+iPreviousProcessStep := iCurrentProcessStep;
+bCallCompleted := TRUE;
+CallSelfCheckHR := FALSE;
+iSeqStep:=4;
+
+4:
+
+CallCompletedTimer(IN:= bCallCompleted , PT:=t#0.5s , Q=> , ET=> );
+
+IF CallCompletedTimer.Q THEN
+bCallCompleted := FALSE;
+END_IF
+
+
+11:
+iPreviousProcessStep := iCurrentProcessStep;
+CallSelfCheckHR := FALSE;
+bCallStnSeqRecipeErr := TRUE;
+iSeqStep:=21;
+
+12:
+iPreviousProcessStep := iCurrentProcessStep;
+bCallStnSubRecipeErr := TRUE;
+CallSelfCheckHR := FALSE;
+iSeqStep:=22;
+
+21:;
+
+22:;
+
+
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="fbCallStnSeqSubPro">
+      <LineId Id="50" Count="156" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

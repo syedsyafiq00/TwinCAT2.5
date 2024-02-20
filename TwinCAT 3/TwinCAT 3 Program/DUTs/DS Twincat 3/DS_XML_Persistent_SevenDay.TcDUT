@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_XML_Persistent_SevenDay" Id="{3155995a-268a-49a3-a8ab-8bdc8031cdb0}">
+    <Declaration><![CDATA[TYPE DS_XML_Persistent_SevenDay :
+STRUCT
+	TodayDay 				: STRING;
+
+	ArbDayOnEn_IN			: ARRAY [1..7] OF BOOL;
+	ArbDayOffEn_IN			: ARRAY [1..7] OF BOOL;
+
+	ArwDayOnHour_IN			: ARRAY [1..7] OF WORD;
+	ArwDayOnMinute_IN		: ARRAY [1..7] OF WORD;
+
+	ArwDayOffHour_IN		: ARRAY [1..7] OF WORD;
+	ArwDayOffMinute_IN		: ARRAY [1..7] OF WORD;
+
+	ArbDaySysOn_OUT			: ARRAY [1..7] OF BOOL;
+	ArbDaySysOff_OUT		: ARRAY [1..7] OF BOOL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_XML_Persistent_TimeOptimize" Id="{d88856af-8ba4-41f0-afc9-098d6e8dee07}">
+    <Declaration><![CDATA[TYPE DS_XML_Persistent_TimeOptimize :
+STRUCT
+	
+	bTimeOptimizeDisable								: BOOL;
+
+	ARiCalledTotalProcessTimeStn1						: ARRAY[1..5] OF INT;
+	ARiCalledTotalProcessTimeStn2						: ARRAY[1..5] OF INT;
+	ARiCalledTotalProcessTimeStn3						: ARRAY[1..5] OF INT;
+	ARiCalledTotalProcessTimeStn4						: ARRAY[1..5] OF INT;
+	ARiCalledTotalProcessTimeStn5						: ARRAY[1..5] OF INT;
+	ARiCalledTotalProcessTimeStn6						: ARRAY[1..5] OF INT;
+	ARiCalledTotalProcessTimeStn7						: ARRAY[1..5] OF INT;
+	ARiCalledTotalProcessTimeStn8						: ARRAY[1..5] OF INT;
+	ARiCalledTotalProcessTimeStn9						: ARRAY[1..5] OF INT;
+	ARiCalledTotalProcessTimeStn10						: ARRAY[1..5] OF INT;
+
+(*[][][][][][][][][][][][][][][][][][][][]---fbMasterTimeBlockG2---[][][][][][][][][][][][][][][][][][][][]*)
+(*
+	fbV2MasterTimeBlockG2_Auto							: fbV2_MasterTimeBlockG2;
+*)
+(*Input*)
+	bMTBStartEN 										: BOOL;
+	bMTBScanEN											: BOOL;                         (*bScanOnFlag*)
+	bMTBWriteEN 										: BOOL;
+	bMTBResetEN 										: BOOL;
+
+(*Output*)
+	bMTBScanCompletedFlag								: BOOL;
+	bMTBWriteDoneFlag 									: BOOL;
+	bMTBResetDoneFlag 									: BOOL;
+	bMTBWriteArmDataError 								: BOOL;
+	bMTBWriteStnDataError								: BOOL;
+	bMTBWriteUldDataError								: BOOL;
+	bMTBNoAvailableSlotError 							: BOOL;
+	bMTBArmIDAndStnIDAndUldIDNotFound				 	: BOOL;
+
+	bMTBWriteDisable									: BOOL;
+	bMTBWriteRetry										: BOOL;
+	bMTBWriteExecuteError								: BOOL;
+
+	iMTBNextTransferScanCounter							: INT;
+	iMTBNextNotAvailableScanCounter						: INT;
+	iMTBNextTransferTime								: INT;
+	iMTBNextNotAvailableTime							: INT;
+
+(*[][][][][][][][][][][][][][][][][][][][]---fbTimeBlockSimulatorG2---[][][][][][][][][][][][][][][][][][][][]*)
+
+	fbV2TimeBlockSimulatorG2_Main						: fbV2_TimeBlockSimulatorG2;
+
+(*Input*)
+	bSimulateTSEN										: BOOL;
+
+(*Output*)
+	bSimulateCompletedFlag								: BOOL;
+	iSimulatePercentage									: INT;
+	bSimNoSpaceForArmDataToFill							: BOOL;
+	bSimNoSpaceForStnDataToFill							: BOOL;
+	bSimArmIDAndStnIDNotFound							: BOOL;
+
+	iSimulatedBasketQty									: INT;
+	iSimMasterTotalTime									: INT;
+	iSimAvarageTimeSec									: INT;
+
+	rSimBasketQtyPerHour								: REAL;
+
+(*[][][][][][][][][][][][][][][][][][][][]---fbFBPTimeTrackerG2---[][][][][][][][][][][][][][][][][][][][]*)
+
+	DSTimeTrackerInput									: DSV2_TimeTrackerInput;
+
+(*Input*)
+	bTrackerStartEN										: BOOL;
+
+	iCallRecipeTimeBlock_ProductRecipeNo 				: INT;
+
+	iSimulatorProductRecipeNo							: INT;
+	iUserDefineProductRecipeNo							: INT;
+	iTrackerProductRecipeNo 							: INT;
+	iDisplayUserDefineProductRecipeNo					:INT;
+
+(*Output*)
+
+	bTrackerCompleted 									: BOOL;
+	bNoUldStnIDErr										: BOOL;
+	bInvalidCallRecipeTimeBlockNo						: BOOL;
+	bCallRTB_NoTrackerInfo								: BOOL;
+	bCallRTB_CallOK 									: BOOL;
+	bCallModeError										: BOOL;
+
+
+(*[][][][][][][][][][][][][][][][][][][][]---fbMasterTimeBlockG2---[][][][][][][][][][][][][][][][][][][][]*)
+
+(*Input*)
+	iMTBScanCompleteDelayOnTime_ms						: INT := 1000;
+	iMTBWriteRetryQty									: INT := 3;
+	iMTBWriteRetryDelayTimeSec							: INT := 2;
+
+	AR3SiMasterTimeBlockArm_MTB		 					: ARRAY[1..iArmQty, 1..iMasterBlockQty, 1..3] OF INT;
+	AR3SiMasterTimeBlockStn_MTB							: ARRAY[1..iStnQty, 1..iMasterBlockQty, 1..3] OF INT;
+	AR3SiMasterTimeBlockUld_MTB							: ARRAY[1..iUldStnQty, 1..iMasterBlockQty, 1..3] OF INT;
+
+(*Output*)
+	ARbMTBArmProgress									: ARRAY [1..iArmQty] OF BOOL;
+
+(*[][][][][][][][][][][][][][][][][][][][]---fbTimeBlockSimulatorG2---[][][][][][][][][][][][][][][][][][][][]*)
+
+(*Input*)
+	AR3SiMasterTimeBlockArm_Simulator 					: ARRAY[1..iArmQty, 1..iMasterBlockQty, 1..9] OF INT;
+	AR3SiMasterTimeBlockStn_Simulator					: ARRAY[1..iStnQty, 1..iMasterBlockQty, 1..9] OF INT;
+
+(*Output*)
+	ARiSimBasketTimeStamp 								: ARRAY [1..100] OF INT;
+
+
+(*[][][][][][][][][][][][][][][][][][][][]---fbFBPTimeTrackerG2---[][][][][][][][][][][][][][][][][][][][]*)
+
+	fbV2FBPTimeTrackerG3_Main							: fbV2_FBPTimeTrackerG3;
+
+
+(*Input*)
+
+	bTrackerReset 										: ARRAY [0..iProductRecipeArrayQty] OF BOOL;
+
+	ARbReset 											: ARRAY [0..iProductRecipeArrayQty] OF BOOL;
+	ARbArmSt 											: ARRAY [1..iArmQty] OF BOOL; (*Activated Bit*)
+	iCountFilterTime_Sec 								: INT := 2;
+	AR2SiBufferRecipeTimeBlock 							: ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+
+	ARbBusyLinkUpStnEn 									: ARRAY [1..iBusyLinkUpSetQty] OF BOOL;
+	AR2siStnBusyLinkUpStn 								: ARRAY [1..iBusyLinkUpSetQty, 1..iBusyLinkUpStnQty] OF INT;
+
+
+(*Output*)
+
+	AR2SiCalledRecipeTimeBlockNoCallArmTime 			: ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+	AR2SiCalledRecipeTimeBlockWithCallArmTime 			: ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+
+	ARbProductRecipeTimeBlockAvailable					: ARRAY [0..iProductRecipeArrayQty] OF BOOL;
+
+	AR2SiArmRunningTime									: ARRAY [1..iRecipeBlockQty, 1..iArmQty] OF INT;
+	ARiStnRunningTime									: ARRAY [1..iRecipeBlockQty] OF INT;
+
+(*[][][][][][][][][][][][][][][][][][][][]---Multiple FB Used---[][][][][][][][][][][][][][][][][][][][]*)
+
+(*	AR2SiRecipeTimeBlock								: ARRAY [1..iRecipeBlockQty, 1..3] OF INT;
+	ARbSkipStation										: ARRAY [1..iStnQty] OF BOOL;
+
+	ARiZoneAddress										: ARRAY [1..iRecipeBlockQty] OF INT;
+	ARiZoneArea											: ARRAY [1..iRecipeBlockQty] OF INT;
+*)	ARiArmID											: ARRAY [1..iArmQty] OF INT;
+
+
+(*[][][][][][][][][][][][][][][][][][][][]---fbFBPTimeTrackerG2---[][][][][][][][][][][][][][][][][][][][]*)
+
+
+(*Input*)
+	ARbAlternateStnEn 									: ARRAY [1..iAlternateSetQty] OF BOOL;
+	AR2siAlternateStn 									: ARRAY [1..iAlternateSetQty, 1..iAlternateStnQty] OF INT;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Modbus_test" Id="{6ae483dd-28c4-412a-8599-2217ee474f18}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Modbus_test
+VAR
+	wReadWord :WORD;
+	wWriteWord :WORD;
+	
+	ReadUnitID :BYTE;
+	ReadModbussRegisterAdrress : INT;
+	WriteModbussRegisterAdrress : INT;	
+	bStart: BOOL;
+	iClangStepDelaySVns : INT;
+	iTimeout_Sec : INT;
+
+	DSClangsonicGenerator : DSV2_ClangsonicGenerator;
+
+
+	bModbusReadBusy: BOOL;
+	bModbusWriteBusy: BOOL;
+	bModbusReadError: BOOL;
+	bModbusWriteError: BOOL;
+	ErrorId_Read: MODBUS_ERRORS;
+	ErrorId_Write: MODBUS_ERRORS;
+	iStep: INT;
+	iAddCounter: INT;
+
+
+	ClangsonicModbus:ModbusRtuMaster_KL6x22B;
+	bModbusWriteSt: BOOL;
+	bModbusReadSt: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ClangsonicModbus.ReadRegs(
+	UnitID			:= ReadUnitID,
+	Quantity		:= 1,
+	MBAddr			:= INT_TO_WORD(ReadModbussRegisterAdrress),
+	cbLength		:= SIZEOF	(wReadWord),
+	pMemoryAddr		:= ADR		(wReadWord),
+	Execute			:= bModbusReadSt,
+	Timeout			:= INT_TO_TIME(iTimeout_Sec*1000),
+	BUSY			=> bModbusReadBusy,
+	Error			=> bModbusReadError,
+	ErrorId			=> ErrorId_Read ,
+	cbRead			=> );
+
+ClangsonicModbus.WriteSingleRegister(
+	UnitID			:= ReadUnitID,
+	Quantity		:= 1,
+	MBAddr			:= 	INT_TO_WORD(WriteModbussRegisterAdrress),
+	cbLength		:= SIZEOF	(wWriteWord),
+	pMemoryAddr		:= ADR		(wWriteWord),
+	Execute			:= bModbusWriteSt,
+	Timeout			:= INT_TO_TIME(iTimeout_Sec*1000),
+	BUSY			=> bModbusWriteBusy,
+	Error			=> bModbusWriteError,
+	ErrorId			=> ErrorId_Write ,
+	cbRead			=> );
+]]></ST>
+    </Implementation>
+    <LineIds Name="Modbus_test">
+      <LineId Id="6" Count="24" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

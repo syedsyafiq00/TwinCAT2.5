@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_Cv2zonewith2m2sCtrl" Id="{f093378c-2311-4b5d-b745-1d484ccfe5a9}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_Cv2zonewith2m2sCtrl
+VAR_INPUT
+
+	bEn : BOOL;
+	bResetPB : BOOL;
+	rConveyorPos1DelayTime_sec : REAL;
+	bCvSensor1 : BOOL;
+	bCvSensor2 : BOOL;
+
+	bCvZone1BasketConfirm : BOOL;
+	bCvZone2BasketConfirm : BOOL;
+
+	bCvZone1BasketTransfer : BOOL;
+	bCvZone2BasketTransfer : BOOL;
+
+END_VAR
+VAR_OUTPUT
+
+	bUldEndReached : BOOL;
+	bCvFullSignal : BOOL;
+
+	bCvMotor1OnOff : BOOL;
+	bCvMotor2OnOff : BOOL;
+
+	bConveyorMotorOnOffAbnormal: BOOL;
+END_VAR
+VAR
+
+	bZone1Enable: BOOL;
+
+	bCvMotor2OnOff2: BOOL;
+	bCvMotor2OnOff1: BOOL;
+	bCvMotor1OnOff2: BOOL;
+	bCvMotor1OnOff1: BOOL;
+
+	bTimerCountdown: BOOL;
+	tCountDownDelayTimer: TON;
+
+	bResetPBRE: R_TRIG;
+
+	tConveyorPos1DelayTimer: TON;
+
+END_VAR
+
+
+
+
+
+
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF bCvSensor1 AND bCvSensor2 THEN
+
+bCvFullSignal := TRUE;
+ELSE
+bCvFullSignal := FALSE;
+END_IF
+
+IF bCvSensor2 THEN
+bUldEndReached := TRUE;
+ELSE
+bUldEndReached := FALSE;
+END_IF
+
+tConveyorPos1DelayTimer(IN:=bZone1Enable AND bCvSensor2 , PT:= REAL_TO_TIME(rConveyorPos1DelayTime_sec*1000) , Q=> , ET=> );
+
+
+IF bEn (*AND NOT tCountDownDelayTimer.Q*) THEN
+
+	(* Zone1 to Zone2 *)
+	IF bCvSensor1 AND NOT bCvSensor2 (*AND NOT bZone2Enable*) AND ( bCvZone1BasketConfirm OR bCvZone1BasketTransfer ) AND NOT bCvZone2BasketConfirm THEN
+	bZone1Enable := TRUE;
+	bCvMotor1OnOff1 := TRUE;
+	bCvMotor2OnOff1 := TRUE;
+	END_IF
+
+	IF tConveyorPos1DelayTimer.Q (*bZone1Enable (*AND NOT bCvSensor1 *)AND bCvSensor2*) THEN
+	bZone1Enable := FALSE;
+	bCvMotor1OnOff1 := FALSE;
+	bCvMotor2OnOff1 := FALSE;
+	END_IF
+
+ELSE
+	bCvMotor1OnOff1 := FALSE;
+	bCvMotor2OnOff1 := FALSE;
+
+	bCvMotor1OnOff2 := FALSE;
+	bCvMotor2OnOff2 := FALSE;
+
+	bZone1Enable := FALSE;
+
+END_IF
+
+
+IF bCvMotor1OnOff1 OR bCvMotor1OnOff2 THEN
+bCvMotor1OnOff := TRUE;
+ELSE
+bCvMotor1OnOff := FALSE;
+END_IF
+
+IF bCvMotor2OnOff1 OR bCvMotor2OnOff2 THEN
+bCvMotor2OnOff := TRUE;
+ELSE
+bCvMotor2OnOff := FALSE;
+END_IF
+
+
+bResetPBRE(CLK:= bResetPB , Q=> );
+
+IF (bZone1Enable) AND ( NOT bCvSensor1 OR NOT bCvSensor2 ) AND NOT bResetPBRE.Q THEN
+bTimerCountdown := TRUE;
+ELSE
+bTimerCountdown := FALSE;
+END_IF
+
+
+tCountDownDelayTimer(IN:=bTimerCountdown , PT:=t#90s , Q=> , ET=> );
+
+IF tCountDownDelayTimer.Q THEN
+bConveyorMotorOnOffAbnormal := TRUE;
+END_IF
+
+IF bConveyorMotorOnOffAbnormal AND NOT bCvZone1BasketTransfer AND NOT bCvZone2BasketTransfer THEN
+bConveyorMotorOnOffAbnormal := FALSE;
+END_IF
+
+IF bResetPBRE.Q THEN
+bConveyorMotorOnOffAbnormal := FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_Cv2zonewith2m2sCtrl">
+      <LineId Id="51" Count="77" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

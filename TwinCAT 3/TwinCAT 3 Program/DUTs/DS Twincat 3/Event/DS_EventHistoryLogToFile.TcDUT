@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_EventHistoryLogToFile" Id="{ac1753fd-5512-45f8-94b9-c236875cff01}">
+    <Declaration><![CDATA[TYPE DS_EventHistoryLogToFile EXTENDS DS_EventHistory :
+STRUCT
+	sEventCode						: STRING(10);
+	sEventType						: STRING(10);
+	sLocation						: STRING(20);
+	sSubLocation					: STRING(20);
+	sDescription 					: STRING(80);
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

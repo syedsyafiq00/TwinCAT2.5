@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbArmSpecialFunctionStore" Id="{717dae81-db9c-4e44-99e0-780b5a966a3b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbArmSpecialFunctionStore
+VAR_INPUT
+
+	bSavePb			: BOOL;
+	iStationID_HMI		: INT;
+	iRecipeStore			: INT;
+	iRecipeCall			: INT;
+	iPickNo				: INT;
+	iTransferNo			: INT;
+	bPnpBusy			: BOOL;
+	bAgitationEn			: BOOL;
+
+END_VAR
+VAR_OUTPUT
+	bSaveInd			: BOOL;
+	bLoadInd			: BOOL;
+
+END_VAR
+VAR_IN_OUT
+
+	DS_ArmRepeatPara_HMI			: DSPnpAgitationParameter;
+	DS_ArmRepeatOut_Pick		: DSPnpAgitationParameter;
+	DS_ArmRepeatOut_Transfer	: DSPnpAgitationParameter;
+END_VAR
+
+VAR
+	R_TRIG1: R_TRIG;
+	iStep: INT;
+	iFL1: INT;
+	R_TRIG2: R_TRIG;
+	R_TRIG3: R_TRIG;
+
+	TON50: TON;
+	iBufferRecipe: INT;
+
+	DSArArmRepeatParaEmpty : ARRAY [1..iProductRecipeArrayQty, 1..iStnQty] OF DSPnpAgitationParameter;
+	DS_ArmRepeatOut_Empty		: DSPnpAgitationParameter;
+
+	iBufferStnID: INT;
+END_VAR
+
+VAR PERSISTENT
+
+	DSArArmRepeatParaStore : ARRAY [1..iProductRecipeArrayQty, 1..iStnQty] OF DSPnpAgitationParameter;
+
+	END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[R_TRIG1(CLK:=bSavePb , Q=> );
+R_TRIG2(CLK:=bPnpBusy , Q=> );
+
+IF NOT bPnpBusy THEN
+	iStep := 3;
+END_IF
+
+
+IF (iBufferRecipe <> iRecipeStore) OR (iBufferStnID <> iStationID_HMI) THEN
+	iStep := 4;
+END_IF
+
+
+IF R_TRIG1.Q THEN
+	iStep := 1;
+END_IF
+
+IF R_TRIG2.Q THEN
+	iStep := 2;
+END_IF
+
+
+CASE iStep OF
+
+0:
+bSaveInd	:= FALSE;
+
+
+1:
+
+	IF iRecipeStore > 0 AND iRecipeStore <= iProductRecipeArrayQty AND iStationID_HMI > 0 AND iStationID_HMI <= iStnQty AND  bAgitationEn THEN
+
+		DSArArmRepeatParaStore[iRecipeStore, iStationID_HMI] := DS_ArmRepeatPara_HMI;
+		iBufferRecipe := iRecipeStore;
+		iBufferStnID := iStationID_HMI;
+		bSaveInd := TRUE;
+		iStep := 0;
+	END_IF
+
+2:
+
+	IF iRecipeCall >  0 AND iRecipeCall <=  iProductRecipeArrayQty  THEN
+
+		DS_ArmRepeatOut_Pick.lrAgitationTopPosition				:= DSArArmRepeatParaStore[iRecipeCall, iPickNo].lrAgitationTopPosition;
+		DS_ArmRepeatOut_Pick.lrAgitationBtmPosition				:= DSArArmRepeatParaStore[iRecipeCall, iPickNo].lrAgitationBtmPosition;
+		DS_ArmRepeatOut_Pick.lrAgitationSpeed						:= DSArArmRepeatParaStore[iRecipeCall, iPickNo].lrAgitationSpeed;
+		DS_ArmRepeatOut_Pick.lrAgitationSpeedAcc					:= DSArArmRepeatParaStore[iRecipeCall, iPickNo].lrAgitationSpeedAcc;
+		DS_ArmRepeatOut_Pick.lrAgitationSpeedDcc					:= DSArArmRepeatParaStore[iRecipeCall, iPickNo].lrAgitationSpeedDcc;
+		DS_ArmRepeatOut_Pick.iRepeatUpDownCycle 				:= DSArArmRepeatParaStore[iRecipeCall, iPickNo].iRepeatUpDownCycle;
+		DS_ArmRepeatOut_Pick.bPickRepeatStnEnable 				:= DSArArmRepeatParaStore[iRecipeCall, iPickNo].bPickRepeatStnEnable;
+		DS_ArmRepeatOut_Pick.bTransferRepeatStnEnable 			:= DSArArmRepeatParaStore[iRecipeCall, iPickNo].bTransferRepeatStnEnable;
+		DS_ArmRepeatOut_Pick.bSearchFinish						:= TRUE;
+
+		DS_ArmRepeatOut_Transfer.lrAgitationTopPosition				:= DSArArmRepeatParaStore[iRecipeCall, iTransferNo].lrAgitationTopPosition;
+		DS_ArmRepeatOut_Transfer.lrAgitationBtmPosition				:= DSArArmRepeatParaStore[iRecipeCall, iTransferNo].lrAgitationBtmPosition;
+		DS_ArmRepeatOut_Transfer.lrAgitationSpeed					:= DSArArmRepeatParaStore[iRecipeCall, iTransferNo].lrAgitationSpeed;
+		DS_ArmRepeatOut_Transfer.lrAgitationSpeedAcc				:= DSArArmRepeatParaStore[iRecipeCall, iTransferNo].lrAgitationSpeedAcc;
+		DS_ArmRepeatOut_Transfer.lrAgitationSpeedDcc				:= DSArArmRepeatParaStore[iRecipeCall, iTransferNo].lrAgitationSpeedDcc;
+		DS_ArmRepeatOut_Transfer.iRepeatUpDownCycle 			:= DSArArmRepeatParaStore[iRecipeCall, iTransferNo].iRepeatUpDownCycle;
+		DS_ArmRepeatOut_Transfer.bPickRepeatStnEnable 			:= DSArArmRepeatParaStore[iRecipeCall, iTransferNo].bPickRepeatStnEnable;
+		DS_ArmRepeatOut_Transfer.bTransferRepeatStnEnable 		:= DSArArmRepeatParaStore[iRecipeCall, iTransferNo].bTransferRepeatStnEnable;
+		DS_ArmRepeatOut_Transfer.bSearchFinish					:= TRUE;
+
+	END_IF
+(*
+		IF iPickNo <> 0 THEN
+			DS_ArmRepeatOut.bPickRepeatStnEnable		:= DSArArmRepeatParaStore[iRecipeCall].ARbPickRepeatStnEnable[iPickNo];
+		ELSE
+			DS_ArmRepeatOut.bPickRepeatStnEnable		:= FALSE;
+		END_IF
+
+		IF iTransferNo <>0 THEN
+			DS_ArmRepeatOut.bTransferRepeatStnEnable 	:= DSArArmRepeatParaStore[iRecipeCall].ARbTransferRepeatStnEnable[iTransferNo];
+		ELSE
+			DS_ArmRepeatOut.bTransferRepeatStnEnable	:= FALSE;
+		END_IF
+	END_IF
+*)
+
+3:
+		DS_ArmRepeatOut_Pick := DS_ArmRepeatOut_Empty;
+		DS_ArmRepeatOut_Transfer := DS_ArmRepeatOut_Empty;
+
+		iStep := 0;
+
+4:
+		DS_ArmRepeatPara_HMI := DSArArmRepeatParaStore[iRecipeStore, iStationID_HMI ];
+		iBufferRecipe := iRecipeStore;
+		iBufferStnID := iStationID_HMI;
+		iStep := 0;
+
+
+END_CASE
+
+
+IF NOT bAgitationEn THEN
+
+	DSArArmRepeatParaStore := DSArArmRepeatParaEmpty;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbArmSpecialFunctionStore">
+      <LineId Id="48" Count="98" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

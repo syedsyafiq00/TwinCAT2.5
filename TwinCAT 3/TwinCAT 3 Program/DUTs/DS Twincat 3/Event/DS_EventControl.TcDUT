@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_EventControl" Id="{16213165-8c4c-4097-a4ac-b9041145cbab}">
+    <Declaration><![CDATA[TYPE DS_EventControl :
+STRUCT
+	bSignalInput 					: BOOL;
+	bHoldingDisable 				: BOOL;
+	bTest_InvertedInputEn			: BOOL;
+	eEventType						: E_EventType;
+	iDelayTimeSV					: INT;
+	iDelayTimeEV					: INT;
+	bEventOutput					: BOOL;
+	bEventBuzzerStop				: BOOL;
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

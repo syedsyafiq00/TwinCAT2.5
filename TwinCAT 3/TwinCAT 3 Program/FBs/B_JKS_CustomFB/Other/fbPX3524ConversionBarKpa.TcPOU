@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbPX3524ConversionBarKpa" Id="{98218b5c-3469-4c6e-b75f-b54cc2bdd57e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbPX3524ConversionBarKpa
+VAR_INPUT
+	bEN : BOOL;
+	iRaw : INT;
+(*	rKpaRatio : REAL;
+	rBarRatio : REAL;
+*)	bZeroReset : BOOL;
+	tRefreshTime: TIME;
+
+
+END_VAR
+VAR_OUTPUT
+	rKpaResult : REAL;
+	rBarResult : REAL;
+END_VAR
+
+
+VAR PERSISTENT
+
+
+
+END_VAR
+VAR PERSISTENT
+	iDelta: INT;
+	iRawAverage: ARRAY [1..20] OF INT;
+	FIFODone : R_TRIG;
+	iAveAdd: INT;
+	iTotal: DINT;
+	iAveRaw: INT;
+	iAveRawINT: DINT;
+	rKpaResultINT: REAL;
+	rBarResultINT: REAL;
+END_VAR
+VAR
+	FIFOFL: INT;
+	ClockPulse: TON;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ClockPulse(IN:=NOT ClockPulse.Q , PT:=tRefreshTime , Q=> , ET=> );
+
+IF ClockPulse.Q THEN
+FIFOFL := 1;
+END_IF
+
+IF FIFOFL < 20+1 THEN
+
+	FOR FIFOFL := 1 TO 20 DO
+	iRawAverage[FIFOFL] := iRawAverage[FIFOFL+1];
+	END_FOR
+
+END_IF
+
+(*FIFODone(CLK:= FIFOFL > 20 , Q=> );*)
+
+IF  ClockPulse.Q THEN
+iRawAverage[20] := iRaw;
+iTotal := 0;
+iAveAdd := 1;
+
+	FOR iAveAdd := 1 TO 20 DO
+	iTotal := iTotal + iRawAverage[iAveAdd];
+	END_FOR
+
+iAveRawINT := iTotal / 20 ;
+iAveRaw := DINT_TO_INT(iAveRawINT);
+
+
+END_IF
+
+
+IF bEN THEN
+
+	IF bEN THEN
+	rKpaResultINT := (INT_TO_REAL(iRaw)/(32767/1114.3))-101.3;
+(*	ELSE
+	rKpaResult := (INT_TO_REAL(iAveRaw-iDelta)/(32767/1114.3))-101.3;*)
+	END_IF
+
+	IF bEN THEN
+	rBarResultINT := (INT_TO_REAL(iAveRaw-iDelta)/(32767/11))-1;
+(*	ELSE
+	rKpaResult := 0;*)
+	END_IF
+
+	IF rKpaResultINT >= -101.3 THEN
+	rKpaResult := rKpaResultINT;
+	ELSE
+	rKpaResult := -101.3;
+	END_IF
+
+	IF rKpaResultINT >= -1 THEN
+	rBarResult := rBarResultINT;
+	ELSE
+	rBarResult := -1;
+	END_IF
+
+
+ELSE
+
+rKpaResult := 0;
+rBarResult := 0;
+END_IF
+
+IF bZeroReset THEN
+;	(*iDelta := (iAveRaw-(32767/11));*)
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbPX3524ConversionBarKpa">
+      <LineId Id="38" Count="67" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

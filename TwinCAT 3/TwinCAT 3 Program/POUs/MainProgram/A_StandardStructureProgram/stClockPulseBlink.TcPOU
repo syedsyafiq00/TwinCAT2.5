@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="stClockPulseBlink" Id="{9140e937-f6be-410b-8d87-cec126c20aa3}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM stClockPulseBlink
+VAR
+	tClockPulse_1SecTimer: TON;
+	bClockPulse_1SecRE: R_TRIG;
+
+	tClockPulse_0_5SecTimer: TON;
+	bClockPulse_0_5SecRE: R_TRIG;
+
+	tClockPulse_0_1SecTimer: TON;
+	bClockPulse_0_1SecRE: R_TRIG;
+	
+	tClockPulse_10msTimer: TON;
+	bClockPulse_10msRE: R_TRIG;
+	
+	tClockBlink_1SecTimerA: TON;
+	tClockBlink_1SecTimerB: TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+// Clock Pulse - 1 Sec
+tClockPulse_1SecTimer(IN:= NOT tClockPulse_1SecTimer.Q , PT:=T#1S , Q=> , ET=> );
+bClockPulse_1SecRE(CLK:=tClockPulse_1SecTimer.Q , Q=> );
+bClockPulse_1Sec := bClockPulse_1SecRE.Q;
+
+// Clock Pulse - 0.5 Sec
+tClockPulse_0_5SecTimer(IN:= NOT tClockPulse_0_5SecTimer.Q , PT:=T#0.5S , Q=> , ET=> );
+bClockPulse_0_5SecRE(CLK:=tClockPulse_0_5SecTimer.Q , Q=> );
+bClockPulse_0_5Sec := bClockPulse_0_5SecRE.Q;
+
+// Clock Pulse - 0.1 Sec
+tClockPulse_0_1SecTimer(IN:= NOT tClockPulse_0_1SecTimer.Q , PT:=T#0.1S , Q=> , ET=> );
+bClockPulse_0_1SecRE(CLK:=tClockPulse_0_1SecTimer.Q , Q=> );
+bClockPulse_0_1Sec := bClockPulse_0_1SecRE.Q;
+
+// Clock Pulse - 10 ms
+tClockPulse_10msTimer(IN:= NOT tClockPulse_10msTimer.Q , PT:=T#10MS , Q=> , ET=> );
+bClockPulse_10msRE(CLK:=tClockPulse_10msTimer.Q , Q=> );
+bClockPulse_10ms := bClockPulse_10msRE.Q;
+
+// Clock Blink - 1 Sec (0.5Sec ON <-> 0.5Sec OFF)
+tClockBlink_1SecTimerA(IN:= NOT tClockBlink_1SecTimerB.Q , PT:=T#0.5S , Q=> , ET=> );
+tClockBlink_1SecTimerB(IN:= tClockBlink_1SecTimerA.Q , PT:=T#0.5S , Q=> , ET=> );
+bClockBlink_1Sec := tClockBlink_1SecTimerA.Q;
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="stClockPulseBlink">
+      <LineId Id="3" Count="25" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_WeberEnclosure" Id="{cc786ca1-96c2-4807-b42f-07efdf485c5e}">
+    <Declaration><![CDATA[TYPE DS_WeberEnclosure :
+STRUCT
+	DSWeberGenerator : ARRAY [1..iUSGeneratorQty] OF DS_WeberGenerator;
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

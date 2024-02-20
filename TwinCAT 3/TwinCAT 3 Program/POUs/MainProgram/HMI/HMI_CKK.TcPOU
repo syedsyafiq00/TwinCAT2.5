@@ -1,0 +1,762 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="HMI_CKK" Id="{508871dc-6cfe-49a5-830e-c485cdfb6fec}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM HMI_CKK
+VAR
+	
+
+	iFL: ARRAY [1..10] OF INT;
+	sCurrentVisuBuffer : STRING;
+	sLastVisu: STRING;
+	bChangePage: BOOL;
+	
+	bVicky2 : BOOL;
+	bTriggerOneTimeRecipe : BOOL;
+	bTriggerOneTimeSetting : BOOL;
+
+	iFLSSER: INT;
+	iFLSSER1: INT;
+	bSelectTempExternal_RE: ARRAY [1..4] OF R_TRIG;
+	CLK: R_TRIG;
+	bNoSelectTempExternal_RE: R_TRIG;
+	ckk: INT;
+	iPV: ARRAY [1..iStnQty] OF REAL;
+	iSV: ARRAY [1..iStnQty] OF REAL;
+	iDisplayTimeCycleBuffer: ARRAY [1..iStnQty] OF REAL;
+	ckkOn: BOOL;
+	bCKK: BOOL;
+	
+
+	OFF: ARRAY [1..4] OF BOOL;
+	iFLC : INT;
+	iFLD : INT;
+	
+	
+	bResetMegasonicPower_RE	: ARRAY [1..5] OF R_TRIG;
+	
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF bBarcodeEnable THEN bBarcodeBypass:=FALSE; ELSE bBarcodeBypass:=TRUE; END_IF
+
+FOR iFL[1]:=1 TO 10 DO
+	ARsHMIDisplaySSURDescription[iFL[1]]:=fbMainStationProcess_Stn[iStationNo].StnSeqProcessfb.fbStationSubRecipefb.ARsStorageSubDescription[DSScrMapSSER.DsStationSequenceRecipeMemory.AR10iStationSubProNo[iFL[1]]];
+	ARsStnProcessName[iFL[1]]:=DSHmiStationDisplayInfo[iFL[1]].sStationSubDescription;
+	ARiStnProcessTimeCD[iFL[1]]:=ARDsStnSeqProcessCtrl[iFL[1]].Out_iTotalProcessTimeEV;
+	bDisplayTimeCycleOn[iFL[1]]:=ARDsStnSeqProcessCtrl[iFL[1]].In_bProcessStart;
+	
+	IF DSStnBasketInfo[iFL[1]].bAvailibility AND NOT ARbStationProcessCompletedFlag[iFL[1]] AND bAutoStartPb THEN
+		iDisplayTimeCycleEnd[iFL[1]]:=360;			
+		iDisplayTimeCycle[iFL[1]]	:=iDisplayTimeCycleBuffer[iFL[1]] ;
+	ELSIF DSStnBasketInfo[iFL[1]].bAvailibility AND ARbStationProcessCompletedFlag[iFL[1]] THEN
+		iDisplayTimeCycleEnd[iFL[1]]:=0;			
+		iDisplayTimeCycle[iFL[1]]	:=0;	
+	ELSE
+		iDisplayTimeCycleEnd[iFL[1]]:=360;			
+		iDisplayTimeCycle[iFL[1]]:= 1;	
+	END_IF
+	
+	iPV[iFL[1]] :=INT_TO_REAL (ARDsStnSeqProcessCtrl[iFL[1]].Out_iCurrentProcessTime);
+	iSV[iFL[1]] :=INT_TO_REAL (ARDsStnMinMaxEffTimeDisplay[iFL[1]].iEffTime);
+	
+	iDisplayTimeCycleBuffer[iFL[1]]:=iPV[iFL[1]]/iSV[iFL[1]]*360;
+	
+END_FOR
+
+IF iSettingStnNo = 1 OR iSettingStnNo = 3 OR iSettingStnNo =5 THEN 
+ 	sDisplayConductivity[1]:='LOW ALARM';
+	sDisplayConductivity[2]:='HIGH ALARM';
+ELSE
+	sDisplayConductivity[1]:='LOW ALARM';
+	sDisplayConductivity[2]:='HIGH ALARM';
+END_IF
+
+IF iSettingStnNoBuffer=1  THEN iSettingStnNo:=1; END_IF
+IF iSettingStnNoBuffer=2  THEN iSettingStnNo:=2; END_IF
+IF iSettingStnNoBuffer=3  THEN iSettingStnNo:=3; END_IF
+IF iSettingStnNoBuffer=4  THEN iSettingStnNo:=4; END_IF
+IF iSettingStnNoBuffer=5  THEN iSettingStnNo:=5; END_IF
+IF iSettingStnNoBuffer=6  THEN iSettingStnNo:=6; END_IF
+IF iSettingStnNoBuffer=7  THEN iSettingStnNo:=7; END_IF
+IF iSettingStnNoBuffer=8  THEN iSettingStnNo:=8; END_IF
+IF iSettingStnNoBuffer=9  THEN iSettingStnNo:=9; END_IF
+IF iSettingStnNoBuffer=10 THEN iSettingStnNo:=10; END_IF
+IF iSettingStnNoBuffer=11 THEN iSettingStnNo:=19; END_IF
+IF iSettingStnNoBuffer=12 THEN iSettingStnNo:=20; END_IF
+
+IF iArmSettingStnNoBuffer=1  THEN iArmSettingStnNo:=1; END_IF
+IF iArmSettingStnNoBuffer=2  THEN iArmSettingStnNo:=2; END_IF
+IF iArmSettingStnNoBuffer=3  THEN iArmSettingStnNo:=3; END_IF
+IF iArmSettingStnNoBuffer=4  THEN iArmSettingStnNo:=4; END_IF
+IF iArmSettingStnNoBuffer=5  THEN iArmSettingStnNo:=5; END_IF
+IF iArmSettingStnNoBuffer=6  THEN iArmSettingStnNo:=6; END_IF
+IF iArmSettingStnNoBuffer=7  THEN iArmSettingStnNo:=7; END_IF
+IF iArmSettingStnNoBuffer=8  THEN iArmSettingStnNo:=8; END_IF
+IF iArmSettingStnNoBuffer=9  THEN iArmSettingStnNo:=9; END_IF
+IF iArmSettingStnNoBuffer=10 THEN iArmSettingStnNo:=10; END_IF
+IF iArmSettingStnNoBuffer=11 THEN iArmSettingStnNo:=19; END_IF
+IF iArmSettingStnNoBuffer=12 THEN iArmSettingStnNo:=20; END_IF
+
+
+
+
+//IF fbHmiTF1800_UserlevelManagement.dsHmiUserStatus_Login.bActivatedFlag THEN
+//   VisuElems.CURRENTVISU := 'AutoMain_Page';
+//END_IF
+
+IF (sMessage='Are you sure you want to DELETE selected user?') THEN
+ bPageConfirmPageOn:=TRUE;
+ ELSE
+ bPageConfirmPageOn:=FALSE;
+ END_IF
+	
+//IF VisuElems.CURRENTVISU ='ZMAIN_PAGE' THEN
+//   VisuElems.CURRENTVISU := 'AutoMain_Page';
+//END_IF
+
+IF sCurrentVisuBuffer<>VisuElems.CURRENTVISU THEN
+	sLastVisu:=sCurrentVisuBuffer;
+	bChangePage:=TRUE;
+END_IF
+
+IF bChangePage THEN
+ 	sCurrentVisuBuffer:=VisuElems.CURRENTVISU;
+	bChangePage:=FALSE;
+END_IF
+
+sLastVisu;
+
+// vicky add
+
+// AUTO
+IF VisuElems.CURRENTVISU = 'AutoMain_Page' THEN
+	iSelectedPage := iBufferPage;
+END_IF
+
+// MANUAL
+IF VisuElems.CURRENTVISU = 'Manual_Page' THEN
+	bManualPageOn := TRUE;
+	IF iBufferPage = 1 OR iBufferPage = 5 OR iBufferPage = 10 OR iBufferPage = 11 THEN
+		iSelectedPage 	:= 9;
+		iReturnPage		:= 2;
+	ELSE 
+		iSelectedPage := iBufferPage;
+	END_IF	
+END_IF
+
+IF bManualPageOn THEN
+	bManuPageOn := TRUE;
+	ELSE
+	bManuPageOn := FALSE;	
+END_IF
+
+/// BARCODE 
+IF VisuElems.CURRENTVISU = 'Barcode_Page' THEN
+	bBarcodeRegPage := TRUE;
+		IF bManualPageOn THEN
+			// trigger manual exit pop up page
+			IF iBufferPage = 1 OR iBufferPage = 5 OR iBufferPage = 10 OR iBufferPage = 11  THEN
+				iSelectedPage 	:= 9;	
+				iReturnPage		:= 3;
+			ELSE
+				iSelectedPage := iBufferPage;		
+			END_IF	
+	    ELSE
+			iSelectedPage := iBufferPage;		
+		END_IF
+ELSE
+	bBarcodeRegPage := FALSE;	
+END_IF
+	
+// IO MONITORING 
+IF VisuElems.CURRENTVISU = 'IO_Monitoring' THEN
+	IF bManualPageOn THEN
+		// trigger manual exit pop up page
+		IF iBufferPage = 1 OR iBufferPage = 5 OR iBufferPage = 10 OR iBufferPage = 11  THEN
+			iSelectedPage 	:= 9;	
+			iReturnPage		:= 4;
+		ELSE
+			iSelectedPage := iBufferPage;		
+		END_IF	
+	ELSE
+		iSelectedPage := iBufferPage;		
+	END_IF
+END_IF	
+
+// DEACTIVATED
+IF VisuElems.CURRENTVISU = 'Deactivated_Page' THEN
+		IF bManualPageOn THEN
+			// trigger manual exit pop up page
+			IF iBufferPage = 1 OR iBufferPage = 5 OR iBufferPage = 10 OR iBufferPage = 11  THEN
+				iSelectedPage 	:= 9;	
+				iReturnPage		:= 6;
+			ELSE
+				iSelectedPage := iBufferPage;		
+			END_IF	
+	ELSE
+		iSelectedPage := iBufferPage;		
+	END_IF
+END_IF		
+
+// RECIPE 
+IF VisuElems.CURRENTVISU = 'Recipe_Page' OR VisuElems.CURRENTVISU = 'RecipeConfiguration_Page' OR VisuElems.CURRENTVISU = 'RecipeSSER_Page' OR VisuElems.CURRENTVISU = 'RecipeSSUR_Page' THEN
+	iSelectedPage := iBufferPage;	
+END_IF
+
+// SETTING 
+IF VisuElems.CURRENTVISU = 'Setting_Page' OR VisuElems.CURRENTVISU = 'SettingArm_Page' OR VisuElems.CURRENTVISU = 'SettingProcess_Page' THEN
+	IF bManualPageOn THEN
+		// trigger manual exit pop up page
+		IF iBufferPage = 1 OR iBufferPage = 5 OR iBufferPage = 10 OR iBufferPage = 11 THEN
+			iSelectedPage 	:= 9;	
+			iReturnPage		:= 7;
+		ELSE
+			iSelectedPage := iBufferPage;		
+		END_IF	
+	ELSE
+		iSelectedPage := iBufferPage;		
+	END_IF	
+END_IF
+
+// ALARM 
+IF VisuElems.CURRENTVISU = 'Alarm_Page' THEN
+	IF bManualPageOn THEN
+		// trigger manual exit pop up page
+		IF iBufferPage = 1 OR iBufferPage = 5 OR iBufferPage = 10 OR iBufferPage = 11 THEN
+			iSelectedPage 	:= 9;	
+			iReturnPage		:= 8;
+		ELSE
+			iSelectedPage := iBufferPage;		
+		END_IF	
+	ELSE
+		iSelectedPage := iBufferPage;		
+	END_IF	
+END_IF
+
+// MANUAL EXIT POP UP
+IF VisuElems.CURRENTVISU = 'Manual_Exit_Popup' THEN
+	IF bManualExitConfirm THEN
+		bManualPageOn := FALSE;
+		iSelectedPage := iBufferPage;			
+	END_IF
+	IF bManualExitCancel THEN
+		iBufferPage := 0;
+		iSelectedPage := iReturnPage;	
+	END_IF		
+END_IF	
+
+// USER SETTING
+IF VisuElems.CURRENTVISU = 'User_Setting_Page' OR VisuElems.CURRENTVISU = 'AddNewUser_Page' THEN
+	iSelectedPage := iBufferPage;	
+END_IF
+
+
+CASE iSelectedPage OF
+	1: VisuElems.CURRENTVISU := 'AutoMain_Page';
+	2: VisuElems.CURRENTVISU := 'Manual_Page';
+	3: VisuElems.CURRENTVISU := 'Barcode_Page';	
+	4: VisuElems.CURRENTVISU := 'IO_Monitoring';
+	
+	5:	 
+		 IF NOT bTriggerOneTimeRecipe THEN
+		 VisuElems.CURRENTVISU := 'RecipeSSUR_Page';
+		 END_IF
+		 bTriggerOneTimeRecipe:=TRUE;
+	
+	6: VisuElems.CURRENTVISU := 'Deactivated_Page';	
+			
+	7:
+		IF NOT bTriggerOneTimeSetting THEN	
+		 VisuElems.CURRENTVISU := 'Setting_Page';
+		END_IF
+ 		bTriggerOneTimeSetting:=TRUE;
+		
+	8: VisuElems.CURRENTVISU := 'Alarm_Page';
+	9: VisuElems.CURRENTVISU := 'Manual_Exit_Popup';
+	10:  VisuElems.CURRENTVISU := 'Login_Page';
+END_CASE
+
+IF VisuElems.CURRENTVISU = 'Login_Page' THEN
+	iSelectedPage:=0;
+	iBufferPage := 0;
+END_IF
+
+IF iSelectedPage<>5 THEN
+bTriggerOneTimeRecipe:=FALSE; 
+END_IF
+
+IF iSelectedPage<>7 THEN
+bTriggerOneTimeSetting:=FALSE;
+END_IF
+
+FOR iFL[2]:=1 TO 4 DO
+	bSelectTempExternal_RE[iFL[2]](CLK:=bSelectTempExternal[iFL[2]] , Q=> );
+	IF bSelectTempExternal_RE[iFL[2]].Q THEN	
+		FOR iFL[3]:=1 TO 4 DO
+		IF iFL[3] <> iFL[2] THEN
+			bSelectTempExternalInd[iFL[3]]:=FALSE;	
+			bSelectTempExternal[iFL[3]]:=FALSE;
+		END_IF
+		END_FOR
+	bSelectTempExternalInd[iFL[2]]:=TRUE;		
+	iSelectTempExternal:=iFL[2];
+	END_IF
+END_FOR
+
+
+bNoSelectTempExternal_RE(CLK:=VisuElems.CURRENTVISU = 'Setting_Page'  , Q=> );	 	
+		
+		IF bNoSelectTempExternal_RE.Q THEN
+			bSelectTempExternal[1]:=TRUE;
+		END_IF
+		
+	
+
+bSelectTempExternal[1];
+bSelectTempExternal[2];
+bSelectTempExternal[3];
+bSelectTempExternal[4];
+
+IF NOT bAllowLoadingBasketIn AND TowerLightCtrl.CP THEN
+	bBlockBasketEnter :=TRUE;
+ELSE
+	bBlockBasketEnter:=FALSE;
+END_IF
+
+
+// Display Freq US
+(*
+//IF NOT ARbDO[eY10100_STN01ULTRASONICGENERATORON_OFF] THEN
+//   iDisplayFreqUs[1]:=0;
+IF ARbDO[eY10100_STN01ULTRASONICGENERATORON_OFF] AND NOT ARbDO[eY10001_STN01ULTRASONICGENERATORFREQUENCYCHANGE] THEN
+	iDisplayFreqUs[1]:=40;
+ELSE
+	iDisplayFreqUs[1]:=80;	
+//ELSIF ARbDO[eY10100_STN01ULTRASONICGENERATORON_OFF] AND ARbDO[eY10001_STN01ULTRASONICGENERATORFREQUENCYCHANGE] THEN
+//	iDisplayFreqUs[1]:=80;
+END_IF
+
+//IF NOT ARbDO[eY10101_STN02ULTRASONICGENERATORON_OFF] THEN
+//   iDisplayFreqUs[2]:=0;
+IF ARbDO[eY10101_STN02ULTRASONICGENERATORON_OFF] AND NOT ARbDO[eY10002_STN02ULTRASONICGENERATORFREQUENCYCHANGE] THEN
+	iDisplayFreqUs[2]:=40;
+ELSE
+	iDisplayFreqUs[2]:=130;	
+//ELSIF ARbDO[eY10101_STN02ULTRASONICGENERATORON_OFF] AND ARbDO[eY10002_STN02ULTRASONICGENERATORFREQUENCYCHANGE] THEN
+//	iDisplayFreqUs[2]:=130;
+END_IF
+
+IF NOT ARbDO[eY10102_STN04ULTRASONICGENERATORON_OFF] THEN
+   iDisplayFreqUs[4]:=0;
+ELSIF ARbDO[eY10102_STN04ULTRASONICGENERATORON_OFF] AND NOT ARbDO[eY10003_STN04ULTRASONICGENERATORFREQUENCYCHANGE] THEN
+	iDisplayFreqUs[4]:=40;
+ELSIF ARbDO[eY10102_STN04ULTRASONICGENERATORON_OFF] AND ARbDO[eY10003_STN04ULTRASONICGENERATORFREQUENCYCHANGE] THEN
+	iDisplayFreqUs[4]:=130;
+END_IF
+
+IF NOT ARbDO[eY10102_STN04ULTRASONICGENERATORON_OFF] THEN
+   iDisplayFreqUs[4]:=0;
+ELSIF ARbDO[eY10102_STN04ULTRASONICGENERATORON_OFF] AND NOT ARbDO[eY10003_STN04ULTRASONICGENERATORFREQUENCYCHANGE] THEN
+	iDisplayFreqUs[4]:=40;
+ELSIF ARbDO[eY10102_STN04ULTRASONICGENERATORON_OFF] AND ARbDO[eY10003_STN04ULTRASONICGENERATORFREQUENCYCHANGE] THEN
+	iDisplayFreqUs[4]:=130;
+END_IF
+
+IF NOT ARbDO[eY10103_STN05ULTRASONICGENERATORON_OFF] THEN
+   iDisplayFreqUs[5]:=0;
+ELSIF ARbDO[eY10103_STN05ULTRASONICGENERATORON_OFF] AND NOT ARbDO[eY10004_STN05ULTRASONICGENERATORFREQUENCYCHANGE] THEN
+	iDisplayFreqUs[5]:=80;
+ELSIF ARbDO[eY10103_STN05ULTRASONICGENERATORON_OFF] AND ARbDO[eY10004_STN05ULTRASONICGENERATORFREQUENCYCHANGE] THEN
+	iDisplayFreqUs[5]:=130;
+END_IF
+
+IF NOT ARbDO[eY10104_STN07ULTRASONICGENERATORON_OFF] THEN
+   iDisplayFreqUs[7]:=0;
+ELSIF ARbDO[eY10104_STN07ULTRASONICGENERATORON_OFF] AND NOT ARbDO[eY10005_STN07ULTRASONICGENERATORFREQUENCYCHANGE] THEN
+	iDisplayFreqUs[7]:=80;
+ELSIF ARbDO[eY10104_STN07ULTRASONICGENERATORON_OFF] AND ARbDO[eY10005_STN07ULTRASONICGENERATORFREQUENCYCHANGE] THEN
+	iDisplayFreqUs[7]:=130;
+END_IF
+
+IF NOT ARbDO[eY10105_STN08ULTRASONICGENERATORON_OFF] THEN
+   iDisplayFreqUs[8]:=0;
+ELSIF ARbDO[eY10105_STN08ULTRASONICGENERATORON_OFF] AND NOT ARbDO[eY10006_STN08ULTRASONICGENERATORFREQUENCYCHANGE] THEN
+	iDisplayFreqUs[8]:=80;
+ELSIF ARbDO[eY10105_STN08ULTRASONICGENERATORON_OFF] AND ARbDO[eY10006_STN08ULTRASONICGENERATORFREQUENCYCHANGE] THEN
+	iDisplayFreqUs[8]:=130;
+END_IF
+*)
+
+IF NOT ARbDO[eY10001_STN01ULTRASONICGENERATORFREQUENCYCHANGE] THEN
+	iDisplayFreqUs[1]:=40;
+ELSE
+	iDisplayFreqUs[1]:=80;	
+END_IF
+
+IF NOT ARbDO[eY10002_STN02ULTRASONICGENERATORFREQUENCYCHANGE] THEN
+	iDisplayFreqUs[2]:=40;
+ELSE
+	iDisplayFreqUs[2]:=130;	
+END_IF
+
+IF NOT ARbDO[eY10003_STN04ULTRASONICGENERATORFREQUENCYCHANGE] THEN
+	iDisplayFreqUs[4]:=40;
+ELSE
+	iDisplayFreqUs[4]:=130;	
+END_IF
+
+IF NOT ARbDO[eY10004_STN05ULTRASONICGENERATORFREQUENCYCHANGE] THEN
+	iDisplayFreqUs[5]:=80;
+ELSE
+	iDisplayFreqUs[5]:=130;	
+END_IF
+
+IF NOT ARbDO[eY10005_STN07ULTRASONICGENERATORFREQUENCYCHANGE] THEN
+	iDisplayFreqUs[7]:=80;
+ELSE
+	iDisplayFreqUs[7]:=130;	
+END_IF
+
+IF NOT ARbDO[eY10006_STN08ULTRASONICGENERATORFREQUENCYCHANGE] THEN
+	iDisplayFreqUs[8]:=80;
+ELSE
+	iDisplayFreqUs[8]:=130;	
+END_IF
+
+ 
+IF iStationNo=1 THEN
+IF NOT DSScrMapSSUR.DsSubRecipeMemory.bOut14EnInstrument3 THEN
+	iDisplayRecipeFreqUs:=40;
+ELSE
+	iDisplayRecipeFreqUs:=80;	
+END_IF
+END_IF
+
+IF iStationNo=2 THEN
+IF NOT DSScrMapSSUR.DsSubRecipeMemory.bOut14EnInstrument3 THEN
+	iDisplayRecipeFreqUs:=40;
+ELSE
+	iDisplayRecipeFreqUs:=130;	
+END_IF
+END_IF
+
+IF iStationNo=4 THEN
+IF NOT DSScrMapSSUR.DsSubRecipeMemory.bOut14EnInstrument3 THEN
+	iDisplayRecipeFreqUs:=40;
+ELSE
+	iDisplayRecipeFreqUs:=130;	
+END_IF
+END_IF
+
+IF iStationNo=5 THEN
+IF NOT DSScrMapSSUR.DsSubRecipeMemory.bOut14EnInstrument3 THEN
+	iDisplayRecipeFreqUs:=80;
+ELSE
+	iDisplayRecipeFreqUs:=130;	
+END_IF
+END_IF
+
+IF iStationNo=7 THEN 
+IF NOT DSScrMapSSUR.DsSubRecipeMemory.bOut14EnInstrument3 THEN
+	iDisplayRecipeFreqUs:=80;
+ELSE
+	iDisplayRecipeFreqUs:=130;	
+END_IF
+END_IF
+
+IF iStationNo=8 THEN 
+IF NOT DSScrMapSSUR.DsSubRecipeMemory.bOut14EnInstrument3 THEN
+	iDisplayRecipeFreqUs:=80;
+ELSE
+	iDisplayRecipeFreqUs:=130;	
+END_IF	
+END_IF
+
+// Clear button
+
+FOR iFLC:=1 TO 10 DO 
+
+IF tClearPB_SSER_Timer[iFLC].Q THEN
+   bClearPB_SSER_Uni:=TRUE;
+   EXIT;
+ELSE
+   bClearPB_SSER_Uni:=FALSE;   
+END_IF
+
+END_FOR
+
+
+FOR iFLD:=1 TO 10 DO 
+
+IF tClearPB_SSUR_Timer[iFLD].Q THEN
+   bClearPB_SSUR_Uni:=TRUE;
+   EXIT;
+ELSE
+   bClearPB_SSUR_Uni:=FALSE;   
+END_IF
+
+END_FOR
+           
+tClearPB_SSER_Timer[1](IN:=bClearPB_SSER[1] , PT:=T#3S , Q=> , ET=> );
+tClearPB_SSER_Timer[2](IN:=bClearPB_SSER[2] , PT:=T#3S , Q=> , ET=> );
+tClearPB_SSER_Timer[3](IN:=bClearPB_SSER[3] , PT:=T#3S , Q=> , ET=> );
+tClearPB_SSER_Timer[4](IN:=bClearPB_SSER[4] , PT:=T#3S , Q=> , ET=> );
+tClearPB_SSER_Timer[5](IN:=bClearPB_SSER[5] , PT:=T#3S , Q=> , ET=> );
+tClearPB_SSER_Timer[6](IN:=bClearPB_SSER[6] , PT:=T#3S , Q=> , ET=> );
+tClearPB_SSER_Timer[7](IN:=bClearPB_SSER[7] , PT:=T#3S , Q=> , ET=> );
+tClearPB_SSER_Timer[8](IN:=bClearPB_SSER[8] , PT:=T#3S , Q=> , ET=> );
+tClearPB_SSER_Timer[9](IN:=bClearPB_SSER[9] , PT:=T#3S , Q=> , ET=> );
+tClearPB_SSER_Timer[10](IN:=bClearPB_SSER[10] , PT:=T#3S , Q=> , ET=> );
+
+tClearPB_SSUR_Timer[1](IN:=bClearPB_SSUR[1] , PT:=T#3S , Q=> , ET=> );
+tClearPB_SSUR_Timer[2](IN:=bClearPB_SSUR[2] , PT:=T#3S , Q=> , ET=> );
+tClearPB_SSUR_Timer[3](IN:=bClearPB_SSUR[3] , PT:=T#3S , Q=> , ET=> );
+tClearPB_SSUR_Timer[4](IN:=bClearPB_SSUR[4] , PT:=T#3S , Q=> , ET=> );
+tClearPB_SSUR_Timer[5](IN:=bClearPB_SSUR[5] , PT:=T#3S , Q=> , ET=> );
+tClearPB_SSUR_Timer[6](IN:=bClearPB_SSUR[6] , PT:=T#3S , Q=> , ET=> );
+tClearPB_SSUR_Timer[7](IN:=bClearPB_SSUR[7] , PT:=T#3S , Q=> , ET=> );
+tClearPB_SSUR_Timer[8](IN:=bClearPB_SSUR[8] , PT:=T#3S , Q=> , ET=> );
+tClearPB_SSUR_Timer[9](IN:=bClearPB_SSUR[9] , PT:=T#3S , Q=> , ET=> );
+tClearPB_SSUR_Timer[10](IN:=bClearPB_SSUR[10] , PT:=T#3S , Q=> , ET=> );
+	
+// Megasonic Button
+
+bResetMegasonicPower_RE[1](CLK:=DSScrMapSSUR.DsSubRecipeMemory.bOut11ActValve11  , Q=> );	
+IF bResetMegasonicPower_RE[1].Q THEN
+	DSScrMapSSUR.DsSubRecipeMemory.bOut12ActValve12 :=FALSE;
+	DSScrMapSSUR.DsSubRecipeMemory.bOut13ActValve13	:=FALSE;
+	DSScrMapSSUR.DsSubRecipeMemory.bOut14ActValve14 :=FALSE;
+	DSScrMapSSUR.DsSubRecipeMemory.bOut15ActValve15 :=FALSE;
+END_IF
+
+bResetMegasonicPower_RE[2](CLK:=DSScrMapSSUR.DsSubRecipeMemory.bOut12ActValve12  , Q=> );	
+IF bResetMegasonicPower_RE[2].Q THEN
+	DSScrMapSSUR.DsSubRecipeMemory.bOut11ActValve11 :=FALSE;
+	DSScrMapSSUR.DsSubRecipeMemory.bOut13ActValve13	:=FALSE;
+	DSScrMapSSUR.DsSubRecipeMemory.bOut14ActValve14 :=FALSE;
+	DSScrMapSSUR.DsSubRecipeMemory.bOut15ActValve15 :=FALSE;
+END_IF
+
+bResetMegasonicPower_RE[3](CLK:=DSScrMapSSUR.DsSubRecipeMemory.bOut13ActValve13  , Q=> );	
+IF bResetMegasonicPower_RE[3].Q THEN
+	DSScrMapSSUR.DsSubRecipeMemory.bOut11ActValve11 :=FALSE;
+	DSScrMapSSUR.DsSubRecipeMemory.bOut12ActValve12	:=FALSE;
+	DSScrMapSSUR.DsSubRecipeMemory.bOut14ActValve14 :=FALSE;
+	DSScrMapSSUR.DsSubRecipeMemory.bOut15ActValve15 :=FALSE;
+END_IF
+
+bResetMegasonicPower_RE[4](CLK:=DSScrMapSSUR.DsSubRecipeMemory.bOut14ActValve14  , Q=> );	
+IF bResetMegasonicPower_RE[4].Q THEN
+	DSScrMapSSUR.DsSubRecipeMemory.bOut11ActValve11 :=FALSE;
+	DSScrMapSSUR.DsSubRecipeMemory.bOut12ActValve12	:=FALSE;
+	DSScrMapSSUR.DsSubRecipeMemory.bOut13ActValve13 :=FALSE;
+	DSScrMapSSUR.DsSubRecipeMemory.bOut15ActValve15 :=FALSE;
+END_IF
+
+bResetMegasonicPower_RE[5](CLK:=DSScrMapSSUR.DsSubRecipeMemory.bOut15ActValve15  , Q=> );	
+IF bResetMegasonicPower_RE[5].Q THEN
+	DSScrMapSSUR.DsSubRecipeMemory.bOut11ActValve11 :=FALSE;
+	DSScrMapSSUR.DsSubRecipeMemory.bOut12ActValve12	:=FALSE;
+	DSScrMapSSUR.DsSubRecipeMemory.bOut13ActValve13 :=FALSE;
+	DSScrMapSSUR.DsSubRecipeMemory.bOut14ActValve14 :=FALSE;
+END_IF
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="HMI_CKK">
+      <LineId Id="226" Count="0" />
+      <LineId Id="23" Count="2" />
+      <LineId Id="224" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="480" Count="0" />
+      <LineId Id="482" Count="0" />
+      <LineId Id="433" Count="0" />
+      <LineId Id="430" Count="0" />
+      <LineId Id="429" Count="0" />
+      <LineId Id="438" Count="0" />
+      <LineId Id="440" Count="0" />
+      <LineId Id="439" Count="0" />
+      <LineId Id="434" Count="0" />
+      <LineId Id="437" Count="0" />
+      <LineId Id="435" Count="1" />
+      <LineId Id="481" Count="0" />
+      <LineId Id="483" Count="0" />
+      <LineId Id="485" Count="2" />
+      <LineId Id="484" Count="0" />
+      <LineId Id="26" Count="34" />
+      <LineId Id="790" Count="0" />
+      <LineId Id="779" Count="0" />
+      <LineId Id="789" Count="0" />
+      <LineId Id="512" Count="0" />
+      <LineId Id="514" Count="1" />
+      <LineId Id="513" Count="0" />
+      <LineId Id="519" Count="0" />
+      <LineId Id="517" Count="0" />
+      <LineId Id="516" Count="0" />
+      <LineId Id="520" Count="0" />
+      <LineId Id="518" Count="0" />
+      <LineId Id="521" Count="0" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="162" Count="2" />
+      <LineId Id="62" Count="20" />
+      <LineId Id="1088" Count="7" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="189" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="191" Count="0" />
+      <LineId Id="193" Count="1" />
+      <LineId Id="192" Count="0" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="1096" Count="97" />
+      <LineId Id="138" Count="7" />
+      <LineId Id="196" Count="0" />
+      <LineId Id="146" Count="0" />
+      <LineId Id="203" Count="0" />
+      <LineId Id="198" Count="0" />
+      <LineId Id="204" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="197" Count="0" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="148" Count="0" />
+      <LineId Id="244" Count="0" />
+      <LineId Id="243" Count="0" />
+      <LineId Id="245" Count="1" />
+      <LineId Id="251" Count="0" />
+      <LineId Id="149" Count="1" />
+      <LineId Id="546" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="214" Count="2" />
+      <LineId Id="218" Count="0" />
+      <LineId Id="217" Count="0" />
+      <LineId Id="212" Count="0" />
+      <LineId Id="211" Count="0" />
+      <LineId Id="210" Count="0" />
+      <LineId Id="213" Count="0" />
+      <LineId Id="248" Count="0" />
+      <LineId Id="247" Count="0" />
+      <LineId Id="249" Count="1" />
+      <LineId Id="318" Count="1" />
+      <LineId Id="322" Count="0" />
+      <LineId Id="320" Count="0" />
+      <LineId Id="324" Count="0" />
+      <LineId Id="327" Count="0" />
+      <LineId Id="329" Count="0" />
+      <LineId Id="1007" Count="0" />
+      <LineId Id="331" Count="0" />
+      <LineId Id="328" Count="0" />
+      <LineId Id="352" Count="0" />
+      <LineId Id="355" Count="0" />
+      <LineId Id="325" Count="0" />
+      <LineId Id="321" Count="0" />
+      <LineId Id="374" Count="0" />
+      <LineId Id="338" Count="0" />
+      <LineId Id="375" Count="0" />
+      <LineId Id="377" Count="0" />
+      <LineId Id="379" Count="0" />
+      <LineId Id="382" Count="1" />
+      <LineId Id="380" Count="0" />
+      <LineId Id="378" Count="0" />
+      <LineId Id="376" Count="0" />
+      <LineId Id="339" Count="3" />
+      <LineId Id="974" Count="0" />
+      <LineId Id="1037" Count="0" />
+      <LineId Id="1044" Count="0" />
+      <LineId Id="1046" Count="1" />
+      <LineId Id="1045" Count="0" />
+      <LineId Id="1038" Count="0" />
+      <LineId Id="1040" Count="0" />
+      <LineId Id="349" Count="0" />
+      <LineId Id="574" Count="0" />
+      <LineId Id="573" Count="0" />
+      <LineId Id="630" Count="0" />
+      <LineId Id="629" Count="0" />
+      <LineId Id="631" Count="0" />
+      <LineId Id="707" Count="1" />
+      <LineId Id="577" Count="0" />
+      <LineId Id="579" Count="0" />
+      <LineId Id="576" Count="0" />
+      <LineId Id="632" Count="0" />
+      <LineId Id="646" Count="3" />
+      <LineId Id="709" Count="1" />
+      <LineId Id="651" Count="2" />
+      <LineId Id="662" Count="0" />
+      <LineId Id="672" Count="13" />
+      <LineId Id="663" Count="1" />
+      <LineId Id="686" Count="6" />
+      <LineId Id="665" Count="0" />
+      <LineId Id="693" Count="6" />
+      <LineId Id="666" Count="0" />
+      <LineId Id="700" Count="5" />
+      <LineId Id="628" Count="0" />
+      <LineId Id="584" Count="0" />
+      <LineId Id="712" Count="0" />
+      <LineId Id="711" Count="0" />
+      <LineId Id="713" Count="0" />
+      <LineId Id="715" Count="1" />
+      <LineId Id="714" Count="0" />
+      <LineId Id="718" Count="4" />
+      <LineId Id="717" Count="0" />
+      <LineId Id="724" Count="4" />
+      <LineId Id="723" Count="0" />
+      <LineId Id="730" Count="4" />
+      <LineId Id="729" Count="0" />
+      <LineId Id="736" Count="4" />
+      <LineId Id="735" Count="0" />
+      <LineId Id="742" Count="4" />
+      <LineId Id="741" Count="0" />
+      <LineId Id="926" Count="0" />
+      <LineId Id="792" Count="0" />
+      <LineId Id="928" Count="0" />
+      <LineId Id="963" Count="0" />
+      <LineId Id="929" Count="4" />
+      <LineId Id="964" Count="0" />
+      <LineId Id="934" Count="0" />
+      <LineId Id="965" Count="0" />
+      <LineId Id="935" Count="4" />
+      <LineId Id="966" Count="0" />
+      <LineId Id="940" Count="0" />
+      <LineId Id="967" Count="0" />
+      <LineId Id="941" Count="3" />
+      <LineId Id="968" Count="0" />
+      <LineId Id="945" Count="1" />
+      <LineId Id="969" Count="0" />
+      <LineId Id="947" Count="4" />
+      <LineId Id="970" Count="0" />
+      <LineId Id="952" Count="0" />
+      <LineId Id="971" Count="0" />
+      <LineId Id="953" Count="4" />
+      <LineId Id="972" Count="0" />
+      <LineId Id="958" Count="0" />
+      <LineId Id="973" Count="0" />
+      <LineId Id="959" Count="2" />
+      <LineId Id="927" Count="0" />
+      <LineId Id="849" Count="0" />
+      <LineId Id="1224" Count="31" />
+      <LineId Id="1281" Count="0" />
+      <LineId Id="1280" Count="0" />
+      <LineId Id="1256" Count="0" />
+      <LineId Id="1325" Count="0" />
+      <LineId Id="1263" Count="6" />
+      <LineId Id="1287" Count="2" />
+      <LineId Id="1326" Count="0" />
+      <LineId Id="1290" Count="1" />
+      <LineId Id="1361" Count="0" />
+      <LineId Id="1360" Count="0" />
+      <LineId Id="1364" Count="0" />
+      <LineId Id="1367" Count="2" />
+      <LineId Id="1365" Count="1" />
+      <LineId Id="1371" Count="6" />
+      <LineId Id="1370" Count="0" />
+      <LineId Id="1379" Count="6" />
+      <LineId Id="1378" Count="0" />
+      <LineId Id="1387" Count="6" />
+      <LineId Id="1386" Count="0" />
+      <LineId Id="1395" Count="6" />
+      <LineId Id="1394" Count="0" />
+      <LineId Id="1438" Count="0" />
+      <LineId Id="1437" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,416 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbRecipeTimeBlockG2" Id="{d66a6a06-e3dc-4e36-83cd-20d67b22624a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbRecipeTimeBlockG2
+
+VAR_INPUT
+	bGenerateEN : BOOL;
+	bSkipFunctionEN : BOOL;
+(*	iLoadCallArmTime : INT;
+	FixWriteData: BOOL;
+	iTargetAddress: INT;
+*)
+	ARbSkipStation : ARRAY [1..iStnQty] OF BOOL;
+(*	iTestStep: BOOL;*)
+END_VAR
+
+
+VAR_OUTPUT
+	bCompleted : BOOL;
+END_VAR
+
+VAR_IN_OUT
+	AR2SiRecipeTimeBlock : ARRAY[1..iRecipeBlockQty, 1..3] OF INT;
+	ARiZoneAddress: ARRAY[1..iRecipeBlockQty] OF INT;
+	ARiZoneArea : ARRAY[1..iRecipeBlockQty] OF INT;
+	iRecipeTotalTime : INT;
+
+(*	iSkipStn1Area : INT; (*Skip the 1st Station as x2 basket cannot utilized the same tank*)*)
+(*	Ar10000_iRecipeTimeBlock : ARRAY[1..10000] OF INT;*)
+
+END_VAR
+
+VAR
+	ARiZoneSkipArea : ARRAY[1..iRecipeBlockQty] OF INT;
+	GenerateDU: R_TRIG;
+	FormulaFL: INT;
+	ZoneFL : INT; (* For loop - Sets of Zone*)
+	GroupFL: INT; (* For loop - Full range of 10000*)
+	Step: INT;
+	iFirstSkipArea : INT := 0;
+
+	ARiZoneAreaInt : ARRAY[1..iRecipeBlockQty] OF INT;
+
+	TTFL: INT;
+	TTFL2: INT;
+	iSkipAreaForNextScanTemp: INT;
+	iRecipeTotalTimeTemp: INT;
+	ZTFL: INT;
+	iSkipFL: INT;
+	CFFL: INT;
+	iiDetectedAddress: INT;
+	iAddArmTimeMFL: INT;
+	iAddArmTimeSFL: INT;
+	ARbZoneSkip : ARRAY [1..iRecipeBlockQty] OF BOOL;
+	ARiAddArmTime: ARRAY [1..iRecipeBlockQty] OF INT;
+	iSFLStart: INT;
+	iClearAddArmSFL: INT;
+	CFFL2: INT;
+	CRMFL: INT;
+	CRSFL: INT;
+	Step2: INT;
+	iSortMFL: INT;
+	iSortSFL: INT;
+	iShiftMFL: INT;
+	iShiftSFL: INT;
+	iClearRemainFL: INT;
+	iAddMFL: INT;
+	iAddSFL: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[GenerateDU(CLK:=bGenerateEN , Q=> );
+
+IF NOT bGenerateEN THEN
+bCompleted:=FALSE;
+END_IF
+
+IF GenerateDU.Q AND bSkipFunctionEN THEN
+
+			(* Generate Actual Skip Address*)
+			iSkipFL := 1;
+			FOR iSkipFL := 1 TO iStnQty DO
+
+				IF ARbSkipStation[iSkipFL] THEN
+				ARbZoneSkip[iSkipFL*2] := TRUE;
+				ARbZoneSkip[(iSkipFL*2)+1] := TRUE;
+				ELSE
+				ARbZoneSkip[iSkipFL*2] := FALSE;
+				ARbZoneSkip[(iSkipFL*2)+1] := FALSE;
+				END_IF
+			
+			END_FOR
+
+			(*Add Arm Transfer Time when Skip tank activated*)
+			iAddArmTimeMFL := 1;
+			iAddArmTimeSFL := 1;
+			iClearAddArmSFL := 1;
+
+			FOR iClearAddArmSFL := 1 TO iRecipeBlockQty DO
+			ARiAddArmTime[iClearAddArmSFL] := 0;
+			END_FOR
+		
+		
+			FOR iAddArmTimeMFL := 1 TO iRecipeBlockQty DO
+
+				IF NOT ARbZoneSkip[iAddArmTimeMFL] THEN
+				iSFLStart:=iAddArmTimeMFL;
+
+					FOR iAddArmTimeSFL := 1 TO iRecipeBlockQty DO
+
+								IF iAddArmTimeSFL > iSFLStart THEN
+										IF ARbZoneSkip[iAddArmTimeSFL] THEN
+										ARiAddArmTime[iAddArmTimeMFL] := ARiAddArmTime[iAddArmTimeMFL]  + 1;
+										ELSE
+										iAddArmTimeMFL :=iAddArmTimeSFL;
+										iAddArmTimeSFL := iRecipeBlockQty+1;
+										END_IF
+								END_IF
+		
+					END_FOR
+
+				END_IF
+		
+			END_FOR
+
+END_IF
+
+
+IF GenerateDU.Q THEN
+Step := 1;
+Step2 := 1;
+ZoneFL := 99;
+GroupFL := 10000;
+END_IF
+
+IF GenerateDU.Q THEN
+iRecipeTotalTime := 0;
+(*iSkipStn1Area := 0;*)
+TTFL := 1;
+TTFL2 := 1;
+CFFL := 1;
+CFFL2 := 1;
+ZTFL := 1;
+CRMFL :=1;
+CRSFL := 1;
+
+
+	IF ZTFL > 0 AND ZTFL < iRecipeBlockQty+1 THEN
+
+		FOR ZTFL:= 1 TO iRecipeBlockQty DO
+
+			IF NOT ARbZoneSkip[ZTFL] THEN
+			ARiZoneAreaInt[ZTFL] := ARiZoneArea[ZTFL];
+			ELSE
+			ARiZoneAreaInt[ZTFL] := 0;
+			END_IF
+
+		END_FOR
+
+	END_IF
+
+
+	IF CFFL > 0 AND CFFL < iRecipeBlockQty+1 THEN
+
+		FOR CFFL:= 2 TO iRecipeBlockQty DO
+
+			IF ARiZoneAreaInt[CFFL] <> 0 THEN
+			iiDetectedAddress := CFFL;
+			CFFL := iRecipeBlockQty+1;
+
+			END_IF
+
+		END_FOR
+
+	END_IF
+(*
+	IF CFFL > 0 AND CFFL <= 10000 THEN
+
+		FOR CFFL:= 1 TO 10000 DO
+
+			Ar10000_iRecipeTimeBlock[CFFL] := 0;
+
+		END_FOR
+
+	END_IF
+*)
+
+(*Reset RecipeTimeBlock*)
+	IF CRMFL > 0 AND CRMFL <= iRecipeBlockQty THEN
+		FOR CRMFL := 1 TO iRecipeBlockQty DO
+				CRSFL := 1;
+				IF CRSFL >0 AND CRSFL <= 3 THEN
+					FOR CRSFL := 1 TO 3 DO
+						AR2SiRecipeTimeBlock[CRMFL, CRSFL] := 0;
+					END_FOR
+				END_IF
+		END_FOR
+	END_IF
+
+
+
+	IF TTFL > 0 AND TTFL < iRecipeBlockQty+1 THEN
+
+		FOR TTFL:= 1 TO iRecipeBlockQty DO
+
+		iRecipeTotalTime := iRecipeTotalTime + ARiZoneAreaInt[TTFL] + ARiAddArmTime[TTFL];
+
+		END_FOR
+
+	END_IF
+
+(*
+iSkipStn1Area := ARiZoneAreaInt[1] + ARiZoneAreaInt[iiDetectedAddress] + ARiAddArmTime[1];
+*)
+
+END_IF
+
+
+
+
+(*
+
+CASE Step OF
+
+(*Formula*)
+
+1:
+ARiZoneSkipArea[1] := iFirstSkipArea;
+
+FOR FormulaFL:= 2 TO iRecipeBlockQty DO
+
+ARiZoneSkipArea[FormulaFL] := ARiZoneSkipArea[FormulaFL -1] + ARiZoneAreaInt[FormulaFL -1] + ARiAddArmTime[FormulaFL -1];
+
+END_FOR
+
+IF FormulaFL > iRecipeBlockQty THEN
+Step:= 2;
+ZoneFL := 1;
+GroupFL := 1;
+END_IF
+
+
+2:
+
+
+FOR ZoneFL:= 1 TO iRecipeBlockQty DO
+
+	FOR GroupFL:= 1 TO 10000 DO
+
+		IF GroupFL > ARiZoneSkipArea[ZoneFL] AND GroupFL <= ARiZoneSkipArea[ZoneFL] + ARiZoneAreaInt[ZoneFL] + ARiAddArmTime[ZoneFL]THEN
+		Ar10000_iRecipeTimeBlock [GroupFL] := ARiZoneAddress[ZoneFL];
+		END_IF
+
+	END_FOR
+
+END_FOR
+
+IF ZoneFL > iRecipeBlockQty AND GroupFL > 10000 THEN
+Step:= 3;
+END_IF
+
+3:;
+
+
+END_CASE
+*)
+CASE Step2 OF
+
+0:;
+
+1:
+iSortMFL:=1;
+
+	IF iSortMFL >0 AND iSortMFL <=iRecipeBlockQty THEN
+		FOR iSortMFL := 1 TO iRecipeBlockQty DO
+
+			IF iSortMFL = 1 THEN
+			AR2SiRecipeTimeBlock[iSortMFL,1] := 1;
+			AR2SiRecipeTimeBlock[iSortMFL,2] := ARiZoneAreaInt[iSortMFL] + ARiAddArmTime[iSortMFL];
+			AR2SiRecipeTimeBlock[iSortMFL,3] := ARiZoneAddress[iSortMFL];
+			END_IF
+
+			IF iSortMFL > 1 THEN
+			AR2SiRecipeTimeBlock[iSortMFL,1] := AR2SiRecipeTimeBlock[iSortMFL-1,2]+1;
+			AR2SiRecipeTimeBlock[iSortMFL,2] := ARiZoneAreaInt[iSortMFL] + ARiAddArmTime[iSortMFL] +AR2SiRecipeTimeBlock[iSortMFL-1,2] ;
+			AR2SiRecipeTimeBlock[iSortMFL,3] := ARiZoneAddress[iSortMFL];
+			END_IF
+
+		END_FOR
+
+	END_IF
+
+IF iSortMFL > iRecipeBlockQty THEN
+	Step2:=2;
+END_IF
+
+
+2:
+iShiftMFL := 1;
+iShiftSFL := 1;
+
+	IF iShiftSFL >0 AND iShiftSFL <=iRecipeBlockQty THEN
+		FOR iShiftSFL := 1 TO iRecipeBlockQty DO
+
+			IF AR2SiRecipeTimeBlock[iShiftSFL,2] > AR2SiRecipeTimeBlock[iShiftSFL,1]  THEN
+			AR2SiRecipeTimeBlock[iShiftMFL,1] := AR2SiRecipeTimeBlock[iShiftSFL,1];
+			AR2SiRecipeTimeBlock[iShiftMFL,2] := AR2SiRecipeTimeBlock[iShiftSFL,2];
+			AR2SiRecipeTimeBlock[iShiftMFL,3] := AR2SiRecipeTimeBlock[iShiftSFL,3];
+
+							IF iShiftMFL <> iShiftSFL THEN
+							AR2SiRecipeTimeBlock[iShiftSFL,1] := 0;
+							AR2SiRecipeTimeBlock[iShiftSFL,2] := 0;
+							AR2SiRecipeTimeBlock[iShiftSFL,3] := 0;
+							END_IF
+
+
+
+			iShiftMFL := iShiftMFL + 1;
+			END_IF
+
+
+
+		END_FOR
+
+	END_IF
+
+
+IF iShiftSFL > iRecipeBlockQty THEN
+	Step2:=3;
+END_IF
+
+3:
+iClearRemainFL :=1;
+
+	IF iClearRemainFL >0 AND iClearRemainFL <=iRecipeBlockQty THEN
+		FOR iClearRemainFL := 1 TO iRecipeBlockQty DO
+
+			IF AR2SiRecipeTimeBlock[iClearRemainFL,2] <= AR2SiRecipeTimeBlock[iClearRemainFL,1]  THEN
+			AR2SiRecipeTimeBlock[iClearRemainFL,1] := 0;
+			AR2SiRecipeTimeBlock[iClearRemainFL,2] := 0;
+			AR2SiRecipeTimeBlock[iClearRemainFL,3] := 0;
+			iShiftMFL := iShiftMFL + 1;
+			END_IF
+
+		END_FOR
+
+
+	END_IF
+
+IF iClearRemainFL > iRecipeBlockQty THEN
+Step2:=4;
+(*Step2:=5;
+bCompleted:=TRUE;
+*)
+END_IF
+
+
+
+4:
+
+iAddMFL:=1;
+
+	IF iAddMFL >0 AND iAddMFL <=iRecipeBlockQty THEN
+		FOR iAddMFL := 1 TO iRecipeBlockQty DO
+(*
+		IF AR2SiRecipeTimeBlock[iAddMFL,3] > iStnQty THEN
+
+			IF iAddMFL = 1 THEN
+			AR2SiRecipeTimeBlock[iAddMFL,1] := 1;
+			AR2SiRecipeTimeBlock[iAddMFL,2] := ARiZoneAreaInt[iAddMFL] + ARiAddArmTime[iAddMFL];
+			AR2SiRecipeTimeBlock[iAddMFL,3] := ARiZoneAddress[iAddMFL];
+			END_IF
+
+			IF iAddMFL > 1 THEN
+			AR2SiRecipeTimeBlock[iAddMFL,1] := AR2SiRecipeTimeBlock[iAddMFL-1,2]+1;
+			AR2SiRecipeTimeBlock[iAddMFL,2] := ARiZoneAreaInt[iAddMFL] + ARiAddArmTime[iAddMFL] +AR2SiRecipeTimeBlock[iAddMFL-1,2] ;
+			AR2SiRecipeTimeBlock[iAddMFL,3] := ARiZoneAddress[iAddMFL];
+			END_IF
+
+		END_IF
+*)
+		IF AR2SiRecipeTimeBlock[iAddMFL,3] > 0 AND AR2SiRecipeTimeBlock[iAddMFL,3] <= iStnQty THEN
+
+			IF iAddMFL = 1 THEN
+			AR2SiRecipeTimeBlock[iAddMFL,1] := 1;
+			AR2SiRecipeTimeBlock[iAddMFL,2] := AR2SiRecipeTimeBlock[iAddMFL+1,2];(*ARiZoneAreaInt[iAddMFL] + ARiAddArmTime[iAddMFL] + ARiZoneAreaInt[iAddMFL+1] ;*)
+			AR2SiRecipeTimeBlock[iAddMFL,3] := AR2SiRecipeTimeBlock[iAddMFL,3];
+			END_IF
+
+			IF iAddMFL > 1 THEN
+			AR2SiRecipeTimeBlock[iAddMFL,1] := AR2SiRecipeTimeBlock[iAddMFL-1,1];
+			AR2SiRecipeTimeBlock[iAddMFL,2] := AR2SiRecipeTimeBlock[iAddMFL+1,2];(*ARiZoneAreaInt[iAddMFL] + ARiAddArmTime[iAddMFL] +AR2SiRecipeTimeBlock[iAddMFL-1,2] ;*)
+			AR2SiRecipeTimeBlock[iAddMFL,3] := AR2SiRecipeTimeBlock[iAddMFL,3];
+			END_IF
+
+		END_IF
+
+		END_FOR
+
+	END_IF
+
+IF iAddMFL > iRecipeBlockQty THEN
+	Step2:=5;
+bCompleted:=TRUE;
+END_IF
+
+5:
+
+
+;
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="fbRecipeTimeBlockG2">
+      <LineId Id="66" Count="339" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

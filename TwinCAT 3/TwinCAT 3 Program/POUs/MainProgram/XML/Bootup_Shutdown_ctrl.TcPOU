@@ -1,0 +1,170 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Bootup_Shutdown_ctrl" Id="{76222284-52aa-4a70-a63f-a16a53caa269}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Bootup_Shutdown_ctrl
+VAR
+	bIpcInput_on: BOOL;
+	bXmlReadEn: BOOL;
+	bCSVReadEn: BOOL;
+	bCsvReadDone: BOOL;
+	
+	bIPCInputOnRE	: R_trig;
+	bIPCOnRE		: R_Trig;
+	bXmlCsvReadDoneRE : R_Trig;
+	bXmlCsvWriteDoneRE	:R_trig;
+	
+	bCsvWriteEn: BOOL;
+	bIpcOnHR: BOOL;
+
+
+	
+	bSFQTest: BOOL;
+	bSFQTest_read: BOOL;
+	
+
+	bBootUpReadXMLDone	:BOOL;
+	bShutdownWriteXMLDone	:BOOL;
+	sStatus: STRING;
+	bsyed: BOOL;
+	bIpcOffDelay: BOOL;
+	tIpcOffDelay: TON;
+	test: Bool;
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
+	
+	
+	
+	bSHutdownTest: BOOL;
+	
+	on: BOOL;
+
+
+END_VAR
+
+VAR PERSISTENT
+	bBootupHold: BOOL;
+END_VAR
+
+	]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+// IPC OFF Selector Switch - OFF
+bIPCInputOnRE(CLK:=ARbDI[eX11111_IpcDcOnSignal] OR bBatteryModeActivated OR bSFQTest , Q=> );
+
+IF ARbDI[eX11111_IpcDcOnSignal] THEN
+	on:= FALSE;
+	ELSE
+	on:= TRUE;
+	
+END_IF
+
+
+// IPC autoboot start signal
+bIPCOnRE(CLK:=TRUE OR bSFQTest_read  , Q=> );
+
+//IPC On Holding relay -output
+IF PowerOnDelay.Q AND NOT tIpcOffDelay.Q THEN
+	bIpcOnHR := TRUE;
+	ELSE
+	bIpcOnHR := FALSE;
+END_IF
+
+ARwDO[eY11007_IpcDcOnHoldingRelay].00:=bIpcOnHR OR bsyed;
+
+// Bootup
+IF bIPCOnRE.Q AND NOT bBootupHold THEN
+	bMainCtrl:=FALSE;
+	bReadXmlEn:= TRUE;
+END_IF
+
+bXmlCsvReadDoneRE(CLK:= bReadXmlComplete (*AND NOT Alarm_XMLReadnWrite.fbXmlSrvReadFromXML.bBusy AND bCsvReadDone*) , Q=> );
+
+IF bXmlCsvReadDoneRE.Q THEN 
+	bMainCtrl:=TRUE;
+	bBootupHold:= TRUE;
+END_IF
+
+// Shutdown
+IF bIPCInputOnRE.Q OR bSHutdownTest THEN
+	bBootupHold:= FALSE;
+	bMachineShutdown:=TRUE;
+	bShutdownPopupPage:=TRUE;
+	bRecipeShutdownRequestFlag:= TRUE;
+	bCsvShutdownRequestFlag:=TRUE;
+	bWriteXmlEn:= TRUE;
+END_IF
+
+bXmlCsvWriteDoneRE(CLK:= bWrite_Done (*AND bRecipeReadyToShutdownFlag AND bCsvReadyToShutdownFlag*), Q=> );
+
+IF bXmlCsvWriteDoneRE.Q THEN
+	bIpcOffDelay:= TRUE;
+	bWriteXmlEn:=FALSE;
+	
+END_IF
+
+tIpcOffDelay(IN:=bIpcOffDelay , PT:= T#2S , Q=> , ET=> );
+
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="Bootup_Shutdown_ctrl">
+      <LineId Id="493" Count="0" />
+      <LineId Id="490" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="537" Count="0" />
+      <LineId Id="536" Count="0" />
+      <LineId Id="538" Count="0" />
+      <LineId Id="540" Count="2" />
+      <LineId Id="539" Count="0" />
+      <LineId Id="533" Count="0" />
+      <LineId Id="494" Count="0" />
+      <LineId Id="491" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="495" Count="0" />
+      <LineId Id="492" Count="0" />
+      <LineId Id="497" Count="3" />
+      <LineId Id="496" Count="0" />
+      <LineId Id="501" Count="0" />
+      <LineId Id="213" Count="0" />
+      <LineId Id="116" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="114" Count="0" />
+      <LineId Id="705" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="707" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="79" Count="1" />
+      <LineId Id="662" Count="0" />
+      <LineId Id="660" Count="0" />
+      <LineId Id="620" Count="0" />
+      <LineId Id="424" Count="1" />
+      <LineId Id="661" Count="0" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="86" Count="3" />
+      <LineId Id="386" Count="0" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="579" Count="0" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="274" Count="0" />
+      <LineId Id="458" Count="0" />
+      <LineId Id="457" Count="0" />
+      <LineId Id="282" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,287 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MisshookSensorCtrl" Id="{666b8147-7dae-4ca9-a552-169bfa97447e}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MisshookSensorCtrl
+VAR
+
+	bArm1LdMisshookDetectZone			: BOOL;
+	ARbArm1StnMisshookDetectZone		: ARRAY [1..iStnQty] OF BOOL;
+	bArm1UldMisshookDetectZone			: BOOL;
+
+	bArm1DeactDetectZone				: BOOL;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*ARM 1*)
+(******Misshook 1 Alarm Control*******)
+
+IF PowerOnDelay.Q AND (bAutoStartPb OR ManualPageEnable ) AND NOT ARbArmMissHookByPass1[1]
+AND
+(
+(
+( ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1] OR (NOT ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1] AND bArm1MisshookDetectZone))
+AND
+DSArmBasketInfo[1].bAvailibility AND NOT ARbMAP_ArmMisshookSensorA[1])
+OR
+(NOT DSArmBasketInfo[1].bAvailibility AND bArm1MisshookDetectZone AND ARbMAP_ArmMisshookSensorA[1])
+)
+THEN
+
+ARbArmMisshook1Alarm[1] := TRUE;
+ELSE
+ARbArmMisshook1Alarm[1] := FALSE;
+
+END_IF
+
+(******Misshook 2 Alarm Control*******)
+
+IF PowerOnDelay.Q AND (bAutoStartPb OR ManualPageEnable ) AND NOT ARbArmMissHookByPass2[1]
+AND
+(
+(
+( ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1] OR (NOT ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1] AND bArm1MisshookDetectZone))
+AND
+DSArmBasketInfo[1].bAvailibility AND NOT ARbMAP_ArmMisshookSensorA[2]
+)
+OR
+(NOT DSArmBasketInfo[1].bAvailibility AND bArm1MisshookDetectZone AND ARbMAP_ArmMisshookSensorA[2])
+)
+THEN
+
+ARbArmMisshook2Alarm[1] := TRUE;
+ELSE
+ARbArmMisshook2Alarm[1] := FALSE;
+
+END_IF
+
+(*
+(******Misshook 1 Alarm Control*******)                       	(********************* Funtion for Arm that have two baskets on it *********************)
+
+IF PowerOnDelay.Q AND (bAutoStartPb OR ManualPageEnable ) AND NOT ARbArmMissHookByPass1[1]
+AND
+(
+(
+( ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1] OR (NOT ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1] AND bArm1MisshookDetectZone))
+AND
+((DSArmBasketInfo[1].bAvailibility_A AND NOT X116_10) OR (DSArmBasketInfo[1].bAvailibility_B AND NOT X116_12))
+)
+OR
+(NOT DSArmBasketInfo[1].bAvailibility AND bArm1MisshookDetectZone AND (X116_10 OR X116_12)  )
+)
+THEN
+
+ARbArmMisshook1Alarm[1] := TRUE;
+ELSE
+ARbArmMisshook1Alarm[1] := FALSE;
+
+END_IF
+
+(******Misshook 2 Alarm Control*******)			(********************* Funtion for Arm that have two baskets on it *********************)
+
+IF PowerOnDelay.Q AND (bAutoStartPb OR ManualPageEnable ) AND NOT ARbArmMissHookByPass2[1]
+AND
+(
+(
+( ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1] OR (NOT ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1] AND bArm1MisshookDetectZone))
+AND
+((DSArmBasketInfo[1].bAvailibility_A AND NOT X116_11) OR (DSArmBasketInfo[1].bAvailibility_B AND NOT X116_13))
+)
+OR
+(NOT DSArmBasketInfo[1].bAvailibility AND bArm1MisshookDetectZone AND (X116_11 OR X116_13)  )
+)
+THEN
+
+ARbArmMisshook2Alarm[1] := TRUE;
+ELSE
+ARbArmMisshook2Alarm[1] := FALSE;
+
+END_IF
+*)
+
+
+(*Arm 1*)
+
+IF ARbLdHorzZoneConfirm[1] AND (*ARlrVertPositionMM[1]*)DSArm1VertConfig.lrGen_Out_CurrentPos < ( ARDSArmCtrl[1].AR3slrPosition[2,1,6] - ARlrArmDetectZoneRange[1]) THEN
+bArm1LdMisshookDetectZone := TRUE;
+ELSE
+bArm1LdMisshookDetectZone := FALSE;
+END_IF
+
+IF ARbArm1HorzStnZoneConfirm[1]  AND (*ARlrVertPositionMM[1]*)DSArm1VertConfig.lrGen_Out_CurrentPos < ( ARDSArmCtrl[1].AR3slrPosition[1,1,6] - ARlrArmDetectZoneRange[1]) THEN
+ARbArm1StnMisshookDetectZone[1] := TRUE;
+ELSE
+ARbArm1StnMisshookDetectZone[1] := FALSE;
+END_IF
+
+IF ARbArm1HorzStnZoneConfirm[2]  AND DSArm1VertConfig.lrGen_Out_CurrentPos < ( ARDSArmCtrl[1].AR3slrPosition[1,2,6] - ARlrArmDetectZoneRange[2]) THEN
+ARbArm1StnMisshookDetectZone[2] := TRUE;
+ELSE
+ARbArm1StnMisshookDetectZone[2] := FALSE;
+END_IF
+
+IF ARbArm1HorzStnZoneConfirm[3]  AND DSArm1VertConfig.lrGen_Out_CurrentPos < ( ARDSArmCtrl[1].AR3slrPosition[1,3,6] - ARlrArmDetectZoneRange[3]) THEN
+ARbArm1StnMisshookDetectZone[3] := TRUE;
+ELSE
+ARbArm1StnMisshookDetectZone[3] := FALSE;
+END_IF
+
+IF ARbArm1HorzStnZoneConfirm[4]  AND DSArm1VertConfig.lrGen_Out_CurrentPos < ( ARDSArmCtrl[1].AR3slrPosition[1,4,6] - ARlrArmDetectZoneRange[4]) THEN
+ARbArm1StnMisshookDetectZone[4] := TRUE;
+ELSE
+ARbArm1StnMisshookDetectZone[4] := FALSE;
+END_IF
+
+IF ARbArm1HorzStnZoneConfirm[5]  AND DSArm1VertConfig.lrGen_Out_CurrentPos < ( ARDSArmCtrl[1].AR3slrPosition[1,5,6] - ARlrArmDetectZoneRange[5]) THEN
+ARbArm1StnMisshookDetectZone[5] := TRUE;
+ELSE
+ARbArm1StnMisshookDetectZone[5] := FALSE;
+END_IF
+
+IF ARbArm1HorzStnZoneConfirm[6]  AND DSArm1VertConfig.lrGen_Out_CurrentPos < ( ARDSArmCtrl[1].AR3slrPosition[1,6,6] - ARlrArmDetectZoneRange[6]) THEN
+ARbArm1StnMisshookDetectZone[6] := TRUE;
+ELSE
+ARbArm1StnMisshookDetectZone[6] := FALSE;
+END_IF
+
+IF ARbArm1HorzStnZoneConfirm[7]  AND DSArm1VertConfig.lrGen_Out_CurrentPos < ( ARDSArmCtrl[1].AR3slrPosition[1,7,6] - ARlrArmDetectZoneRange[7]) THEN
+ARbArm1StnMisshookDetectZone[7] := TRUE;
+ELSE
+ARbArm1StnMisshookDetectZone[7] := FALSE;
+END_IF
+
+IF ARbArm1HorzStnZoneConfirm[8]  AND DSArm1VertConfig.lrGen_Out_CurrentPos < ( ARDSArmCtrl[1].AR3slrPosition[1,8,6] - ARlrArmDetectZoneRange[8]) THEN
+ARbArm1StnMisshookDetectZone[8] := TRUE;
+ELSE
+ARbArm1StnMisshookDetectZone[8] := FALSE;
+END_IF
+
+// STN 9 with slowpull
+IF ARbArm1HorzStnZoneConfirm[9]  AND 
+(
+(NOT DSArmBasketInfo[1].bAvailibility AND DSArm1VertConfig.lrGen_Out_CurrentPos < ( ARDSArmCtrl[1].AR3slrPosition[1,9,6] - ARlrArmStnDetectZoneRange[1,9])) 
+OR
+(DSArmBasketInfo[1].bAvailibility AND DSArm1VertConfig.lrGen_Out_CurrentPos < ( ARDSArmCtrl[1].AR3slrPosition[1,9,2] - ARlrArmDetectZoneRange[9]))
+)
+THEN
+ARbArm1StnMisshookDetectZone[9] := TRUE;
+ELSE
+ARbArm1StnMisshookDetectZone[9] := FALSE;
+END_IF
+
+IF ARbArm1HorzStnZoneConfirm[10]  AND DSArm1VertConfig.lrGen_Out_CurrentPos < ( ARDSArmCtrl[1].AR3slrPosition[1,10,6] - ARlrArmDetectZoneRange[10]) THEN
+ARbArm1StnMisshookDetectZone[10] := TRUE;
+ELSE
+ARbArm1StnMisshookDetectZone[10] := FALSE;
+END_IF
+
+IF ARbArm1HorzStnZoneConfirm[11]  AND DSArm1VertConfig.lrGen_Out_CurrentPos < ( ARDSArmCtrl[1].AR3slrPosition[1,11,6] - ARlrArmDetectZoneRange[11]) THEN
+ARbArm1StnMisshookDetectZone[11] := TRUE;
+ELSE
+ARbArm1StnMisshookDetectZone[11] := FALSE;
+END_IF
+
+IF ARbArm1HorzStnZoneConfirm[12]  AND DSArm1VertConfig.lrGen_Out_CurrentPos < ( ARDSArmCtrl[1].AR3slrPosition[1,12,6] - ARlrArmDetectZoneRange[12]) THEN
+ARbArm1StnMisshookDetectZone[12] := TRUE;
+ELSE
+ARbArm1StnMisshookDetectZone[12] := FALSE;
+END_IF
+
+
+IF ARbUldHorzZoneConfirm[1] AND DSArm1VertConfig.lrGen_Out_CurrentPos < ( ARDSArmCtrl[1].AR3slrPosition[3,1,6] - ARlrArmDetectZoneRange[1]) THEN
+bArm1UldMisshookDetectZone := TRUE;
+ELSE
+bArm1UldMisshookDetectZone := FALSE;
+END_IF
+
+(*
+IF ARbArm1HorzStnZoneConfirm[6]  AND
+(
+(NOT DSArmBasketInfo[1].bAvailibility AND DSArm1VertConfig.lrGen_Out_CurrentPos < ( ARDSArmCtrl[1].AR3slrPosition[1,6,6] - ARlrArmStnDetectZoneRange[1,6]))
+OR
+( DSArmBasketInfo[1].bAvailibility AND DSArm1VertConfig.lrGen_Out_CurrentPos < ( ARDSArmCtrl[1].AR3slrPosition[1,6,2] - ARlrArmDetectZoneRange[6] (*ARlrArmStnDetectZoneRange[1,6]*)))
+)
+THEN
+ARbArm1StnMisshookDetectZone[6] := TRUE;
+ELSE
+ARbArm1StnMisshookDetectZone[6] := FALSE;
+END_IF
+*)
+
+
+IF DSArm1VertConfig.lrGen_Out_CurrentPos > INT_TO_LREAL( ARiArmDeactDetectZoneRange[1]) THEN
+bArm1DeactDetectZone := TRUE;
+ELSE
+bArm1DeactDetectZone := FALSE;
+END_IF
+
+
+IF ARbArmVertHomeDone[1] AND ARbArmHorzHomeDone[1] AND NOT bArm1DeactDetectZone THEN
+
+	IF ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1] THEN
+	bArm1MisshookDetectZone:= TRUE;
+
+	ELSIF bArm1LdMisshookDetectZone THEN
+	bArm1MisshookDetectZone:= TRUE;
+
+	ELSIF ARbArm1StnMisshookDetectZone[1] THEN
+	bArm1MisshookDetectZone:= TRUE;
+
+	ELSIF ARbArm1StnMisshookDetectZone[2] THEN
+	bArm1MisshookDetectZone:= TRUE;
+
+	ELSIF ARbArm1StnMisshookDetectZone[3] THEN
+	bArm1MisshookDetectZone:= TRUE;
+
+	ELSIF ARbArm1StnMisshookDetectZone[4] THEN
+	bArm1MisshookDetectZone:= TRUE;
+
+	ELSIF ARbArm1StnMisshookDetectZone[5] THEN
+	bArm1MisshookDetectZone:= TRUE;
+
+	ELSIF ARbArm1StnMisshookDetectZone[6] THEN
+	bArm1MisshookDetectZone:= TRUE;
+
+	ELSIF ARbArm1StnMisshookDetectZone[7] THEN
+	bArm1MisshookDetectZone:= TRUE;
+
+	ELSIF ARbArm1StnMisshookDetectZone[8] THEN
+	bArm1MisshookDetectZone:= TRUE;
+
+	ELSIF ARbArm1StnMisshookDetectZone[9] THEN
+	bArm1MisshookDetectZone:= TRUE;
+
+	ELSIF ARbArm1StnMisshookDetectZone[10] THEN
+	bArm1MisshookDetectZone:= TRUE;
+
+	ELSIF ARbArm1StnMisshookDetectZone[11] THEN
+	bArm1MisshookDetectZone:= TRUE;
+
+	ELSIF ARbArm1StnMisshookDetectZone[12] THEN
+	bArm1MisshookDetectZone:= TRUE;
+
+	ELSIF bArm1UldMisshookDetectZone THEN
+	bArm1MisshookDetectZone:= TRUE;
+
+	ELSE
+	bArm1MisshookDetectZone:= FALSE;
+	END_IF
+
+ELSE
+bArm1MisshookDetectZone:= FALSE;
+
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="MisshookSensorCtrl">
+      <LineId Id="10" Count="9" />
+      <LineId Id="21" Count="1" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="24" Count="128" />
+      <LineId Id="296" Count="0" />
+      <LineId Id="153" Count="1" />
+      <LineId Id="281" Count="1" />
+      <LineId Id="284" Count="2" />
+      <LineId Id="283" Count="0" />
+      <LineId Id="155" Count="106" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

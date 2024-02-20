@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_XMLRW" Id="{f5a731d1-d8f6-43c3-a91d-a2ebe0ecb990}">
+    <Declaration><![CDATA[TYPE DS_XMLRW :
+STRUCT
+
+	sMachineOnTime_JKS	: STRING(99);
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

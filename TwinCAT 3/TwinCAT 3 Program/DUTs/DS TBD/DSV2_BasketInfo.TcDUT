@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSV2_BasketInfo" Id="{d7dc0072-0cb2-4fd4-9ee0-4eee73da0376}">
+    <Declaration><![CDATA[TYPE DSV2_BasketInfo : (*Full Occupied Byte = 700*)
+
+(*[][][][][][][][][][]----- Basket Information - Attached with Basket -----[][][][][][][][][][]*)
+
+STRUCT
+	bAvailibility : BOOL; (* Byte "n" *)
+	bAvailibility_A : BOOL; (* Byte "n" *)
+	bAvailibility_B : BOOL; (* Byte "n" *)
+	sReservedBool : STRING(97); (* Byte "n+2~n+99" *)
+
+	iProductRecipeNo : INT; (* Byte "n+100, n+101" *)
+	iProductRecipeStepNo : INT; (* Byte "n+102, n+103" *)
+	iStationSeqenceRecipeNo : INT; (* Byte "n+104, n+105" *)
+	iPreviousStationNo : INT; (* Byte "n+106, n+107" *)
+	iCurrentStationNo : INT; (* Byte "n+108, n+109" *)
+	sReservedInt : STRING(87); (* Byte "n+112~n+199" *)
+
+
+	sProgramDescription : STRING(50) ; (* Byte "n+200~n+299" *)
+	sProductID : STRING(50); (* Byte "n+300~n+399" *)
+	ARsBarcodeData : ARRAY [0..10] OF STRING(50); (* Byte "n+400~n+499" *)
+	sFilePath : STRING(50); (* Byte "n+500~n+599" *)
+	sProductQuality : STRING(50); (* Byte "n+600~n+699" *)
+
+	DSV2MinMaxEffTime : DSV2_MinMaxEffTime;
+
+(*
+	sBarcodeData Information
+	[0] - No in use 
+	[1] - Barcode for Program No (DEFAULT)	
+	[2] - Barcode for Logging
+	[3] - Barcode for Logging
+	[4] - Barcode for Logging
+	[5] - Barcode for Logging
+	[6] - Barcode for Logging
+	[7] - Barcode for Logging
+	[8] - Barcode for Logging
+	[9] - Barcode for Logging
+	[10] - Barcode for Logging
+*)
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

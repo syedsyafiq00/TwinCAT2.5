@@ -1,0 +1,264 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbA21_UpDownPattern" Id="{9977eae4-dd5c-4f0c-bcbd-49617844a28a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbA21_UpDownPattern
+
+VAR_INPUT
+	bSavePB : BOOL;
+	bLoadPB : BOOL;
+	bCopyPB : BOOL;
+	iCopyToUpDownPatternNo : INT;
+END_VAR
+
+
+VAR_IN_OUT PERSISTENT
+
+	iUpDownPatternNo: INT; (* 10 sets of UpDownPattern *)
+	DSinUpDownPatternMemory : DSA21_UpDownPatternMemory;
+
+	Call_iUpDownPatternNo : INT;
+	bCallPB: BOOL;
+
+END_VAR
+VAR_OUTPUT
+	bSaveInd: BOOL;
+	bLoadInd: BOOL;
+	bCallCompleted : BOOL;
+	bInvalidCallUpdownPatternNoHold: BOOL;
+	bInvalidCallUpdownPatternNoPulse: BOOL;
+	Call_DSUpdownPattern : DSA21_UpDownPatternMemory;
+
+END_VAR
+VAR
+	SaveIndHr: BOOL;
+	LoadIndHr: BOOL;
+
+	SaveTimerDelay: TON;
+	LoadTimerDelay: TON;
+	SelfCheckTimer: TON;
+	bLoadEn: BOOL;
+	SelfCheckloopUpdownPattern: BOOL;
+	PreviousUpdownPatternNo: INT;
+
+	LoadDF : R_TRIG;
+	LoadENDF : R_TRIG;
+
+	SaveDF: R_TRIG;
+	CallIntervalTimer: TON;
+	CallIntervalDIFU: R_TRIG;
+
+	bCallCompletedHR: BOOL;
+	bCallCompletedHRRE: R_TRIG;
+	CallCompletedTimer: TON;
+	CallSelfCheckTimer : TON;
+	CallSelfCheckloop : BOOL;
+
+	CallSelfCheckRE: R_TRIG;
+	CallStep: INT;
+	CallSelfCheckHR: BOOL;
+	bCallPBRE: R_TRIG;
+
+	LoadFL: INT;
+	SaveFL: INT;
+	PreviousUpdownPatternCallNo: INT;
+	CallSFL: INT;
+	febInvalidCallUpdownPatternNo: F_TRIG;
+
+
+
+	rebInvalidCallUpdownPatternNo: R_TRIG;
+	tInvalidCallUpdownPatternNoPulseTimer: TON;
+	CopyDF: R_TRIG;
+	iMaxMinFL: INT;
+END_VAR
+
+VAR PERSISTENT
+
+	ARDsUpdownPatternMemory : ARRAY [1..iArmUpDownPatternArrayQty] OF DSA21_UpDownPatternMemory;
+	ARsStorageUpdownPatternDescription: ARRAY [0..iArmUpDownPatternArrayQty] OF STRING(50);
+
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF iUpDownPatternNo < 1 THEN
+iUpDownPatternNo := 1;
+END_IF
+
+IF iUpDownPatternNo > iArmUpDownPatternArrayQty THEN
+iUpDownPatternNo := iArmUpDownPatternArrayQty;
+END_IF
+
+
+(*Min / Max Control*)
+IF DSinUpDownPatternMemory.iZone1SpdProfileNo <= 0 THEN
+DSinUpDownPatternMemory.iZone1SpdProfileNo:= 1;
+ELSIF DSinUpDownPatternMemory.iZone1SpdProfileNo > iArmSpeedProfileArrayQty THEN
+DSinUpDownPatternMemory.iZone1SpdProfileNo:= iArmSpeedProfileArrayQty;
+END_IF
+
+IF DSinUpDownPatternMemory.iZone2SpdProfileNo <= 0 THEN
+DSinUpDownPatternMemory.iZone2SpdProfileNo:= 1;
+ELSIF DSinUpDownPatternMemory.iZone2SpdProfileNo > iArmSpeedProfileArrayQty THEN
+DSinUpDownPatternMemory.iZone2SpdProfileNo:= iArmSpeedProfileArrayQty;
+END_IF
+
+IF DSinUpDownPatternMemory.iZone3SpdProfileNo <= 0 THEN
+DSinUpDownPatternMemory.iZone3SpdProfileNo:= 1;
+ELSIF DSinUpDownPatternMemory.iZone3SpdProfileNo > iArmSpeedProfileArrayQty THEN
+DSinUpDownPatternMemory.iZone3SpdProfileNo:= iArmSpeedProfileArrayQty;
+END_IF
+
+IF DSinUpDownPatternMemory.iZone4SpdProfileNo <= 0 THEN
+DSinUpDownPatternMemory.iZone4SpdProfileNo:= 1;
+ELSIF DSinUpDownPatternMemory.iZone4SpdProfileNo > iArmSpeedProfileArrayQty THEN
+DSinUpDownPatternMemory.iZone4SpdProfileNo:= iArmSpeedProfileArrayQty;
+END_IF
+
+
+
+
+
+(*Load and Save Indicator*)
+IF bSavePB THEN
+SaveIndHr := TRUE;
+END_IF
+
+SaveTimerDelay(IN:=SaveIndHr, PT := T#1s, Q=>, ET=>);
+IF SaveTimerDelay.Q THEN
+SaveIndHr := FALSE;
+END_IF
+
+IF SaveIndHr AND NOT SaveTimerDelay.Q THEN
+bSaveInd := TRUE;
+ELSE
+bSaveInd := FALSE;
+END_IF
+
+IF bLoadPB THEN
+LoadIndHr := TRUE;
+END_IF
+
+LoadTimerDelay(IN:=LoadIndHr, PT := T#1s, Q=>, ET=>);
+IF loadtimerdelay.Q THEN
+LoadIndHr := FALSE;
+END_IF
+
+IF loadIndHr AND NOT LoadTimerDelay.Q THEN
+bLoadInd := TRUE;
+ELSE
+bLoadInd := FALSE;
+END_IF
+
+IF iUpDownPatternNo <> PreviousUpdownPatternNo THEN
+bLoadEn := TRUE;
+ELSE
+bLoadEn := FALSE;
+END_IF
+
+
+(* Load Recipe *)
+
+LoadDF(CLK:=bLoadPB,Q=>);
+LoadENDF(CLK:=bLoadEn,Q=>);
+
+IF LoadDF.Q OR LoadENDF.Q THEN
+
+DSinUpDownPatternMemory := ARDsUpdownPatternMemory[iUpDownPatternNo];
+PreviousUpdownPatternNo := iUpDownPatternNo  ;
+
+END_IF
+
+
+(* Save Recipe *)
+
+SaveDF(CLK:=bSavePB,Q=>);
+
+IF SaveDF.Q THEN
+
+ARDsUpdownPatternMemory[iUpDownPatternNo] := DSinUpDownPatternMemory;
+ARsStorageUpdownPatternDescription[iUpDownPatternNo] := DSinUpDownPatternMemory.sDescription;
+
+END_IF
+
+
+(*Copy Recipe*)
+
+CopyDF(CLK:=bCopyPB,Q=>);
+
+IF CopyDF.Q THEN
+
+ARDsUpdownPatternMemory[iCopyToUpDownPatternNo] := ARDsUpdownPatternMemory[iUpDownPatternNo];
+ARsStorageUpdownPatternDescription[iCopyToUpDownPatternNo] := ARDsUpdownPatternMemory[iUpDownPatternNo].sDescription;
+
+END_IF
+
+
+
+
+
+(* Call Recipe *)
+(* ---- Call Recipe Complete Flag ---*)
+
+
+IF NOT bCallPB THEN
+bCallCompleted := FALSE;
+END_IF
+
+bCallPBRE(CLK:=bCallPB , Q=> );
+
+IF (Call_iUpDownPatternNo <= 0 OR Call_iUpDownPatternNo > iArmUpDownPatternArrayQty) AND bCallPB THEN
+bInvalidCallUpdownPatternNoHold := TRUE;
+ELSE
+bInvalidCallUpdownPatternNoHold := FALSE;
+END_IF
+
+
+febInvalidCallUpdownPatternNo(CLK:= bCallPB AND bInvalidCallUpdownPatternNoHold  , Q=> );
+
+IF febInvalidCallUpdownPatternNo.Q THEN
+bInvalidCallUpdownPatternNoPulse := TRUE;
+END_IF
+
+tInvalidCallUpdownPatternNoPulseTimer(IN:=bInvalidCallUpdownPatternNoPulse , PT:=t#0.5s , Q=> , ET=> );
+
+IF tInvalidCallUpdownPatternNoPulseTimer.Q OR NOT bCallPB THEN
+bInvalidCallUpdownPatternNoPulse := FALSE;
+END_IF
+
+IF bCallPBRE.Q AND NOT bInvalidCallUpdownPatternNoHold THEN
+bCallCompleted := FALSE;
+CallStep:= 1;
+END_IF
+
+
+CASE CallStep OF
+
+1:
+
+Call_DSUpdownPattern := ARDsUpdownPatternMemory[Call_iUpDownPatternNo];
+
+CallStep := 11;
+
+
+10:
+bCallCompleted := TRUE;
+CallSelfCheckHR := FALSE;
+PreviousUpdownPatternCallNo := Call_iUpDownPatternNo;
+CallStep := 99;
+
+11:
+
+bCallCompleted := TRUE;
+CallStep := 99;
+
+
+
+99:
+;
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="fbA21_UpDownPattern">
+      <LineId Id="78" Count="175" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

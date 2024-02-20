@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV3_ImportExportXML" Id="{5b05cd6c-48be-48b1-a128-edad15298702}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV3_ImportExportXML
+VAR_INPUT
+	sFbFilePath					:T_MaxString;
+	sFbXPath					:T_MaxString; (* Default ->    '/L1/L2/L3/L4/L5/L6/L7/L8/L9'  *)
+	bFbImport					: BOOL;
+	bFbExport					: BOOL;
+	bFbErrorReset				: BOOL;
+
+END_VAR
+
+VAR_OUTPUT
+	bFbReadDone				: BOOL;
+	bFbReadBusy				: BOOL;
+	bFbReadError				: BOOL;
+	udFbReadErrorID				: UDINT;
+
+	bFbWriteDone				: BOOL;
+	bFbWriteBusy				: BOOL;
+	bFbWriteError				: BOOL;
+	udFbWriteErrorID				: UDINT;
+END_VAR
+
+VAR
+	bFbEXERead				: BOOL;
+	bFbEXEWrite					: BOOL;
+
+	eFbPath 						: E_OpenPath := PATH_GENERIC;
+
+	step							: INT;
+	bFbErrorResetRE				: R_TRIG;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[bFbErrorResetRE(CLK:=bFbErrorReset , Q=> );
+
+
+CASE step OF
+
+
+0:	(*Initialize*)
+
+	FBXmlSrvRead.bExecute		:=FALSE;
+	FBXmlSrvWrite.bExecute		:=FALSE;
+	bFbEXERead				:=FALSE;
+	bFbEXEWrite					:=FALSE;
+
+	bFbReadBusy				:= FALSE;
+	bFbReadError				:= FALSE;
+	udFbReadErrorID				:= 0;
+
+	bFbWriteBusy				:= FALSE;
+	bFbWriteError				:= FALSE;
+	udFbWriteErrorID				:= 0;
+
+
+	IF bFbImport THEN
+	bFbReadDone 				:=FALSE;
+	bFbEXERead				:=TRUE;
+	step							:=1;
+	END_IF
+
+	IF bFbExport THEN
+	bFbWriteDone				:=FALSE;
+	bFbEXEWrite					:= TRUE;
+	step							:=2;
+	END_IF
+
+1:	(* Read XML function block*)
+
+
+		IF NOT bFbEXERead THEN
+
+			IF NOT FBXmlSrvRead.bBusy AND NOT FBXmlSrvRead.bError THEN
+			step:=10;
+			END_IF
+
+			IF bFbErrorResetRE.Q AND FBXmlSrvRead.bError THEN
+			step:=0;
+			END_IF
+
+		END_IF
+
+		FBXmlSrvRead(
+		ePath		:=eFbPath ,
+		nMode		:=XMLSRV_ADDMISSING ,
+	(*	pSymAddr	:= ADR(StDataTransfer),
+		cbSymSize	:=SIZEOF(StDataTransfer) ,*)
+		sFilePath	:=sFbFilePath ,
+		sXPath		:=sFbXPath ,
+		bExecute	:= bFbEXERead,
+		bBusy		 => bFbReadBusy,
+		bError 		=> bFbReadError,
+		nErrId 		=> udFbReadErrorID);
+
+		bFbEXERead := FALSE;
+
+
+10: (*Mapping*)
+
+		bFbReadDone	:=TRUE;
+
+		IF NOT bFbImport THEN
+		bFbReadDone:=FALSE;
+		step:=0;
+		END_IF
+
+2: (* Write XML function block*)
+
+		IF NOT bFbEXEWrite THEN
+
+			IF NOT FBXmlSrvWrite.bBusy AND NOT FBXmlSrvWrite.bError THEN
+			step:=20;
+			END_IF
+
+			IF bFbErrorResetRE.Q AND FBXmlSrvWrite.bError THEN
+			step:=0;
+			END_IF
+
+		END_IF
+
+		FBXmlSrvWrite(
+		ePath:=eFbPath ,
+		nMode:=XMLSRV_ADDMISSING ,
+(*		pSymAddr:=ADR(XML_ImportExport) ,
+		cbSymSize:=SIZEOF(XML_ImportExport) ,*)
+		sFilePath:=sFbFilePath ,
+		sXPath:= sFbXPath,
+		bExecute:=bFbEXEWrite,
+		bBusy => bFbWriteBusy,
+		bError => bFbWriteError,
+		nErrId => udFbWriteErrorID);
+
+		bFbEXEWrite := FALSE;
+
+
+
+20:  (* Mapping*)
+
+		bFbWriteDone:=TRUE;
+
+		IF NOT bFbExport THEN
+		bFbWriteDone:=FALSE;
+		step:=0;
+		END_IF
+
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="fbV3_ImportExportXML">
+      <LineId Id="31" Count="112" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

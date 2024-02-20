@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_CT12_HMIfunction" Id="{4aab5e05-3d5f-4cfa-b34a-7c6aa33a6ad3}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+	(*bAutoPageOn:BOOL;
+	bManuPageOn:BOOL;
+	bRecipePageOn: BOOL;	(*  *)
+	bUserPageOn:BOOL;*)
+
+
+	bSSURstartCOnditionPageOn:BOOL;
+
+
+	(*bManualStationOnPage:BOOL;*)
+	bAutoStationOnPage:BOOL;
+
+
+
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

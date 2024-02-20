@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables" Id="{d25fe7a4-f8b1-4b31-b53c-332de6688005}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+(* xxxxxxxxxxxxxxxxxxxxxxx Conveyor Motor R_TRIG and F_TRIG xxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	bBasketCfmEn										: BOOL;
+	ARbBasketGdFlag									: ARRAY [0..20] OF BOOL;
+	ARbBasketBdFlag									: ARRAY [0..20] OF BOOL;
+
+	bLdConveyorMotorOnOffAbnormalFlag					: BOOL;
+	bUldConveyorMotorOnOffAbnormalFlag					: BOOL;
+
+	bStn9BasketNextTransferAvailableFlag					: BOOL;
+	bStn10BasketNextTransferAvailableFlag					: BOOL;
+
+	bMotorRotateHoming 									: BOOL;
+
+	LdMotor1RE											: R_TRIG;
+	LdMotor1FE											: F_TRIG;
+	LdMotor2RE											: R_TRIG;
+	LdMotor2FE											: F_TRIG;
+	LdMotor3RE											: R_TRIG;
+	LdMotor3FE											: F_TRIG;
+	LdMotor4RE											: R_TRIG;
+	LdMotor4FE											: F_TRIG;
+	LdMotor5RE											: R_TRIG;
+	LdMotor5FE											: F_TRIG;
+
+	UldMotor1RE											: R_TRIG;
+	UldMotor1FE											: F_TRIG;
+	UldMotor2RE											: R_TRIG;
+	UldMotor2FE											: F_TRIG;
+	UldMotor3RE											: R_TRIG;
+	UldMotor3FE											: F_TRIG;
+	UldMotor4RE											: R_TRIG;
+	UldMotor4FE											: F_TRIG;
+	UldMotor5RE											: R_TRIG;
+	UldMotor5FE											: F_TRIG;
+
+	bLoadingConveyorBusyFlag: BOOL;
+	bUnloadingConveyorBusyFlag: BOOL;
+
+	bSafetyCurtainAlarmTriggered: BOOL;
+	bLdDoorSwitchCancel_TS : BOOL;
+	bLdDoorSwitchForceOn_TS : BOOL;
+	bUldDoorSwitchForceOn_TS : BOOL;
+
+	tLdBasketMemoryDelayOn: TON;
+	tLdBasketMemoryDelayOff: TON;
+
+	bArm1MisshookDetectZone					: BOOL;
+	bArm2MisshookDetectZone					: BOOL;
+
+	bStn_ArmBasketNotAvailableBit							: BOOL;
+	bStnBasketNotAvailableBit								: BOOL;
+	bStnBasketNotAvailableBitForTempChanged				: BOOL;
+	bStn6_10BasketNotAvailableBit							: BOOL;
+
+	bLdConfirm_ConveyorNotAvailableBit	: BOOL;
+	bLdTransfer_ConveyorNotAvailableBit	: BOOL;
+	bAutoShutDownEnBit					: BOOL;
+
+	bMainOnOffBuff						:BOOL;
+	bAutoPreparationPbBuff				:BOOL;
+	bAutoOriginPbBuff						:BOOL;
+	bAutoStartPbBuff						:BOOL;
+
+	bMainOnOff							: BOOL;
+	bAutoPreparationPb      				: BOOL;
+	bAutoPreparationInt	      				: BOOL;
+	bAutoPreparationDone					: BOOL;
+	bAutoOriginPb						: BOOL;
+	bAutoOriginDone						: BOOL;
+	bAutoStartPb							: BOOL;
+	bAutoStartPbInt						: BOOL;
+	bBasketConfirmEn						: BOOL;
+
+(*Batch Control Mode*)
+	bAutoPreparationDoneBatchMode		: BOOL;
+
+	bAutoPreparationIntRE					: R_TRIG;
+
+	bMainOnOffRE						: R_TRIG;
+	bMainOnOffFE						: F_TRIG;
+	bAutoOriginFE						: F_TRIG;
+	bArmJogEnableFE					: F_TRIG;
+	bAutoStartFE							: F_TRIG;
+	bAutoStartRE							: R_TRIG;
+
+	bRecipeModeOnFE					: F_TRIG;
+
+	PowerOnDelay 							: TON;
+
+	tSafetyCurtain1stRstTimer					: TON;
+	tSafetyCurtainDelayfor2ndRstTimer			: TON;
+	tSafetyCurtain2ndRstTimer					: TON;
+	tSafetyCurtainReadyTimer					: TON;
+
+	bAlarmReset_TS							: BOOL;
+	bBuzzerReset_TS							: BOOL;
+	bInternal_AlarmReset					: BOOL;
+	bInternal_BuzzerReset					: BOOL;
+	EmergencyStop							: BOOL;
+
+	bIndusoftStart							: BOOL;
+	ManualPageEnable						: BOOL;
+	indusoftManual							: BOOL;
+                                        	
+	bAllowLoadingBasketIn					: BOOL;
+	bREFE_StopLoadingBasket 				: BOOL;
+                                        	
+	bAutoModeLock							: BOOL;
+                                        	
+	bRecipeSaveInd 							: BOOL;
+	bRecipeLoadInd 							: BOOL;
+	bRecipeClearInd							: BOOL;     // Recipe Clear Ind For Product Recipe
+	bRecipeClearInd_SSER					: BOOL;
+	bRecipeClearInd_SSUR					: BOOL;
+	bRecipeLoadInternal						: BOOL;
+	
+
+	iCurrentTactTime						: INT;
+	iActTactTime							: INT;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  UPS - Internal Used xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	bGetUpsStatusEn						: BOOL := TRUE;
+	bGetUpsStatusValid					: BOOL;
+	bGetUpsStatusError					: BOOL;
+	udiGetUpsStatusErrID					: UDINT;
+	UpsStatus							: ST_UPSStatus;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  UPS - External Used xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+	(* --- Alarm --- *)
+	bDCPowerUnknownStatusAlarm			: BOOL;
+	bBatteryUnknownStatusAlarm			: BOOL;
+	bUpsCommUnknownStatusAlarm		: BOOL;
+	bBatteryReplacementRequestAlarm		: BOOL;
+	bUpsCommErrorAlarm					: BOOL;
+	(* --- Status --- *)
+	bDCPowerModeActivated				: BOOL;
+	bBatteryModeActivated				: BOOL;
+	bUpsCommOkFlag					: BOOL;
+
+	timeNow: TIMESTRUCT;
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

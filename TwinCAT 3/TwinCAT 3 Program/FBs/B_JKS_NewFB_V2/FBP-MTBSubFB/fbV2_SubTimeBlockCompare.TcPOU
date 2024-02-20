@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_SubTimeBlockCompare" Id="{cb616c4a-ebd0-43d7-b803-0d44d99c2c5a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_SubTimeBlockCompare
+VAR_INPUT
+	bEn				: BOOL;
+	iMasterDataStart : INT;
+	iMasterDataEnd : INT;
+	iRecipeDataStart : INT;
+	iRecipeDataEnd : INT;
+END_VAR
+VAR_IN_OUT
+	bSourceDataError: BOOL;
+	bCrashFound : BOOL;
+	bNoCrashFound: BOOL;
+	iShiftValue : INT;
+
+END_VAR
+VAR
+
+	bEnFE: F_TRIG;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[bEnFE(CLK:=bEn , Q=> );
+
+IF bEnFE.Q THEN
+
+	bSourceDataError := FALSE;
+	bCrashFound := FALSE;
+	bNoCrashFound := FALSE;
+	iShiftValue := 0;
+
+END_IF
+
+
+IF bEn THEN
+	IF iMasterDataStart (*MD1*)  >= 0 AND  iMasterDataEnd (*MD2*)  >= 1 AND iRecipeDataStart (*RD1*)  >= 0 AND  iRecipeDataEnd (*RD2*)  >= 1AND iMasterDataStart (*MD1*)  < iMasterDataEnd (*MD2*)  AND iRecipeDataStart (*RD1*)  < iRecipeDataEnd (*RD2*)  THEN
+	
+	
+		IF 	(iMasterDataStart (*MD1*)  <= iRecipeDataStart (*RD1*)  AND iMasterDataEnd (*MD2*)  >= iRecipeDataStart (*RD1*) )
+		OR 	(iMasterDataStart (*MD1*)  <= iRecipeDataEnd (*RD2*)  AND iMasterDataEnd (*MD2*)  >= iRecipeDataEnd (*RD2*) )
+		OR	(iRecipeDataStart (*RD1*)  <= iMasterDataStart (*MD1*)  AND iRecipeDataEnd (*RD2*)  >= iMasterDataStart (*MD1*) )
+		OR 	(iRecipeDataStart (*RD1*)  <= iMasterDataEnd (*MD2*)  AND iRecipeDataEnd (*RD2*)  >= iMasterDataEnd (*MD2*) ) THEN
+		bSourceDataError := FALSE;
+		bCrashFound := TRUE;
+		bNoCrashFound := FALSE;
+		iShiftValue := iMasterDataEnd (*MD2*)  - iRecipeDataStart (*RD1*)  +1;
+		ELSE
+		bSourceDataError := FALSE;
+		bCrashFound := FALSE;
+		bNoCrashFound := TRUE;
+		iShiftValue := 0;
+		END_IF
+
+
+	ELSE
+		bSourceDataError := TRUE;
+		bCrashFound := FALSE;
+		bNoCrashFound := FALSE;
+		iShiftValue := 0;
+	END_IF
+
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_SubTimeBlockCompare">
+      <LineId Id="19" Count="39" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

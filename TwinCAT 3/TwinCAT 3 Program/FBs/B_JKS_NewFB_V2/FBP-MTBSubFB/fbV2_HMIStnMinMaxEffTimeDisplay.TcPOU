@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_HMIStnMinMaxEffTimeDisplay" Id="{eb732f74-60fa-4461-864c-395a2c6f8417}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_HMIStnMinMaxEffTimeDisplay
+VAR_INPUT
+	DSStnBasketInfo						: ARRAY [0..iStnQty] OF DSV2_BasketInfo;
+
+END_VAR
+VAR_OUTPUT
+	ARDsStnMinMaxEffTimeDisplay			:ARRAY [0..iStnQty] OF DSV2_StnMinMaxEffTIme;
+END_VAR
+VAR
+	iMinMaxFL: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[iMinMaxFL := 1;
+	IF iMinMaxFL >= 1 AND iMinMaxFL <= iStnQty THEN
+		FOR iMinMaxFL := 1 TO iStnQty DO
+
+			IF DSStnBasketInfo[iMinMaxFL].bAvailibility THEN
+			ARDsStnMinMaxEffTimeDisplay[iMinMaxFL].iMinTime := DSStnBasketInfo[iMinMaxFL].DSV2MinMaxEffTime.ARiMinTime[DSStnBasketInfo[iMinMaxFL].iProductRecipeStepNo];
+			ARDsStnMinMaxEffTimeDisplay[iMinMaxFL].iMaxTime := DSStnBasketInfo[iMinMaxFL].DSV2MinMaxEffTime.ARiMaxTime[DSStnBasketInfo[iMinMaxFL].iProductRecipeStepNo];
+			ARDsStnMinMaxEffTimeDisplay[iMinMaxFL].iEffTime := DSStnBasketInfo[iMinMaxFL].DSV2MinMaxEffTime.ARiEffTime[DSStnBasketInfo[iMinMaxFL].iProductRecipeStepNo];
+			ELSE
+			ARDsStnMinMaxEffTimeDisplay[iMinMaxFL].iMinTime := 0;
+			ARDsStnMinMaxEffTimeDisplay[iMinMaxFL].iMaxTime := 0;
+			ARDsStnMinMaxEffTimeDisplay[iMinMaxFL].iEffTime := 0;
+			END_IF
+		END_FOR
+	END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_HMIStnMinMaxEffTimeDisplay">
+      <LineId Id="11" Count="14" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

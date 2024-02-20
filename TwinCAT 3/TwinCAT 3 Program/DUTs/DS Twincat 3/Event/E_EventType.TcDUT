@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_EventType" Id="{0543a010-979e-4321-b47a-d4eb3e4cb2dc}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+{attribute 'to_string'}
+TYPE E_EventType :
+(
+	Caution := 0,
+	Warning := 1,
+	Error	:= 2
+
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="LIB_GVL_MEMORY" Id="{61709fd4-1db6-4a57-9dba-e0a855fedb0e}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL PERSISTENT
+//	AR2dsSSMR						: ARRAY [0..C_iProcessStnQty] OF ARRAY [0..C_iSSMRRecipeQty] OF DS_SSMR;	//XML_AutoRW_ManualRW
+//	AR2dsSSUR						: ARRAY [0..C_iProcessStnQty] OF ARRAY [0..C_iSSURRecipeQty] OF DS_SSUR;	//XML_AutoRW_ManualRW
+//	AR2dsSSER 						: ARRAY [0..C_iProcessStnQty] OF ARRAY [0..C_iSSERRecipeQty] OF DS_SSER;	//XML_AutoRW_ManualRW
+//	ARdsProductRecipe 				: ARRAY [0..C_iProRepRecipeQty] OF DS_ProductRecipe;						//XML_AutoRW_ManualRW
+
+//	dsMcCarrierInfo					: DS_MachineCarrierInfo; 	// Previously call as BasketInfo
+//	dsCarrierInfo_Empty				: DS_CarrierInfo;			// Empty DS
+	
+//	dsSSMR_Empty					: DS_SSMR;
+//	dsSSUR_Empty					: DS_SSUR;
+//	dsSSER_Empty					: DS_SSER;
+//	dsProductRecipe_Empty			: DS_ProductRecipe;
+	
+
+	
+END_VAR
+
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

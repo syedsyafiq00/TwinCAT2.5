@@ -1,0 +1,358 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_ArmPosSignalCtrl" Id="{8c6f2944-c409-4454-b767-d5ddd50f5fdd}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_ArmPosSignalCtrl
+
+VAR_INPUT
+	bHomeDone 								: BOOL;
+	bVertMovementEn							: BOOL;
+	bHorzMovementEn						: BOOL;
+	bDisableHorzCheckForVerticalPos			: BOOL;
+	lrCurrentPos								: LREAL;
+	lrTargetPos								: LREAL;
+	lrPosCfmTolerance						: LREAL;
+	lr2ndSpdRange							: LREAL;
+	tPositionCfmDelayOnTime					: TIME;
+
+	ARbLdHorzZoneConfirm 		: ARRAY [0..iLdStnQty] OF BOOL; (*From fbV2_FBPArmHorzZoneConfirm*)
+	ARbHorzStnZoneConfirm 		: ARRAY [1..iStnQty] OF BOOL; (*From fbV2_FBPArmHorzZoneConfirm*)
+	ARbUldHorzZoneConfirm 		: ARRAY [0..iUldStnQty] OF BOOL; (*From fbV2_FBPArmHorzZoneConfirm*)
+
+(*
+	lrHorz_CurrentPos								: LREAL;
+	lrHorz_TargetPos								: LREAL;
+	lrHorz_PosCfmTolerance						: LREAL;
+	lrHorz_2ndSpdRange							: LREAL;
+*)
+END_VAR
+
+VAR_OUTPUT
+	lrPosToleranceP : ARRAY [0..3, 0..iStnQty, 0..12] OF LREAL;
+	lrPosToleranceN : ARRAY [0..3, 0..iStnQty, 0..12] OF LREAL;
+
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+
+	DSArmPosition 					: DSV2_ArmPosition;
+END_VAR
+
+
+
+VAR PERSISTENT
+
+
+
+	lrPos2ndSpdP : ARRAY [0..3, 0..iStnQty, 0..12] OF LREAL;
+	lrPos2ndSpdN : ARRAY [0..3, 0..iStnQty, 0..12] OF LREAL;
+
+	ARtDelayTimer : ARRAY [0..3, 0..iStnQty, 0..12] OF TON;
+
+(*
+	ARlrBufferLdHookPosToleranceP			: ARRAY [0..iLdStnQty] OF LREAL;
+	ARlrBufferLdUnhookPosToleranceP			: ARRAY [0..iLdStnQty] OF LREAL;
+	ARlrBufferUldHookPosToleranceP			: ARRAY [0..iUldStnQty] OF LREAL;
+	ARlrBufferUldUnhookPosToleranceP			: ARRAY [0..iUldStnQty] OF LREAL;
+
+	ARlrBufferStnHookPosToleranceP			: ARRAY [0..iStnQty] OF LREAL;
+	ARlrBufferStnUnhookPosToleranceP			: ARRAY [0..iStnQty] OF LREAL;
+
+	iToleranceN: INT;
+
+	ARlrBufferLdHookPosToleranceN			: ARRAY [0..iLdStnQty] OF LREAL;
+	ARlrBufferLdUnhookPosToleranceN			: ARRAY [0..iLdStnQty] OF LREAL;
+	ARlrBufferUldHookPosToleranceN			: ARRAY [0..iUldStnQty] OF LREAL;
+	ARlrBufferUldUnhookPosToleranceN		: ARRAY [0..iUldStnQty] OF LREAL;
+
+	ARlrBufferStnHookPosToleranceN			: ARRAY [0..iStnQty] OF LREAL;
+	ARlrBufferStnUnhookPosToleranceN			: ARRAY [0..iStnQty] OF LREAL;
+
+	i2ndSpdP: INT;
+
+	ARlrBufferLdHookPos2ndSpdP				: ARRAY [0..iLdStnQty] OF LREAL;
+	ARlrBufferLdUnhookPos2ndSpdP			: ARRAY [0..iLdStnQty] OF LREAL;
+	ARlrBufferUldHookPos2ndSpdP				: ARRAY [0..iUldStnQty] OF LREAL;
+	ARlrBufferUldUnhookPos2ndSpdP			: ARRAY [0..iUldStnQty] OF LREAL;
+
+	ARlrBufferStnHookPos2ndSpdP				: ARRAY [0..iStnQty] OF LREAL;
+	ARlrBufferStnUnhookPos2ndSpdP			: ARRAY [0..iStnQty] OF LREAL;
+
+	i2ndSpdN: INT;
+
+	ARlrBufferLdHookPos2ndSpdN				: ARRAY [0..iLdStnQty] OF LREAL;
+	ARlrBufferLdUnhookPos2ndSpdN			: ARRAY [0..iLdStnQty] OF LREAL;
+	ARlrBufferUldHookPos2ndSpdN				: ARRAY [0..iUldStnQty] OF LREAL;
+	ARlrBufferUldUnhookPos2ndSpdN			: ARRAY [0..iUldStnQty] OF LREAL;
+
+	ARlrBufferStnHookPos2ndSpdN				: ARRAY [0..iStnQty] OF LREAL;
+	ARlrBufferStnUnhookPos2ndSpdN			: ARRAY [0..iStnQty] OF LREAL;
+*)
+END_VAR
+
+VAR
+
+	iSFLQty: INT;
+
+	iGenFL1: INT;
+	iGenFL2: INT;
+	iGenFL3: INT;
+
+	iSignalFL1: INT;
+	iSignalFL2: INT;
+	iSignalFL3: INT;
+END_VAR
+
+(*
+Stage 1 --> (0..3) 
+------------------------
+1=Stn
+2=Loading
+3=Unloading
+
+
+Stage 2 --> (0..iStnQty) 
+------------------------
+No = Station No (Example: 8 = Station 8)
+
+
+
+Stage 3 --> (0..12) 
+------------------------
+1=Vert - Up
+2=Vert - SlowPull / Slanted
+3=Vert - Regular / Mid Top
+4=Vert - AgiUp
+5=Vert - AgiDown
+6=Vert - Down
+7=Horz - Unhook 
+8=Horz -  Hook
+9=Horz -  Slanted Left
+10=Horz - Slanted Right
+11=Reserved
+12=Reserved
+*)]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* Generate Positive/Negative Tolerance and Positive/Negative 2nd Speed  *)
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+iGenFL1 := 1;
+
+FOR iGenFL1 := 1 TO 3 DO
+	IF iGenFL1 >= 1 AND iGenFL1 <= 3 THEN
+
+		IF iGenFL1 = 1 THEN
+		iSFLQty := iStnQty;
+		ELSIF iGenFL1 = 2 THEN
+		iSFLQty := iLdStnQty;
+		ELSIF iGenFL1 = 3 THEN
+		iSFLQty := iUldStnQty;
+		END_IF
+
+		iGenFL2 := 1;
+
+		FOR iGenFL2 := 1 TO iSFLQty DO
+			IF iGenFL2 >= 1 AND iGenFL2 <= iSFLQty THEN
+
+				iGenFL3 := 1;
+
+				FOR iGenFL3 := 1 TO 12 DO
+					IF iGenFL3 >= 1 AND iGenFL3 <= 12 THEN
+
+
+						IF iGenFL3 >= 1 AND iGenFL3 <= 6 AND bVertMovementEn AND NOT bHorzMovementEn THEN
+						lrPosToleranceP[iGenFL1, iGenFL2, iGenFL3] := DSArmPosition.AR3slrPosition[iGenFL1, iGenFL2, iGenFL3]+lrPosCfmTolerance;
+						lrPosToleranceN[iGenFL1, iGenFL2, iGenFL3] := DSArmPosition.AR3slrPosition[iGenFL1, iGenFL2, iGenFL3]-lrPosCfmTolerance;
+
+						lrPos2ndSpdP[iGenFL1, iGenFL2, iGenFL3] := DSArmPosition.AR3slrPosition[iGenFL1, iGenFL2, iGenFL3]+lr2ndSpdRange;
+						lrPos2ndSpdN[iGenFL1, iGenFL2, iGenFL3] := DSArmPosition.AR3slrPosition[iGenFL1, iGenFL2, iGenFL3]-lr2ndSpdRange;
+						END_IF
+
+						IF iGenFL3 >= 7 AND iGenFL3 <= 10 AND bHorzMovementEn AND NOT bVertMovementEn THEN
+						lrPosToleranceP[iGenFL1, iGenFL2, iGenFL3] := DSArmPosition.AR3slrPosition[iGenFL1, iGenFL2, iGenFL3]+lrPosCfmTolerance;
+						lrPosToleranceN[iGenFL1, iGenFL2, iGenFL3] := DSArmPosition.AR3slrPosition[iGenFL1, iGenFL2, iGenFL3]-lrPosCfmTolerance;
+
+						lrPos2ndSpdP[iGenFL1, iGenFL2, iGenFL3] := DSArmPosition.AR3slrPosition[iGenFL1, iGenFL2, iGenFL3]+lr2ndSpdRange;
+						lrPos2ndSpdN[iGenFL1, iGenFL2, iGenFL3] := DSArmPosition.AR3slrPosition[iGenFL1, iGenFL2, iGenFL3]-lr2ndSpdRange;
+						END_IF
+
+					END_IF
+				END_FOR
+			END_IF
+		END_FOR
+	END_IF
+END_FOR
+
+
+
+(*
+(*Generate Pos Confirm Bit and  2nd Speed Bit*)
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+iSignalFL1 := 1;
+
+FOR iSignalFL1 := 1 TO 3 DO
+	IF iSignalFL1 >= 1 AND iSignalFL1 <= 3 THEN
+
+		IF iSignalFL1 = 1 THEN
+		iSFLQty := iStnQty;
+		ELSIF iSignalFL1 = 2 THEN
+		iSFLQty := iLdStnQty;
+		ELSIF iSignalFL1 = 3 THEN
+		iSFLQty := iUldStnQty;
+		END_IF
+
+		iSignalFL2 := 1;
+
+		FOR iSignalFL2 := 1 TO iSFLQty DO
+			IF iSignalFL2 >= 1 AND iSignalFL2 <= iSFLQty THEN
+
+				iSignalFL3 := 1;
+
+				FOR iSignalFL3 := 1 TO 12 DO
+					IF iSignalFL3 >= 1 AND iSignalFL3 <= 12 THEN
+
+						IF DSArmPosition.AR3slrPosition[iSignalFL1, iSignalFL2, iSignalFL3] <> 0 THEN
+
+							IF (iSignalFL3 >= 1 AND iSignalFL3 <= 6 AND bVertMovementEn AND NOT bHorzMovementEn)
+							OR (iSignalFL3 >= 7 AND iSignalFL3 <= 10 AND bHorzMovementEn AND NOT bVertMovementEn) THEN
+
+								IF lrCurrentPos >= lrPos2ndSpdN[iSignalFL1, iSignalFL2, iSignalFL3]  AND lrCurrentPos <= lrPos2ndSpdP[iSignalFL1, iSignalFL2, iSignalFL3] AND lrTargetPos = DSArmPosition.AR3slrPosition[iSignalFL1,iSignalFL2,iSignalFL3] AND bHomeDone THEN
+								DSArmPosition.AR3sb2ndSpdEn[iSignalFL1,iSignalFL2,iSignalFL3] := TRUE;
+								ELSE
+								DSArmPosition.AR3sb2ndSpdEn[iSignalFL1,iSignalFL2,iSignalFL3] := FALSE;
+								END_IF
+
+							END_IF
+
+							IF (iSignalFL3 >= 7 AND iSignalFL3 <= 10 AND bHorzMovementEn AND NOT bVertMovementEn)
+							OR (iSignalFL3 = 1 AND bVertMovementEn AND NOT bHorzMovementEn) THEN
+
+									IF lrCurrentPos >= lrPosToleranceN[iSignalFL1, iSignalFL2, iSignalFL3]  AND lrCurrentPos <= lrPosToleranceP[iSignalFL1, iSignalFL2, iSignalFL3] AND bHomeDone THEN
+									DSArmPosition.AR3sbPositionCfm[iSignalFL1,iSignalFL2,iSignalFL3] := TRUE;
+									ELSE
+									DSArmPosition.AR3sbPositionCfm[iSignalFL1,iSignalFL2,iSignalFL3] := FALSE;
+									END_IF
+
+							ELSIF (iSignalFL3 >= 2 AND iSignalFL3 <= 6 AND bVertMovementEn AND NOT bHorzMovementEn) THEN
+
+								IF ((iSignalFL1 = 1 AND ARbHorzStnZoneConfirm[iSignalFL2])
+								OR (iSignalFL1 = 2 AND ARbLdHorzZoneConfirm[iSignalFL2])
+								OR (iSignalFL1 = 3 AND ARbUldHorzZoneConfirm[iSignalFL2])) OR bDisableHorzCheckForVerticalPos  THEN
+									IF lrCurrentPos >= lrPosToleranceN[iSignalFL1, iSignalFL2, iSignalFL3]  AND lrCurrentPos <= lrPosToleranceP[iSignalFL1, iSignalFL2, iSignalFL3] AND bHomeDone THEN
+									DSArmPosition.AR3sbPositionCfm[iSignalFL1,iSignalFL2,iSignalFL3] := TRUE;
+									ELSE
+									DSArmPosition.AR3sbPositionCfm[iSignalFL1,iSignalFL2,iSignalFL3] := FALSE;
+									END_IF
+								ELSE
+								DSArmPosition.AR3sbPositionCfm[iSignalFL1,iSignalFL2,iSignalFL3] := FALSE;
+								END_IF
+							END_IF
+
+
+
+
+						ELSE
+							DSArmPosition.AR3sbPositionCfm[iSignalFL1,iSignalFL2,iSignalFL3] := FALSE;
+							DSArmPosition.AR3sb2ndSpdEn[iSignalFL1,iSignalFL2,iSignalFL3] := FALSE;
+						END_IF
+
+					END_IF
+				END_FOR
+			END_IF
+		END_FOR
+	END_IF
+END_FOR
+*)
+
+
+(*Generate Pos Confirm Bit and  2nd Speed Bit*)
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+iSignalFL1 := 1;
+
+FOR iSignalFL1 := 1 TO 3 DO
+	IF iSignalFL1 >= 1 AND iSignalFL1 <= 3 THEN
+
+		IF iSignalFL1 = 1 THEN
+		iSFLQty := iStnQty;
+		ELSIF iSignalFL1 = 2 THEN
+		iSFLQty := iLdStnQty;
+		ELSIF iSignalFL1 = 3 THEN
+		iSFLQty := iUldStnQty;
+		END_IF
+
+		iSignalFL2 := 1;
+
+		FOR iSignalFL2 := 1 TO iSFLQty DO
+			IF iSignalFL2 >= 1 AND iSignalFL2 <= iSFLQty THEN
+
+				iSignalFL3 := 1;
+
+				FOR iSignalFL3 := 1 TO 12 DO
+					IF iSignalFL3 >= 1 AND iSignalFL3 <= 12 THEN
+
+						IF DSArmPosition.AR3slrPosition[iSignalFL1, iSignalFL2, iSignalFL3] <> 0 THEN
+
+							IF (iSignalFL3 >= 1 AND iSignalFL3 <= 6 AND bVertMovementEn AND NOT bHorzMovementEn)
+							OR (iSignalFL3 >= 7 AND iSignalFL3 <= 10 AND bHorzMovementEn AND NOT bVertMovementEn) THEN
+								IF lrCurrentPos >= lrPos2ndSpdN[iSignalFL1, iSignalFL2, iSignalFL3]  AND lrCurrentPos <= lrPos2ndSpdP[iSignalFL1, iSignalFL2, iSignalFL3] AND lrTargetPos = DSArmPosition.AR3slrPosition[iSignalFL1,iSignalFL2,iSignalFL3] AND bHomeDone THEN
+								DSArmPosition.AR3sb2ndSpdEn[iSignalFL1,iSignalFL2,iSignalFL3] := TRUE;
+								ELSE
+								DSArmPosition.AR3sb2ndSpdEn[iSignalFL1,iSignalFL2,iSignalFL3] := FALSE;
+								END_IF
+
+							END_IF
+
+							IF (iSignalFL3 >= 7 AND iSignalFL3 <= 10 AND bHorzMovementEn AND NOT bVertMovementEn)
+							OR (iSignalFL3 = 1 AND bVertMovementEn AND NOT bHorzMovementEn) THEN
+
+									ARtDelayTimer[iSignalFL1,iSignalFL2,iSignalFL3](IN:=
+									lrCurrentPos >= lrPosToleranceN[iSignalFL1, iSignalFL2, iSignalFL3]  AND lrCurrentPos <= lrPosToleranceP[iSignalFL1, iSignalFL2, iSignalFL3] AND bHomeDone ,
+									PT:=tPositionCfmDelayOnTime , Q=> , ET=> );
+
+									IF ARtDelayTimer[iSignalFL1,iSignalFL2,iSignalFL3].Q THEN
+									DSArmPosition.AR3sbPositionCfm[iSignalFL1,iSignalFL2,iSignalFL3] := TRUE;
+									ELSE
+									DSArmPosition.AR3sbPositionCfm[iSignalFL1,iSignalFL2,iSignalFL3] := FALSE;
+									END_IF
+
+							ELSIF (iSignalFL3 >= 2 AND iSignalFL3 <= 6 AND bVertMovementEn AND NOT bHorzMovementEn) THEN
+
+								IF ((iSignalFL1 = 1 AND ARbHorzStnZoneConfirm[iSignalFL2])
+								OR (iSignalFL1 = 2 AND ARbLdHorzZoneConfirm[iSignalFL2])
+								OR (iSignalFL1 = 3 AND ARbUldHorzZoneConfirm[iSignalFL2])) OR bDisableHorzCheckForVerticalPos  THEN
+
+									ARtDelayTimer[iSignalFL1,iSignalFL2,iSignalFL3](IN:=
+									lrCurrentPos >= lrPosToleranceN[iSignalFL1, iSignalFL2, iSignalFL3]  AND lrCurrentPos <= lrPosToleranceP[iSignalFL1, iSignalFL2, iSignalFL3] AND bHomeDone ,
+									PT:=tPositionCfmDelayOnTime , Q=> , ET=> );
+
+									IF ARtDelayTimer[iSignalFL1,iSignalFL2,iSignalFL3].Q THEN
+									DSArmPosition.AR3sbPositionCfm[iSignalFL1,iSignalFL2,iSignalFL3] := TRUE;
+									ELSE
+									DSArmPosition.AR3sbPositionCfm[iSignalFL1,iSignalFL2,iSignalFL3] := FALSE;
+									END_IF
+								ELSE
+								DSArmPosition.AR3sbPositionCfm[iSignalFL1,iSignalFL2,iSignalFL3] := FALSE;
+								END_IF
+							END_IF
+
+
+
+
+						ELSE
+							DSArmPosition.AR3sbPositionCfm[iSignalFL1,iSignalFL2,iSignalFL3] := FALSE;
+							DSArmPosition.AR3sb2ndSpdEn[iSignalFL1,iSignalFL2,iSignalFL3] := FALSE;
+						END_IF
+
+					END_IF
+				END_FOR
+			END_IF
+		END_FOR
+	END_IF
+END_FOR]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_ArmPosSignalCtrl">
+      <LineId Id="130" Count="217" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

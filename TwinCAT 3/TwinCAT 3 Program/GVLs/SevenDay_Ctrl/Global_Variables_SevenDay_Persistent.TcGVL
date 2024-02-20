@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_SevenDay_Persistent" Id="{e9be1bc5-2b67-40c6-96e9-0e0cd2198e90}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL PERSISTENT
+
+	TodayDay 				: STRING;
+
+	ArbDayOnEn_IN			: ARRAY [1..7] OF BOOL;
+	ArbDayOffEn_IN			: ARRAY [1..7] OF BOOL;
+
+	ArwDayOnHour_IN		: ARRAY [1..7] OF WORD;
+	ArwDayOnMinute_IN		: ARRAY [1..7] OF WORD;
+
+	ArwDayOffHour_IN		: ARRAY [1..7] OF WORD;
+	ArwDayOffMinute_IN		: ARRAY [1..7] OF WORD;
+
+	ArbDaySysOn_OUT		: ARRAY [1..7] OF BOOL;
+	ArbDaySysOff_OUT		: ARRAY [1..7] OF BOOL;
+
+END_VAR
+
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

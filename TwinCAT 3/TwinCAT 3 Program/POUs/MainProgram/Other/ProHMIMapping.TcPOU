@@ -1,0 +1,427 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="ProHMIMapping" Id="{de7388ce-4915-426b-833a-64eaecd3b65f}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM ProHMIMapping
+VAR PERSISTENT
+	iProductRecipeNo: INT;
+	bProductRecipeCopyPB: BOOL;
+	iCopyToProductRecipeNo: INT;
+	iBufferProductRecipeNo: INT;
+	bReadParameter: BOOL;
+	DsA1HMInPnpSequenceMemory: DSA1_PnpSequenceMemory;
+	bReadDelay: BOOL;
+	tReadDelayTimer: TON;
+	bTest: BOOL;
+
+
+	UDSHmiMappingBasketInfo: BOOL;
+	HmiMappingBasketInfo: BOOL;
+
+	bWriteParameter: BOOL;
+	bWriteDelay: BOOL;
+	tWriteDelayTimer: TON;
+
+	iProductRecipeBuffer10: BOOL;
+
+	bWrite2Parameter: BOOL;
+	bWrite2Delay: BOOL;
+	tWrite2DelayTimer: TON;
+	ARiBasketInfo1Buffer: ARRAY [1..30] OF INT;
+	ARiBasketInfo2Buffer: ARRAY [1..30] OF INT;
+	i16SubTankPumpLPM: BOOL;
+
+(*New*)
+	ARiHMIPickStationNo : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+162~n+223" *)
+
+	ARiHMICallArmNo : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+100~n+161" *)
+	ARiHMITransferStationNo : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+224~n+285" *)
+
+	ARiHMIStnSeqRepNo : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+596~n+657" *)
+
+(*Will fix the Value*)
+	ARiHMIDownPickPatternNo : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+286~n+347" *)
+	ARiHMIUpPickPatternNo : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+348~n+409" *)
+	ARiHMIDownTransferPatternNo : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+410~n+471" *)
+	ARiHMIUpTransferPatternNo : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+472~n+533" *)
+	ARiHMIRepeatUpDownCycle : ARRAY [0..iProductRecipeStepArrayQty] OF INT; (* Byte "n+534~n+595" *)
+
+
+
+
+	iFixValueFL: INT;
+END_VAR
+VAR
+
+
+
+
+
+	iFixValueStepFL: INT;
+	iVisibleBitFL: INT;
+	iStnProcessStatusFL: INT;
+
+	fbV2HMIStnMinMaxEffTimeDisplay: fbV2_HMIStnMinMaxEffTimeDisplay;
+
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[fbV2HMIStnMinMaxEffTimeDisplay(DSStnBasketInfo:= DSStnBasketInfo , ARDsStnMinMaxEffTimeDisplay=> ARDsStnMinMaxEffTimeDisplay );
+
+ARDsStnMinMaxEffTimeDisplay[1].iMinTime;
+ARDsStnMinMaxEffTimeDisplay[1].iMaxTime;
+ARDsStnMinMaxEffTimeDisplay[1].iEffTime;
+
+ARDsStnMinMaxEffTimeDisplay[2].iMinTime;
+ARDsStnMinMaxEffTimeDisplay[2].iMaxTime;
+ARDsStnMinMaxEffTimeDisplay[2].iEffTime;
+
+ARDsStnMinMaxEffTimeDisplay[3].iMinTime;
+ARDsStnMinMaxEffTimeDisplay[3].iMaxTime;
+ARDsStnMinMaxEffTimeDisplay[3].iEffTime;
+
+ARDsStnMinMaxEffTimeDisplay[4].iMinTime;
+ARDsStnMinMaxEffTimeDisplay[4].iMaxTime;
+ARDsStnMinMaxEffTimeDisplay[4].iEffTime;
+
+ARDsStnMinMaxEffTimeDisplay[5].iMinTime;
+ARDsStnMinMaxEffTimeDisplay[5].iMaxTime;
+ARDsStnMinMaxEffTimeDisplay[5].iEffTime;
+
+ARDsStnMinMaxEffTimeDisplay[6].iMinTime;
+ARDsStnMinMaxEffTimeDisplay[6].iMaxTime;
+ARDsStnMinMaxEffTimeDisplay[6].iEffTime;
+
+ARDsStnMinMaxEffTimeDisplay[7].iMinTime;
+ARDsStnMinMaxEffTimeDisplay[7].iMaxTime;
+ARDsStnMinMaxEffTimeDisplay[7].iEffTime;
+
+ARDsStnMinMaxEffTimeDisplay[8].iMinTime;
+ARDsStnMinMaxEffTimeDisplay[8].iMaxTime;
+ARDsStnMinMaxEffTimeDisplay[8].iEffTime;
+
+ARDsStnMinMaxEffTimeDisplay[9].iMinTime;
+ARDsStnMinMaxEffTimeDisplay[9].iMaxTime;
+ARDsStnMinMaxEffTimeDisplay[9].iEffTime;
+
+ARDsStnMinMaxEffTimeDisplay[10].iMinTime;
+ARDsStnMinMaxEffTimeDisplay[10].iMaxTime;
+ARDsStnMinMaxEffTimeDisplay[10].iEffTime;
+
+ARDsStnMinMaxEffTimeDisplay[11].iMinTime;
+ARDsStnMinMaxEffTimeDisplay[11].iMaxTime;
+ARDsStnMinMaxEffTimeDisplay[11].iEffTime;
+
+ARDsStnMinMaxEffTimeDisplay[12].iMinTime;
+ARDsStnMinMaxEffTimeDisplay[12].iMaxTime;
+ARDsStnMinMaxEffTimeDisplay[12].iEffTime;
+
+
+bRecipeSavePb;
+
+(*
+DSA1fbPnpSequenceMemoryStore.iCopyToProductRecipeNo := iCopyToProductRecipeNo;
+DSA1fbPnpSequenceMemoryStore.bCopyPB := bProductRecipeCopyPB;
+DSA1fbPnpSequenceMemoryStore.iProductRecipeNo := iProductRecipeNo;
+*)
+IF iProductRecipeNo <> iBufferProductRecipeNo THEN
+bReadDelay := TRUE;
+END_IF
+
+tReadDelayTimer(IN:=bReadDelay , PT:=t#0.2s , Q=> , ET=> );
+
+IF bReadDelay AND tReadDelayTimer.Q THEN
+bReadParameter := TRUE;
+iBufferProductRecipeNo := iProductRecipeNo;
+bReadDelay := FALSE;
+END_IF
+
+IF NOT bReadParameter AND NOT bReadDelay THEN
+(*
+ARiHMIPickStationNo 			:= DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiPickStationNo;
+*)
+
+DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiCallArmNo 				:= ARiHMICallArmNo;                               (*OFF SIGNAL WHEN HAVE TWO ARMs INVOLVED*)
+
+(*DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo 			:= ARiHMITransferStationNo;
+*)
+DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiDownPickPatternNo 		:= ARiHMIDownPickPatternNo;
+(*DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiUpPickPatternNo 			:= ARiHMIUpPickPatternNo;
+DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiDownTransferPatternNo 	:= ARiHMIDownTransferPatternNo;
+*)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiUpTransferPatternNo 		:= ARiHMIUpTransferPatternNo;
+DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiRepeatUpDownCycle 		:= ARiHMIRepeatUpDownCycle;
+(*DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiStnSeqRepNo 			:= ARiHMIStnSeqRepNo;
+
+DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.sDescription 					:= sProductRecipeDescription;*)
+END_IF
+
+IF bReadParameter THEN
+
+(*
+ARiHMIPickStationNo 			:= DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiPickStationNo;
+*)
+ARiHMICallArmNo				:= DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiCallArmNo;                       (*OFF SIGNAL WHEN HAVE TWO ARMs INVOLVED*)
+(*ARiHMITransferStationNo		:= DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo;
+*)
+ARiHMIDownPickPatternNo		:= DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiDownPickPatternNo;
+(*ARiHMIUpPickPatternNo		:= DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiUpPickPatternNo;
+ARiHMIDownTransferPatternNo	:= DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiDownTransferPatternNo;
+*)ARiHMIUpTransferPatternNo	:= DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiUpTransferPatternNo;
+ARiHMIRepeatUpDownCycle	:= DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiRepeatUpDownCycle;
+(*ARiHMIStnSeqRepNo			:= DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiStnSeqRepNo;
+
+sProductRecipeDescription := DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.sDescription;*)
+bReadParameter := FALSE;
+END_IF
+
+
+(*Fixed Value - No parameter change required*)
+iFixValueFL := 0;
+
+	FOR iFixValueFL := 0 TO iProductRecipeStepArrayQty DO
+		IF iFixValueFL >= 0 AND iFixValueFL <= iProductRecipeStepArrayQty THEN
+			ARiHMIDownPickPatternNo[iFixValueFL] 		:= 1;
+			ARiHMIUpPickPatternNo[iFixValueFL]		:= 1;
+			ARiHMIDownTransferPatternNo[iFixValueFL] 	:= 1;
+			ARiHMIUpTransferPatternNo[iFixValueFL] 	:= 1;
+			ARiHMIRepeatUpDownCycle[iFixValueFL] 	:= 1;
+			ARiHMICallArmNo[iFixValueFL] 				:= 1;        (*OFF SIGNAL WHEN HAVE TWO ARMs INVOLVED*)
+
+		END_IF
+
+		IF iFixValueFL >= 1 AND iFixValueFL <= iProductRecipeStepArrayQty THEN
+			ARDsStnSeqProcessCtrl[1].Out_ARiCurrentCycle[iFixValueFL] 		:= 1;
+			ARDsStnSeqProcessCtrl[2].Out_ARiCurrentCycle[iFixValueFL] 		:= 1;
+			ARDsStnSeqProcessCtrl[3].Out_ARiCurrentCycle[iFixValueFL] 		:= 1;
+			ARDsStnSeqProcessCtrl[4].Out_ARiCurrentCycle[iFixValueFL] 		:= 1;
+			ARDsStnSeqProcessCtrl[5].Out_ARiCurrentCycle[iFixValueFL] 		:= 1;
+			ARDsStnSeqProcessCtrl[6].Out_ARiCurrentCycle[iFixValueFL] 		:= 1;
+			ARDsStnSeqProcessCtrl[7].Out_ARiCurrentCycle[iFixValueFL] 		:= 1;
+			ARDsStnSeqProcessCtrl[8].Out_ARiCurrentCycle[iFixValueFL] 		:= 1;
+			ARDsStnSeqProcessCtrl[9].Out_ARiCurrentCycle[iFixValueFL] 		:= 1;
+			ARDsStnSeqProcessCtrl[10].Out_ARiCurrentCycle[iFixValueFL] 		:= 1;
+		END_IF
+
+	END_FOR
+
+
+
+(*Read SeqRecipeDescription for display in Product Recipe Page*)
+
+(*Step1*)
+IF DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[1] >= 1 AND DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[1] <= iStnQty THEN
+sProductRecipeStep1SeqRecipeDescription :=
+fbMainStationProcess_Stn[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[1](**)]
+.StnSeqProcessfb.fbStationSequenceRecipefb.ARsStorageStationSequenceRecipeDescription[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiStnSeqRepNo[1](**)];
+ELSE
+sProductRecipeStep1SeqRecipeDescription := '';
+END_IF
+
+(*Step2*)
+IF DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[2] >= 1 AND DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[2] <= iStnQty THEN
+sProductRecipeStep2SeqRecipeDescription :=
+fbMainStationProcess_Stn[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[2](**)]
+.StnSeqProcessfb.fbStationSequenceRecipefb.ARsStorageStationSequenceRecipeDescription[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiStnSeqRepNo[2](**)];
+ELSE
+sProductRecipeStep2SeqRecipeDescription := '';
+END_IF
+
+(*Step3*)
+IF DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[3] >= 1 AND DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[3] <= iStnQty THEN
+sProductRecipeStep3SeqRecipeDescription :=
+fbMainStationProcess_Stn[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[3](**)]
+.StnSeqProcessfb.fbStationSequenceRecipefb.ARsStorageStationSequenceRecipeDescription[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiStnSeqRepNo[3](**)];
+ELSE
+sProductRecipeStep3SeqRecipeDescription := '';
+END_IF
+
+(*Step4*)
+IF DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[4] >= 1 AND DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[4] <= iStnQty THEN
+sProductRecipeStep4SeqRecipeDescription :=
+fbMainStationProcess_Stn[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[4](**)]
+.StnSeqProcessfb.fbStationSequenceRecipefb.ARsStorageStationSequenceRecipeDescription[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiStnSeqRepNo[4](**)];
+ELSE
+sProductRecipeStep4SeqRecipeDescription := '';
+END_IF
+
+(*Step5*)
+IF DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[5] >= 1 AND DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[5] <= iStnQty THEN
+sProductRecipeStep5SeqRecipeDescription :=
+fbMainStationProcess_Stn[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[5](**)]
+.StnSeqProcessfb.fbStationSequenceRecipefb.ARsStorageStationSequenceRecipeDescription[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiStnSeqRepNo[5](**)];
+ELSE
+sProductRecipeStep5SeqRecipeDescription := '';
+END_IF
+
+(*Step6*)
+IF DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[6] >= 1 AND DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[6] <= iStnQty THEN
+sProductRecipeStep6SeqRecipeDescription :=
+fbMainStationProcess_Stn[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[6](**)]
+.StnSeqProcessfb.fbStationSequenceRecipefb.ARsStorageStationSequenceRecipeDescription[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiStnSeqRepNo[6](**)];
+ELSE
+sProductRecipeStep6SeqRecipeDescription := '';
+END_IF
+
+(*Step7*)
+IF DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[7] >= 1 AND DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[7] <= iStnQty THEN
+sProductRecipeStep7SeqRecipeDescription :=
+fbMainStationProcess_Stn[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[7](**)]
+.StnSeqProcessfb.fbStationSequenceRecipefb.ARsStorageStationSequenceRecipeDescription[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiStnSeqRepNo[7](**)];
+ELSE
+sProductRecipeStep7SeqRecipeDescription := '';
+END_IF
+
+(*Step8*)
+IF DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[8] >= 1 AND DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[8] <= iStnQty THEN
+sProductRecipeStep8SeqRecipeDescription :=
+fbMainStationProcess_Stn[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[8](**)]
+.StnSeqProcessfb.fbStationSequenceRecipefb.ARsStorageStationSequenceRecipeDescription[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiStnSeqRepNo[8](**)];
+ELSE
+sProductRecipeStep8SeqRecipeDescription := '';
+END_IF
+
+(*Step9*)
+IF DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[9] >= 1 AND DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[9] <= iStnQty THEN
+sProductRecipeStep9SeqRecipeDescription :=
+fbMainStationProcess_Stn[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[9](**)]
+.StnSeqProcessfb.fbStationSequenceRecipefb.ARsStorageStationSequenceRecipeDescription[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiStnSeqRepNo[9](**)];
+ELSE
+sProductRecipeStep9SeqRecipeDescription := '';
+END_IF
+
+(*Step10*)
+IF DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[10] >= 1 AND DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[10] <= iStnQty THEN
+sProductRecipeStep10SeqRecipeDescription :=
+fbMainStationProcess_Stn[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[10](**)]
+.StnSeqProcessfb.fbStationSequenceRecipefb.ARsStorageStationSequenceRecipeDescription[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiStnSeqRepNo[10](**)];
+ELSE
+sProductRecipeStep10SeqRecipeDescription := '';
+END_IF
+
+(*Step11*)
+IF DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[11] >= 1 AND DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[11] <= iStnQty THEN
+sProductRecipeStep11SeqRecipeDescription :=
+fbMainStationProcess_Stn[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[11](**)]
+.StnSeqProcessfb.fbStationSequenceRecipefb.ARsStorageStationSequenceRecipeDescription[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiStnSeqRepNo[11](**)];
+ELSE
+sProductRecipeStep11SeqRecipeDescription := '';
+END_IF
+
+(*Step12*)
+IF DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[12] >= 1 AND DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[12] <= iStnQty THEN
+sProductRecipeStep12SeqRecipeDescription :=
+fbMainStationProcess_Stn[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[12](**)]
+.StnSeqProcessfb.fbStationSequenceRecipefb.ARsStorageStationSequenceRecipeDescription[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiStnSeqRepNo[12](**)];
+ELSE
+sProductRecipeStep12SeqRecipeDescription := '';
+END_IF
+
+(*Step13*)
+IF DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[13] >= 1 AND DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[13] <= iStnQty THEN
+sProductRecipeStep13SeqRecipeDescription :=
+fbMainStationProcess_Stn[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[13](**)]
+.StnSeqProcessfb.fbStationSequenceRecipefb.ARsStorageStationSequenceRecipeDescription[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiStnSeqRepNo[13](**)];
+ELSE
+sProductRecipeStep13SeqRecipeDescription := '';
+END_IF
+
+(*Step14*)
+IF DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[14] >= 1 AND DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[14] <= iStnQty THEN
+sProductRecipeStep14SeqRecipeDescription :=
+fbMainStationProcess_Stn[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[14](**)]
+.StnSeqProcessfb.fbStationSequenceRecipefb.ARsStorageStationSequenceRecipeDescription[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiStnSeqRepNo[14](**)];
+ELSE
+sProductRecipeStep14SeqRecipeDescription := '';
+END_IF
+
+(*Step15*)
+IF DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[15] >= 1 AND DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[15] <= iStnQty THEN
+sProductRecipeStep15SeqRecipeDescription :=
+fbMainStationProcess_Stn[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[15](**)]
+.StnSeqProcessfb.fbStationSequenceRecipefb.ARsStorageStationSequenceRecipeDescription[(**)DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiStnSeqRepNo[15](**)];
+ELSE
+sProductRecipeStep15SeqRecipeDescription := '';
+END_IF
+
+
+(*Generate Visible Bit for Indusoft*)
+iVisibleBitFL := 1;
+
+IF iVisibleBitFL >= 1 AND iVisibleBitFL <= iProductRecipeStepArrayQty THEN
+	FOR iVisibleBitFL := 1 TO iProductRecipeStepArrayQty DO
+
+		ARbStnSeqRepNoVisible[iVisibleBitFL] := TRUE;
+
+	END_FOR
+END_IF
+
+
+iVisibleBitFL := 1;
+
+
+IF iVisibleBitFL >= 1 AND iVisibleBitFL <= iProductRecipeStepArrayQty THEN
+	FOR iVisibleBitFL := 2 TO iProductRecipeStepArrayQty DO
+
+		IF (DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[iVisibleBitFL-1] = ARiUldStnID[1] (*OR DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiTransferStationNo[iVisibleBitFL-1] = ARiUldStnID[2]*))
+		OR NOT ARbStnSeqRepNoVisible[iVisibleBitFL-1] THEN
+		ARbStnSeqRepNoVisible[iVisibleBitFL] := FALSE;
+		END_IF
+
+	END_FOR
+END_IF
+
+
+
+(*Generate Station - Process Status String for Indusoft*)
+
+iStnProcessStatusFL := 1;
+
+
+IF iStnProcessStatusFL >= 1 AND iStnProcessStatusFL <= iStnQty THEN
+	FOR iStnProcessStatusFL := 1 TO iStnQty DO
+
+		IF DSHmiStationDisplayInfo[iStnProcessStatusFL].bCallArmSpeedProfileMemoryErr
+		THEN ARsStnProcessStatus[iStnProcessStatusFL] := 'Arm Speed Profile Memory Error';
+
+		ELSIF DSHmiStationDisplayInfo[iStnProcessStatusFL].bCallPickStationNoErr
+		THEN ARsStnProcessStatus[iStnProcessStatusFL] := 'Call Pick Station No Error';
+
+		ELSIF DSHmiStationDisplayInfo[iStnProcessStatusFL].bCallStnSeqRecipeErr
+		THEN ARsStnProcessStatus[iStnProcessStatusFL] := 'Call Station Sequence Recipe Error';
+
+		ELSIF DSHmiStationDisplayInfo[iStnProcessStatusFL].bCallTransferStationNoErr
+		THEN ARsStnProcessStatus[iStnProcessStatusFL] := 'Call Transfer Station No Error';
+
+		ELSIF DSHmiStationDisplayInfo[iStnProcessStatusFL].bCallUpDownPatternMemoryErr
+		THEN ARsStnProcessStatus[iStnProcessStatusFL] := 'Call Up Down Pattern Memory Error';
+
+		ELSIF DSHmiStationDisplayInfo[iStnProcessStatusFL].bInvalidProcessStepErr
+		THEN ARsStnProcessStatus[iStnProcessStatusFL] := 'Step Error - Invalid Process Step';
+
+		ELSIF DSHmiStationDisplayInfo[iStnProcessStatusFL].bInvalidProductRecipeNoErr
+		THEN ARsStnProcessStatus[iStnProcessStatusFL] := 'Product Recipe Invalid';
+
+		ELSIF DSHmiStationDisplayInfo[iStnProcessStatusFL].bInvalidProductRecipeStepErr
+		THEN ARsStnProcessStatus[iStnProcessStatusFL] := 'Product Recipe Step Error';
+
+		ELSIF DSHmiStationDisplayInfo[iStnProcessStatusFL].bStationSequenceProcessCompleted
+		THEN ARsStnProcessStatus[iStnProcessStatusFL] := 'Process Completed';
+
+		ELSIF DSHmiStationDisplayInfo[iStnProcessStatusFL].bStationSequenceProcessInProgressFlag
+		THEN ARsStnProcessStatus[iStnProcessStatusFL] := 'Process In Progress';
+
+		ELSIF DSHmiStationDisplayInfo[iStnProcessStatusFL].bStationSequenceProcessStart
+		THEN ARsStnProcessStatus[iStnProcessStatusFL] := 'Process Start';
+
+		ELSE
+			ARsStnProcessStatus[iStnProcessStatusFL] := 'No Process';
+		END_IF
+
+
+	END_FOR
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="ProHMIMapping">
+      <LineId Id="63" Count="353" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,374 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbA1_PnpSequenceMemory" Id="{8a40644e-8424-4996-ad52-081b68c0117a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbA1_PnpSequenceMemory
+
+VAR CONSTANT
+END_VAR
+
+VAR_INPUT
+	bSavePB : BOOL;
+	bLoadPB : BOOL;
+	bCopyPB : BOOL;
+	iCopyToProductRecipeNo : INT;
+(*	iLdStnID: INT;
+	iUldStnID: INT;
+*)END_VAR
+
+
+VAR_IN_OUT PERSISTENT
+
+	iProductRecipeNo: INT; (* 10 sets of UpDownPattern *)
+	DSA1inPnpSequenceMemory : DSA1_PnpSequenceMemory;
+
+	Call_iProductRecipeNo : INT;
+	bCallPB: BOOL;
+
+END_VAR
+VAR_OUTPUT
+	bSaveInd: BOOL;
+	bLoadInd: BOOL;
+	bCallCompleted : BOOL;
+	bInvalidCallProductRecipeNoHold: BOOL;
+	bInvalidCallProductRecipeNoPulse: BOOL;
+	Call_DSA1PnpSequenceMemory : DSA1_PnpSequenceMemory;
+
+END_VAR
+VAR
+	SaveIndHr: BOOL;
+	LoadIndHr: BOOL;
+
+	SaveTimerDelay: TON;
+	LoadTimerDelay: TON;
+	SelfCheckTimer: TON;
+	bLoadEn: BOOL;
+	SelfCheckloopPnpSequence: BOOL;
+
+	LoadDF : R_TRIG;
+	LoadENDF : R_TRIG;
+
+	SaveDF: R_TRIG;
+	CallIntervalTimer: TON;
+	CallIntervalDIFU: R_TRIG;
+
+	bCallCompletedHR: BOOL;
+	bCallCompletedHRRE: R_TRIG;
+	CallCompletedTimer: TON;
+	CallSelfCheckTimer : TON;
+	CallSelfCheckloop : BOOL;
+
+	CallSelfCheckRE: R_TRIG;
+	CallStep: INT;
+	CallSelfCheckHR: BOOL;
+	bCallPBRE: R_TRIG;
+
+	LoadFL: INT;
+	SaveFL: INT;
+	CallSFL: INT;
+	febInvalidCallProductRecipeNo: F_TRIG;
+
+
+
+	rebInvalidCallProductRecipeNo: R_TRIG;
+	CopyDF: R_TRIG;
+	PreviousProductRecipeNo: INT;
+	PreviousProductRecipeCallNo: INT;
+	tInvalidCallProductRecipeNoPulseTimer: TON;
+	iFixPickStnFL: INT;
+	iCtrlTransferStnFL: INT;
+	bTransferStnEndDetected: BOOL;
+	iUldStnStepNo: INT;
+	iCtrlZeroB4UldStnFL: INT;
+	iMaxMinFL: INT;
+	iWriteEmptyDesFL: INT;
+END_VAR
+
+VAR PERSISTENT
+
+	ARDsPnpSequenceMemory : ARRAY [1..iProductRecipeArrayQty] OF DSA1_PnpSequenceMemory;
+	ARsStoragePnpSequenceDescription: ARRAY [0..iProductRecipeArrayQty] OF STRING(50);
+
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF iProductRecipeNo < 1 THEN
+iProductRecipeNo := 1;
+END_IF
+
+IF iProductRecipeNo > iProductRecipeArrayQty THEN
+iProductRecipeNo := iProductRecipeArrayQty;
+END_IF
+
+(*Fix Pick Station No*)
+DSA1inPnpSequenceMemory.ARiPickStationNo[1] := iLdStnID;
+iFixPickStnFL := 1;
+
+	FOR iFixPickStnFL := 1 TO iProductRecipeStepArrayQty DO
+
+		IF iFixPickStnFL >=1 AND iFixPickStnFL <= iProductRecipeStepArrayQty-1THEN
+
+			IF DSA1inPnpSequenceMemory.ARiTransferStationNo[iFixPickStnFL] <> iUldStnID THEN
+			DSA1inPnpSequenceMemory.ARiPickStationNo[iFixPickStnFL+1]:= DSA1inPnpSequenceMemory.ARiTransferStationNo[iFixPickStnFL];
+			END_IF
+
+			IF DSA1inPnpSequenceMemory.ARiTransferStationNo[iFixPickStnFL] = iUldStnID THEN
+			DSA1inPnpSequenceMemory.ARiPickStationNo[iFixPickStnFL+1]:= 0;
+			END_IF
+
+		END_IF
+
+	END_FOR
+
+(*Control Transfer Station No*)
+iCtrlTransferStnFL := 1;
+bTransferStnEndDetected := FALSE;
+iUldStnStepNo := 0;
+	FOR iCtrlTransferStnFL := 1 TO iProductRecipeStepArrayQty DO
+
+		IF iCtrlTransferStnFL >=1 AND iCtrlTransferStnFL <= iProductRecipeStepArrayQty THEN
+
+			IF NOT bTransferStnEndDetected AND DSA1inPnpSequenceMemory.ARiTransferStationNo[iCtrlTransferStnFL] > iStnQty THEN
+			DSA1inPnpSequenceMemory.ARiTransferStationNo[iCtrlTransferStnFL]:= iUldStnID;
+			END_IF
+
+			IF bTransferStnEndDetected THEN
+			DSA1inPnpSequenceMemory.ARiTransferStationNo[iCtrlTransferStnFL] := iUldStnID(*0*);
+			END_IF
+
+			IF DSA1inPnpSequenceMemory.ARiTransferStationNo[iCtrlTransferStnFL-1] = iUldStnID THEN
+			DSA1inPnpSequenceMemory.ARiTransferStationNo[iCtrlTransferStnFL] := iUldStnID(*0*);
+			bTransferStnEndDetected := TRUE;
+			iUldStnStepNo := iCtrlTransferStnFL-1;
+			END_IF
+
+		END_IF
+
+	END_FOR
+
+(*No "0" before Unloading Stn Ctrl*)
+
+IF bTransferStnEndDetected AND iUldStnStepNo > 1 THEN
+iCtrlZeroB4UldStnFL := 1;
+
+	FOR iCtrlZeroB4UldStnFL := 1 TO iUldStnStepNo DO
+
+		IF iCtrlZeroB4UldStnFL >=1 AND iCtrlZeroB4UldStnFL <= iUldStnStepNo-1 THEN
+
+			IF DSA1inPnpSequenceMemory.ARiTransferStationNo[iCtrlZeroB4UldStnFL] <= 0 THEN
+			DSA1inPnpSequenceMemory.ARiTransferStationNo[iCtrlZeroB4UldStnFL]:= 1;
+			END_IF
+
+		END_IF
+
+	END_FOR
+
+END_IF
+
+
+(*Min / Max Control*)
+iMaxMinFL := 1;
+	FOR iMaxMinFL := 1 TO iProductRecipeStepArrayQty DO
+
+		IF iMaxMinFL >=1 AND iMaxMinFL <= iProductRecipeStepArrayQty THEN
+
+			IF DSA1inPnpSequenceMemory.ARiDownPickPatternNo[iMaxMinFL] <= 0 THEN
+			DSA1inPnpSequenceMemory.ARiDownPickPatternNo[iMaxMinFL]:= 1;
+			ELSIF DSA1inPnpSequenceMemory.ARiDownPickPatternNo[iMaxMinFL] > iArmUpDownPatternArrayQty THEN
+			DSA1inPnpSequenceMemory.ARiDownPickPatternNo[iMaxMinFL]:= iArmUpDownPatternArrayQty;
+			END_IF
+
+			IF DSA1inPnpSequenceMemory.ARiUpPickPatternNo[iMaxMinFL] <= 0 THEN
+			DSA1inPnpSequenceMemory.ARiUpPickPatternNo[iMaxMinFL]:= 1;
+			ELSIF DSA1inPnpSequenceMemory.ARiUpPickPatternNo[iMaxMinFL] > iArmUpDownPatternArrayQty THEN
+			DSA1inPnpSequenceMemory.ARiUpPickPatternNo[iMaxMinFL]:= iArmUpDownPatternArrayQty;
+			END_IF
+
+			IF DSA1inPnpSequenceMemory.ARiDownTransferPatternNo[iMaxMinFL] <= 0 THEN
+			DSA1inPnpSequenceMemory.ARiDownTransferPatternNo[iMaxMinFL]:= 1;
+			ELSIF DSA1inPnpSequenceMemory.ARiDownTransferPatternNo[iMaxMinFL] > iArmUpDownPatternArrayQty THEN
+			DSA1inPnpSequenceMemory.ARiDownTransferPatternNo[iMaxMinFL]:= iArmUpDownPatternArrayQty;
+			END_IF
+
+			IF DSA1inPnpSequenceMemory.ARiUpTransferPatternNo[iMaxMinFL] <= 0 THEN
+			DSA1inPnpSequenceMemory.ARiUpTransferPatternNo[iMaxMinFL]:= 1;
+			ELSIF DSA1inPnpSequenceMemory.ARiUpTransferPatternNo[iMaxMinFL] > iArmUpDownPatternArrayQty THEN
+			DSA1inPnpSequenceMemory.ARiUpTransferPatternNo[iMaxMinFL]:= iArmUpDownPatternArrayQty;
+			END_IF
+
+(*			IF DSA1inPnpSequenceMemory.ARiRepeatUpDownCycle[iMaxMinFL] <= 0 THEN
+			DSA1inPnpSequenceMemory.ARiRepeatUpDownCycle[iMaxMinFL]:= 1;
+			ELS*)IF DSA1inPnpSequenceMemory.ARiRepeatUpDownCycle[iMaxMinFL] > 99 THEN
+			DSA1inPnpSequenceMemory.ARiRepeatUpDownCycle[iMaxMinFL]:= 99;
+			END_IF
+
+			IF DSA1inPnpSequenceMemory.ARiCallArmNo[iMaxMinFL] <= 0 THEN
+			DSA1inPnpSequenceMemory.ARiCallArmNo[iMaxMinFL]:= 1;
+			ELSIF DSA1inPnpSequenceMemory.ARiCallArmNo[iMaxMinFL] > iArmQty THEN
+			DSA1inPnpSequenceMemory.ARiCallArmNo[iMaxMinFL]:= iArmQty;
+			END_IF
+
+			IF DSA1inPnpSequenceMemory.ARiStnSeqRepNo[iMaxMinFL] <= 0 THEN
+			DSA1inPnpSequenceMemory.ARiStnSeqRepNo[iMaxMinFL]:= 1;
+			ELSIF DSA1inPnpSequenceMemory.ARiStnSeqRepNo[iMaxMinFL] > iStationSequenceRecipeArrayQty THEN
+			DSA1inPnpSequenceMemory.ARiStnSeqRepNo[iMaxMinFL]:= iStationSequenceRecipeArrayQty;
+			END_IF
+
+		END_IF
+
+	END_FOR
+
+
+(*Load and Save Indicator*)
+IF bSavePB THEN
+SaveIndHr := TRUE;
+END_IF
+
+SaveTimerDelay(IN:=SaveIndHr, PT := T#1s, Q=>, ET=>);
+IF SaveTimerDelay.Q THEN
+SaveIndHr := FALSE;
+END_IF
+
+IF SaveIndHr AND NOT SaveTimerDelay.Q THEN
+bSaveInd := TRUE;
+ELSE
+bSaveInd := FALSE;
+END_IF
+
+IF bLoadPB THEN
+LoadIndHr := TRUE;
+END_IF
+
+LoadTimerDelay(IN:=LoadIndHr, PT := T#1s, Q=>, ET=>);
+IF loadtimerdelay.Q THEN
+LoadIndHr := FALSE;
+END_IF
+
+IF loadIndHr AND NOT LoadTimerDelay.Q THEN
+bLoadInd := TRUE;
+ELSE
+bLoadInd := FALSE;
+END_IF
+
+IF iProductRecipeNo <> PreviousProductRecipeNo THEN
+bLoadEn := TRUE;
+ELSE
+bLoadEn := FALSE;
+END_IF
+
+
+(* Load Recipe *)
+
+LoadDF(CLK:=bLoadPB,Q=>);
+LoadENDF(CLK:=bLoadEn,Q=>);
+
+IF LoadDF.Q OR LoadENDF.Q THEN
+
+DSA1inPnpSequenceMemory := ARDsPnpSequenceMemory[iProductRecipeNo];
+PreviousProductRecipeNo := iProductRecipeNo  ;
+
+END_IF
+
+
+(* Save Recipe *)
+
+SaveDF(CLK:=bSavePB,Q=>);
+
+IF SaveDF.Q THEN
+
+ARDsPnpSequenceMemory[iProductRecipeNo] := DSA1inPnpSequenceMemory;
+ARsStoragePnpSequenceDescription[iProductRecipeNo] := DSA1inPnpSequenceMemory.sDescription;
+
+END_IF
+
+
+(*Copy Recipe*)
+
+CopyDF(CLK:=bCopyPB,Q=>);
+
+IF CopyDF.Q THEN
+
+ARDsPnpSequenceMemory[iCopyToProductRecipeNo] := ARDsPnpSequenceMemory[iProductRecipeNo];
+ARsStoragePnpSequenceDescription[iCopyToProductRecipeNo] := ARDsPnpSequenceMemory[iProductRecipeNo].sDescription;
+
+END_IF
+
+(*Write Empty for Empty description *)
+ARsStoragePnpSequenceDescription[0] := ' = = = No Basket = = = ';
+iWriteEmptyDesFL := 1;
+FOR iWriteEmptyDesFL := 1 TO iProductRecipeArrayQty DO
+	IF iWriteEmptyDesFL >= 1 AND iWriteEmptyDesFL <= iProductRecipeArrayQty THEN
+		IF ARsStoragePnpSequenceDescription[iWriteEmptyDesFL] = '' THEN
+		ARsStoragePnpSequenceDescription[iWriteEmptyDesFL] := ' - - -  Empty Recipe - - - ';
+		END_IF
+	END_IF
+END_FOR
+
+
+
+
+(* Call Recipe *)
+(* ---- Call Recipe Complete Flag ---*)
+
+
+IF NOT bCallPB THEN
+bCallCompleted := FALSE;
+END_IF
+
+bCallPBRE(CLK:=bCallPB , Q=> );
+
+IF (Call_iProductRecipeNo <= 0 OR Call_iProductRecipeNo > iProductRecipeArrayQty) AND bCallPB THEN
+bInvalidCallProductRecipeNoHold := TRUE;
+ELSE
+bInvalidCallProductRecipeNoHold := FALSE;
+END_IF
+
+
+febInvalidCallProductRecipeNo(CLK:= bCallPB AND bInvalidCallProductRecipeNoHold  , Q=> );
+
+IF febInvalidCallProductRecipeNo.Q THEN
+bInvalidCallProductRecipeNoPulse := TRUE;
+END_IF
+
+tInvalidCallProductRecipeNoPulseTimer(IN:=bInvalidCallProductRecipeNoPulse , PT:=t#0.5s , Q=> , ET=> );
+
+IF tInvalidCallProductRecipeNoPulseTimer.Q OR NOT bCallPB THEN
+bInvalidCallProductRecipeNoPulse := FALSE;
+END_IF
+
+IF bCallPBRE.Q AND NOT bInvalidCallProductRecipeNoHold THEN
+bCallCompleted := FALSE;
+CallStep:= 1;
+END_IF
+
+
+CASE CallStep OF
+
+1:
+
+Call_DSA1PnpSequenceMemory := ARDsPnpSequenceMemory[Call_iProductRecipeNo];
+
+CallStep := 11;
+
+
+10:
+bCallCompleted := TRUE;
+CallSelfCheckHR := FALSE;
+PreviousProductRecipeCallNo := Call_iProductRecipeNo;
+CallStep := 99;
+
+11:
+
+bCallCompleted := TRUE;
+CallStep := 99;
+
+
+
+99:
+;
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="fbA1_PnpSequenceMemory">
+      <LineId Id="89" Count="274" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

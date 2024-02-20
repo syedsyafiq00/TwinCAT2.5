@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSV2_Gnr_CalledArmPnpParameter" Id="{d703798d-1a3e-4d76-9ad3-c46e919e7274}">
+    <Declaration><![CDATA[TYPE DSV2_Gnr_CalledArmPnpParameter : (*Full Occupied Byte = 1400*)
+STRUCT
+
+	iCallArmNo : INT; (* Byte "n~, n+1" *)
+	iStnSeqRecipeNo : INT; (* Byte "n+2, n+3" *)
+	iPickStationNo : INT; (* Byte "n+4, n+5" *)
+	iTransferStationNo : INT; (* Byte "n+6, n+7" *)
+
+	iLdGroupNo : INT;
+	iUldGroupNo : INT;
+
+	iDrippingTimeSV : INT; (* Byte "n+8, n+9" *)
+
+	sReservedInt : STRING(189); (* Byte "n+10~n+199" *)
+
+	DSA1DownPickMovement : DSA1_UpDownMovement;
+	DSA1UpPickMovement : DSA1_UpDownMovement;
+	DSA1DownTransferMovement : DSA1_UpDownMovement;
+	DSA1UpTransferMovement : DSA1_UpDownMovement;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

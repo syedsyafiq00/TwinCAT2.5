@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_Inverter" Id="{48e83c48-7880-492d-a85a-44782124deed}">
+    <Declaration><![CDATA[TYPE DS_Inverter :
+STRUCT
+
+(*Homing Used*)
+
+	bVertHome_In_HomingSt 								: BOOL;
+	bVertHome_In_HomingReset 							: BOOL;
+	bVertHome_In_NegativeHomingDirectionEn 				: BOOL;
+	bVertHome_In_PositiveHomingDirectionEn 				: BOOL;
+	bVertHome_In_HomeSensor 							: BOOL;
+	rVertHome_In_HighSpeedHz 							: REAL;
+	rVertHome_In_2ndSpeedHz 							: REAL;
+	rVertHome_In_DccDelayTimeSec 						: REAL;
+	bVertHome_Out_HomeDone 							: BOOL;
+	bVertHome_Out_Busy 									: BOOL;
+	bVertHome_Out_InvMoveFwd 							: BOOL;
+	bVertHome_Out_InvMoveRwd 							: BOOL;
+	bVertHome_Out_EncoderValueReset 					: BOOL;
+	rVertHome_Out_TargetSpdHz 							: REAL;
+	iVertHomeStep										: INT;
+
+	bHorzHome_In_HomingSt 								: BOOL;
+	bHorzHome_In_HomingReset 							: BOOL;
+	bHorzHome_In_NegativeHomingDirectionEn 				: BOOL;
+	bHorzHome_In_PositiveHomingDirectionEn 				: BOOL;
+	bHorzHome_In_HomeSensor 							: BOOL;
+	rHorzHome_In_HighSpeedHz 							: REAL;
+	rHorzHome_In_2ndSpeedHz 							: REAL;
+	rHorzHome_In_DccDelayTimeSec 						: REAL;
+	bHorzHome_Out_HomeDone 							: BOOL;
+	bHorzHome_Out_Busy 								: BOOL;
+	bHorzHome_Out_InvMoveFwd 							: BOOL;
+	bHorzHome_Out_InvMoveRwd 							: BOOL;
+	bHorzHome_Out_EncoderValueReset 					: BOOL;
+	rHorzHome_Out_TargetSpdHz 							: REAL;
+	iHorzHomeStep										: INT;
+
+(*Jog Used*)
+
+	bJog_InOut_JogEn 									: BOOL;
+	bVertJog_In_PositiveJogDirectionSt 						: BOOL;
+	bVertJog_In_NegativeJogDirectionSt 					: BOOL;
+	rVertJog_In_JogSpeedHz 								: REAL;
+
+	bVertJog_Out_InvMoveFwd 							: BOOL;
+	bVertJog_Out_InvMoveRwd 							: BOOL;
+	rVertJog_Out_TargetSpdHz 							: REAL;
+
+	bHorzJog_In_PositiveJogDirectionSt 						: BOOL;
+	bHorzJog_In_NegativeJogDirectionSt 					: BOOL;
+	rHorzJog_In_JogSpeedHz 								: REAL;
+	bHorzJog_Out_InvMoveFwd 							: BOOL;
+	bHorzJog_Out_InvMoveRwd 							: BOOL;
+	rHorzJog_Out_TargetSpdHz 							: REAL;
+
+(* Arm Positioning Signal Control *)
+
+	lrVertFix_PosCfmTolerance								: LREAL;
+	lrVertFix_2ndSpdRange								: LREAL;
+
+
+	lrHorzFix_PosCfmTolerance							: LREAL;
+	lrHorzFix_2ndSpdRange								: LREAL;
+
+
+
+
+
+
+
+(* Arm Inv Analog Spd Ctrl*)
+
+	bVert_IASC_Out_JogInProgress 							: BOOL;
+	bVert_IASC_Out_HomeInProgress 						: BOOL;
+	bVert_IASC_Out_PosInProgress 							: BOOL;
+	iVert_Ext_AO_AnalogOutput 							: INT;
+	rVert_TS_TargetHzDisplay 								: REAL;
+
+
+	bHorz_IASC_Out_JogInProgress 						: BOOL;
+	bHorz_IASC_Out_HomeInProgress 						: BOOL;
+	bHorz_IASC_Out_PosInProgress 						: BOOL;
+	iHorz_Ext_AO_AnalogOutput 							: INT;
+	rHorz_TS_TargetHzDisplay 							: REAL;
+
+
+(* General Used*)
+
+	bGen_In_Estop 										: BOOL;
+	bGen_In_VertMovementEn								: BOOL;
+	bGen_In_HorzMovementEn								: BOOL;
+
+
+	bVertGen_In_FwdOverTravelSensorNC 					: BOOL;
+	bVertGen_In_RwdOverTravelSensorNC 					: BOOL;
+	lrVertGen_In_CurrentPos								: LREAL;
+	rVertGen_In_HzToRawRatio 							: REAL;
+	lrVertGen_InOut_TargetPos								: LREAL;
+
+	bHorzGen_In_FwdOverTravelSensorNC 					: BOOL;
+	bHorzGen_In_RwdOverTravelSensorNC 					: BOOL;
+	lrHorzGen_In_CurrentPos								: LREAL;
+	rHorzGen_In_HzToRawRatio 							: REAL;
+	lrHorzGen_InOut_TargetPos							: LREAL;
+
+
+
+(* Pos Ctrl Used*)
+
+	bVertPos_In_4StepsEn									: BOOL;
+	bVertPos_In_PositioningEn 								: BOOL;
+	rVertPos_In_TargetSpdHz								: REAL;
+	rVertPos_In_2ndSpdHz									: REAL;
+	bVertPos_Out_PositioningDone 							: BOOL;
+	bVertPos_Out_PositioningBusy 							: BOOL;
+	bVertPos_Out_InvMoveFwd 							: BOOL;
+	bVertPos_Out_InvMoveRwd							: BOOL;
+	bVertPos_Out_InvMove2ndSpd 							: BOOL;
+	rVertPos_Out_TargetSpdHz 							: REAL;
+
+
+	bHorzPos_In_4StepsEn								: BOOL;
+	bHorzPos_In_PositioningEn 							: BOOL;
+	rHorzPos_In_TargetSpdHz								: REAL;
+	rHorzPos_In_2ndSpdHz								: REAL;
+	bHorzPos_Out_PositioningDone 						: BOOL;
+	bHorzPos_Out_PositioningBusy 							: BOOL;
+	bHorzPos_Out_InvMoveFwd 							: BOOL;
+	bHorzPos_Out_InvMoveRwd							: BOOL;
+	bHorzPos_Out_InvMove2ndSpd 							: BOOL;
+	rHorzPos_Out_TargetSpdHz 							: REAL;
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

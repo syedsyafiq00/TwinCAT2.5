@@ -1,0 +1,297 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="BarcodeScanner" Id="{99bcfde5-bf82-403b-b97d-cad12e085b98}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM BarcodeScanner
+VAR
+	sBufferBarcodeScannerReceivedCmd: STRING;
+	sStoreBarcodeScannerReceivedCmd: STRING;
+
+	tLdConfirmDelayOnTimer: TON;
+	bNewBarcodeDetected: BOOL;
+	tNewBarcodeDetectedDelay: TON;
+
+	iPushDescriptionFL: INT;
+	sStringNIL: STRING;
+
+	bBarcodeRegisterPBRE: R_TRIG;
+	bBarcodeClearPBRE: R_TRIG;
+
+	tLdSensor1DelayOffTimer: TON;
+	tConveyorStartInternal: TON;
+
+	bBarcodeValidFlag: BOOL;
+
+	iFL: INT;
+
+	tBarcodeData1 : TON;
+	tBarcodeData2 : TON;
+	tBarcodeData3 : TON;
+	BarcodeData1RE: R_TRIG;
+	BarcodeData2RE: R_TRIG;
+	BarcodeData3RE: R_TRIG;
+
+	bLdConveyorRapidRE: R_TRIG;
+	bLdConveyorRapidHR: BOOL;
+	bLdConveyorMotorFE: F_TRIG;
+	
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ (*****off for utac_barcode function*****)
+(*COM(
+	Mode:= SERIALLINEMODE_EL6_22B,
+	pComIn:= ADR(SerInDataCom) ,
+	pComOut:= ADR(SerOutDataCom),
+	SizeComIn:= SIZEOF(SerInDataCom) ,
+	TxBuffer:= BufferWriteCom,
+	RxBuffer:= BufferReadCom,
+	Error=> SerialComErrorFlag,
+	ErrorID=> SerialComErrorID );
+*)
+
+COM1 (
+	Mode:= SERIALLINEMODE_EL6_22B ,
+	pComIn:= ADR(U485InData) ,
+	pComOut:= ADR(U485OutData),
+	SizeComIn:= SIZEOF(U485InData),
+	TxBuffer:=U485BufferWrite ,
+	RxBuffer:= U485BufferRead,
+	Error=> SerialComErrorFlag1,
+	ErrorID=> SerialComErrorID1 );
+(*
+ReceiveString(
+	Prefix:= '',
+	Suffix:= '$R',
+	Timeout:=t#10s ,
+	Reset:=fbReceiveString_Rst ,
+	ReceivedString:=sBarcodeScannerReceived ,
+	RXbuffer:= BufferReadCom,
+	StringReceived=> fbReceiveString_StrRcv,
+	Busy=> ,
+	Error=> ,
+	RxTimeout=> );
+*)
+
+presuffix(
+	bEN:= TRUE,
+	bPrefixEliminatorEN:= FALSE,
+	bSuffixEliminatorEN:= TRUE,
+	sData:= dsSerialCom.sReceivedString ,
+	sPrefix:= '',
+	sSuffix:= '$R',
+	iLengthAfterPrefix:= 0,
+	iLengthBeforeSuffix:=ilengthElimater,
+	sPrefixEliminatorResult=> ,
+	sSuffixEliminatorResult=>sBarcodeScannerReceivedResult,
+	sPreSuffixEliminatorResult=> ,
+	sNoneEliminatorReseult=> );
+
+
+IF sBarcodeScannerReceivedCmd = Empty THEN
+bBarcodeEmpty := TRUE;
+ELSE
+bBarcodeEmpty := FALSE;
+END_IF
+(*
+(*(*****off for utac_barcode function*****)*)
+BarcodeTracer(
+	bTracerST:= tNewBarcodeDetectedDelay.Q,
+	sTargetBarcode:= sBarcodeScannerReceivedCmd,
+	AR99sBarCodeRaw:= ARsBarcodeOutput,
+	AR99sBarcodeDescrip:= ARsProgramDescrip,
+	bBarcodeTraceSuccess=>bBarcodeValid ,
+	bBarcodeTraceFail=> bBarcodeInvalid,
+	iBarcodeInRecipeNo=> BarcodeRecipeNO,
+	sBarcodeInDescrip=> sBarcodeDescripOut);
+*)
+
+(*Check if Barcode scanner data change*)
+
+tNewBarcodeDetectedDelay(IN:= sBarcodeScannerReceivedCmd = sBufferBarcodeScannerReceivedCmd AND sBarcodeScannerReceivedCmd <> '' ,PT:=t#1s, Q=> , ET=> );
+
+IF sBarcodeScannerReceivedCmd <> sBufferBarcodeScannerReceivedCmd AND  sBarcodeScannerReceivedCmd <> ''THEN
+sStoreBarcodeScannerReceivedCmd := sBarcodeScannerReceivedCmd;
+sBufferBarcodeScannerReceivedCmd := sBarcodeScannerReceivedCmd;
+bNewBarcodeDetected := TRUE;
+END_IF
+
+ClearBufferTime(IN:= ManualTest OR bBarcodeBypass, PT:= t#0.1s , Q=> , ET=> );
+IF ClearBufferTime.Q THEN
+sBarcodeScannerReceived := '';
+sBasketNo:='';
+END_IF
+
+(* Loading Basket Confirm Bit Delay On Control *)
+
+IF iBarcodeRecipeNo_OUT <> 0 AND sBarcodeDescrip_OUT <> '' (*ARsHMIBarcodeData_ScanIn[1]  <> '' AND ARsHMIBarcodeData_ScanIn[2]  <> '' AND ARsHMIBarcodeData_ScanIn[3]  <> ''*) THEN
+bBarcodeValidFlag := TRUE;
+END_IF
+
+IF bBarcodeValidFlag AND bBarcodeValid AND bBarcodeConfirm THEN
+bConfirmPB		   := TRUE;
+END_IF
+
+IF NOT ARbDI[eX14000_LoadingConveyorSensor_Feed] THEN
+bBarcodeValidFlag := FALSE;
+bConfirmPB		   := FALSE;
+END_IF
+
+
+
+(***** Loading Basket Memory*******)
+tLdSensor1DelayOffTimer(IN:=(NOT ARbDI[eX14000_LoadingConveyorSensor_Feed] ) , PT:= T#3S, Q=> , ET=> );
+
+IF tLdSensor1DelayOffTimer.Q THEN
+sBarcodeScannerReceived := '' ;
+AR2sDSCv_LdConfirmBasketInfo[1,1].iProductRecipeNo := 0;
+sBasketNo := '';
+ARbBarcodeStorageEnable[1] := FALSE;
+ARbBarcodeStorageEnable[2] := FALSE;
+ARbBarcodeStorageEnable[3] := FALSE;
+sBasketNo:='';
+END_IF
+
+IF NOT ARbDI[eX14000_LoadingConveyorSensor_Feed] THEN
+sBasketNo:='';
+END_IF
+(*
+tBarcodeData1(IN:= ARsHMIBarcodeData_ScanIn[1] <> '', PT:= t#0.5s, Q=> , ET=> );
+tBarcodeData2(IN:= ARsHMIBarcodeData_ScanIn[2] <> '', PT:= t#0.5s, Q=> , ET=> );
+tBarcodeData3(IN:= ARsHMIBarcodeData_ScanIn[3] <> '', PT:= t#0.5s, Q=> , ET=> );
+
+BarcodeData1RE(CLK:= tBarcodeData1.Q, Q=> );
+BarcodeData2RE(CLK:= tBarcodeData2.Q, Q=> );
+BarcodeData3RE(CLK:= tBarcodeData3.Q, Q=> );
+
+IF BarcodeData1RE.Q THEN
+ARbBarcodeStorageEnable[1] := FALSE;
+END_IF
+
+IF BarcodeData2RE.Q THEN
+ARbBarcodeStorageEnable[2] := FALSE;
+END_IF
+
+IF BarcodeData3RE.Q THEN
+ARbBarcodeStorageEnable[3] := FALSE;
+END_IF
+*)
+IF tLdSensor1DelayOffTimer.Q AND (NOT ManualPageEnable OR NOT bAllowLoadingBasketIn) THEN
+iUserDefineProductRecipeNo := 0;
+iBarcodeRecipeNo_OUT := 0;
+END_IF
+
+
+tLdConfirmDelayOnTimer(IN:= (bMainOnOff(*bAutoStartPb*) OR ManualPageEnable) AND ((bConfirmPB OR  iSecs_Control_State=5  AND NOT bBarcodeBypass) OR ( bBarcodeBypass)) AND (ARbDI[eX14000_LoadingConveyorSensor_Feed]), PT:= T#3S, Q=> , ET=> );
+(*Note-iSecs_Control_State<>5 is when SEcs\Gem Remote is Enable*)
+IF tLdConfirmDelayOnTimer.Q THEN
+	IF NOT bBarcodeBypass AND iSecs_Control_State<>5 THEN
+	AR2sDSCv_LdConfirmBasketInfo[1,1].iProductRecipeNo 		:= (*BarcodeRecipeNO*)iBarcodeRecipeNo_OUT;
+	AR2sDSCv_LdConfirmBasketInfo[1,1].ARsBarcodeData[1] 	:= sBarcodeScannerReceivedCmd;
+	AR2sDSCv_LdConfirmBasketInfo[1,1].ARsBarcodeData[2] 	:= sBasketNo;
+	AR2sDSCv_LdConfirmBasketInfo[1,1].ARsBarcodeData[3] 	:= ARsBarcodeData_LdBasketInfo[3];
+	AR2sDSCv_LdConfirmBasketInfo[1,1].sProgramDescription 	:= (*sBarcodeDescripOut*)sBarcodeDescrip_OUT;
+
+	ELSIF bBarcodeBypass AND iSecs_Control_State<>5 THEN
+	AR2sDSCv_LdConfirmBasketInfo[1,1].iProductRecipeNo 		:= iUserDefineProductRecipeNo;
+	AR2sDSCv_LdConfirmBasketInfo[1,1].ARsBarcodeData[1] 	:= INT_TO_STRING(iUserDefineProductRecipeNo);
+	AR2sDSCv_LdConfirmBasketInfo[1,1].ARsBarcodeData[2] 	:= '0';
+	AR2sDSCv_LdConfirmBasketInfo[1,1].ARsBarcodeData[3] 	:= '0';
+	AR2sDSCv_LdConfirmBasketInfo[1,1].sProgramDescription 	:= ARsProductRecipeDescription[iUserDefineProductRecipeNo];
+
+	ELSIF  iSecs_Control_State=5 THEN
+	AR2sDSCv_LdConfirmBasketInfo[1,1].iProductRecipeNo 		:= iServerSecsGemProgNo;
+	AR2sDSCv_LdConfirmBasketInfo[1,1].ARsBarcodeData[1] 	:= sBarcodeScannerReceivedCmd;
+	AR2sDSCv_LdConfirmBasketInfo[1,1].ARsBarcodeData[2] 	:= ARsBarcodeData_LdBasketInfo[2];
+	AR2sDSCv_LdConfirmBasketInfo[1,1].ARsBarcodeData[3] 	:= ARsBarcodeData_LdBasketInfo[3];
+	AR2sDSCv_LdConfirmBasketInfo[1,1].sProgramDescription 	:= sBarcodeDescrip_OUT;
+	END_IF
+
+END_IF
+(*
+iFL := 1;
+FOR iFL := 1 TO iCvLdQty DO
+	IF iFL >= 1 AND iFL <= iCvLdQty THEN
+
+		IF AR2sDSCv_LdConfirmBasketInfo[1,iFL].ARsBarcodeData[3] <> '' THEN
+		ARbLdBasketBarcodeAvailable[iFL] := TRUE;
+		ELSE
+		ARbLdBasketBarcodeAvailable[iFL] := FALSE;
+		END_IF
+	END_IF
+END_FOR
+
+
+
+
+
+(* Clear Barcode Scanner Data Bit Control *)
+Trig2(CLK:= bClearData, Q=> );
+
+IF Trig2.Q THEN
+sBarcodeScannerReceivedCmd := '' ;
+END_IF
+(*
+IF NOT bBarcodeBypass THEN
+BarcodeByPassNo := 0;
+END_IF
+*)
+(* Ld Basket Confirm Memory and Barcode Data Control *)
+
+bBarcodeSortingEn := X150_00;
+
+fbBarcodeSorting10ML5575(
+	bEN:= bBarcodeSortingEn,
+	bBarcodeTracerInvalidFlag:= bBarcodeInvalid ,
+	bConfirmPB:= bConfirmPB,
+	ARbBarcodeStorageEnable:= ARbBarcodeStorageEnable,
+	sBarcodeInputFromScanner:= sBarcodeScannerReceivedCmd ,
+	ARbHMIBarcodeScanEn:= ARbHMIBarcodeScanEn,
+	ARsHMIBarcodeData_ScanIn:= ARsHMIBarcodeData_ScanIn,
+	ARsBarcodeData_LdBasketInfo:= ARsBarcodeData_LdBasketInfo,
+	bBarcodeScanEnableFlag=> bBarcodeScanEnableFlag,
+	bConfirmReadyFlag=> bConfirmReadyFlag );
+
+(*Push the Product Recipe Description out to AR99 for Barcode register used*)
+
+iPushDescriptionFL := 1;
+	IF iPushDescriptionFL > 0 AND iPushDescriptionFL <= iProductRecipeArrayQty THEN
+		FOR iPushDescriptionFL := 1 TO iProductRecipeArrayQty DO
+		ARsProgramDescrip[iPushDescriptionFL] := PnPstorageMemory_Arm.fbGnrProductRecipeMemory_Main.fbA1PnpSequenceMemory.ARsStoragePnpSequenceDescription[iPushDescriptionFL];
+		END_FOR
+	END_IF
+
+bBarcodeRegisterPBRE(CLK:=bBarcodeRegisterPB , Q=> );
+IF bBarcodeRegisterPBRE.Q THEN
+	IF iBarcodeRegisterProductNo > 0 AND iBarcodeRegisterProductNo <= iProductRecipeArrayQty THEN
+	ARsBarcodeOutput[iBarcodeRegisterProductNo] := ARsHMIBarcodeData_ScanIn[3]; (*sStoreBarcodeScannerReceivedCmd;*)
+	ARsBarcodeBatch[iBarcodeRegisterProductNo] := ARsHMIBarcodeData_ScanIn[1];
+	ARsBarcodeJob[iBarcodeRegisterProductNo] := ARsHMIBarcodeData_ScanIn[2];
+	END_IF
+END_IF
+
+bBarcodeClearPBRE(CLK:=bBarcodeClearPB , Q=> );
+IF bBarcodeClearPBRE.Q THEN
+	IF iBarcodeRegisterProductNo > 0 AND iBarcodeRegisterProductNo <= iProductRecipeArrayQty THEN
+	ARsBarcodeOutput[iBarcodeRegisterProductNo] := '';
+	ARsBarcodeBatch[iBarcodeRegisterProductNo] := '';
+	ARsBarcodeJob[iBarcodeRegisterProductNo] := '';
+	END_IF
+END_IF
+*)
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="BarcodeScanner">
+      <LineId Id="33" Count="80" />
+      <LineId Id="341" Count="0" />
+      <LineId Id="114" Count="24" />
+      <LineId Id="302" Count="0" />
+      <LineId Id="139" Count="2" />
+      <LineId Id="340" Count="0" />
+      <LineId Id="142" Count="0" />
+      <LineId Id="337" Count="0" />
+      <LineId Id="336" Count="0" />
+      <LineId Id="338" Count="1" />
+      <LineId Id="143" Count="125" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

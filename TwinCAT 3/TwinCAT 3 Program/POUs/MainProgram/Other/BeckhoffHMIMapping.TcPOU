@@ -1,0 +1,612 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="BeckhoffHMIMapping" Id="{a8582de1-643d-4efc-b9e0-20f282555418}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM BeckhoffHMIMapping
+VAR
+	(*ARfbHMIAddMappingBool : ARRAY [1..500 ] OF fbHMIAddMappingBool;*)
+	(*ARfbHMIAddMappingInt : ARRAY [1..500 ] OF fbHMIAddMappingInt;*)
+	(*ARfbHMIAddMappingReal : ARRAY [1..500 ] OF fbHMIAddMappingReal;*)
+	ARfbHMIAddMappingLreal : ARRAY [1..100 ] OF fbHMIAddMappingLreal;
+	(*ARfbHMIAddMappingString : ARRAY [1..500 ] OF fbHMIAddMappingString;*)
+	ARfbHMIAddMappingInt_Word : ARRAY [1..100 ] OF fbHMIAddMappingInt_Word;
+	(*fbHMIAddMappingReal_Int : ARRAY [1..100] OF fbHMIAddMappingReal_Int;*)
+	ARfbHMIAddMappingReal_Word : ARRAY [1..100 ] OF fbHMIAddMappingReal_Word;
+
+	(*ARfbHMIAddMappingBoolForManual : ARRAY [1..500 ] OF fbHMIAddMappingBoolForManual;*)
+	(*ARfbHMIAddMappingDWordToBoolForManual : ARRAY [1..iArmQty ] OF fbHMIAddMappingDWordToBoolForManual;*)
+
+	(*ARfbHMIAddMappingArrayInt : ARRAY [1..10 ] OF fbHMIAddMappingArrayInt;*)
+	(*ARfbHMIAddMappingArrayBool : ARRAY [1..10 ] OF fbHMIAddMappingArrayBool;*)
+	(*ARfbHMIAddMappingArrayReal : ARRAY [1..10 ] OF fbHMIAddMappingArrayReal;*)
+	(*ARfbHMIAddMappingArrayLreal : ARRAY [0..10 ] OF fbHMIAddMappingArrayLreal;*)
+	(*ARfbHMIAddMappingArrayBool : ARRAY [1..10 ] OF fbHMIAddMappingArrayBool;*)
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Loading*)
+
+ARfbHMIAddMappingLreal[1](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSLdZoneHeight[1].lrTopPos,
+ARrLrealAddress_Hmi:=Arm1TopPos[19]);
+
+ARfbHMIAddMappingLreal[2](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSLdZoneHeight[1].lrZone1Range,
+ARrLrealAddress_Hmi:=Arm1Pos1stStage[19]);
+
+ARfbHMIAddMappingLreal[3](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSLdZoneHeight[1].lrZone2Range,
+ARrLrealAddress_Hmi:=Arm1Pos2ndStage[19]);
+
+ARfbHMIAddMappingLreal[4](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSLdZoneHeight[1].lrZone3Range,
+ARrLrealAddress_Hmi:=Arm1Pos3rdStage[19]);
+
+ARfbHMIAddMappingLreal[5](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSLdZoneHeight[1].lrZone4Range,
+ARrLrealAddress_Hmi:=Arm1Pos4thStage[19]);
+
+ARfbHMIAddMappingLreal[6](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSLdZoneHeight[1].lrBottomPos,
+ARrLrealAddress_Hmi:=Arm1BottomPos[19]);
+
+ARfbHMIAddMappingLreal[7](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSLdZoneHeight[1].lrMidPos,
+ARrLrealAddress_Hmi:=Arm1MidPos[19]);
+
+
+(*Station 1*)
+
+ARfbHMIAddMappingLreal[8](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[1].lrTopPos,
+ARrLrealAddress_Hmi:=Arm1TopPos[1]);
+
+ARfbHMIAddMappingLreal[9](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[1].lrZone1Range,
+ARrLrealAddress_Hmi:=Arm1Pos1stStage[1]);
+
+ARfbHMIAddMappingLreal[10](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[1].lrZone2Range,
+ARrLrealAddress_Hmi:=Arm1Pos2ndStage[1]);
+
+ARfbHMIAddMappingLreal[11](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[1].lrZone3Range,
+ARrLrealAddress_Hmi:=Arm1Pos3rdStage[1]);
+
+ARfbHMIAddMappingLreal[12](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[1].lrZone4Range,
+ARrLrealAddress_Hmi:=Arm1Pos4thStage[1]);
+
+ARfbHMIAddMappingLreal[13](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[1].lrBottomPos,
+ARrLrealAddress_Hmi:=Arm1BottomPos[1]);
+
+ARfbHMIAddMappingLreal[14](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[1].lrMidPos,
+ARrLrealAddress_Hmi:=Arm1MidPos[1]);
+
+
+(*Station 2*)
+
+ARfbHMIAddMappingLreal[15](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[2].lrTopPos,
+ARrLrealAddress_Hmi:=Arm1TopPos[2]);
+
+ARfbHMIAddMappingLreal[16](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[2].lrZone1Range,
+ARrLrealAddress_Hmi:=Arm1Pos1stStage[2]);
+
+ARfbHMIAddMappingLreal[17](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[2].lrZone2Range,
+ARrLrealAddress_Hmi:=Arm1Pos2ndStage[2]);
+
+ARfbHMIAddMappingLreal[18](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[2].lrZone3Range,
+ARrLrealAddress_Hmi:=Arm1Pos3rdStage[2]);
+
+ARfbHMIAddMappingLreal[19](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[2].lrZone4Range,
+ARrLrealAddress_Hmi:=Arm1Pos4thStage[2]);
+
+ARfbHMIAddMappingLreal[20](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[2].lrBottomPos,
+ARrLrealAddress_Hmi:=Arm1BottomPos[2]);
+
+ARfbHMIAddMappingLreal[21](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[2].lrMidPos,
+ARrLrealAddress_Hmi:=Arm1MidPos[2]);
+
+
+(*Station 3*)
+
+ARfbHMIAddMappingLreal[22](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[3].lrTopPos,
+ARrLrealAddress_Hmi:=Arm1TopPos[3]);
+
+ARfbHMIAddMappingLreal[23](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[3].lrZone1Range,
+ARrLrealAddress_Hmi:=Arm1Pos1stStage[3]);
+
+ARfbHMIAddMappingLreal[24](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[3].lrZone2Range,
+ARrLrealAddress_Hmi:=Arm1Pos2ndStage[3]);
+
+ARfbHMIAddMappingLreal[25](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[3].lrZone3Range,
+ARrLrealAddress_Hmi:=Arm1Pos3rdStage[3]);
+
+ARfbHMIAddMappingLreal[26](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[3].lrZone4Range,
+ARrLrealAddress_Hmi:=Arm1Pos4thStage[3]);
+
+ARfbHMIAddMappingLreal[27](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[3].lrBottomPos,
+ARrLrealAddress_Hmi:=Arm1BottomPos[3]);
+
+ARfbHMIAddMappingLreal[28](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[3].lrMidPos,
+ARrLrealAddress_Hmi:=Arm1MidPos[3]);
+
+
+(*Station 4*)
+
+ARfbHMIAddMappingLreal[29](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[4].lrTopPos,
+ARrLrealAddress_Hmi:=Arm1TopPos[4]);
+
+ARfbHMIAddMappingLreal[30](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[4].lrZone1Range,
+ARrLrealAddress_Hmi:=Arm1Pos1stStage[4]);
+
+ARfbHMIAddMappingLreal[31](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[4].lrZone2Range,
+ARrLrealAddress_Hmi:=Arm1Pos2ndStage[4]);
+
+ARfbHMIAddMappingLreal[32](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[4].lrZone3Range,
+ARrLrealAddress_Hmi:=Arm1Pos3rdStage[4]);
+
+ARfbHMIAddMappingLreal[33](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[4].lrZone4Range,
+ARrLrealAddress_Hmi:=Arm1Pos4thStage[4]);
+
+ARfbHMIAddMappingLreal[34](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[4].lrBottomPos,
+ARrLrealAddress_Hmi:=Arm1BottomPos[4]);
+
+ARfbHMIAddMappingLreal[35](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[4].lrMidPos,
+ARrLrealAddress_Hmi:=Arm1MidPos[4]);
+
+
+(*Station 5*)
+
+ARfbHMIAddMappingLreal[36](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[5].lrTopPos,
+ARrLrealAddress_Hmi:=Arm1TopPos[5]);
+
+ARfbHMIAddMappingLreal[37](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[5].lrZone1Range,
+ARrLrealAddress_Hmi:=Arm1Pos1stStage[5]);
+
+ARfbHMIAddMappingLreal[38](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[5].lrZone2Range,
+ARrLrealAddress_Hmi:=Arm1Pos2ndStage[5]);
+
+ARfbHMIAddMappingLreal[39](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[5].lrZone3Range,
+ARrLrealAddress_Hmi:=Arm1Pos3rdStage[5]);
+
+ARfbHMIAddMappingLreal[40](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[5].lrZone4Range,
+ARrLrealAddress_Hmi:=Arm1Pos4thStage[5]);
+
+ARfbHMIAddMappingLreal[41](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[5].lrBottomPos,
+ARrLrealAddress_Hmi:=Arm1BottomPos[5]);
+
+ARfbHMIAddMappingLreal[42](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[5].lrMidPos,
+ARrLrealAddress_Hmi:=Arm1MidPos[5]);
+
+
+(*Station 6*)
+
+ARfbHMIAddMappingLreal[43](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[6].lrTopPos,
+ARrLrealAddress_Hmi:=Arm1TopPos[6]);
+
+ARfbHMIAddMappingLreal[44](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[6].lrZone1Range,
+ARrLrealAddress_Hmi:=Arm1Pos1stStage[6]);
+
+ARfbHMIAddMappingLreal[45](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[6].lrZone2Range,
+ARrLrealAddress_Hmi:=Arm1Pos2ndStage[6]);
+
+ARfbHMIAddMappingLreal[46](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[6].lrZone3Range,
+ARrLrealAddress_Hmi:=Arm1Pos3rdStage[6]);
+
+ARfbHMIAddMappingLreal[47](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[6].lrZone4Range,
+ARrLrealAddress_Hmi:=Arm1Pos4thStage[6]);
+
+ARfbHMIAddMappingLreal[48](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[6].lrBottomPos,
+ARrLrealAddress_Hmi:=Arm1BottomPos[6]);
+
+ARfbHMIAddMappingLreal[49](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[6].lrMidPos,
+ARrLrealAddress_Hmi:=Arm1MidPos[6]);
+
+
+(*Station 7*)
+
+ARfbHMIAddMappingLreal[50](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[7].lrTopPos,
+ARrLrealAddress_Hmi:=Arm1TopPos[7]);
+
+ARfbHMIAddMappingLreal[51](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[7].lrZone1Range,
+ARrLrealAddress_Hmi:=Arm1Pos1stStage[7]);
+
+ARfbHMIAddMappingLreal[52](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[7].lrZone2Range,
+ARrLrealAddress_Hmi:=Arm1Pos2ndStage[7]);
+
+ARfbHMIAddMappingLreal[53](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[7].lrZone3Range,
+ARrLrealAddress_Hmi:=Arm1Pos3rdStage[7]);
+
+ARfbHMIAddMappingLreal[54](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[7].lrZone4Range,
+ARrLrealAddress_Hmi:=Arm1Pos4thStage[7]);
+
+ARfbHMIAddMappingLreal[55](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[7].lrBottomPos,
+ARrLrealAddress_Hmi:=Arm1BottomPos[7]);
+
+ARfbHMIAddMappingLreal[56](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[7].lrMidPos,
+ARrLrealAddress_Hmi:=Arm1MidPos[7]);
+
+
+(*Station 8*)
+
+ARfbHMIAddMappingLreal[57](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[8].lrTopPos,
+ARrLrealAddress_Hmi:=Arm1TopPos[8]);
+
+ARfbHMIAddMappingLreal[58](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[8].lrZone1Range,
+ARrLrealAddress_Hmi:=Arm1Pos1stStage[8]);
+
+ARfbHMIAddMappingLreal[59](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[8].lrZone2Range,
+ARrLrealAddress_Hmi:=Arm1Pos2ndStage[8]);
+
+ARfbHMIAddMappingLreal[60](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[8].lrZone3Range,
+ARrLrealAddress_Hmi:=Arm1Pos3rdStage[8]);
+
+ARfbHMIAddMappingLreal[61](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[8].lrZone4Range,
+ARrLrealAddress_Hmi:=Arm1Pos4thStage[8]);
+
+ARfbHMIAddMappingLreal[62](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[8].lrBottomPos,
+ARrLrealAddress_Hmi:=Arm1BottomPos[8]);
+
+ARfbHMIAddMappingLreal[63](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[8].lrMidPos,
+ARrLrealAddress_Hmi:=Arm1MidPos[8]);
+
+
+(*Station 9*)
+
+ARfbHMIAddMappingLreal[64](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[9].lrTopPos,
+ARrLrealAddress_Hmi:=Arm1TopPos[9]);
+
+ARfbHMIAddMappingLreal[65](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[9].lrZone1Range,
+ARrLrealAddress_Hmi:=Arm1Pos1stStage[9]);
+
+ARfbHMIAddMappingLreal[66](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[9].lrZone2Range,
+ARrLrealAddress_Hmi:=Arm1Pos2ndStage[9]);
+
+ARfbHMIAddMappingLreal[67](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[9].lrZone3Range,
+ARrLrealAddress_Hmi:=Arm1Pos3rdStage[9]);
+
+ARfbHMIAddMappingLreal[68](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[9].lrZone4Range,
+ARrLrealAddress_Hmi:=Arm1Pos4thStage[9]);
+
+ARfbHMIAddMappingLreal[69](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[9].lrBottomPos,
+ARrLrealAddress_Hmi:=Arm1BottomPos[9]);
+
+ARfbHMIAddMappingLreal[70](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[9].lrMidPos,
+ARrLrealAddress_Hmi:=Arm1MidPos[9]);
+
+
+(*Station 10*)
+
+ARfbHMIAddMappingLreal[71](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[10].lrTopPos,
+ARrLrealAddress_Hmi:=Arm1TopPos[10]);
+
+ARfbHMIAddMappingLreal[72](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[10].lrZone1Range,
+ARrLrealAddress_Hmi:=Arm1Pos1stStage[10]);
+
+ARfbHMIAddMappingLreal[73](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[10].lrZone2Range,
+ARrLrealAddress_Hmi:=Arm1Pos2ndStage[10]);
+
+ARfbHMIAddMappingLreal[74](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[10].lrZone3Range,
+ARrLrealAddress_Hmi:=Arm1Pos3rdStage[10]);
+
+ARfbHMIAddMappingLreal[75](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[10].lrZone4Range,
+ARrLrealAddress_Hmi:=Arm1Pos4thStage[10]);
+
+ARfbHMIAddMappingLreal[76](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[10].lrBottomPos,
+ARrLrealAddress_Hmi:=Arm1BottomPos[10]);
+
+ARfbHMIAddMappingLreal[77](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[10].lrMidPos,
+ARrLrealAddress_Hmi:=Arm1MidPos[10]);
+
+
+(*Station 11*)
+
+ARfbHMIAddMappingLreal[78](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[11].lrTopPos,
+ARrLrealAddress_Hmi:=Arm2TopPos[11]);
+
+ARfbHMIAddMappingLreal[79](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[11].lrZone1Range,
+ARrLrealAddress_Hmi:=Arm2Pos1stStage[11]);
+
+ARfbHMIAddMappingLreal[80](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[11].lrZone2Range,
+ARrLrealAddress_Hmi:=Arm2Pos2ndStage[11]);
+
+ARfbHMIAddMappingLreal[81](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[11].lrZone3Range,
+ARrLrealAddress_Hmi:=Arm2Pos3rdStage[11]);
+
+ARfbHMIAddMappingLreal[82](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[11].lrZone4Range,
+ARrLrealAddress_Hmi:=Arm2Pos4thStage[11]);
+
+ARfbHMIAddMappingLreal[83](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[11].lrBottomPos,
+ARrLrealAddress_Hmi:=Arm2BottomPos[11]);
+
+ARfbHMIAddMappingLreal[84](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[11].lrMidPos,
+ARrLrealAddress_Hmi:=Arm2MidPos[11]);
+
+
+(*Station 12*)
+
+ARfbHMIAddMappingLreal[85](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[12].lrTopPos,
+ARrLrealAddress_Hmi:=Arm2TopPos[12]);
+
+ARfbHMIAddMappingLreal[86](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[12].lrZone1Range,
+ARrLrealAddress_Hmi:=Arm2Pos1stStage[12]);
+
+ARfbHMIAddMappingLreal[87](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[12].lrZone2Range,
+ARrLrealAddress_Hmi:=Arm2Pos2ndStage[12]);
+
+ARfbHMIAddMappingLreal[88](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[12].lrZone3Range,
+ARrLrealAddress_Hmi:=Arm2Pos3rdStage[12]);
+
+ARfbHMIAddMappingLreal[89](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[12].lrZone4Range,
+ARrLrealAddress_Hmi:=Arm2Pos4thStage[12]);
+
+ARfbHMIAddMappingLreal[90](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[12].lrBottomPos,
+ARrLrealAddress_Hmi:=Arm2BottomPos[12]);
+
+ARfbHMIAddMappingLreal[91](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSStationZoneHeight[12].lrMidPos,
+ARrLrealAddress_Hmi:=Arm2MidPos[12]);
+
+
+(*Unloading*)
+
+ARfbHMIAddMappingLreal[92](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSUldZoneHeight[1].lrTopPos,
+ARrLrealAddress_Hmi:=Arm1TopPos[20]);
+
+ARfbHMIAddMappingLreal[93](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSUldZoneHeight[1].lrZone1Range,
+ARrLrealAddress_Hmi:=Arm1Pos1stStage[20]);
+
+ARfbHMIAddMappingLreal[94](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSUldZoneHeight[1].lrZone2Range,
+ARrLrealAddress_Hmi:=Arm1Pos2ndStage[20]);
+
+ARfbHMIAddMappingLreal[95](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSUldZoneHeight[1].lrZone3Range,
+ARrLrealAddress_Hmi:=Arm1Pos3rdStage[20]);
+
+ARfbHMIAddMappingLreal[96](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSUldZoneHeight[1].lrZone4Range,
+ARrLrealAddress_Hmi:=Arm1Pos4thStage[20]);
+
+ARfbHMIAddMappingLreal[97](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSUldZoneHeight[1].lrBottomPos,
+ARrLrealAddress_Hmi:=Arm1BottomPos[20]);
+
+ARfbHMIAddMappingLreal[98](
+bEN:=TRUE ,
+ARrLrealAddress_Pro:=ARDSUldZoneHeight[1].lrMidPos,
+ARrLrealAddress_Hmi:=Arm1MidPos[20]);
+
+
+
+IF mb_Output_Registers[39] > 0 THEN
+	ARfbHMIAddMappingReal_Word[39](
+		bEN:= TRUE ,
+		ARrRealAddress_Pro:= ARrStnTempSV[1],
+		ARwAddress_Hmi:= mb_Output_Registers[39]);
+END_IF
+
+IF mb_Output_Registers[40] > 0 THEN
+	ARfbHMIAddMappingReal_Word[40](
+		bEN:= TRUE ,
+		ARrRealAddress_Pro:= ARrStnTempSV[2],
+		ARwAddress_Hmi:= mb_Output_Registers[40]);
+END_IF
+
+IF mb_Output_Registers[41] > 0 THEN
+	ARfbHMIAddMappingReal_Word[41](
+		bEN:= TRUE ,
+		ARrRealAddress_Pro:= ARrStnTempSV[3],
+		ARwAddress_Hmi:= mb_Output_Registers[41]);
+END_IF
+
+IF mb_Output_Registers[42] > 0 THEN
+	ARfbHMIAddMappingReal_Word[42](
+		bEN:= TRUE ,
+		ARrRealAddress_Pro:= ARrStnTempSV[4],
+		ARwAddress_Hmi:= mb_Output_Registers[42]);
+END_IF
+
+IF mb_Output_Registers[43] > 0 THEN
+	ARfbHMIAddMappingReal_Word[43](
+		bEN:= TRUE ,
+		ARrRealAddress_Pro:= ARrStnTempSV[5],
+		ARwAddress_Hmi:= mb_Output_Registers[43]);
+END_IF
+
+IF mb_Output_Registers[44] > 0 THEN
+	ARfbHMIAddMappingReal_Word[44](
+		bEN:= TRUE ,
+		ARrRealAddress_Pro:= ARrStnTempSV[6],
+		ARwAddress_Hmi:= mb_Output_Registers[44]);
+END_IF
+
+IF mb_Output_Registers[45] > 0 THEN
+	ARfbHMIAddMappingReal_Word[45](
+		bEN:= TRUE ,
+		ARrRealAddress_Pro:= ARrStnTempSV[7],
+		ARwAddress_Hmi:= mb_Output_Registers[45]);
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="BeckhoffHMIMapping">
+      <LineId Id="21" Count="580" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

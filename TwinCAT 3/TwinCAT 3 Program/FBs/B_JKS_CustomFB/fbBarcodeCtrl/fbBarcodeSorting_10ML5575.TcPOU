@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbBarcodeSorting_10ML5575" Id="{81343a46-3c24-44a1-a8ac-45d0003cbf97}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbBarcodeSorting_10ML5575
+VAR_INPUT
+	bEN : BOOL;
+	bBarcodeTracerInvalidFlag : BOOL;
+	bConfirmPB : BOOL;
+
+	ARbBarcodeStorageEnable : ARRAY [0..10] OF BOOL;
+
+END_VAR
+VAR_IN_OUT
+	sBarcodeInputFromScanner : STRING;
+	ARbHMIBarcodeScanEn : ARRAY [0..10] OF BOOL;
+	ARsHMIBarcodeData_ScanIn : ARRAY [0..10] OF STRING(50);
+
+
+	(*Result for Out after Confirm button press*)
+	ARsBarcodeData_LdBasketInfo : ARRAY [0..10] OF STRING(50);
+
+END_VAR
+
+VAR_OUTPUT
+	bBarcodeScanEnableFlag : BOOL;
+	bConfirmReadyFlag : BOOL;
+END_VAR
+VAR
+
+	ARbHMIBarcodeScanEnRE: ARRAY [0..10] OF R_TRIG;
+	iREFL: INT;
+	iREFL2: INT;
+	iScanFL: INT;
+	iConfirmFL: INT;
+	ARsHMIBarcodeData_Empty : ARRAY [0..10] OF STRING(50);
+	bConfirmPBRE: R_TRIG;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[bConfirmPBRE(CLK:= bConfirmPB, Q=> );
+
+
+iREFL := 1;
+FOR iREFL := 1 TO 10 DO
+	IF iREFL >= 1 AND iREFL <= 10 THEN
+		ARbHMIBarcodeScanEnRE[iREFL](CLK:=ARbHMIBarcodeScanEn[iREFL] , Q=> );
+
+		IF ARbHMIBarcodeScanEnRE[iREFL].Q THEN
+			iREFL2 := 1;
+
+			FOR iREFL2 := 1 TO 10 DO
+				ARbHMIBarcodeScanEn[iREFL2] := FALSE;
+			END_FOR
+
+			ARbHMIBarcodeScanEn[iREFL] := TRUE;
+			bBarcodeScanEnableFlag := TRUE;
+		END_IF
+	END_IF
+
+END_FOR
+
+iScanFL := 1;
+FOR iScanFL := 1 TO 10 DO
+	IF iScanFL >= 1 AND iScanFL <= 10 THEN
+
+
+		IF ARbBarcodeStorageEnable[iScanFL] (*AND ARbHMIBarcodeScanEn[iScanFL] *) AND sBarcodeInputFromScanner <> '' THEN
+			ARsHMIBarcodeData_ScanIn[iScanFL]	:= sBarcodeInputFromScanner;
+			bBarcodeScanEnableFlag 				:= FALSE;
+			ARbHMIBarcodeScanEn[iScanFL] 		:= FALSE;
+			(*sBarcodeInputFromScanner			:= '';*)
+		END_IF
+	END_IF
+END_FOR
+
+iConfirmFL := 1;
+bConfirmReadyFlag := TRUE;
+
+IF bBarcodeTracerInvalidFlag THEN
+bConfirmReadyFlag := FALSE;
+END_IF
+
+FOR iConfirmFL := 1 TO 10 DO
+	IF iConfirmFL >= 1 AND iConfirmFL <= 10 THEN
+		IF ARbBarcodeStorageEnable[iConfirmFL] AND ARsHMIBarcodeData_ScanIn[iConfirmFL] = '' THEN
+		bConfirmReadyFlag := FALSE;
+		END_IF
+	END_IF
+END_FOR
+
+
+IF bConfirmPBRE.Q AND bConfirmReadyFlag THEN
+ARsBarcodeData_LdBasketInfo 	:= ARsHMIBarcodeData_ScanIn;
+ARsHMIBarcodeData_ScanIn 	:= ARsHMIBarcodeData_Empty ;
+END_IF
+
+
+IF NOT bEN THEN
+ARsHMIBarcodeData_ScanIn 	:= ARsHMIBarcodeData_Empty ;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbBarcodeSorting_10ML5575">
+      <LineId Id="34" Count="60" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

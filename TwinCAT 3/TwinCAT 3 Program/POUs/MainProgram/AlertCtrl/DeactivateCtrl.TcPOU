@@ -1,0 +1,890 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="DeactivateCtrl" Id="{301f1a3e-b634-4bfd-b341-7a877a6458da}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM DeactivateCtrl
+VAR
+	ARbDeactivateTestPB : ARRAY [1..iDeactivateQty] OF BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// ARdsEventCtrl[250] - ARdsEventCtrl[298]
+
+(*xxxxxxxxxxxx Deactivate xxxxxxxxxx*)
+   
+  ARdsEventCtrl[250].bSignalInput :=ARbDeactivated[eY10100_Stn01UltrasonicGeneratorLeftRightOnOff];	//STN 01 ULTRASONIC GENERATOR ON/OFF (-10U1)     
+  ARdsEventCtrl[251].bSignalInput :=DE10101;	//STN 02 ULTRASONIC GENERATOR ON/OFF (-11U1)     
+  ARdsEventCtrl[252].bSignalInput :=DE10102;	//STN 04 ULTRASONIC GENERATOR ON/OFF (-12U1)     
+  ARdsEventCtrl[253].bSignalInput :=DE10103;	//STN 05 ULTRASONIC GENERATOR ON/OFF (-13U1)     
+  ARdsEventCtrl[254].bSignalInput :=DE10104;	//STN 07 ULTRASONIC GENERATOR ON/OFF (-14U1)     
+  ARdsEventCtrl[255].bSignalInput :=DE10105;	//STN 08 ULTRASONIC GENERATOR ON/OFF (-15U1)     
+  ARdsEventCtrl[256].bSignalInput :=DE10106;	//STN 07 DI WATER RETURN TANK PUMP ON/OFF (-81K1)
+  ARdsEventCtrl[257].bSignalInput :=DE10107;	//STN 01 PROCESS TANK PUMP ON/OFF (-73K1)        
+  ARdsEventCtrl[258].bSignalInput :=DE10108;	//STN 02 PROCESS TANK PUMP ON/OFF (-74K1)        
+  ARdsEventCtrl[259].bSignalInput :=DE10109;	//STN 03 PROCESS TANK PUMP ON/OFF (-75K1)        
+  ARdsEventCtrl[260].bSignalInput :=DE10110;	//STN 04 PROCESS TANK PUMP ON/OFF (-76K1)        
+  ARdsEventCtrl[261].bSignalInput :=DE10111;	//STN 05 PROCESS TANK PUMP ON/OFF (-77K1)   
+  ARdsEventCtrl[262].bSignalInput :=DE10112;	//STN 06 PROCESS TANK PUMP ON/OFF (-78K1)   
+  ARdsEventCtrl[263].bSignalInput :=DE10113;	//STN 07 PROCESS TANK PUMP ON/OFF (-79K1)   
+  ARdsEventCtrl[264].bSignalInput :=DE10114;	//STN 08 PROCESS TANK PUMP ON/OFF (-80K1)   
+  ARdsEventCtrl[265].bSignalInput :=DE10115;	//STN 01 PROCESS TANK HEATER ON/OFF (-130K1)
+  ARdsEventCtrl[266].bSignalInput :=DE10200;	//STN 02 PROCESS TANK HEATER ON/OFF (-131K1) 
+  ARdsEventCtrl[267].bSignalInput :=DE10201;	//STN 03 PROCESS TANK HEATER ON/OFF (-132K1) 
+  ARdsEventCtrl[268].bSignalInput :=DE10202;	//STN 04 PROCESS TANK HEATER ON/OFF (-133K1) 
+  ARdsEventCtrl[269].bSignalInput :=DE10203;	//STN 05 PROCESS TANK HEATER ON/OFF (-134K1) 
+  ARdsEventCtrl[270].bSignalInput :=DE10204;	//STN 06 PROCESS TANK HEATER ON/OFF (-135K1) 
+  ARdsEventCtrl[271].bSignalInput :=DE10205;	//STN 07 PROCESS TANK HEATER ON/OFF (-136K1)
+  ARdsEventCtrl[272].bSignalInput :=DE10206;	//STN 08 PROCESS TANK HEATER ON/OFF (-137K1) 
+  ARdsEventCtrl[273].bSignalInput :=DE10207;	//STN 10 PROCESS TANK HEATER ON/OFF (-138K1) 
+  ARdsEventCtrl[274].bSignalInput :=DE10208;	//STN 09 - STN 10 FFU UNIT ON/OFF (-163K1)   
+  ARdsEventCtrl[275].bSignalInput :=DE10209;	//UNLOADING FFU UNIT ON/OFF (-164K1)         
+  ARdsEventCtrl[276].bSignalInput :=DE10210;	//UNLOADING CONVEYOR FFU UNIT ON/OFF (-165K1)
+  ARdsEventCtrl[277].bSignalInput :=DE10211;	//STN 09 PROCESS TANK PUMP ON/OFF (-82K1)    
+  ARdsEventCtrl[278].bSignalInput :=DE10300;	//STN 01 - 08 AGITATION MOTOR ON/OFF (-160K1)                                   
+  ARdsEventCtrl[279].bSignalInput :=DE10301;	//LOADING CONVEYOR 01 ON/OFF (-170K1)                                           
+  ARdsEventCtrl[280].bSignalInput :=DE10302;	//LOADING CONVEYOR 02 ON/OFF (-171K1)                                           
+  ARdsEventCtrl[281].bSignalInput :=DE10303;	//LOADING CONVEYOR 03 ON/OFF (-172K1)                                           
+  ARdsEventCtrl[282].bSignalInput :=DE10304;	//LOADING CONVEYOR 04 ON/OFF (-173K1)
+  ARdsEventCtrl[283].bSignalInput :=DE10305;	//UNLOADING CONVEYOR 01 ON/OFF (-174K1)
+  ARdsEventCtrl[284].bSignalInput :=DE10306;	//UNLOADING CONVEYOR 02 ON/OFF (-175K1)
+  ARdsEventCtrl[285].bSignalInput :=DE10307;	//UNLOADING CONVEYOR 03 ON/OFF (-176K1)
+  ARdsEventCtrl[286].bSignalInput :=DE10308;	//UNLOADING CONVEYOR 04 ON/OFF (-177K1)
+  ARdsEventCtrl[287].bSignalInput :=DE11100;	//STN 03 MEGASONIC GENERATOR 01 ON/OFF (-16U1))      
+  ARdsEventCtrl[288].bSignalInput :=DE11101;	//STN 03 MEGASONIC GENERATOR 02 ON/OFF (-17U1))      
+  ARdsEventCtrl[289].bSignalInput :=DE11102;	//STN 01 DOSING PUMP ON/OFF (-70K1)               
+  ARdsEventCtrl[290].bSignalInput :=DE11103;	//STN 03 DOSING PUMP ON/OFF (-71K1)  
+  ARdsEventCtrl[291].bSignalInput :=DE12000;	//STN 03 DOSING PUMP ON/OFF (-71K1)              
+  ARdsEventCtrl[292].bSignalInput :=DE12001;	//STN 05 DOSING PUMP ON/OFF (-72K1)           
+  ARdsEventCtrl[293].bSignalInput :=DE12002;	//STN 06 MEGASONIC GENERATOR 01 ON/OFF (-18U1)
+  ARdsEventCtrl[294].bSignalInput :=DE12003;	//STN 06 MEGASONIC GENERATOR 02 ON/OFF (-19U1)
+  ARdsEventCtrl[295].bSignalInput :=DE12004;	//STN 06 MEGASONIC GENERATOR 03 ON/OFF (-20U1) 
+  ARdsEventCtrl[296].bSignalInput :=ARbArmMissHookByPass1[1];	
+  ARdsEventCtrl[297].bSignalInput :=ARbArmMissHookByPass2[1];	
+  ARdsEventCtrl[298].bSignalInput :=ARwDO[eY11003_GeneralBuzzerTone02].00;	
+(*
+(********************************************************************************** DEACTIVATED - ( ARbDeactivateOutput[1] - ARbDeactivateOutput[16] )**********************************************************************************)
+(*Deactivate*)
+ARsDeactivateDescription	[1]		:=		'[ DA-0001 ] OutputSignal - DEACTIVATED Reserved ';
+ARbDeactivateOutput		[1]		:=		FALSE OR ARbDeactivateTestPB[1];
+
+(*Deactivate*)
+ARsDeactivateDescription	[2]		:=		'[ DA-0002 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[2]		:=		FALSE OR ARbDeactivateTestPB[2];
+
+(*Deactivate*)
+ARsDeactivateDescription	[3]		:=		'[ DA-0003 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[3]		:=		FALSE OR ARbDeactivateTestPB[3];
+
+(*Deactivate*)
+ARsDeactivateDescription	[4]		:=		'[ DA-0004 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[4]		:=		FALSE OR ARbDeactivateTestPB[4];
+
+(*Deactivate*)
+ARsDeactivateDescription	[5]		:=		'[ DA-0005 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[5]		:=		FALSE OR ARbDeactivateTestPB[5];
+
+(*Deactivate*)
+ARsDeactivateDescription	[6]		:=		'[ DA-0006 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[6]		:=		FALSE OR ARbDeactivateTestPB[6];
+
+(*Deactivate*)
+ARsDeactivateDescription	[7]		:=		'[ DA-0007 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[7]		:=		FALSE OR ARbDeactivateTestPB[7];
+
+(*Deactivate*)
+ARsDeactivateDescription	[8]		:=		'[ DA-0008 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[8]		:=		FALSE OR ARbDeactivateTestPB[8];
+
+(*Deactivate*)
+ARsDeactivateDescription	[9]		:=		'[ DA-0009 ] OutputSignal - Reserved ';
+ARbDeactivateOutput		[9]		:=		FALSE OR ARbDeactivateTestPB[9];
+
+(*Deactivate*)
+ARsDeactivateDescription	[10]		:=		'[ DA-0010 ] OutputSignal - Reserved ';
+ARbDeactivateOutput		[10]		:=		FALSE OR ARbDeactivateTestPB[10];
+
+(*Deactivate*)
+ARsDeactivateDescription	[11]		:=		'[ DA-0011 ] OutputSignal - Reserved ';
+ARbDeactivateOutput		[11]		:=		FALSE OR ARbDeactivateTestPB[11];
+
+(*Deactivate*)
+ARsDeactivateDescription	[12]		:=		'[ DA-0012 ] OutputSignal - Reserved ';
+ARbDeactivateOutput		[12]		:=		FALSE OR ARbDeactivateTestPB[12];
+
+(*Deactivate*)
+ARsDeactivateDescription	[13]		:=		'[ DA-0013 ] OutputSignal - Reserved ';
+ARbDeactivateOutput		[13]		:=		FALSE OR ARbDeactivateTestPB[13];
+
+(*Deactivate*)
+ARsDeactivateDescription	[14]		:=		'[ DA-0014 ] OutputSignal - Reserved ';
+ARbDeactivateOutput		[14]		:=		FALSE OR ARbDeactivateTestPB[14];
+
+(*Deactivate*)
+ARsDeactivateDescription	[15]		:=		'[ DA-0015 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[15]		:=		FALSE OR ARbDeactivateTestPB[15];
+
+(*Deactivate*)
+ARsDeactivateDescription	[16]		:=		'[ DA-0016 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[16]		:=		FALSE OR ARbDeactivateTestPB[16];
+
+(********************************************************************************** DEACTIVATED - ( ARbDeactivateOutput[17] - ARbDeactivateOutput[32] )**********************************************************************************)
+
+(*Deactivate*)
+ARsDeactivateDescription	[17]		:=		'[ DA-0017 ] OutputSignal - DEACTIVATED STN 1 PROCESS TANK PUMP ON/OFF (-50K1) ';
+ARbDeactivateOutput		[17]		:=		DE10100 OR ARbDeactivateTestPB[17];
+
+(*Deactivate*)
+ARsDeactivateDescription	[18]		:=		'[ DA-0018 ] OutputSignal - DEACTIVATED STN 2 PROCESS TANK PUMP ON/OFF (-51K1) ';
+ARbDeactivateOutput		[18]		:=		DE10101 OR ARbDeactivateTestPB[18];
+
+(*Deactivate*)
+ARsDeactivateDescription	[19]		:=		'[ DA-0019 ] OutputSignal - DEACTIVATED STN 3 PROCESS TANK PUMP ON/OFF (-52K1) ';
+ARbDeactivateOutput		[19]		:=		DE10102 OR ARbDeactivateTestPB[19];
+
+(*Deactivate*)
+ARsDeactivateDescription	[20]		:=		'[ DA-0020 ] OutputSignal - DEACTIVATED STN 5 VACUUM PUMP ON/OFF (-56K1) ';
+ARbDeactivateOutput		[20]		:=		DE10103 OR ARbDeactivateTestPB[20];
+
+(*Deactivate*)
+ARsDeactivateDescription	[21]		:=		'[ DA-0021 ] OutputSignal - DEACTIVATED STN 2&3 AGITATION MOTOR ON/OFF (-25K1) ';
+ARbDeactivateOutput		[21]		:=		DE10104 OR ARbDeactivateTestPB[21];
+
+(*Deactivate*)
+ARsDeactivateDescription	[22]		:=		'[ DA-0022 ] OutputSignal - DEACTIVATED STN 5 BLOWER ON/OFF (-65K1) ';
+ARbDeactivateOutput		[22]		:=		DE10105 OR ARbDeactivateTestPB[22];
+
+(*Deactivate*)
+ARsDeactivateDescription	[23]		:=		'[ DA-0023 ] OutputSignal - DEACTIVATED STN 1 SUB PROCESS TANK STIRRING MOTOR ON/OFF (-26K1) ';
+ARbDeactivateOutput		[23]		:=		DE10106 OR ARbDeactivateTestPB[23];
+
+(*Deactivate*)
+ARsDeactivateDescription	[24]		:=		'[ DA-0024 ] OutputSignal - DEACTIVATED DETERGENT TANK 1 STIRRING MOTOR ON/OFF (-27K1) ';
+ARbDeactivateOutput		[24]		:=		DE10107 OR ARbDeactivateTestPB[24];
+
+(*Deactivate*)
+ARsDeactivateDescription	[25]		:=		'[ DA-0025 ] OutputSignal - DEACTIVATED STN 1 ULTRASONIC ON/OFF (-16K1) ';
+ARbDeactivateOutput		[25]		:=		DE10108 OR ARbDeactivateTestPB[25];
+
+(*Deactivate*)
+ARsDeactivateDescription	[26]		:=		'[ DA-0026 ] OutputSignal - DEACTIVATED STN 2 ULTRASONIC ON/OFF (-17K1) ';
+ARbDeactivateOutput		[26]		:=		DE10109 OR ARbDeactivateTestPB[26];
+
+(*Deactivate*)
+ARsDeactivateDescription	[27]		:=		'[ DA-0027 ] OutputSignal - DEACTIVATED STN 3 ULTRASONIC ON/OFF (-18K1) ';
+ARbDeactivateOutput		[27]		:=		DE10110 OR ARbDeactivateTestPB[27];
+
+(*Deactivate*)
+ARsDeactivateDescription	[28]		:=		'[ DA-0028 ] OutputSignal - DEACTIVATED STN 1 ELECTRIC ACTUATOR ON/OFF (-21K1) ';
+ARbDeactivateOutput		[28]		:=		DE10111 OR ARbDeactivateTestPB[28];
+
+(*Deactivate*)
+ARsDeactivateDescription	[29]		:=		'[ DA-0029 ] OutputSignal - DEACTIVATED STN 2 ELECTRIC ACTUATOR ON/OFF (-22K1) ';
+ARbDeactivateOutput		[29]		:=		DE10112 OR ARbDeactivateTestPB[29];
+
+(*Deactivate*)
+ARsDeactivateDescription	[30]		:=		'[ DA-0030 ] OutputSignal - DEACTIVATED STN 3 ELECTRIC ACTUATOR ON/OFF (-23K1)  ';
+ARbDeactivateOutput		[30]		:=		DE10113 OR ARbDeactivateTestPB[30];
+
+(*Deactivate*)
+ARsDeactivateDescription	[31]		:=		'[ DA-0031 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[31]		:=		DE10114 OR ARbDeactivateTestPB[31];
+
+(*Deactivate*)
+ARsDeactivateDescription	[32]		:=		'[ DA-0032 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[32]		:=		DE10115 OR ARbDeactivateTestPB[32];
+
+(********************************************************************************** DEACTIVATED - ( ARbDeactivateOutput[33] - ARbDeactivateOutput[48] )**********************************************************************************)
+
+(*Deactivate*)
+ARsDeactivateDescription	[33]		:=		'[ DA-0033 ] OutputSignal - DEACTIVATED STN 5 PROCESS TANK HEATER A ON/OFF (-70K1) ';
+ARbDeactivateOutput		[33]		:=		DE10200 OR ARbDeactivateTestPB[33];
+
+(*Deactivate*)
+ARsDeactivateDescription	[34]		:=		'[ DA-0034 ] OutputSignal - DEACTIVATED STN 5 PROCESS TANK HEATER B ON/OFF (-71K1) ';
+ARbDeactivateOutput		[34]		:=		DE10201 OR ARbDeactivateTestPB[34];
+
+(*Deactivate*)
+ARsDeactivateDescription	[35]		:=		'[ DA-0035 ] OutputSignal - DEACTIVATED STN 1 SUB PROCESS TANK HEATER ON/OFF (-72K1) ';
+ARbDeactivateOutput		[35]		:=		DE10202 OR ARbDeactivateTestPB[35];
+
+(*Deactivate*)
+ARsDeactivateDescription	[36]		:=		'[ DA-0036 ] OutputSignal - DEACTIVATED STN 2 SUB PROCESS TANK HEATER ON/OFF (-73K1) ';
+ARbDeactivateOutput		[36]		:=		DE10203 OR ARbDeactivateTestPB[36];
+
+(*Deactivate*)
+ARsDeactivateDescription	[37]		:=		'[ DA-0037 ] OutputSignal - DEACTIVATED STN 3 SUB PROCESS TANK HEATER ON/OFF (-74K1) ';
+ARbDeactivateOutput		[37]		:=		DE10204 OR ARbDeactivateTestPB[37];
+
+(*Deactivate*)
+ARsDeactivateDescription	[38]		:=		'[ DA-0038 ] OutputSignal - DEACTIVATED MAIN INC HEATER ON/OFF (-75K1) ';
+ARbDeactivateOutput		[38]		:=		DE10205 OR ARbDeactivateTestPB[38];
+
+(*Deactivate*)
+ARsDeactivateDescription	[39]		:=		'[ DA-0039 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[39]		:=		DE10206 OR ARbDeactivateTestPB[39];
+
+(*Deactivate*)
+ARsDeactivateDescription	[40]		:=		'[ DA-0040 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[40]		:=		DE10207 OR ARbDeactivateTestPB[40];
+
+(*Deactivate*)
+ARsDeactivateDescription	[41]		:=		'[ DA-0041 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[41]		:=		DE10208 OR ARbDeactivateTestPB[41];
+
+(*Deactivate*)
+ARsDeactivateDescription	[42]		:=		'[ DA-0042 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[42]		:=		DE10209 OR ARbDeactivateTestPB[42];
+
+(*Deactivate*)
+ARsDeactivateDescription	[43]		:=		'[ DA-0043 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[43]		:=		DE10210 OR ARbDeactivateTestPB[43];
+
+(*Deactivate*)
+ARsDeactivateDescription	[44]		:=		'[ DA-0044 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[44]		:=		DE10211 OR ARbDeactivateTestPB[44];
+
+(*Deactivate*)
+ARsDeactivateDescription	[45]		:=		'[ DA-0045 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[45]		:=		DE10212 OR ARbDeactivateTestPB[45];
+
+(*Deactivate*)
+ARsDeactivateDescription	[46]		:=		'[ DA-0046 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[46]		:=		DE10213 OR ARbDeactivateTestPB[46];
+
+(*Deactivate*)
+ARsDeactivateDescription	[47]		:=		'[ DA-0047 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[47]		:=		DE10214 OR ARbDeactivateTestPB[47];
+
+(*Deactivate*)
+ARsDeactivateDescription	[48]		:=		'[ DA-0048 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[48]		:=		DE10215 OR ARbDeactivateTestPB[48];
+
+(********************************************************************************** DEACTIVATED - ( ARbDeactivateOutput[49] - ARbDeactivateOutput[64] )**********************************************************************************)
+
+(*Deactivate*)
+ARsDeactivateDescription	[49]		:=		'[ DA-0049 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[49]		:=		FALSE OR ARbDeactivateTestPB[49];
+
+(*Deactivate*)
+ARsDeactivateDescription	[50]		:=		'[ DA-0050 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[50]		:=		FALSE OR ARbDeactivateTestPB[50];
+
+(*Deactivate*)
+ARsDeactivateDescription	[51]		:=		'[ DA-0051 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[51]		:=		FALSE OR ARbDeactivateTestPB[51];
+
+(*Deactivate*)
+ARsDeactivateDescription	[52]		:=		'[ DA-0052 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[52]		:=		FALSE OR ARbDeactivateTestPB[52];
+
+(*Deactivate*)
+ARsDeactivateDescription	[53]		:=		'[ DA-0053 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[53]		:=		FALSE OR ARbDeactivateTestPB[53];
+
+(*Deactivate*)
+ARsDeactivateDescription	[54]		:=		'[ DA-0054 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[54]		:=		FALSE OR ARbDeactivateTestPB[54];
+
+(*Deactivate*)
+ARsDeactivateDescription	[55]		:=		'[ DA-0055 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[55]		:=		FALSE OR ARbDeactivateTestPB[55];
+
+(*Deactivate*)
+ARsDeactivateDescription	[56]		:=		'[ DA-0056 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[56]		:=		FALSE OR ARbDeactivateTestPB[56];
+
+(*Deactivate*)
+ARsDeactivateDescription	[57]		:=		'[ DA-0057 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[57]		:=		FALSE OR ARbDeactivateTestPB[57];
+
+(*Deactivate*)
+ARsDeactivateDescription	[58]		:=		'[ DA-0058 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[58]		:=		FALSE OR ARbDeactivateTestPB[58];
+
+(*Deactivate*)
+ARsDeactivateDescription	[59]		:=		'[ DA-0059 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[59]		:=		FALSE OR ARbDeactivateTestPB[59];
+
+(*Deactivate*)
+ARsDeactivateDescription	[60]		:=		'[ DA-0060 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[60]		:=		FALSE OR ARbDeactivateTestPB[60];
+
+(*Deactivate*)
+ARsDeactivateDescription	[61]		:=		'[ DA-0061 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[61]		:=		FALSE OR ARbDeactivateTestPB[61];
+
+(*Deactivate*)
+ARsDeactivateDescription	[62]		:=		'[ DA-0062 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[62]		:=		FALSE OR ARbDeactivateTestPB[62];
+
+(*Deactivate*)
+ARsDeactivateDescription	[63]		:=		'[ DA-0063 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[63]		:=		FALSE OR ARbDeactivateTestPB[63];
+
+(*Deactivate*)
+ARsDeactivateDescription	[64]		:=		'[ DA-0064 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[64]		:=		FALSE OR ARbDeactivateTestPB[64];
+
+(********************************************************************************** DEACTIVATED - ( ARbDeactivateOutput[65] - ARbDeactivateOutput[80] )**********************************************************************************)
+
+(*Deactivate*)
+ARsDeactivateDescription	[65]		:=		'[ DA-0065 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[65]		:=		FALSE OR ARbDeactivateTestPB[65];
+
+(*Deactivate*)
+ARsDeactivateDescription	[66]		:=		'[ DA-0066 ] OutputSignal - DEACTIVATED RESERVED ';
+ARbDeactivateOutput		[66]		:=		FALSE OR ARbDeactivateTestPB[66];
+
+(*Deactivate*)
+ARsDeactivateDescription	[67]		:=		'[ DA-0067 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[67]		:=		FALSE OR ARbDeactivateTestPB[67];
+
+(*Deactivate*)
+ARsDeactivateDescription	[68]		:=		'[ DA-0068 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[68]		:=		FALSE OR ARbDeactivateTestPB[68];
+
+(*Deactivate*)
+ARsDeactivateDescription	[69]		:=		'[ DA-0069 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[69]		:=		FALSE OR ARbDeactivateTestPB[69];
+
+(*Deactivate*)
+ARsDeactivateDescription	[70]		:=		'[ DA-0070 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[70]		:=		FALSE OR ARbDeactivateTestPB[70];
+
+(*Deactivate*)
+ARsDeactivateDescription	[71]		:=		'[ DA-0071 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[71]		:=		FALSE OR ARbDeactivateTestPB[71];
+
+(*Deactivate*)
+ARsDeactivateDescription	[72]		:=		'[ DA-0072 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[72]		:=		FALSE OR ARbDeactivateTestPB[72];
+
+(*Deactivate*)
+ARsDeactivateDescription	[73]		:=		'[ DA-0073 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[73]		:=		FALSE OR ARbDeactivateTestPB[73];
+
+(*Deactivate*)
+ARsDeactivateDescription	[74]		:=		'[ DA-0074 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[74]		:=		FALSE OR ARbDeactivateTestPB[74];
+
+(*Deactivate*)
+ARsDeactivateDescription	[75]		:=		'[ DA-0075 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[75]		:=		FALSE OR ARbDeactivateTestPB[75];
+
+(*Deactivate*)
+ARsDeactivateDescription	[76]		:=		'[ DA-0076 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[76]		:=		FALSE OR ARbDeactivateTestPB[76];
+
+(*Deactivate*)
+ARsDeactivateDescription	[77]		:=		'[ DA-0077 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[77]		:=		FALSE OR ARbDeactivateTestPB[77];
+
+(*Deactivate*)
+ARsDeactivateDescription	[78]		:=		'[ DA-0078 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[78]		:=		FALSE OR ARbDeactivateTestPB[78];
+
+(*Deactivate*)
+ARsDeactivateDescription	[79]		:=		'[ DA-0079 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[79]		:=		FALSE OR ARbDeactivateTestPB[79];
+
+(*Deactivate*)
+ARsDeactivateDescription	[80]		:=		'[ DA-0080 ] OutputSignal - Alarm Buzzer for Vacuum Disable ';
+ARbDeactivateOutput		[80]		:=		bAlarmDeactivated OR ARbDeactivateTestPB[80];
+
+(********************************************************************************** DEACTIVATED - ( ARbDeactivateOutput[81] - ARbDeactivateOutput[96] )**********************************************************************************)
+
+(*Deactivate*)
+ARsDeactivateDescription	[81]		:=		'[ DA-0081 ] OutputSignal - Arm 1 MissHook Sensor ByPass 1';
+ARbDeactivateOutput		[81]		:=		ARbArmMissHookByPass1[1] OR ARbDeactivateTestPB[81];
+
+(*Deactivate*)
+ARsDeactivateDescription	[82]		:=		'[ DA-0082 ] OutputSignal - Arm 1 MissHook Sensor ByPass 2';
+ARbDeactivateOutput		[82]		:=		ARbArmMissHookByPass2[1] OR ARbDeactivateTestPB[82];
+
+(*Deactivate*)
+ARsDeactivateDescription	[83]		:=		'[ DA-0083 ] OutputSignal - Safety Curtain Sensor Bypass';
+ARbDeactivateOutput		[83]		:=		bSafetyDoorSensorBypass OR ARbDeactivateTestPB[83];
+
+(*Deactivate*)
+ARsDeactivateDescription	[84]		:=		'[ DA-0084 ] OutputSignal - Arm 1 Crash Sensor ByPass';
+ARbDeactivateOutput		[84]		:=		ARbArmCrashByPass[1] OR ARbDeactivateTestPB[84];
+
+(*Deactivate*)
+ARsDeactivateDescription	[85]		:=		'[ DA-0085 ] OutputSignal - Conductivity Sensor Bypass';
+ARbDeactivateOutput		[85]		:=		ARbConductivityBypass[1] OR ARbDeactivateTestPB[85];
+
+(*Deactivate*)
+ARsDeactivateDescription	[86]		:=		'[ DA-0086 ] OutputSignal - Arm 2 MissHook Sensor ByPass 1';
+ARbDeactivateOutput		[86]		:=		ARbArmMissHookByPass1[2] OR ARbDeactivateTestPB[86];
+
+(*Deactivate*)
+ARsDeactivateDescription	[87]		:=		'[ DA-0087 ] OutputSignal - Arm 2 MissHook Sensor ByPass 2';
+ARbDeactivateOutput		[87]		:=		ARbArmMissHookByPass2[2] OR ARbDeactivateTestPB[87];
+
+(*Deactivate*)
+ARsDeactivateDescription	[88]		:=		'[ DA-0088 ] OutputSignal - Arm 2 Crash Sensor ByPass';
+ARbDeactivateOutput		[88]		:=		ARbArmCrashByPass[2] OR ARbDeactivateTestPB[88];
+
+(*Deactivate*)
+ARsDeactivateDescription	[89]		:=		'[ DA-0089 ] OutputSignal - Stn 1 Incoming DI Valve Disable ';
+ARbDeactivateOutput		[89]		:=		ARbIncomingDIValveBasedDetergent[1] OR ARbDeactivateTestPB[89];
+
+(*Deactivate*)
+ARsDeactivateDescription	[90]		:=		'[ DA-0090 ] OutputSignal - Stn 2 Incoming DI Valve Disable ';
+ARbDeactivateOutput		[90]		:=		ARbIncomingDIValveBasedDetergent[2] OR ARbDeactivateTestPB[90];
+
+(*Deactivate*)
+ARsDeactivateDescription	[91]		:=		'[ DA-0091 ] OutputSignal - Barcode Function Disable';
+ARbDeactivateOutput		[91]		:=		bBarcodeBypass OR ARbDeactivateTestPB[91];
+
+(*Deactivate*)
+ARsDeactivateDescription	[92]		:=		'[ DA-0092 ] OutputSignal - Unloading Buzzer Disable ';
+ARbDeactivateOutput		[92]		:=		bUnloadingBuzzerDisable OR ARbDeactivateTestPB[92];
+
+(*Deactivate*)
+ARsDeactivateDescription	[93]		:=		'[ DA-0093 ] OutputSignal - Station 11 Function Disable ';
+ARbDeactivateOutput		[93]		:=		ARbStationFunctionBypass[1] OR ARbDeactivateTestPB[93];
+
+(*Deactivate*)
+ARsDeactivateDescription	[94]		:=		'[ DA-0094 ] OutputSignal - Station 12 Function Disable ';
+ARbDeactivateOutput		[94]		:=		ARbStationFunctionBypass[2] OR ARbDeactivateTestPB[94];
+
+(*Deactivate*)
+ARsDeactivateDescription	[95]		:=		'[ DA-0095 ] OutputSignal - Station 13 Function Disable ';
+ARbDeactivateOutput		[95]		:=		ARbStationFunctionBypass[3] OR ARbDeactivateTestPB[95];
+
+(*Deactivate*)
+ARsDeactivateDescription	[96]		:=		'[ DA-0096 ] OutputSignal - Station 14 Function Disable ';
+ARbDeactivateOutput		[96]		:=		ARbStationFunctionBypass[4] OR ARbDeactivateTestPB[96];
+
+(*Deactivate*)
+ARsDeactivateDescription	[97]		:=		'[ DA-0097 ] OutputSignal - Station 15 Function Disable ';
+ARbDeactivateOutput		[97]		:=		ARbStationFunctionBypass[5] OR ARbDeactivateTestPB[97];
+
+(*Deactivate*)
+ARsDeactivateDescription	[98]		:=		'[ DA-0098 ] OutputSignal - Station 16 Function Disable ';
+ARbDeactivateOutput		[98]		:=		ARbStationFunctionBypass[6] OR ARbDeactivateTestPB[98];
+
+(*Deactivate*)
+ARsDeactivateDescription	[99]		:=		'[ DA-0099 ] OutputSignal - Station 17 Function Disable ';
+ARbDeactivateOutput		[99]		:=		ARbStationFunctionBypass[7] OR ARbDeactivateTestPB[99];
+
+(*Deactivate*)
+ARsDeactivateDescription	[100]	:=		'[ DA-0100 ] OutputSignal - Unloading Basket Present - PLEASE IMMEDIATELY UNLOAD THE BASKET ';
+ARbDeactivateOutput		[100]	:=		Y100_03 OR ARbDeactivateTestPB[100];
+(*
+(*Deactivate*)
+ARsDeactivateDescription	[101]		:=		'[ DA-0101 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[101]		:=		FALSE or ARbDeactivateTestPB[101];
+
+(*Deactivate*)
+ARsDeactivateDescription	[102]		:=		'[ DA-0102 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[102]		:=		FALSE or ARbDeactivateTestPB[102];
+
+(*Deactivate*)
+ARsDeactivateDescription	[103]		:=		'[ DA-0103 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[103]		:=		FALSE or ARbDeactivateTestPB[103];
+
+(*Deactivate*)
+ARsDeactivateDescription	[104]		:=		'[ DA-0104 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[104]		:=		FALSE or ARbDeactivateTestPB[104];
+
+(*Deactivate*)
+ARsDeactivateDescription	[105]		:=		'[ DA-0105 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[105]		:=		FALSE or ARbDeactivateTestPB[105];
+
+(*Deactivate*)
+ARsDeactivateDescription	[106]		:=		'[ DA-0106 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[106]		:=		FALSE or ARbDeactivateTestPB[106];
+
+(*Deactivate*)
+ARsDeactivateDescription	[107]		:=		'[ DA-0107 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[107]		:=		FALSE or ARbDeactivateTestPB[107];
+
+(*Deactivate*)
+ARsDeactivateDescription	[108]		:=		'[ DA-0108 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[108]		:=		FALSE or ARbDeactivateTestPB[108];
+
+(*Deactivate*)
+ARsDeactivateDescription	[109]		:=		'[ DA-0109 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[109]		:=		FALSE or ARbDeactivateTestPB[109];
+
+(*Deactivate*)
+ARsDeactivateDescription	[110]		:=		'[ DA-0110 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[110]		:=		FALSE or ARbDeactivateTestPB[110];
+
+(*Deactivate*)
+ARsDeactivateDescription	[111]		:=		'[ DA-0111 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[111]		:=		FALSE or ARbDeactivateTestPB[111];
+
+(*Deactivate*)
+ARsDeactivateDescription	[112]		:=		'[ DA-0112 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[112]		:=		FALSE or ARbDeactivateTestPB[112];
+
+(*Deactivate*)
+ARsDeactivateDescription	[113]		:=		'[ DA-0113 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[113]		:=		FALSE or ARbDeactivateTestPB[113];
+
+(*Deactivate*)
+ARsDeactivateDescription	[114]		:=		'[ DA-0114 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[114]		:=		FALSE or ARbDeactivateTestPB[114];
+
+(*Deactivate*)
+ARsDeactivateDescription	[115]		:=		'[ DA-0115 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[115]		:=		FALSE or ARbDeactivateTestPB[115];
+
+(*Deactivate*)
+ARsDeactivateDescription	[116]		:=		'[ DA-0116 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[116]		:=		FALSE or ARbDeactivateTestPB[116];
+
+(*Deactivate*)
+ARsDeactivateDescription	[117]		:=		'[ DA-0117 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[117]		:=		FALSE or ARbDeactivateTestPB[117];
+
+(*Deactivate*)
+ARsDeactivateDescription	[118]		:=		'[ DA-0118 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[118]		:=		FALSE or ARbDeactivateTestPB[118];
+
+(*Deactivate*)
+ARsDeactivateDescription	[119]		:=		'[ DA-0119 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[119]		:=		FALSE or ARbDeactivateTestPB[119];
+
+(*Deactivate*)
+ARsDeactivateDescription	[120]		:=		'[ DA-0120 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[120]		:=		FALSE or ARbDeactivateTestPB[120];
+
+(*Deactivate*)
+ARsDeactivateDescription	[121]		:=		'[ DA-0121 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[121]		:=		FALSE or ARbDeactivateTestPB[121];
+
+(*Deactivate*)
+ARsDeactivateDescription	[122]		:=		'[ DA-0122 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[122]		:=		FALSE or ARbDeactivateTestPB[122];
+
+(*Deactivate*)
+ARsDeactivateDescription	[123]		:=		'[ DA-0123 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[123]		:=		FALSE or ARbDeactivateTestPB[123];
+
+(*Deactivate*)
+ARsDeactivateDescription	[124]		:=		'[ DA-0124 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[124]		:=		FALSE or ARbDeactivateTestPB[124];
+
+(*Deactivate*)
+ARsDeactivateDescription	[125]		:=		'[ DA-0125 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[125]		:=		FALSE or ARbDeactivateTestPB[125];
+
+(*Deactivate*)
+ARsDeactivateDescription	[126]		:=		'[ DA-0126 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[126]		:=		FALSE or ARbDeactivateTestPB[126];
+
+(*Deactivate*)
+ARsDeactivateDescription	[127]		:=		'[ DA-0127 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[127]		:=		FALSE or ARbDeactivateTestPB[127];
+
+(*Deactivate*)
+ARsDeactivateDescription	[128]		:=		'[ DA-0128 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[128]		:=		FALSE or ARbDeactivateTestPB[128];
+
+(*Deactivate*)
+ARsDeactivateDescription	[129]		:=		'[ DA-0129 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[129]		:=		FALSE or ARbDeactivateTestPB[129];
+
+(*Deactivate*)
+ARsDeactivateDescription	[130]		:=		'[ DA-0130 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[130]		:=		FALSE or ARbDeactivateTestPB[130];
+
+(*Deactivate*)
+ARsDeactivateDescription	[131]		:=		'[ DA-0131 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[131]		:=		FALSE or ARbDeactivateTestPB[131];
+
+(*Deactivate*)
+ARsDeactivateDescription	[132]		:=		'[ DA-0132 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[132]		:=		FALSE or ARbDeactivateTestPB[132];
+
+(*Deactivate*)
+ARsDeactivateDescription	[133]		:=		'[ DA-0133 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[133]		:=		FALSE or ARbDeactivateTestPB[133];
+
+(*Deactivate*)
+ARsDeactivateDescription	[134]		:=		'[ DA-0134 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[134]		:=		FALSE or ARbDeactivateTestPB[134];
+
+(*Deactivate*)
+ARsDeactivateDescription	[135]		:=		'[ DA-0135 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[135]		:=		FALSE or ARbDeactivateTestPB[135];
+
+(*Deactivate*)
+ARsDeactivateDescription	[136]		:=		'[ DA-0136 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[136]		:=		FALSE or ARbDeactivateTestPB[136];
+
+(*Deactivate*)
+ARsDeactivateDescription	[137]		:=		'[ DA-0137 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[137]		:=		FALSE or ARbDeactivateTestPB[137];
+
+(*Deactivate*)
+ARsDeactivateDescription	[138]		:=		'[ DA-0138 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[138]		:=		FALSE or ARbDeactivateTestPB[138];
+
+(*Deactivate*)
+ARsDeactivateDescription	[139]		:=		'[ DA-0139 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[139]		:=		FALSE or ARbDeactivateTestPB[139];
+
+(*Deactivate*)
+ARsDeactivateDescription	[140]		:=		'[ DA-0140 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[140]		:=		FALSE or ARbDeactivateTestPB[140];
+
+(*Deactivate*)
+ARsDeactivateDescription	[141]		:=		'[ DA-0141 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[141]		:=		FALSE or ARbDeactivateTestPB[141];
+
+(*Deactivate*)
+ARsDeactivateDescription	[142]		:=		'[ DA-0142 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[142]		:=		FALSE or ARbDeactivateTestPB[142];
+
+(*Deactivate*)
+ARsDeactivateDescription	[143]		:=		'[ DA-0143 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[143]		:=		FALSE or ARbDeactivateTestPB[143];
+
+(*Deactivate*)
+ARsDeactivateDescription	[144]		:=		'[ DA-0144 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[144]		:=		FALSE or ARbDeactivateTestPB[144];
+
+(*Deactivate*)
+ARsDeactivateDescription	[145]		:=		'[ DA-0145 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[145]		:=		FALSE or ARbDeactivateTestPB[145];
+
+(*Deactivate*)
+ARsDeactivateDescription	[146]		:=		'[ DA-0146 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[146]		:=		FALSE or ARbDeactivateTestPB[146];
+
+(*Deactivate*)
+ARsDeactivateDescription	[147]		:=		'[ DA-0147 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[147]		:=		FALSE or ARbDeactivateTestPB[147];
+
+(*Deactivate*)
+ARsDeactivateDescription	[148]		:=		'[ DA-0148 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[148]		:=		FALSE or ARbDeactivateTestPB[148];
+
+(*Deactivate*)
+ARsDeactivateDescription	[149]		:=		'[ DA-0149 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[149]		:=		FALSE or ARbDeactivateTestPB[149];
+
+(*Deactivate*)
+ARsDeactivateDescription	[150]		:=		'[ DA-0150 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[150]		:=		FALSE or ARbDeactivateTestPB[150];
+
+(*Deactivate*)
+ARsDeactivateDescription	[151]		:=		'[ DA-0151 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[151]		:=		FALSE or ARbDeactivateTestPB[151];
+
+(*Deactivate*)
+ARsDeactivateDescription	[152]		:=		'[ DA-0152 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[152]		:=		FALSE or ARbDeactivateTestPB[152];
+
+(*Deactivate*)
+ARsDeactivateDescription	[153]		:=		'[ DA-0153 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[153]		:=		FALSE or ARbDeactivateTestPB[153];
+
+(*Deactivate*)
+ARsDeactivateDescription	[154]		:=		'[ DA-0154 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[154]		:=		FALSE or ARbDeactivateTestPB[154];
+
+(*Deactivate*)
+ARsDeactivateDescription	[155]		:=		'[ DA-0155 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[155]		:=		FALSE or ARbDeactivateTestPB[155];
+
+(*Deactivate*)
+ARsDeactivateDescription	[156]		:=		'[ DA-0156 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[156]		:=		FALSE or ARbDeactivateTestPB[156];
+
+(*Deactivate*)
+ARsDeactivateDescription	[157]		:=		'[ DA-0157 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[157]		:=		FALSE or ARbDeactivateTestPB[157];
+
+(*Deactivate*)
+ARsDeactivateDescription	[158]		:=		'[ DA-0158 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[158]		:=		FALSE or ARbDeactivateTestPB[158];
+
+(*Deactivate*)
+ARsDeactivateDescription	[159]		:=		'[ DA-0159 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[159]		:=		FALSE or ARbDeactivateTestPB[159];
+
+(*Deactivate*)
+ARsDeactivateDescription	[160]		:=		'[ DA-0160 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[160]		:=		FALSE or ARbDeactivateTestPB[160];
+
+(*Deactivate*)
+ARsDeactivateDescription	[161]		:=		'[ DA-0161 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[161]		:=		FALSE or ARbDeactivateTestPB[161];
+
+(*Deactivate*)
+ARsDeactivateDescription	[162]		:=		'[ DA-0162 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[162]		:=		FALSE or ARbDeactivateTestPB[162];
+
+(*Deactivate*)
+ARsDeactivateDescription	[163]		:=		'[ DA-0163 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[163]		:=		FALSE or ARbDeactivateTestPB[163];
+
+(*Deactivate*)
+ARsDeactivateDescription	[164]		:=		'[ DA-0164 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[164]		:=		FALSE or ARbDeactivateTestPB[164];
+
+(*Deactivate*)
+ARsDeactivateDescription	[165]		:=		'[ DA-0165 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[165]		:=		FALSE or ARbDeactivateTestPB[165];
+
+(*Deactivate*)
+ARsDeactivateDescription	[166]		:=		'[ DA-0166 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[166]		:=		FALSE or ARbDeactivateTestPB[166];
+
+(*Deactivate*)
+ARsDeactivateDescription	[167]		:=		'[ DA-0167 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[167]		:=		FALSE or ARbDeactivateTestPB[167];
+
+(*Deactivate*)
+ARsDeactivateDescription	[168]		:=		'[ DA-0168 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[168]		:=		FALSE or ARbDeactivateTestPB[168];
+
+(*Deactivate*)
+ARsDeactivateDescription	[169]		:=		'[ DA-0169 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[169]		:=		FALSE or ARbDeactivateTestPB[169];
+
+(*Deactivate*)
+ARsDeactivateDescription	[170]		:=		'[ DA-0170 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[170]		:=		FALSE or ARbDeactivateTestPB[170];
+
+(*Deactivate*)
+ARsDeactivateDescription	[171]		:=		'[ DA-0171 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[171]		:=		FALSE or ARbDeactivateTestPB[171];
+
+(*Deactivate*)
+ARsDeactivateDescription	[172]		:=		'[ DA-0172 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[172]		:=		FALSE or ARbDeactivateTestPB[172];
+
+(*Deactivate*)
+ARsDeactivateDescription	[173]		:=		'[ DA-0173 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[173]		:=		FALSE or ARbDeactivateTestPB[173];
+
+(*Deactivate*)
+ARsDeactivateDescription	[174]		:=		'[ DA-0174 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[174]		:=		FALSE or ARbDeactivateTestPB[174];
+
+(*Deactivate*)
+ARsDeactivateDescription	[175]		:=		'[ DA-0175 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[175]		:=		FALSE or ARbDeactivateTestPB[175];
+
+(*Deactivate*)
+ARsDeactivateDescription	[176]		:=		'[ DA-0176 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[176]		:=		FALSE or ARbDeactivateTestPB[176];
+
+(*Deactivate*)
+ARsDeactivateDescription	[177]		:=		'[ DA-0177 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[177]		:=		FALSE or ARbDeactivateTestPB[177];
+
+(*Deactivate*)
+ARsDeactivateDescription	[178]		:=		'[ DA-0178 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[178]		:=		FALSE or ARbDeactivateTestPB[178];
+
+(*Deactivate*)
+ARsDeactivateDescription	[179]		:=		'[ DA-0179 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[179]		:=		FALSE or ARbDeactivateTestPB[179];
+
+(*Deactivate*)
+ARsDeactivateDescription	[180]		:=		'[ DA-0180 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[180]		:=		FALSE or ARbDeactivateTestPB[180];
+
+(*Deactivate*)
+ARsDeactivateDescription	[181]		:=		'[ DA-0181 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[181]		:=		FALSE or ARbDeactivateTestPB[181];
+
+(*Deactivate*)
+ARsDeactivateDescription	[182]		:=		'[ DA-0182 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[182]		:=		FALSE or ARbDeactivateTestPB[182];
+
+(*Deactivate*)
+ARsDeactivateDescription	[183]		:=		'[ DA-0183 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[183]		:=		FALSE or ARbDeactivateTestPB[183];
+
+(*Deactivate*)
+ARsDeactivateDescription	[184]		:=		'[ DA-0184 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[184]		:=		FALSE or ARbDeactivateTestPB[184];
+
+(*Deactivate*)
+ARsDeactivateDescription	[185]		:=		'[ DA-0185 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[185]		:=		FALSE or ARbDeactivateTestPB[185];
+
+(*Deactivate*)
+ARsDeactivateDescription	[186]		:=		'[ DA-0186 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[186]		:=		FALSE or ARbDeactivateTestPB[186];
+
+(*Deactivate*)
+ARsDeactivateDescription	[187]		:=		'[ DA-0187 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[187]		:=		FALSE or ARbDeactivateTestPB[187];
+
+(*Deactivate*)
+ARsDeactivateDescription	[188]		:=		'[ DA-0188 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[188]		:=		FALSE or ARbDeactivateTestPB[188];
+
+(*Deactivate*)
+ARsDeactivateDescription	[189]		:=		'[ DA-0189 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[189]		:=		FALSE or ARbDeactivateTestPB[189];
+
+(*Deactivate*)
+ARsDeactivateDescription	[190]		:=		'[ DA-0190 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[190]		:=		FALSE or ARbDeactivateTestPB[190];
+
+(*Deactivate*)
+ARsDeactivateDescription	[191]		:=		'[ DA-0191 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[191]		:=		FALSE or ARbDeactivateTestPB[191];
+
+(*Deactivate*)
+ARsDeactivateDescription	[192]		:=		'[ DA-0192 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[192]		:=		FALSE or ARbDeactivateTestPB[192];
+
+(*Deactivate*)
+ARsDeactivateDescription	[193]		:=		'[ DA-0193 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[193]		:=		FALSE or ARbDeactivateTestPB[193];
+
+(*Deactivate*)
+ARsDeactivateDescription	[194]		:=		'[ DA-0194 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[194]		:=		FALSE or ARbDeactivateTestPB[194];
+
+(*Deactivate*)
+ARsDeactivateDescription	[195]		:=		'[ DA-0195 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[195]		:=		FALSE or ARbDeactivateTestPB[195];
+
+(*Deactivate*)
+ARsDeactivateDescription	[196]		:=		'[ DA-0196 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[196]		:=		FALSE or ARbDeactivateTestPB[196];
+
+(*Deactivate*)
+ARsDeactivateDescription	[197]		:=		'[ DA-0197 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[197]		:=		FALSE or ARbDeactivateTestPB[197];
+
+(*Deactivate*)
+ARsDeactivateDescription	[198]		:=		'[ DA-0198 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[198]		:=		FALSE or ARbDeactivateTestPB[198];
+
+(*Deactivate*)
+ARsDeactivateDescription	[199]		:=		'[ DA-0199 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[199]		:=		FALSE or ARbDeactivateTestPB[199];
+
+(*Deactivate*)
+ARsDeactivateDescription	[200]		:=		'[ DA-0200 ] OutputSignal - Reserved';
+ARbDeactivateOutput		[200]		:=		FALSE or ARbDeactivateTestPB[200];
+*)
+*)]]></ST>
+    </Implementation>
+    <LineIds Name="DeactivateCtrl">
+      <LineId Id="879" Count="0" />
+      <LineId Id="878" Count="0" />
+      <LineId Id="823" Count="41" />
+      <LineId Id="820" Count="0" />
+      <LineId Id="866" Count="0" />
+      <LineId Id="821" Count="1" />
+      <LineId Id="867" Count="1" />
+      <LineId Id="872" Count="2" />
+      <LineId Id="818" Count="0" />
+      <LineId Id="4" Count="810" />
+      <LineId Id="819" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

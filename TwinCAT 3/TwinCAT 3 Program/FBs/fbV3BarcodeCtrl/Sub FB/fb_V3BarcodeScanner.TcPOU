@@ -1,0 +1,191 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fb_V3BarcodeScanner" Id="{de29c307-67d5-4d56-932b-af7596d2d597}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fb_V3BarcodeScanner
+VAR_INPUT
+	b1stBasketMemoryFlag		: BOOL;
+	bHandHeldBarcodeScannerEn : BOOL;
+	bFixedTypeBarcodeScannerEn : BOOL;
+	bON_ForHandHeldTypeOnly : BOOL;
+	bON_ForFixedTypeOnly : BOOL;
+
+END_VAR
+
+VAR_OUTPUT
+	sReceivedString : STRING;
+
+END_VAR
+
+VAR_IN_OUT
+END_VAR
+
+VAR
+	bEnable  						: BOOL;
+	bSendString						: BOOL;
+	tOn_1s							: TON;
+	tOn_Delay						: TON;
+	tOff_Refresh						: TON;
+
+	bOn							: BOOL;
+
+	tOn_DelayRE						: R_TRIG;
+	tOff_RefreshRE					: R_TRIG;
+
+	byStep							: BYTE;
+
+	fbReceiveString 					: ReceiveString;
+	fbReceiveString_Rst				: BOOL;
+	fbReceiveString_StrRcv			: BOOL;
+
+	fbSendString255					: SendString;
+	Busy							: BOOL;
+	Error							: comerror_t;
+
+	sDelimiteChar					: STRING:='$R';
+	sReceivedStringRaw				: STRING;
+	iReceivedStingProcess			: INT;
+
+	(*sReceivedStringRaw2				: STRING;*)
+
+	SerialLineControl : SerialLineControl;
+
+	SerInDataCom		AT%I*		: EL6inData22B;
+	SerOutDataCom		AT%Q*		: EL6OutData22B;
+	BufferReadCom					: ComBuffer;
+	BufferWriteCom					: ComBuffer;
+
+	sSendString						: STRING;
+
+	tReceivedString_DelayReset		: TON;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* To determine whether use FixedType or Handheld Barcode Scanner*)
+
+IF NOT bHandHeldBarcodeScannerEn AND bFixedTypeBarcodeScannerEn AND bON_ForFixedTypeOnly THEN
+bON := TRUE;
+ELSE
+bON := FALSE;
+END_IF
+
+(*** for FixedType Scanner***)
+IF NOT bHandHeldBarcodeScannerEn AND bFixedTypeBarcodeScannerEn THEN
+
+			(*bON is "ON" --> Trigger 1 time sending*)
+			
+			tOn_Delay(IN:=bON, PT:=t#0.5s , Q=> , ET=> );
+
+			tOn_DelayRE(CLK:=tOn_Delay.Q AND bON,Q=>);
+			IF tOn_DelayRE.Q THEN
+				byStep:= 10;
+			END_IF
+
+			(*bON is "OFF" --> Trigger always OFF reflash*)
+
+			tOff_Refresh(IN:=NOT tOff_Refresh.Q AND NOT bON, PT:=t#1s , Q=> , ET=> );
+
+			tOff_RefreshRE(CLK:=tOff_Refresh.Q AND NOT bON,Q=>);
+			IF tOff_RefreshRE.Q THEN
+				byStep:= 20;
+			END_IF
+
+			IF bEnable THEN
+				CASE byStep OF
+				0:;
+			
+				10:
+				sSendString:=CONCAT('LON','$R'); (*ON*)
+				byStep:=0;
+
+				20:
+				sSendString:=CONCAT('LOFF','$R'); (*OFF*)
+				byStep:=0;
+			
+			END_CASE
+
+			END_IF
+
+		(*Send String*)
+		tOn_1s(IN:=NOT  tOn_1s.Q, PT:=t#1s , Q=> , ET=> );
+		bSendString:=tOn_1s.Q;
+
+		IF bSendString AND NOT fbSendString255.Busy THEN
+		fbSendString255(
+			SendString:=sSendString ,
+			TXbuffer:=BufferWriteCom,
+			Busy=>Busy ,
+			Error=> Error);
+		END_IF
+
+		IF bON AND b1stBasketMemoryFlag THEN
+		(*this will find where is the $R located in the string*)
+		iReceivedStingProcess:=FIND(sReceivedStringRaw, sDelimiteChar);
+
+		(*after you know the location, you can move the string to another string according to the size*)
+		sReceivedString:=LEFT(sReceivedStringRaw, iReceivedStingProcess-1);
+
+		ELSE
+
+		sReceivedString := '';
+		sReceivedStringRaw:='';
+
+		END_IF
+
+
+(*** for HandheldType Scanner***)
+ELSIF  bHandHeldBarcodeScannerEn AND NOT bFixedTypeBarcodeScannerEn THEN
+
+		tReceivedString_DelayReset(IN:= (sReceivedString <> '') AND NOT b1stBasketMemoryFlag , PT:=t#3.0s , Q=> , ET=> );
+
+		IF bON_ForHandHeldTypeOnly (*AND b1stBasketMemoryFlag*) AND NOT tReceivedString_DelayReset.Q THEN
+		(*this will find where is the $R located in the string*)
+		iReceivedStingProcess:=FIND(sReceivedStringRaw, sDelimiteChar);
+
+		(*after you know the location, you can move the string to another string according to the size*)
+		sReceivedString:=LEFT(sReceivedStringRaw, iReceivedStingProcess-1);
+
+		ELSIF tReceivedString_DelayReset.Q THEN
+
+		sReceivedString:='';
+		sReceivedStringRaw:='';
+
+		ELSE
+
+		sReceivedString:='';
+		sReceivedStringRaw:='';
+
+		END_IF
+
+ELSE
+		sReceivedString:='';
+		sReceivedStringRaw:='';
+
+
+END_IF
+
+fbReceiveString(
+	Prefix:='' ,
+	Suffix:='$R',
+	Timeout:=t#1s ,
+	Reset:=fbReceiveString_Rst ,
+	ReceivedString:=sReceivedStringRaw ,
+	RXbuffer:=BufferReadCom ,
+	StringReceived=>fbReceiveString_StrRcv ,
+	Busy=> ,
+	Error=> ,
+	RxTimeout=> );
+
+SerialLineControl(
+	Mode:= SERIALLINEMODE_EL6_22B ,
+	pComIn:= ADR(SerInDataCom) ,
+	pComOut:= ADR(SerOutDataCom) ,
+	SizeComIn:= SIZEOF(SerInDataCom),
+	TxBuffer:= BufferWriteCom ,
+	RxBuffer:= BufferReadCom,
+	Error=> , 
+	ErrorID=> );]]></ST>
+    </Implementation>
+    <LineIds Name="fb_V3BarcodeScanner">
+      <LineId Id="57" Count="123" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

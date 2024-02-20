@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbBasketTotalizer" Id="{3701b94e-20b3-4b81-85db-7e912b293e63}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbBasketTotalizer
+VAR_INPUT
+	bEnable : BOOL; (* Counting will take place if enable*)
+	bBasketAvailibility : BOOL;
+	bReset : BOOL; 				(*TRUE will reset the total basket qty*)
+	bResetLog : BOOL; 			(*TRUE will reset the total basket qty*)
+	bDailyAutoResetEn : BOOL; 	(*TRUE if Daily Auto Reset is needed*)
+END_VAR
+
+VAR_IN_OUT
+	wAutoStartHourSV : WORD; 	(*[Hour: 0..23]*)
+	wAutoDurationHourSV : WORD; 	(*[Hour: 0..23]*)
+
+END_VAR
+
+VAR_OUTPUT PERSISTENT
+	diTotalBasketQty : DINT;
+	diPreviousTotalBasketQtyLog : DINT;
+END_VAR
+VAR
+	TMOUT	: TIME := DEFAULT_ADS_TIMEOUT;(* Max fb execution time *)
+	BUSY		: BOOL;
+	ERR		: BOOL;
+	ERRID		: UDINT;
+	TIMESTR	: TIMESTRUCT;(* Local windows system time *)
+	NTGetTime: NT_GetTime;
+	t1SClockPulse: TON;
+	t1SClockPulse_RE: R_TRIG;
+	bAutoResetEn_RE: R_TRIG;
+	bReset_RE: R_TRIG;
+	bResetLog_RE: R_TRIG;
+	bCountEn_FE: F_TRIG;
+	tResetLog: TON;
+
+	wEndTimeHourSV: WORD;
+	bCountEnable: BOOL;
+	bEndGTStartFlag: BOOL;
+	bEndLTStartFlag: BOOL;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[t1SClockPulse(IN:=NOT t1SClockPulse.Q , PT:=t#1s , Q=> , ET=> );
+t1SClockPulse_RE(CLK:=t1SClockPulse.Q , Q=> );
+NTGetTime(
+	NETID:= ,
+	START:=t1SClockPulse_RE.Q ,
+	TMOUT:=TMOUT ,
+	BUSY=>BUSY ,
+	ERR=>ERR ,
+	ERRID=> ERRID,
+	TIMESTR=>TIMESTR );
+
+IF wAutoStartHourSV > 23 THEN
+wAutoStartHourSV := 23;
+END_IF
+
+IF wAutoDurationHourSV > 23 THEN
+wAutoDurationHourSV := 23;
+END_IF
+
+IF wAutoDurationHourSV < 1 THEN
+wAutoDurationHourSV := 1;
+END_IF
+
+IF (wAutoStartHourSV + wAutoDurationHourSV) >= 24 THEN
+wEndTimeHourSV :=  (wAutoStartHourSV + wAutoDurationHourSV) - 24;
+ELSE
+wEndTimeHourSV :=  (wAutoStartHourSV + wAutoDurationHourSV);
+END_IF
+
+IF  wAutoStartHourSV < wEndTimeHourSV AND  (wAutoStartHourSV <= TIMESTR.wHour AND wEndTimeHourSV > TIMESTR.wHour) THEN
+bEndGTStartFlag := TRUE;
+bEndLTStartFlag := FALSE;
+bCountEnable := TRUE;
+ELSIF wAutoStartHourSV > wEndTimeHourSV AND (wAutoStartHourSV <= TIMESTR.wHour OR wEndTimeHourSV > TIMESTR.wHour) THEN
+bEndGTStartFlag := FALSE;
+bEndLTStartFlag := TRUE;
+bCountEnable := TRUE;
+ELSE
+bEndGTStartFlag := FALSE;
+bEndLTStartFlag := FALSE;
+bCountEnable := FALSE;
+END_IF
+
+
+bAutoResetEn_RE(
+CLK:=	(((*bEndGTStartFlag AND*) TIMESTR.wHour >= wEndTimeHourSV) OR
+		((*bEndLTStartFlag AND*) TIMESTR.wHour >= wEndTimeHourSV AND TIMESTR.wHour < wAutoStartHourSV )) AND bDailyAutoResetEn , Q=> );
+bReset_RE(CLK:=bReset , Q=> );
+bCountEn_FE(CLK:=bBasketAvailibility , Q=> );
+tResetLog(IN:=bResetLog , PT:= t#3s, Q=> , ET=> );
+bResetLog_RE(CLK:=tResetLog.Q , Q=> );
+
+IF bReset_RE.Q THEN
+diTotalBasketQty := 0;
+END_IF
+
+IF bResetLog_RE.Q THEN
+diPreviousTotalBasketQtyLog := 0;
+END_IF
+
+IF  bAutoResetEn_RE.Q THEN
+diPreviousTotalBasketQtyLog := diTotalBasketQty;
+diTotalBasketQty := 0;
+END_IF
+(*
+IF  bAutoResetEn_RE.Q OR bReset_RE.Q THEN
+diPreviousTotalBasketQtyLog := diTotalBasketQty;
+diTotalBasketQty := 0;
+END_IF
+*)
+IF bCountEn_FE.Q AND bEnable AND (NOT bDailyAutoResetEn OR bCountEnable) THEN
+diTotalBasketQty := diTotalBasketQty +1;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbBasketTotalizer">
+      <LineId Id="40" Count="72" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_DSMovementHandler" Id="{cea6ba3d-fca0-45e5-8445-63e46c25c6bf}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_DSMovementHandler
+VAR_INPUT
+	bCondition1 : BOOL;
+	bCondition2 : BOOL;
+	bCondition3 : BOOL;
+	bCondition4 : BOOL;
+	bCondition5 : BOOL;
+	bCondition6 : BOOL;
+	bCondition7 : BOOL;
+	bCondition8 : BOOL;
+	bCondition9 : BOOL;
+	bCondition10 : BOOL;
+
+	DSMovement1 : DS_SA_Movement;
+	DSMovement2 : DS_SA_Movement;
+	DSMovement3 : DS_SA_Movement;
+	DSMovement4 : DS_SA_Movement;
+	DSMovement5 : DS_SA_Movement;
+	DSMovement6 : DS_SA_Movement;
+	DSMovement7 : DS_SA_Movement;
+	DSMovement8 : DS_SA_Movement;
+	DSMovement9 : DS_SA_Movement;
+	DSMovement10 : DS_SA_Movement;
+	DSMovementDefault : DS_SA_Movement;
+END_VAR
+VAR_OUTPUT
+	iCurrentConditionNo : INT;
+	DS_Movement_Result : DS_SA_Movement;
+
+END_VAR
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF bCondition1 THEN
+DS_Movement_Result := DSMovement1;
+iCurrentConditionNo := 1;
+
+ELSIF bCondition2 THEN
+DS_Movement_Result := DSMovement2;
+iCurrentConditionNo := 2;
+
+ELSIF bCondition3 THEN
+DS_Movement_Result := DSMovement3;
+iCurrentConditionNo := 3;
+
+ELSIF bCondition4 THEN
+DS_Movement_Result := DSMovement4;
+iCurrentConditionNo := 4;
+
+ELSIF bCondition5 THEN
+DS_Movement_Result := DSMovement5;
+iCurrentConditionNo := 5;
+
+ELSIF bCondition6 THEN
+DS_Movement_Result := DSMovement6;
+iCurrentConditionNo := 6;
+
+ELSIF bCondition7 THEN
+DS_Movement_Result := DSMovement7;
+iCurrentConditionNo := 7;
+
+ELSIF bCondition8 THEN
+DS_Movement_Result := DSMovement8;
+iCurrentConditionNo := 8;
+
+ELSIF bCondition9 THEN
+DS_Movement_Result := DSMovement9;
+iCurrentConditionNo := 9;
+
+ELSIF bCondition10 THEN
+DS_Movement_Result := DSMovement10;
+iCurrentConditionNo := 10;
+
+ELSE
+DS_Movement_Result := DSMovementDefault;
+iCurrentConditionNo := 0;
+
+END_IF
+;]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_DSMovementHandler">
+      <LineId Id="32" Count="45" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

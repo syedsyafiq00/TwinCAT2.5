@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="GUYSON_AI_WattToRaw" Id="{7d697f14-29e4-42c5-8680-6aad5c5e8b49}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK GUYSON_AI_WattToRaw
+VAR_INPUT
+
+	iAI1SP : INT;			(* 1st SetPoint Data*)
+	iAI2SP : INT;			(* 2nd SetPoint Data*)
+	iAI3SP : INT;			(* 3rd SetPoint Data*)
+	iAI4SP : INT;			(* 4th SetPoint Data*)
+	iAI5SP : INT;			(* 5th SetPoint Data*)
+	iAI6SP : INT;			(* 6th SetPoint Data*)
+	PercentBase : BOOL;	(* The PV will shown Percentage if this Bit is "ON"*)
+	WattBase: BOOL;		(* The PV will shown Wattage if this Bit is "ON"*)
+	MinSP : INT;			(* Define Min SetPoint Input, if SP set below this value, the PV will become "0"*)
+	MaxSP : INT;			(* Define Max SetPoint Input, if SP set Greater than value, the PV will become "0"*)
+	MaxWatt : INT;		(* Defined Max Watt of Generator, Usually is 700W*)
+
+
+END_VAR
+
+VAR_OUTPUT
+
+	iAI1raw : INT;			(*1st Raw Data to feed to Analog Output Card for Ultrasonic Generator Power Control*)
+	iAI2raw : INT;			(*2nd Raw Data to feed to Analog Output Card for Ultrasonic Generator Power Control*)
+	iAI3raw : INT;			(*3rd Raw Data to feed to Analog Output Card for Ultrasonic Generator Power Control*)
+	iAI4raw : INT;			(*4th Raw Data to feed to Analog Output Card for Ultrasonic Generator Power Control*)
+	iAI5raw : INT;			(*5th Raw Data to feed to Analog Output Card for Ultrasonic Generator Power Control*)
+	iAI6raw : INT;			(*6th Raw Data to feed to Analog Output Card for Ultrasonic Generator Power Control*)
+
+END_VAR
+VAR
+	iAI1f: LREAL;
+	iAI2f: LREAL;
+	iAI3f: LREAL;
+	iAI4f: LREAL;
+	iAI5f: LREAL;
+	iAI6f: LREAL;
+
+	iAI1_Wf: LREAL;
+	iAI2_Wf: LREAL;
+	iAI3_Wf: LREAL;
+	iAI4_Wf: LREAL;
+	iAI5_Wf: LREAL;
+	iAI6_Wf: LREAL;
+
+	n : INT;
+	WRatio: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Set Min and Max Limit for Watt input*)
+(*Convert INT to LREAL for Calculation*)
+
+IF iAI1SP>=MinSP AND iAI1SP<=MaxSP THEN
+iAI1_Wf := INT_TO_LREAL (iAI1SP);
+ELSE iAI1_Wf := 0;
+END_IF
+
+IF iAI2SP>=MinSP AND iAI2SP<=MaxSP THEN
+iAI2_Wf := INT_TO_LREAL (iAI2SP);
+ELSE iAI2_Wf := 0;
+END_IF
+
+IF iAI3SP>=MinSP AND iAI3SP<=MaxSP THEN
+iAI3_Wf := INT_TO_LREAL (iAI3SP);
+ELSE iAI3_Wf := 0;
+END_IF
+
+IF iAI4SP>=MinSP AND iAI4SP<=MaxSP THEN
+iAI4_Wf := INT_TO_LREAL (iAI4SP);
+ELSE iAI4_Wf := 0;
+END_IF
+
+IF iAI5SP>=MinSP AND iAI5SP<=MaxSP THEN
+iAI5_Wf := INT_TO_LREAL (iAI5SP);
+ELSE iAI5_Wf := 0;
+END_IF
+
+IF iAI6SP>=MinSP AND iAI6SP<=MaxSP THEN
+iAI6_Wf := INT_TO_LREAL (iAI6SP);
+ELSE iAI6_Wf := 0;
+END_IF
+
+(*Program to select Watt Base or Percent Base*)
+
+IF PercentBase AND NOT WattBase THEN
+n := 11;
+END_IF
+
+IF WattBase AND NOT PercentBase THEN
+n := 10;
+END_IF
+
+IF NOT PercentBase AND NOT WattBase THEN
+n := 0;
+END_IF
+
+IF PercentBase AND WattBase THEN
+n:= 0;
+END_IF
+
+
+
+CASE n OF
+
+0:;	(*No Calculation Apply*)
+
+10:	(*Watt Base Calculation*)
+
+WRatio := MaxWatt/100;
+
+
+	iAI1f	:= iAI1_Wf/WRatio*327.67;
+	iAI2f	:= iAI2_Wf/WRatio*327.67;
+	iAI3f	:= iAI3_Wf/WRatio*327.67;
+	iAI4f	:= iAI4_Wf/WRatio*327.67;
+	iAI5f	:= iAI5_Wf/WRatio*327.67;
+	iAI6f	:= iAI6_Wf/WRatio*327.67;
+
+
+(*	iAI1f	:= (SQRT(iAI1_Wf/20))*3276.7;
+	iAI2f	:= (SQRT(iAI2_Wf/20))*3276.7;
+	iAI3f	:= (SQRT(iAI3_Wf/20))*3276.7;
+	iAI4f	:= (SQRT(iAI4_Wf/20))*3276.7;
+	iAI5f	:= (SQRT(iAI5_Wf/20))*3276.7;
+	iAI6f	:= (SQRT(iAI6_Wf/20))*3276.7;
+*)
+
+11: 	(*% Base Calculation*)
+
+	iAI1f	:= iAI1_Wf*327.67;
+	iAI2f	:= iAI2_Wf*327.67;
+	iAI3f	:= iAI3_Wf*327.67;
+	iAI4f	:= iAI4_Wf*327.67;
+	iAI5f	:= iAI5_Wf*327.67;
+	iAI6f	:= iAI6_Wf*327.67;
+
+END_CASE
+
+iAI1raw := LREAL_TO_INT (iAI1f);
+iAI2raw := LREAL_TO_INT (iAI2f);
+iAI3raw := LREAL_TO_INT (iAI3f);
+iAI4raw := LREAL_TO_INT (iAI4f);
+iAI5raw := LREAL_TO_INT (iAI5f);
+iAI6raw := LREAL_TO_INT (iAI6f);]]></ST>
+    </Implementation>
+    <LineIds Name="GUYSON_AI_WattToRaw">
+      <LineId Id="46" Count="94" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

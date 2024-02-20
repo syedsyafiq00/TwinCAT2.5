@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbUltrasonicFIFO" Id="{0959b6cd-7259-46f0-b686-bcd02a011323}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbUltrasonicFIFO
+VAR_INPUT
+	bStartEnable: BOOL;
+
+	iSourceData: INT;
+	iIntervalTime_ms: INT;
+END_VAR
+VAR_OUTPUT
+	iAverageDataCollect: INT;
+END_VAR
+VAR
+
+	OnTime: TON;
+	OffTime: TON;
+	OnTimeRE : R_TRIG;
+
+	Step: INT;
+	StepFIFO : INT;
+	FIFOFL : INT;
+
+
+END_VAR
+
+VAR_IN_OUT
+	Ar10_iUltrasonic : ARRAY[1..10] OF INT;
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* StartEN - FIFO *)
+
+OnTime(IN:=NOT OnTime.Q AND bStartEnable , PT:=INT_TO_TIME(iIntervalTime_ms) , Q=> , ET=> );
+OnTimeRE(CLK:=OnTime.Q , Q=> );
+
+
+IF OnTimeRE.Q THEN
+
+StepFIFO:= 1;
+FIFOFL := 1;
+END_IF
+
+CASE StepFIFO OF
+
+
+1:
+			IF FIFOFL>0 AND FIFOFL < 10 THEN
+
+				FOR FIFOFL := 1 TO 9 DO
+				Ar10_iUltrasonic[10-FIFOFL+1] := Ar10_iUltrasonic[10-FIFOFL ];
+	
+				END_FOR
+
+			END_IF
+
+IF FIFOFL >= 10 THEN
+Ar10_iUltrasonic[1] := iSourceData;
+StepFIFO:= 2;
+END_IF
+
+2:; (*Siap*)
+
+
+99:;
+
+END_CASE
+
+iAverageDataCollect := (Ar10_iUltrasonic[1] + Ar10_iUltrasonic[2] + Ar10_iUltrasonic[3] + Ar10_iUltrasonic[4] + Ar10_iUltrasonic[5] + Ar10_iUltrasonic[6] + Ar10_iUltrasonic[7] + Ar10_iUltrasonic[8] + Ar10_iUltrasonic[9] + Ar10_iUltrasonic[10]) / 10 ;]]></ST>
+    </Implementation>
+    <LineIds Name="fbUltrasonicFIFO">
+      <LineId Id="28" Count="37" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

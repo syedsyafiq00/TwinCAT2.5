@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV3_TotalProcessTimeTracker" Id="{2e0c2fe3-899d-431b-b34b-172fb8733fe8}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV3_TotalProcessTimeTracker
+VAR_INPUT
+	bEN : BOOL;
+	iUserDefineProductRecipeNo : INT;
+END_VAR
+VAR_OUTPUT
+	ARiStationMinTimeDisplay : ARRAY [1..iStnQty] OF INT;
+	sStationDescriptionDisplay : STRING;
+END_VAR
+VAR
+	ARiStationMinTimeEmpty : ARRAY [1..iStnQty] OF INT;
+	sStationDescriptionEmpty : STRING;
+	iSMTFL: INT;
+	iSMTSFL: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF NOT bEN THEN
+ARiStationMinTimeDisplay := ARiStationMinTimeEmpty;
+sStationDescriptionDisplay := sStationDescriptionEmpty;
+END_IF
+
+IF bEN THEN
+
+	iSMTFL := 1;
+
+	ARiStationMinTimeDisplay := ARiStationMinTimeEmpty;
+	sStationDescriptionDisplay := sStationDescriptionEmpty;
+
+	FOR iSMTFL := 1 TO iStnQty DO
+			IF iSMTFL >= 1 AND iSMTFL <= iStnQty THEN
+
+				iSMTSFL := 1;
+				(*ARiStationMinTimeDisplay[iSMTFL] := 0;*)
+					FOR iSMTSFL := 1 TO iProductRecipeStepArrayQty DO
+						IF iSMTSFL >= 1 AND iSMTSFL <= iProductRecipeStepArrayQty THEN
+							IF PnPstorageMemory_Arm.fbGnrProductRecipeMemory_Main.fbA1PnpSequenceMemory.ARDsPnpSequenceMemory[iUserDefineProductRecipeNo].ARiTransferStationNo[iSMTSFL] = iSMTFL THEN
+
+								ARiStationMinTimeDisplay[iSMTFL] := (*ARiStationMinTimeDisplay[iSMTFL] +*) fbMainStationProcess_Stn[iSMTFL].StnSeqProcessfb.fbStationSequenceRecipefb.ARDsStorageStationSequenceRecipeMemory[(**)PnPstorageMemory_Arm.fbGnrProductRecipeMemory_Main.fbA1PnpSequenceMemory.ARDsPnpSequenceMemory[iUserDefineProductRecipeNo].ARiStnSeqRepNo[iSMTSFL](**)].iProcessMinTime;
+								sStationDescriptionDisplay := PnPstorageMemory_Arm.fbGnrProductRecipeMemory_Main.fbA1PnpSequenceMemory.ARDsPnpSequenceMemory[iUserDefineProductRecipeNo].sDescription;
+							(**)	iSMTSFL := iStnQty + 1;
+
+							END_IF
+						END_IF
+					END_FOR
+			END_IF
+	END_FOR
+END_IF
+
+iUserDefineProductRecipeNo;
+
+PnPstorageMemory_Arm.fbGnrProductRecipeMemory_Main.fbA1PnpSequenceMemory.ARDsPnpSequenceMemory[iUserDefineProductRecipeNo].ARiTransferStationNo[iSMTSFL];
+PnPstorageMemory_Arm.fbGnrProductRecipeMemory_Main.fbA1PnpSequenceMemory.ARDsPnpSequenceMemory[iUserDefineProductRecipeNo].ARiStnSeqRepNo[iSMTSFL];
+
+
+
+fbMainStationProcess_Stn[iSMTFL].StnSeqProcessfb.fbStationSequenceRecipefb.ARDsStorageStationSequenceRecipeMemory[(**)PnPstorageMemory_Arm.fbGnrProductRecipeMemory_Main.fbA1PnpSequenceMemory.ARDsPnpSequenceMemory[iUserDefineProductRecipeNo].ARiStnSeqRepNo[iSMTSFL](**)].iProcessMinTime;]]></ST>
+    </Implementation>
+    <LineIds Name="fbV3_TotalProcessTimeTracker">
+      <LineId Id="15" Count="39" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

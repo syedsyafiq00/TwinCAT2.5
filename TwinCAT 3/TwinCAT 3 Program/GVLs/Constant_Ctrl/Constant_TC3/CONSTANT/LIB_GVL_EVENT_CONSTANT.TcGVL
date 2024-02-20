@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="LIB_GVL_EVENT_CONSTANT" Id="{f9320be7-9f2f-4524-997a-739631ed8b71}" ParameterList="True">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL CONSTANT
+
+	C_iEventQty						: INT := 500;		// Total Number of Event that declared under Event List, this consisted of Alarm, Deactivate and others like caution related, Warning Related
+
+//	C_iRingBufferQty				: INT := 50;		// Total Number of RingBuffer Storage
+	
+	C_iEventActiveLogQty			: INT := 200;		// Total Number of Active Event that allowed stored for quick review
+	C_iEventActiveDisplayQty		: INT := 200;		// Total Number of Active Event that showing in the HMI - Scroll Function to managed 
+
+	C_iEventHistoryLogQty			: INT := 1000;		// Total Number of History Event that stored in persistent memory for quick review
+	C_iEventHistoryDisplayQty		: INT := 1000;		// Total Number of History Event that showing in the HMI - Scroll Function to managed 
+
+	
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

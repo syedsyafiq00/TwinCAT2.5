@@ -1,0 +1,536 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV3_XML_Handler" Id="{06b40696-5234-4d9a-b256-301d2f6dd82e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV3_XML_Handler
+VAR_INPUT
+
+	bEnable							: BOOL; (* Input *)
+	bFBInterlock						: BOOL; (* Input *)
+	sFileLocation						: STRING := 'C:\JKS\ImportExport_XMLserver\'; (* Input *)
+	sFilename						: STRING := 'ProductRecipe'; (* Input *)
+	bAddRecipeNoToFilenameEn 		: BOOL; (* Input *)
+
+	bErrorRst						: BOOL; (*Input*)
+
+	iXMLRecipeNo_Input				: INT; (*Input*)
+	bCompleteAutoResetEn			: BOOL;
+	i_AutoCompleteDelayTime_Sec		: INT := 2;
+END_VAR
+VAR_IN_OUT
+	iImport_ReplaceHS				: INT; (* In_Out *) (*0-Idle, 1-Enable, 2-Busy, 3-Done, 4-Error*)  (*Import or Replaced from XML to Internal Memory with Specified Recipe No*)
+	iExportHS						: INT; (* In_Out *) (*0-Idle, 1-Enable, 2-Busy, 3-Done, 4-Error*)  (*Export to XML From Internal Memory with Specified Recipe No*)
+	iDeleteAllHS						: INT; (* In_Out *) (*0-Idle, 1-Enable, 2-Busy, 3-Done, 4-Error*)  (*Delete ALL Recipe Internal Memory*)
+
+END_VAR
+VAR_OUTPUT
+	bBusyFlag						: BOOL; (* Output *) (* Need to place at "bFBInterlock" as "Interlock" if the program applied more than 1 FB*)
+	bErrorFlag						: BOOL; (* Output *) (* Error Indication*)
+	udErrorID						: UDINT; (*Output *)
+
+END_VAR
+VAR
+
+	udImportErrID					: UDINT;
+	udExportErrID					: UDINT;
+
+	bImportEn					: BOOL;
+	bExportEn					: BOOL;
+
+	bImportBusyFlag				: BOOL;
+	bExportBusyFlag				: BOOL;
+
+	bImportCompletedFlag			: BOOL;
+	bExportCompletedFlag			: BOOL;
+
+	bImportErrorFlag				: BOOL;
+	bExportErrorFlag				: BOOL;
+
+(*	sImportMsg					: STRING;
+	sExportMsg					: STRING; *)
+
+
+	iTask						: INT := 1;
+	iCase_Fun					: INT := 1;
+	iCase_Import					: INT;
+	iCase_Export					: INT;
+	iCase_Delete					: INT;
+	fbV3ImportExportXML 			: fbV3_ImportExportXML;
+
+
+	sFbFilePath					:T_MaxString;
+	sFbXPath					:T_MaxString(* := '/Recipe/Parameter'*);
+	bFbImport					: BOOL;
+	bFbExport					: BOOL;
+	bFbErrorReset				: BOOL;
+
+	bFbReadDone				: BOOL;
+	bFbReadBusy				: BOOL;
+	bFbReadError				: BOOL;
+	udFbReadErrorID				: UDINT;
+
+	bFbWriteDone				: BOOL;
+	bFbWriteBusy				: BOOL;
+	bFbWriteError				: BOOL;
+	udFbWriteErrorID				: UDINT;
+
+	bFbReadErrorRE				: R_TRIG;
+	bFbWriteErrorRE				: R_TRIG;
+(*	iFbReadCount				: INT;
+	iFbWriteCount				: INT;
+
+	tSecsGemLoadSimulateTimer	: TON;
+*)	ARiSubActionEmpty			: ARRAY [1..10] OF INT;
+
+	iImport_ReplaceHSErrorFE			: F_TRIG;
+	iExportHSErrorFE					: F_TRIG;
+	iDeleteAllHSErrorFE				: F_TRIG;
+	iImport_ReplaceHSCompleteRE		: R_TRIG;
+	iDeleteAllHSCompleteRE			: R_TRIG;
+
+	sFileLocation_Int: STRING;
+	sFilename_Int: STRING;
+	tAutoCompleteDelayTimer: TON;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+	IF iImport_ReplaceHS <> 0 OR iExportHS <> 0 OR  iDeleteAllHS <> 0 THEN
+	bBusyFlag := TRUE;
+	ELSE
+	bBusyFlag := FALSE;
+	END_IF
+
+	IF bBusyFlag THEN
+	iXMLRecipeNo := iXMLRecipeNo_Input;
+	END_IF
+
+	IF iImport_ReplaceHS = 4 OR iExportHS = 4 OR  iDeleteAllHS = 4 THEN
+	bErrorFlag := TRUE;
+	ELSE
+	bErrorFlag := FALSE;
+	END_IF
+
+	IF iImport_ReplaceHS = 4 THEN
+	udErrorID := udImportErrID;
+	ELSIF iExportHS = 4 THEN
+	udErrorID := udExportErrID;
+	ELSE
+	udErrorID := 0;
+	END_IF
+
+	tAutoCompleteDelayTimer(IN:= iImport_ReplaceHS = 3 OR iExportHS = 3 OR  iDeleteAllHS = 3 , PT:= INT_TO_TIME(i_AutoCompleteDelayTime_Sec)*1000 , Q=> , ET=> );
+
+	IF iImport_ReplaceHS = 3 AND tAutoCompleteDelayTimer.Q THEN
+		iImport_ReplaceHS 	:= 0;
+
+	ELSIF iExportHS = 3 AND tAutoCompleteDelayTimer.Q THEN
+		iExportHS 			:= 0;
+
+	ELSIF iDeleteAllHS = 3 AND tAutoCompleteDelayTimer.Q THEN
+		iDeleteAllHS 			:= 0;
+
+	END_IF
+
+
+
+
+	IF bEnable AND NOT bFBInterlock THEN
+
+		Action_Export();
+		Action_ImportReplace();
+		Action_DeleteAll();
+		ImportExportXML();
+
+		IF bErrorRst THEN
+
+			IF iImport_ReplaceHS = 4 THEN
+				iImport_ReplaceHS := 0;
+			ELSIF iExportHS = 4 THEN
+				iExportHS := 0;
+			ELSIF iDeleteAllHS = 4 THEN
+				iDeleteAllHS := 0;
+			END_IF
+		END_IF
+
+		iImport_ReplaceHSErrorFE(CLK:= iImport_ReplaceHS = 4  , Q=> );
+		iExportHSErrorFE(CLK:= iExportHS = 4  , Q=> );
+		iDeleteAllHSErrorFE(CLK:= iDeleteAllHS = 4  , Q=> );
+
+		IF iImport_ReplaceHSErrorFE.Q OR iExportHSErrorFE.Q OR iDeleteAllHSErrorFE.Q OR bErrorRst THEN
+		bFbErrorReset := TRUE;
+		ELSE
+		bFbErrorReset := FALSE;
+		END_IF
+
+		iImport_ReplaceHSCompleteRE(CLK:= iImport_ReplaceHS = 3  , Q=> );
+		iDeleteAllHSCompleteRE(CLK:= iDeleteAllHS = 3  , Q=> );
+
+		IF iImport_ReplaceHSCompleteRE.Q OR iDeleteAllHSCompleteRE.Q THEN
+		bRecipeLoadPB := TRUE;
+		END_IF
+
+	END_IF
+
+
+]]></ST>
+    </Implementation>
+    <Action Name="Action_DeleteAll" Id="{4ff34b7a-62b7-4b40-afe9-ec91ba1c4770}">
+      <Implementation>
+        <ST><![CDATA[(*Delete 					- DeleteAllRecipe  -  S7F17 / S7F18	*)
+(* iDeleteAllHS	 		: 0-Idle, 1-Enable, 2-Busy, 3-Done, 4-Error *)
+(* iSubAction				: 0-Idle, 1-Import, 2-Export, 3-Clear/Delete 8-Done *)
+
+	IF iDeleteAllHS = 0 THEN
+		iCase_Delete := 0;
+	END_IF
+
+	CASE iCase_Delete OF
+
+	0:
+		IF iDeleteAllHS = 1 THEN
+			iCase_Delete := 11; (* Delete Actual Memory #1*)
+			ARiSubAction[1] := 3;
+			iDeleteAllHS := 2; (* Indicate Busy *)
+		END_IF
+
+	11: (* Delete Actual Memory #1*)
+
+		IF ARiSubAction[1] = 8 THEN
+		iCase_Delete := 12;
+		ARiSubAction[1] := 0;
+		ARiSubAction[2] := 3;
+		END_IF
+
+	12: (* Delete Actual Memory #2*)
+
+		IF ARiSubAction[2] = 8 THEN
+		iCase_Delete := 13;
+		ARiSubAction[2] := 0;
+		ARiSubAction[3] := 3;
+		END_IF
+
+	13: (* Delete Actual Memory #3*)
+
+		IF ARiSubAction[3] = 8 THEN
+		iCase_Delete := 18;
+		iDeleteAllHS := 3; (*Done*)
+		END_IF
+
+
+	18: (* Completed *)
+
+		ARiSubAction := ARiSubActionEmpty;
+
+	END_CASE]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="Action_Export" Id="{f2baab13-6f28-4b46-b7fa-303ad9675f99}">
+      <Implementation>
+        <ST><![CDATA[(*Export			 		- Export  -   From IPC to Server - S7F5 / S7F6 *)
+(* iExportHS			 	: 0-Idle, 1-Enable, 2-Busy, 3-Done, 4-Error *)
+(* iSubAction				: 0-Idle, 1-Import, 2-Export, 3-Clear/Delete 8-Done *)
+
+
+	IF iExportHS = 0 THEN
+		iCase_Export := 0;
+	END_IF
+
+	CASE iCase_Export OF
+
+	0:
+		IF iExportHS = 1 THEN
+			iCase_Export := 11; (* Transfer from Buffer to Actual Memory #1*)
+			ARiSubAction[1] := 2;
+			iExportHS := 2; (* Indicate Busy *)
+		END_IF
+
+	11: (* Transfer from Actual Memory to Buffer #1*)
+
+		IF ARiSubAction[1] = 8 THEN
+		iCase_Export := 12;
+		ARiSubAction[1] := 0;
+		ARiSubAction[2] := 2;
+		END_IF
+
+	12: (* Transfer from Actual Memory to Buffer #2*)
+
+		IF ARiSubAction[2] = 8 THEN
+		iCase_Export := 13;
+		ARiSubAction[2] := 0;
+		ARiSubAction[3] := 2;
+		END_IF
+
+	13: (* Transfer from Actual Memory to Buffer #3*)
+
+		IF ARiSubAction[3] = 8 THEN
+		iCase_Export := 14;
+		ARiSubAction[3] := 0;
+		END_IF
+
+	14: (* Start Export from Buffer Memory to File*)
+
+		bExportEn := TRUE;
+
+		IF bExportCompletedFlag THEN
+		bExportEn := FALSE;
+		iCase_Export := 18;
+		iExportHS := 3; (*Done*)
+
+		ELSIF bExportErrorFlag THEN
+		bExportEn := FALSE;
+		iCase_Export := 19; (*Error*)
+		iExportHS := 4; (*Error*)
+		END_IF
+
+
+
+	18: (* Completed *)
+
+		ARiSubAction := ARiSubActionEmpty;
+
+	19: (* Error *)
+
+		ARiSubAction := ARiSubActionEmpty;
+
+	END_CASE]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="Action_ImportReplace" Id="{8e3681b5-8ba5-4156-8a1b-e29331991ea0}">
+      <Implementation>
+        <ST><![CDATA[(*iImport_Replace			 - Import  	-   From Server to IPC - S7F3 / S7F4 *)
+(* iImport_ReplaceHS	 	: 0-Idle, 1-Enable, 2-Busy, 3-Done, 4-Error *)
+(* iSubAction				: 0-Idle, 1-Import, 2-Export, 3-Clear/Delete 8-Done *)
+
+	IF iImport_ReplaceHS = 0 THEN
+		iCase_Import := 0;
+	END_IF
+
+	CASE iCase_Import OF
+
+	0:
+		IF iImport_ReplaceHS = 1 THEN
+			iCase_Import := 11; (* Start Import from File to Buffer Memory*)
+			iImport_ReplaceHS := 2; (* Indicate Busy *)
+		END_IF
+
+	11: (* Start Import from File to Buffer Memory*)
+
+		bImportEn := TRUE;
+
+		IF bImportCompletedFlag THEN
+		bImportEn := FALSE;
+		iCase_Import := 12;
+		ARiSubAction[1] := 1;
+
+		ELSIF bImportErrorFlag THEN
+		bImportEn := FALSE;
+		iCase_Import := 19; (*Error*)
+		iImport_ReplaceHS := 4; (*Error*)
+
+		END_IF
+
+	12: (* Transfer from Buffer to Actual Memory #1*)
+
+		IF ARiSubAction[1] = 8 THEN
+		iCase_Import := 13;
+		ARiSubAction[1] := 0;
+		ARiSubAction[2] := 1;
+		END_IF
+
+	13: (* Transfer from Buffer to Actual Memory #2*)
+
+		IF ARiSubAction[2] = 8 THEN
+		iCase_Import := 14;
+		ARiSubAction[2] := 0;
+		ARiSubAction[3] := 1;
+		END_IF
+
+	14: (* Transfer from Buffer to Actual Memory #3*)
+
+		IF ARiSubAction[3] = 8 THEN
+		iCase_Import := 18;
+		ARiSubAction[3] := 0;
+		iImport_ReplaceHS := 3; (*Done*)
+		END_IF
+
+	18: (* Completed *)
+
+		ARiSubAction := ARiSubActionEmpty;
+
+
+	19: (* Error *)
+
+		ARiSubAction := ARiSubActionEmpty;
+
+	END_CASE]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ImportExportXML" Id="{fb942cc1-c39d-4881-ab5b-e0a493e2f83e}">
+      <Implementation>
+        <ST><![CDATA[(* Function Export/Import Between XML to Buffer Memory *)
+
+
+	fbV3ImportExportXML(
+		sFbFilePath		:= sFbFilePath,
+		sFbXPath		:= sFbXPath,
+		bFbImport		:= bFbImport,
+		bFbExport		:= bFbExport,
+		bFbErrorReset	:= bFbErrorReset,
+
+		bFbReadDone	=> bFbReadDone,
+		bFbReadBusy	=> bFbReadBusy,
+		bFbReadError	=> bFbReadError,
+		udFbReadErrorID	=> udFbReadErrorID,
+
+		bFbWriteDone	=> bFbWriteDone,
+		bFbWriteBusy	=> bFbWriteBusy,
+		bFbWriteError	=> bFbWriteError,
+		udFbWriteErrorID	=> udFbWriteErrorID);
+
+
+(*** ImportEn & OutputEn Control ***)
+
+		IF NOT bImportEn AND NOT bExportEn AND NOT bImportErrorFlag AND NOT bExportErrorFlag THEN
+		iCase_Fun := 0;
+		END_IF
+
+
+
+		CASE iCase_Fun OF
+		
+		0:(* Idling *)
+				bFbImport := FALSE;
+				bFbExport := FALSE;
+				iTask := 0;
+				bImportBusyFlag				:= FALSE;
+				bExportBusyFlag				:= FALSE;
+
+				bImportCompletedFlag			:= FALSE;
+				bExportCompletedFlag			:= FALSE;
+
+				bImportErrorFlag				:= FALSE;
+				bExportErrorFlag				:= FALSE;
+
+				udImportErrID					:= 0;
+				udExportErrID					:= 0;
+
+				IF bImportEn OR bExportEn THEN
+					iTask := 1;
+					iCase_Fun := 1;
+				END_IF
+
+		1: (* Import/Export Preparation*)
+				IF iTask = 1 THEN
+				FBXmlSrvRead.pSymAddr:= ADR(DSV3XML_Recipe);
+				FBXmlSrvRead.cbSymSize:=SIZEOF(DSV3XML_Recipe);
+				FBXmlSrvWrite.pSymAddr:= ADR(DSV3XML_Recipe);
+				FBXmlSrvWrite.cbSymSize:=SIZEOF(DSV3XML_Recipe);
+
+				sFileLocation_int := sFileLocation;
+
+				IF bAddRecipeNoToFilenameEn THEN
+				sFilename_int := CONCAT(CONCAT(CONCAT(CONCAT(sFilename,'['), INT_TO_STRING(iXMLRecipeNo_Input)),']'),'.xml');
+				ELSE
+				sFilename_int := CONCAT(sFilename,'.xml');
+				END_IF
+
+				sFbXPath := '/ProductRecipe/Parameter';
+
+				END_IF
+
+				sFbFilePath := CONCAT(sFileLocation_Int,sFilename_Int);
+		
+				IF iTask <= 1 THEN
+					IF bImportEn THEN
+						iCase_Fun := 11;
+						bImportBusyFlag := TRUE;
+					ELSIF bExportEn THEN
+						iCase_Fun := 21;
+						bExportBusyFlag := TRUE;
+					END_IF
+				ELSE
+				iCase_Fun := 30; (*Trigger Completion*)
+				END_IF
+		
+		11: (* Import Step 1 *)
+				bFbImport := TRUE;
+		
+				IF NOT bFbReadBusy AND bFbReadDone THEN
+				iCase_Fun := 12;
+				ELSIF bFbReadError THEN
+				iCase_Fun := 19;
+				END_IF
+		
+		12: (* Import Step 2 *)
+
+				bFbImport := FALSE;
+		
+				IF NOT bFbReadDone THEN
+
+						iTask := iTask + 1;
+						iCase_Fun := 1;
+
+				END_IF
+
+		
+		
+		21: (* Export Step 1 *)
+				bFbExport := TRUE;
+
+				IF NOT bFbWriteBusy AND bFbWriteDone THEN
+				iCase_Fun := 22;
+				ELSIF bFbWriteError THEN
+				iCase_Fun := 29;
+				END_IF
+		
+		22: (* Export Step 2 *)
+				bFbExport := FALSE;
+
+				IF NOT bFbWriteDone THEN
+
+						iTask := iTask + 1;
+						iCase_Fun := 1;
+
+				END_IF
+		
+		
+
+		19:; (* Read Error *)
+				bImportErrorFlag 				:= bFbReadError;
+				udImportErrID 				:= udFbReadErrorID;
+				bImportBusyFlag				:= FALSE;
+				bFbImport 					:= FALSE;
+
+
+		29:; (* Write Error *)
+				bExportErrorFlag 				:= bFbWriteError;
+				udExportErrID 				:= udFbWriteErrorID;
+				bExportBusyFlag				:= FALSE;
+				bFbExport 					:= FALSE;
+
+		
+		30:; (* Import/Export Completed - DONE *)
+				IF bImportEn THEN bImportCompletedFlag := TRUE; bImportBusyFlag := FALSE;
+				ELSIF bExportEn THEN bExportCompletedFlag := TRUE; bExportBusyFlag := FALSE;
+				END_IF
+
+		END_CASE
+]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="fbV3_XML_Handler">
+      <LineId Id="90" Count="79" />
+    </LineIds>
+    <LineIds Name="fbV3_XML_Handler.Action_DeleteAll">
+      <LineId Id="0" Count="45" />
+    </LineIds>
+    <LineIds Name="fbV3_XML_Handler.Action_Export">
+      <LineId Id="0" Count="66" />
+    </LineIds>
+    <LineIds Name="fbV3_XML_Handler.Action_ImportReplace">
+      <LineId Id="0" Count="65" />
+    </LineIds>
+    <LineIds Name="fbV3_XML_Handler.ImportExportXML">
+      <LineId Id="0" Count="148" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

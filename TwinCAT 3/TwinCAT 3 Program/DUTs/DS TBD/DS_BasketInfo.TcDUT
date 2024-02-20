@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_BasketInfo" Id="{96dd3dc2-5b1a-42cd-82c0-ed5821823353}">
+    <Declaration><![CDATA[TYPE DS_BasketInfo : (*Full Occupied Byte = 700*)
+
+(*[][][][][][][][][][]----- Basket Information - Attached with Basket -----[][][][][][][][][][]*)
+
+STRUCT
+	bAvailibility : BOOL; (* Byte "n" *)
+(*	bTimeTrackerEn : BOOL; (* Byte "n+1" *) (***************NEW******************)*)
+	sReservedBool : STRING(50); (* Byte "n+2~n+99" *)
+
+	iProductRecipeNo : INT; (* Byte "n+100, n+101" *)
+	iProductRecipeStepNo : INT; (* Byte "n+102, n+103" *)
+	iStationSeqenceRecipeNo : INT; (* Byte "n+104, n+105" *)
+	iPreviousStationNo : INT; (* Byte "n+106, n+107" *)
+	iCurrentStationNo : INT; (* Byte "n+108, n+109" *)
+(*	iTimeTrackerStepNo : INT; (*Byte "n+110, n+111" *) (***************NEW******************)*)
+	sReservedInt : STRING(50); (* Byte "n+112~n+199" *)
+
+	sProgramDescription : STRING(50) ; (* Byte "n+200~n+299" *)
+	sProductID : STRING(50); (* Byte "n+300~n+399" *)
+	sBarcodeData : STRING(50); (* Byte "n+400~n+499" *)
+	sFilePath : STRING(50); (* Byte "n+500~n+599" *)
+	sProductQuality : STRING(50); (* Byte "n+600~n+699" *)
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

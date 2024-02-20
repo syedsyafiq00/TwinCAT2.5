@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_Lib_Persistent" Id="{94d2e9fe-711c-4677-8ee7-5fae954cd70b}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL PERSISTENT
+
+
+	ARiLdStnID								: ARRAY [1..iLdStnQty] OF INT;		(* To Define Loading Station ID*)
+	ARiUldStnID								: ARRAY [1..iUldStnQty] OF INT;		(* To Define Unloading Station ID*)
+
+	ARDSTempCtrlRecipe 					: ARRAY [0..iProductRecipeArrayQty] OF DSV3_TempCtrlRecipe;  (* Used by fbV3_TemperatureParaRecipe, Make it Global so that future can read/write easily*)
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

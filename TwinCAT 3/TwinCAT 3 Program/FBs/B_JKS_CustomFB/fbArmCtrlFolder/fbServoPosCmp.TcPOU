@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbServoPosCmp" Id="{29725dbe-04b8-48ea-9df9-a4fadaf4a8df}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbServoPosCmp
+VAR_INPUT
+
+	Enable : BOOL;
+	Data1_Lreal : LREAL;
+	Data1Range : LREAL;
+	ActualData : LREAL;
+
+
+END_VAR
+VAR_OUTPUT
+
+	bInRange : BOOL;
+
+END_VAR
+VAR
+	Data1Low: LREAL;
+	Data1High: LREAL;
+	LowInRange: BOOL;
+	HighInRange: BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[Data1Low := (Data1_Lreal - Data1Range);
+Data1High := (Data1_Lreal + Data1Range);
+
+IF ActualData > Data1Low THEN
+LowInRange := TRUE;
+ELSE
+LowinRange := FALSE;
+END_IF
+
+IF ActualData < Data1High THEN
+HighInRange := TRUE;
+ELSE
+HighInRange := FALSE;
+END_IF
+
+IF Enable AND LowInRange AND HighInRange THEN
+bInRange := TRUE;
+ELSE
+bInRange := FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbServoPosCmp">
+      <LineId Id="21" Count="19" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

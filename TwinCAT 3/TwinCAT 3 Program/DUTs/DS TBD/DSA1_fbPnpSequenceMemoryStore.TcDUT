@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSA1_fbPnpSequenceMemoryStore" Id="{41f415f8-95dc-4340-a76a-79f28cbad73b}">
+    <Declaration><![CDATA[TYPE DSA1_fbPnpSequenceMemoryStore : (*Full Occupied Byte = 1100*)
+STRUCT
+
+	bCopyPB : BOOL; (* Byte "n" *)
+	sReservedBool : STRING(98); (* Byte "n+1~n+99" *)
+
+
+	iProductRecipeNo: INT; (* Byte "n+100, n+101" *)	(* 10 sets of Station Sequence Recipe *)
+	iCopyToProductRecipeNo : INT; (* Byte "n+102, n+103" *)
+	sReservedInt : STRING(95); (* Byte "n+104~n+199" *)
+
+
+(*	sStationSequenceRecipeDescription : STRING(50); (* Byte "n+200~n+299" *)  (* Description of Station Sequence Recipe - Naming*)*)
+	sReserveString : STRING(50); (* Byte "n+200~n+299" *)
+
+	DsA1inPnpSequenceMemory : DSA1_PnpSequenceMemory; (* Byte "n+300 onward" *)
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

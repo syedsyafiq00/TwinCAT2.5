@@ -1,0 +1,224 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_DRIVE_STATUS_ONE_AX" Id="{d144888c-a1b0-4140-8e52-9758dea37240}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_DRIVE_STATUS_ONE_AX
+VAR_INPUT
+
+END_VAR
+VAR_OUTPUT
+	DrvDiag_Err:BOOL;
+	DrvRst_Bs:BOOL;
+	DrvRst_Err:BOOL;
+	fbRdClsXDiag_Ax1_ClsXDiag  	: WORD;
+
+	stC1D_Ax1  : ST_AX5000_C1D;
+
+	AxsErr_Ax1:BOOL;
+
+	AxsSts_Ax1:ST_AxisStatus;
+
+END_VAR
+VAR
+	fbRdClsXDiag_Ax1:FB_SoEReadClassXDiag;
+	fbRdClsXDiag_Ax1_Ex: BOOL;
+	fbRdClsXDiag_Ax1_Bs 		: BOOL;
+	fbRdClsXDiag_Ax1_Err 		: BOOL;
+	fbRdClsXDiag_Ax1_AdsErrId 		: UINT;
+	fbRdClsXDiag_Ax1_SerErrId 	: UINT;
+
+	fbRdClsXDiag_Ax1_Att 	: DWORD;
+
+
+	fbSOERst_Ax1:FB_SoEReset;
+	fbSOERst_Ax1_Ex:BOOL;
+	fbSOERst_Ax1_Bs 		: BOOL;
+	fbSOERst_Ax1_Err 		: BOOL;
+	fbSOERst_Ax1_AdsErrId 		: UINT;
+	fbSOERst_Ax1_SerErrId 	: UINT;
+
+
+	fbAxRst_Ax1:MC_Reset;
+
+
+	step: INT;
+	DiagTrig:R_TRIG;
+	RstTrig:R_TRIG;
+END_VAR
+
+VAR_IN_OUT
+	AX_1:Axis_Ref;
+	DrvDiag_Ex:BOOL;
+	DrvRst_Ex:BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[AX_1.ReadStatus();
+
+
+AxsSts_Ax1:=AX_1.Status;
+
+
+AxsErr_Ax1:= AX_1.Status.Error;
+
+RstTrig(CLK:=DrvRst_Ex, Q=> );
+IF RstTrig.Q THEN
+step:=10;
+	DrvRst_Bs:=FALSE;
+	DrvRst_Err:=FALSE;
+END_IF
+
+DiagTrig(CLK:=DrvDiag_Ex, Q=> );
+IF DiagTrig.Q THEN
+	step:=1;
+END_IF
+
+
+
+CASE step OF
+	0: (*do nothing*)
+	step:=1;
+
+	1:
+	fbRdClsXDiag_Ax1(
+	NetId:='' ,
+	Execute:=TRUE ,
+	DiagClass:=1 ,
+	Timeout:=DEFAULT_ADS_TIMEOUT ,
+	Axis:=AX_1 ,
+	Busy=> fbRdClsXDiag_Ax1_Bs,
+	Error=> fbRdClsXDiag_Ax1_Err,
+	AdsErrId=>fbRdClsXDiag_Ax1_AdsErrId,
+	SercosErrId=>fbRdClsXDiag_Ax1_SerErrId ,
+	ClassXDiag=>fbRdClsXDiag_Ax1_ClsXDiag ,
+	Attribute=> fbRdClsXDiag_Ax1_Att);
+	stC1D_Ax1:=F_ConvWordToSTAX5000C1D(fbRdClsXDiag_Ax1_ClsXDiag);
+	step:=2;
+
+	2:
+	fbRdClsXDiag_Ax1(
+	NetId:='' ,
+	Execute:=TRUE ,
+	DiagClass:=1 ,
+	Timeout:=DEFAULT_ADS_TIMEOUT ,
+	Axis:=AX_1 ,
+	Busy=> fbRdClsXDiag_Ax1_Bs,
+	Error=> fbRdClsXDiag_Ax1_Err,
+	AdsErrId=>fbRdClsXDiag_Ax1_AdsErrId,
+	SercosErrId=>fbRdClsXDiag_Ax1_SerErrId ,
+	ClassXDiag=>fbRdClsXDiag_Ax1_ClsXDiag ,
+	Attribute=> fbRdClsXDiag_Ax1_Att);
+	stC1D_Ax1:=F_ConvWordToSTAX5000C1D(fbRdClsXDiag_Ax1_ClsXDiag);
+	IF NOT fbRdClsXDiag_Ax1_Bs THEN
+	step:=3;
+	END_IF
+
+	3:
+	fbRdClsXDiag_Ax1(
+	NetId:='' ,
+	Execute:=FALSE ,
+	DiagClass:=1 ,
+	Timeout:=DEFAULT_ADS_TIMEOUT ,
+	Axis:=AX_1 ,
+	Busy=> fbRdClsXDiag_Ax1_Bs,
+	Error=> fbRdClsXDiag_Ax1_Err,
+	AdsErrId=>fbRdClsXDiag_Ax1_AdsErrId,
+	SercosErrId=>fbRdClsXDiag_Ax1_SerErrId ,
+	ClassXDiag=>fbRdClsXDiag_Ax1_ClsXDiag ,
+	Attribute=> fbRdClsXDiag_Ax1_Att);
+	stC1D_Ax1:=F_ConvWordToSTAX5000C1D(fbRdClsXDiag_Ax1_ClsXDiag);
+	step:=4;
+
+	4:
+	DrvDiag_Ex:=FALSE;
+	IF  fbRdClsXDiag_Ax1_ClsXDiag <> 0 THEN
+		DrvDiag_Err:=TRUE;
+	ELSE
+		DrvDiag_Err:=FALSE;
+	END_IF
+	step:=1;
+
+	10:
+	DrvRst_Bs:=TRUE;
+	step:=11;
+
+	11:
+	fbSOERst_Ax1(
+	NetId:= ,
+	Execute:=TRUE ,
+	Timeout:=DEFAULT_ADS_TIMEOUT ,
+	Axis:=AX_1 ,
+	Busy=>fbSOERst_Ax1_Bs ,
+	Error=>fbSOERst_Ax1_Err ,
+	AdsErrId=>fbSOERst_Ax1_AdsErrId ,
+	SercosErrId=> fbSOERst_Ax1_SerErrId);
+	step:=12;
+
+	12:
+	fbSOERst_Ax1(
+	NetId:= ,
+	Execute:=TRUE ,
+	Timeout:=DEFAULT_ADS_TIMEOUT ,
+	Axis:=AX_1 ,
+	Busy=>fbSOERst_Ax1_Bs ,
+	Error=>fbSOERst_Ax1_Err ,
+	AdsErrId=>fbSOERst_Ax1_AdsErrId ,
+	SercosErrId=> fbSOERst_Ax1_SerErrId);
+	IF NOT fbSOERst_Ax1_Bs THEN
+	step:=13;
+	END_IF
+
+	13:
+	fbSOERst_Ax1(
+	NetId:= ,
+	Execute:=FALSE ,
+	Timeout:=DEFAULT_ADS_TIMEOUT ,
+	Axis:=AX_1 ,
+	Busy=>fbSOERst_Ax1_Bs ,
+	Error=>fbSOERst_Ax1_Err ,
+	AdsErrId=>fbSOERst_Ax1_AdsErrId ,
+	SercosErrId=> fbSOERst_Ax1_SerErrId);
+	step:=17;
+
+	17:
+	fbAxRst_Ax1(
+	Execute:=TRUE ,
+	Axis:=Ax_1 ,
+	Done=> ,
+	Busy=> , 
+	Error=> , 
+	ErrorID=> );
+	step:=18;
+
+	18:
+	fbAxRst_Ax1(
+	Execute:=TRUE ,
+	Axis:=Ax_1 ,
+	Done=> ,
+	Busy=> , 
+	Error=> , 
+	ErrorID=> );
+	IF NOT fbAxRst_Ax1.Busy THEN
+		step:=19;
+	END_IF
+
+	19:
+	fbAxRst_Ax1(
+	Execute:=FALSE ,
+	Axis:=Ax_1 ,
+	Done=> ,
+	Busy=> ,
+	Error=> ,
+	ErrorID=> );
+	step:=23;
+
+	23:
+	DrvRst_Bs:=FALSE;
+	DrvRst_Ex:=FALSE;
+	step:=1;
+
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="FB_DRIVE_STATUS_ONE_AX">
+      <LineId Id="49" Count="164" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

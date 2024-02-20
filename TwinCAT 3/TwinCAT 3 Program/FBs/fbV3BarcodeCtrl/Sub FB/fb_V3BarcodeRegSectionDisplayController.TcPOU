@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fb_V3BarcodeRegSectionDisplayController" Id="{b5481908-828b-4508-809c-fabfd91d6f83}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fb_V3BarcodeRegSectionDisplayController
+
+VAR_INPUT
+	bEn : BOOL;
+	bScrollUpPB : BOOL;
+	bScrollDownPB : BOOL;
+END_VAR
+
+VAR_OUTPUT
+	bUpEndFlag : BOOL;
+	bDownEndFlag : BOOL;
+
+END_VAR
+
+VAR
+	tSpeedUpTimer: TON;
+	iScrollTimer: INT;
+	tScrollTimer: TON;
+	bScrollUpPBRE: R_TRIG;
+	bScrollDownPBRE: R_TRIG;
+	iFL: INT;
+	bReadSection: BOOL;
+	bTest: BOOL;
+
+	iStep: INT;
+	bENRE: R_TRIG;
+END_VAR
+
+VAR PERSISTENT
+	iSectionDisplayInc : INT;
+	iSectionDisplayIncBuffer: INT;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[bENRE(CLK:=bEN , Q=> );
+
+IF bEN THEN
+iStep := 1;
+ELSE
+iStep := 0;
+END_IF
+
+
+
+CASE iStep OF
+
+0:
+bUpEndFlag:= FALSE;
+bDownEndFlag:= FALSE;
+
+
+1:
+tSpeedUpTimer(IN:=(bScrollUpPB OR bScrollDownPB) AND NOT bScrollDownPBRE.Q AND NOT bScrollUpPBRE.Q , PT:=t#1.5s , Q=> , ET=> );
+tScrollTimer(IN:=(bScrollUpPB OR bScrollDownPB) AND NOT tScrollTimer.Q , PT:=INT_TO_TIME(iScrollTimer) , Q=> , ET=> );
+
+bScrollUpPBRE(CLK:=bScrollUpPB , Q=> );
+bScrollDownPBRE(CLK:=bScrollDownPB , Q=> );
+
+(*Scroll Speed Control*)
+	IF NOT tSpeedUpTimer.Q THEN
+		iScrollTimer := 500;
+	ELSE
+		IF iScrollTimer > 50 THEN
+		iScrollTimer := iScrollTimer-1;
+		END_IF
+	END_IF
+
+(*Scroll Up*)
+	IF iSectionDisplayInc >= 1 THEN
+		IF bScrollUpPBRE.Q OR (bScrollUpPB AND tScrollTimer.Q) THEN
+			iSectionDisplayInc := iSectionDisplayInc -1;
+		END_IF
+	END_IF
+
+(*Scroll Down*)
+	IF iSectionDisplayInc <= (iBarcodeRegQty - iBarcodeRegSecDisplayQty - 1) THEN
+		IF bScrollDownPBRE.Q OR (bScrollDownPB AND tScrollTimer.Q) THEN
+			iSectionDisplayInc := iSectionDisplayInc +1;
+		END_IF
+	END_IF
+
+
+(*Detect Inc Changed*)
+	IF (iSectionDisplayInc <> iSectionDisplayIncBuffer) OR bENRE.Q THEN
+		bReadSection := TRUE;
+		iSectionDisplayIncBuffer := iSectionDisplayInc;
+	END_IF
+
+
+(*Read Section Exec*)
+	IF bReadSection THEN
+		iFL := 1;
+			FOR iFL := 1 TO iBarcodeRegSecDisplayQty DO
+				IF iFL >= 1 AND iFL <= iBarcodeRegSecDisplayQty THEN
+					DsAr1sG_BarcodeRegSectionDisplayHMI[iFL] := DsAr1sG_BarcodeRegistration[iFL+iSectionDisplayInc];
+				END_IF
+			END_FOR
+		bReadSection := FALSE;
+	END_IF
+
+(*Write Section Exec*)
+	IF NOT bReadSection THEN
+		iFL := 1;
+			FOR iFL := 1 TO iBarcodeRegSecDisplayQty DO
+				IF iFL >= 1 AND iFL <= iBarcodeRegSecDisplayQty THEN
+					DsAr1sG_BarcodeRegistration[iFL+iSectionDisplayInc] := DsAr1sG_BarcodeRegSectionDisplayHMI[iFL];
+				END_IF
+			END_FOR
+
+	END_IF
+
+(*Generate Current Registration Number *)
+		iFL := 1;
+			FOR iFL := 1 TO iBarcodeRegSecDisplayQty DO
+				IF iFL >= 1 AND iFL <= iBarcodeRegSecDisplayQty THEN
+					iAr1sG_BarcodeRegNoSectionDisplayHMI[iFL] := iFL+iSectionDisplayInc;
+				END_IF
+			END_FOR
+
+
+(*Up/Down End Flag*)
+	IF iSectionDisplayInc = 0 THEN
+		bUpEndFlag:= TRUE;
+	ELSIF iSectionDisplayInc >= iBarcodeRegQty - iBarcodeRegSecDisplayQty THEN
+		bDownEndFlag:= TRUE;
+	ELSE
+		bUpEndFlag:= FALSE;
+		bDownEndFlag:= FALSE;
+	END_IF
+
+END_CASE
+
+
+IF bTest THEN
+iFL := 1;
+	FOR iFL := 1 TO iBarcodeRegQty DO
+		IF iFL >= 1 AND iFL <= iBarcodeRegQty THEN
+			DsAr1sG_BarcodeRegistration[iFL].sBarcodeRegistered := CONCAT('Barcode', INT_TO_STRING(iFL));
+		END_IF
+	END_FOR
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fb_V3BarcodeRegSectionDisplayController">
+      <LineId Id="33" Count="106" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

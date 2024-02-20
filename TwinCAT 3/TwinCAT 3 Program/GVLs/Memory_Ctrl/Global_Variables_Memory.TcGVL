@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_Memory" Id="{fe433f45-ae29-4df9-9796-a47d65d95fdb}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL PERSISTENT
+
+(* xxxxxxxxxxxsxxxxxx BasketMemory - Basket Cfm/ Trf Internal Used xxxxxxxxsxxxxxxxxx*)
+(*========================================================================*)
+
+	fbLdBasketMemory					: ARRAY [0..iCvLdQty] OF fbV2_SingleArmBasketMemoryV2;
+	fbA1StationBasketMemory				: ARRAY [0..iStnQty] OF fbV2_SingleArmBasketMemoryV2;
+	fbA2StationBasketMemory				: ARRAY [0..iStnQty] OF fbV2_SingleArmBasketMemoryV2;
+	fbUldBasketMemory					: ARRAY [0..iCvUldQty] OF fbV2_SingleArmBasketMemoryV2;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxx  BasketInfo - Internal Used xxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	DSLdBasketInfoConfirm 				: ARRAY [0..iLdStnQty] OF DSV2_BasketInfo;
+	DSLdBasketInfoTransfer 				: ARRAY [0..iLdStnQty] OF DSV2_BasketInfo;
+
+	DSUldBasketInfoConfirm 				: ARRAY [0..iUldStnQty] OF DSV2_BasketInfo;
+	DSUldBasketInfoTransfer 				: ARRAY [0..iUldStnQty] OF DSV2_BasketInfo;
+
+	DSStnBasketInfo						: ARRAY [0..iStnQty] OF DSV2_BasketInfo;
+	DSArmBasketInfo 						: ARRAY [0..iArmQty] OF DSV2_BasketInfo;
+
+(* xxxxxxxxxxxxxxxxxxxxx  BasketInfo - Loading / Unloading Conveyor Used xxxxxxxxxxxxxxxxxxxxx *)
+(*================================================================================*)
+
+	AR2sDSCv_LdConfirmBasketInfo 		: ARRAY [1..iLdStnQty, 1..iCvLdQty] OF DSV2_BasketInfo;
+	AR2sDSCv_LdTransferBasketInfo 		: ARRAY [1..iLdStnQty, 1..iCvLdQty] OF DSV2_BasketInfo;
+
+	AR2sDSCv_UldConfirmBasketInfo 		: ARRAY [1..iUldStnQty, 1..iCvUldQty] OF DSV2_BasketInfo;
+	AR2sDSCv_UldTransferBasketInfo 		: ARRAY [1..iUldStnQty, 1..iCvUldQty] OF DSV2_BasketInfo;
+
+(* xxxxxxxxxxxxxxxxxxxxx  Station Memory and InputOutput Variable - Internal Used xxxxxxxxxxxxxxxxxxxxx*)
+(*=====================================================================================*)
+
+	LdDSStationSSERStore				: DSV2_fbStationSequenceRecipeStore;
+	LdDSStationSSURStore 				: DS_fbStationSubRecipeStore;
+
+	LdDSStationSSERCall					: DSV2_fbStationSequenceRecipeCall;
+	LdDSStationSSURCall 					: DS_fbStationSubRecipeCall;
+
+	ARDsStnSeqProInput 					: ARRAY [0..iStnQty] OF DS_StnSeqProInput;
+	ARDSStnSeqProOutput 				: ARRAY [0..iStnQty] OF DS_StnSeqProOutput;
+
+	AR10DSStationSSERStore				: ARRAY [0..iStnQty] OF DSV2_fbStationSequenceRecipeStore;
+	AR10DSStationSSERCall				: ARRAY [0..iStnQty] OF DSV2_fbStationSequenceRecipeCall;
+
+	AR10DSStationSSURStore 				: ARRAY [0..iStnQty] OF DS_fbStationSubRecipeStore;
+	AR10DSStationSSURCall 				: ARRAY [0..iStnQty] OF DS_fbStationSubRecipeCall;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx  Station Process Variable - Internal Used xxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*=====================================================================================*)
+
+	fbMainStationProcess_Stn				: ARRAY [1..iStnQty] OF fbV2_MainStationProcess;
+	ARDsStnSeqProcessCtrl 				: ARRAY [0..iStnQty] OF DS_fbStnSeqProcessCtrl;
+	ARbProductRecipeCallEn 				: ARRAY [0..iStnQty] OF BOOL;
+	ARiProductRecipeNoCall 				: ARRAY [0..iStnQty] OF INT;
+	ARiProductRecipeStepCall 				: ARRAY [0..iStnQty] OF INT;
+	DSfbGnrProductRecipeMemoryOut 		: DSV2_fbGnrProductRecipeMemoryOut;
+	ARiStnNoToCalledArm					: ARRAY [0..iArmQty] OF INT;
+	ARDSGnrFeedArmPnpParameter		: ARRAY [0..iArmQty] OF DSV2_Gnr_CalledArmPnpParameter;
+	ARbArmReady						: ARRAY [1..iArmQty] OF BOOL;								(* Universal*) (* Input  - From ArmPnpFB, This signal is used to confirm if the arm is ready and idling*)
+	ARbStationProcessCompletedFlag		: ARRAY [0..iStnQty] OF BOOL;
+
+(*xxxxxxxxxxxxxxxxxxxxxxxxxxx fbGnrProductRecipeMemory - Internal Used xxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*=====================================================================================*)
+
+(*Input/Output*)
+	ARiCurrentHorzStnNo					: ARRAY [1..iArmQty] OF INT;
+	ARi1StepPatternNo					: ARRAY [1..iArmQty] OF INT;
+	ARDs1StepUpDownMovement			: ARRAY [1..iArmQty] OF DSA1_UpDownMovement;
+	ARi4StepPatternNo					: ARRAY [1..iArmQty] OF INT;
+	ARDs4StepUpDownMovement			: ARRAY [1..iArmQty] OF DSA1_UpDownMovement;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxx  Station ZoneHeight Variable - External Used xxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*=====================================================================================*)
+
+	ARDSLdZoneHeight 					: ARRAY [0..iLdStnQty] OF DSA32_StationZoneHeight;
+	ARDSStationZoneHeight 				: ARRAY [0..iStnQty] OF DSA32_StationZoneHeight;
+	ARDSUldZoneHeight 					: ARRAY [0..iUldStnQty] OF DSA32_StationZoneHeight;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxx  Station ZoneHeight Variable - Internal Used xxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*=====================================================================================*)
+
+	ARDSLdZonePosOut					: ARRAY [0..iLdStnQty] OF DSA32_StationZonePosOut; (*From fbGnrProductRecipeMemory Output*)
+	ARDSStationZonePosOut 				: ARRAY [0..iStnQty] OF DSA32_StationZonePosOut; (*From fbGnrProductRecipeMemory Output*)
+	ARDSUldZonePosOut 					: ARRAY [0..iUldStnQty] OF DSA32_StationZonePosOut;(*From fbGnrProductRecipeMemory Output*)
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx  MaxMin Time Used  xxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*====================================================================*)
+
+	ARDsSSERSourceMinMaxTime_Uni		: ARRAY [1..iStnQty] OF DSV2_SSERSourceMinMaxTime;
+	ARDsStnMinMaxEffTimeDisplay			: ARRAY [0..iStnQty] OF DSV2_StnMinMaxEffTIme;
+	DSV2MTBMinMaxEffTime 				: DSV2_MinMaxEffTime;
+
+(* xxxxxxxxxxxxxxxxxxxxx  IndusoftScreenMapping - External Used xxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	DSScrMapSSUR 						: DS_fbStationSubRecipeStore;
+	DSScrMapSSER 						: DSV2_fbStationSequenceRecipeStore;
+	iCurrentScreenNo						: INT;
+
+(* xxxxxxxxxxxxxxxxxxxxx  Indusoft Product Recipe Description Display control  -  xxxxxxxxxxxxxxxxxxxxxxxxxx*)
+
+	ARsUpPickPatternDescription			: ARRAY [0..iProductRecipeStepArrayQty] OF STRING(50);
+	ARsDownTransferPatternDescription		: ARRAY [0..iProductRecipeStepArrayQty] OF STRING(50);
+
+(*Indusoft*)
+	sProductRecipeStep1SeqRecipeDescription: STRING(50);
+	sProductRecipeStep2SeqRecipeDescription: STRING(50);
+	sProductRecipeStep3SeqRecipeDescription: STRING(50);
+	sProductRecipeStep4SeqRecipeDescription: STRING(50);
+	sProductRecipeStep5SeqRecipeDescription: STRING(50);
+	sProductRecipeStep6SeqRecipeDescription: STRING(50);
+	sProductRecipeStep7SeqRecipeDescription: STRING(50);
+	sProductRecipeStep8SeqRecipeDescription: STRING(50);
+	sProductRecipeStep9SeqRecipeDescription: STRING(50);
+	sProductRecipeStep10SeqRecipeDescription: STRING(50);
+	sProductRecipeStep11SeqRecipeDescription: STRING(50);
+	sProductRecipeStep12SeqRecipeDescription: STRING(50);
+	sProductRecipeStep13SeqRecipeDescription: STRING(50);
+	sProductRecipeStep14SeqRecipeDescription: STRING(50);
+	sProductRecipeStep15SeqRecipeDescription: STRING(50);
+	sProductRecipeStep16SeqRecipeDescription: STRING(50);
+	sProductRecipeStep17SeqRecipeDescription: STRING(50);
+	sProductRecipeStep18SeqRecipeDescription: STRING(50);
+	sProductRecipeStep19SeqRecipeDescription: STRING(50);
+	sProductRecipeStep20SeqRecipeDescription: STRING(50);
+
+	ARsUpPickPatternDescription1: STRING(50);
+	ARsUpPickPatternDescription2: STRING(50);
+	ARsUpPickPatternDescription3: STRING(50);
+	ARsUpPickPatternDescription4: STRING(50);
+	ARsUpPickPatternDescription5: STRING(50);
+	ARsUpPickPatternDescription6: STRING(50);
+	ARsUpPickPatternDescription7: STRING(50);
+	ARsUpPickPatternDescription8: STRING(50);
+	ARsUpPickPatternDescription9: STRING(50);
+	ARsUpPickPatternDescription10: STRING(50);
+	ARsUpPickPatternDescription11: STRING(50);
+	ARsUpPickPatternDescription12: STRING(50);
+	ARsUpPickPatternDescription13: STRING(50);
+	ARsUpPickPatternDescription14: STRING(50);
+	ARsUpPickPatternDescription15: STRING(50);
+	ARsUpPickPatternDescription16: STRING(50);
+	ARsUpPickPatternDescription17: STRING(50);
+	ARsUpPickPatternDescription18: STRING(50);
+	ARsUpPickPatternDescription19: STRING(50);
+	ARsUpPickPatternDescription20: STRING(50);
+
+	ARsDownTransferPatternDescription1: STRING(50);
+	ARsDownTransferPatternDescription2: STRING(50);
+	ARsDownTransferPatternDescription3: STRING(50);
+	ARsDownTransferPatternDescription4: STRING(50);
+	ARsDownTransferPatternDescription5: STRING(50);
+	ARsDownTransferPatternDescription6: STRING(50);
+	ARsDownTransferPatternDescription7: STRING(50);
+	ARsDownTransferPatternDescription8: STRING(50);
+	ARsDownTransferPatternDescription9: STRING(50);
+	ARsDownTransferPatternDescription10: STRING(50);
+	ARsDownTransferPatternDescription11: STRING(50);
+	ARsDownTransferPatternDescription12: STRING(50);
+	ARsDownTransferPatternDescription13: STRING(50);
+	ARsDownTransferPatternDescription14: STRING(50);
+	ARsDownTransferPatternDescription15: STRING(50);
+	ARsDownTransferPatternDescription16: STRING(50);
+	ARsDownTransferPatternDescription17: STRING(50);
+	ARsDownTransferPatternDescription18: STRING(50);
+	ARsDownTransferPatternDescription19: STRING(50);
+	ARsDownTransferPatternDescription20: STRING(50);
+
+END_VAR
+
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

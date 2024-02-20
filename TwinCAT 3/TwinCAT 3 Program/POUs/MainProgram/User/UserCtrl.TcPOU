@@ -1,0 +1,346 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="UserCtrl" Id="{dac9c4de-c7f0-4bcb-b04e-cde33b247e28}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM UserCtrl
+VAR
+
+FECloseLoginPage: F_TRIG;
+
+	
+	bUserLoginOnPB: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+// User Group List.. To match with JKS standard
+//sUserGroupName[0]			:= 	STRING_TO_WSTRING('');
+sUserGroupName[1]			:= 	STRING_TO_WSTRING('OPERATOR');
+sUserGroupName[2]			:=	STRING_TO_WSTRING('TECHNICIAN');
+sUserGroupName[3]			:=	STRING_TO_WSTRING('ENGINEER');
+sUserGroupName[4]			:=	STRING_TO_WSTRING('ADMIN');
+//sUserGroupName[5]			:=	STRING_TO_WSTRING('');
+//sUserGroupName[6]			:=	STRING_TO_WSTRING('');
+//sUserGroupName[7]			:=	STRING_TO_WSTRING('');	
+
+bUserGroupPageON;
+
+
+
+// User Ctrl FB
+fbHmiTF1800_UserlevelManagement(
+	bLoginPB						:= bLoginPB, 
+	bLogoutPB						:= bLogoutPB, 
+	iLoginNameId					:= iLoginNameId, 
+	sPasswordField					:= sPasswordField, 
+	iUM_SelectedLoginNameId			:= iUM_SelectedLoginNameId, 
+	sUM_CurrentPassword				:= sUM_CurrentPassword, 
+	sUM_NewPassword					:= sUM_NewPassword, 
+	sUM_ConfirmPassword				:= sUM_ConfirmPassword, 
+	sUM_NewUserLoginName			:= sUM_NewUserLoginName, 
+	sUM_NewUserGroupId				:= sUM_NewUserGroupId, 
+	sUM_NewUserOperatorIdentifier	:= sUM_NewUserOperatorIdentifier, 
+	sUM_NewUserActorType			:= sUM_NewUserActorType, 
+	sUM_NewUserLastName				:= sUM_NewUserLastName, 
+	sUM_NewUserFirstName			:= sUM_NewUserFirstName, 
+	bUM_CreatePB					:= bUM_CreatePB, 
+	bUM_EditPB						:= bUM_EditPB, 
+	bUM_DeletePB					:= bUM_DeletePB, 
+	bUM_EnablePB					:= bUM_EnablePB, 
+	bUM_DisablePB					:= bUM_DisablePB, 
+	bUM_ConfirmPB					:= bUM_ConfirmPB, 
+	bUM_ReturnPB					:= bUM_ReturnPB,  
+	dsHmiUserStatus_Active			=> dsHmiUserStatus_Active, 
+	dsHmiUserStatus_Login			=> dsHmiUserStatus_Login, 
+	dsHmiUserStatus_Logout			=> dsHmiUserStatus_Logout, 
+	wsActiveUserGroupName			=> sActiveUserGroupname,//VisuElems.CurrentUserName, 						//**, 
+	sMessage						=> sMessage);
+
+//Auto switch off the PB (* TESTING USED ONLY)
+IF bLoginPB 		THEN	bLoginPB 		:= FALSE;	END_IF
+IF bLogoutPB 		THEN	bLogoutPB 		:= FALSE;	END_IF
+IF bUM_CreatePB 	THEN	bUM_CreatePB 	:= FALSE;	END_IF
+IF bUM_EditPB 		THEN	bUM_EditPB 		:= FALSE;	END_IF
+IF bUM_DeletePB 	THEN	bUM_DeletePB 	:= FALSE;	END_IF
+IF bUM_EnablePB 	THEN	bUM_EnablePB 	:= FALSE;	END_IF
+IF bUM_DisablePB 	THEN	bUM_DisablePB 	:= FALSE;	END_IF
+IF bUM_ConfirmPB 	THEN	bUM_ConfirmPB 	:= FALSE;	END_IF
+IF bUM_ReturnPB 	THEN	bUM_ReturnPB 	:= FALSE;	END_IF
+
+//HMI CTRL
+FECloseLoginPage(CLK:=fbHmiTF1800_UserlevelManagement.dsHmiUserStatus_Login.bActivatedFlag , Q=> );
+
+iCurrentUserGroupID :=fbHmiTF1800_UserlevelManagement.dsHmiUserStatus_Active.sUserGroupId;
+//Login Page auto close after user login
+IF FECloseLoginPage.Q THEN
+	VisuElems.CURRENTVISU := 'AutoMain_Page';
+END_IF
+
+//IF 	bUserPageCreateON THEN
+//	bUserPageEditON:= FALSE;
+//END_IF
+		
+// Password Field
+IF sUM_CurrentPassword<>'' THEN
+	sCurrentPwField := '****';
+	ELSE
+	sCurrentPwField := '';
+END_IF
+
+IF sUM_ConfirmPassword<>'' THEN
+	sConfirmPwField := '****';
+	ELSE
+	sConfirmPwField := '';
+END_IF
+
+IF sUM_NewPassword<>'' THEN
+	sNewPwField := '****';
+	ELSE
+	sNewPwField := '';
+END_IF		
+
+IF sPasswordField<>'' THEN
+	sPwField := '****';
+	ELSE
+	sPwField := '';
+END_IF	
+
+
+iLoginNameId;
+sPasswordField;
+
+iUM_SelectedLoginNameId;
+fbHmiTF1800_UserlevelManagement.dsHmiUserStatus_Active.sLoginName; //current username
+
+fbHmiTF1800_UserlevelManagement.dsHmiUserStatus_Login.bActivatedFlag;
+fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARwsUserGroupName[iUM_SelectedLoginNameId];
+sUM_NewUserActorType;
+fbHmiTF1800_UserlevelManagement;
+	
+//dsHmiUserStatus_Active.bActivatedFlag	;//	:= dsHmiUserStatus_Active.bActivatedFlag; 
+//dsHmiUserStatus_Active.eActorType		;//	:= dsHmiUserStatus_Active.sActorType;
+//dsHmiUserStatus_Active.sFirstName		;//	:= dsHmiUserStatus_Active.sFirstName; 
+//dsHmiUserStatus_Active.sLoginName		;//	:= dsHmiUserStatus_Active.sLoginName; 
+//dsHmiUserStatus_Active.sOperatorIdentifier	;//:= dsHmiUserStatus_Active.sOperatorIdentifier; 
+//dsHmiUserStatus_Active.sULastName		;//	:= dsHmiUserStatus_Active.sULastName; 
+//dsHmiUserStatus_Active.sUserGroupId		;//	:= VisuElems.CurrentUserGroupId; 			//** 	
+//dsHmiUserStatus_Active.tsDateTime.wYear;
+//dsHmiUserStatus_Active.tsDateTime.wMonth;
+//dsHmiUserStatus_Active.tsDateTime.wDay;
+
+//dsHmiUserStatus_Login.bActivatedFlag		;
+//dsHmiUserStatus_Login.eActorType			;
+//dsHmiUserStatus_Login.sFirstName			;
+//dsHmiUserStatus_Login.sLoginName			;
+//dsHmiUserStatus_Login.sOperatorIdentifier	;
+//dsHmiUserStatus_Login.sULastName			;
+//dsHmiUserStatus_Login.sUserGroupId			;
+//dsHmiUserStatus_Login.tsDateTime.wYear;
+//dsHmiUserStatus_Login.tsDateTime.wMonth;
+//dsHmiUserStatus_Login.tsDateTime.wDay;
+//dsHmiUserStatus_Login.tsDateTime.wHour;
+//dsHmiUserStatus_Login.tsDateTime.wMinute;
+//dsHmiUserStatus_Login.tsDateTime.wSecond;
+//dsHmiUserStatus_Login.tsDateTime.wMilliseconds;
+//dsHmiUserStatus_Login.tsDateTime.wDayOfWeek;
+	
+//dsHmiUserStatus_Logout.bActivatedFlag		;
+//dsHmiUserStatus_Logout.eActorType			;
+//dsHmiUserStatus_Logout.sFirstName			;
+//dsHmiUserStatus_Logout.sLoginName			;
+//dsHmiUserStatus_Logout.sOperatorIdentifier	;
+//dsHmiUserStatus_Logout.sULastName			;
+//dsHmiUserStatus_Logout.sUserGroupId			;
+//dsHmiUserStatus_Logout.tsDateTime.wYear;
+//dsHmiUserStatus_Logout.tsDateTime.wMonth;
+//dsHmiUserStatus_Logout.tsDateTime.wDay;
+
+
+//FBCreateGUID(
+//	bExecute:= bTestStart, 
+//	sNetId:= '', 
+//	tTimeout:= T#1S, 
+//	pGuidBuffer:= ADR(guGUIDTest), 
+//	nGuidBufferSize:= SIZEOF(guGUIDTest), 
+//	bBusy=>, 
+//	bError=> , 
+//	nErrorId=> );
+	
+//FBCreateGUID.bBusy;
+//FBCreateGUID.bError;
+//FBCreateGUID.nErrorId;
+	
+////guGUIDTest := regstring_to_guid(fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsPw[1]);
+//sGuidOutput := guid_to_regstring(guGUIDTest);
+//sGuidOutput2 := guid_to_string(guGUIDTest);
+	
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARbUserStatus[1];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.AReActorType[1];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARiUserGroupID[1];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsFirstName[1];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLastName[1];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLoginName[1];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsOperatorIdentifier[1];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsPw[1];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARwsUserGroupName[1];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.iQtyUserReg;
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg
+
+
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARbUserStatus[iUM_SelectedLoginNameId];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.AReActorType[iUM_SelectedLoginNameId];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARiUserGroupID[iUM_SelectedLoginNameId];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsFirstName[iUM_SelectedLoginNameId];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLastName[iUM_SelectedLoginNameId];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLoginName[iUM_SelectedLoginNameId];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsOperatorIdentifier[iUM_SelectedLoginNameId];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsPw[iUM_SelectedLoginNameId];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARwsUserGroupName[iUM_SelectedLoginNameId];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARwsUserGroupName[iUM_SelectedLoginNameId];
+
+	
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARbUserStatus[2];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.AReActorType[2];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARiUserGroupID[2];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsFirstName[2];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLastName[2];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLoginName[2];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsOperatorIdentifier[2];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsPw[2];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARwsUserGroupName[2];
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.iQtyUserReg[2];
+
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARbUserStatus[3];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.AReActorType[3];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARiUserGroupID[3];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsFirstName[3];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLastName[3];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLoginName[3];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsOperatorIdentifier[3];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsPw[3];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARwsUserGroupName[3];
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.iQtyUserReg[3];	
+	
+	
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARbUserStatus[4];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.AReActorType[4];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARiUserGroupID[4];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsFirstName[4];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLastName[4];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLoginName[4];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsOperatorIdentifier[4];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsPw[4];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARwsUserGroupName[4];
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.iQtyUserReg[4];	
+	
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARbUserStatus[5];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.AReActorType[5];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARiUserGroupID[5];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsFirstName[5];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLastName[5];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLoginName[5];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsOperatorIdentifier[5];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsPw[5];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARwsUserGroupName[5];
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.iQtyUserReg[5];
+
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARbUserStatus[6];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.AReActorType[6];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARiUserGroupID[6];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsFirstName[6];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLastName[6];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLoginName[6];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsOperatorIdentifier[6];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsPw[6];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARwsUserGroupName[6];
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.iQtyUserReg[6];
+	
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARbUserStatus[7];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.AReActorType[7];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARiUserGroupID[7];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsFirstName[7];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLastName[7];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLoginName[7];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsOperatorIdentifier[7];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsPw[7];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARwsUserGroupName[7];
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.iQtyUserReg[7];	
+
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARbUserStatus[8];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.AReActorType[8];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARiUserGroupID[8];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsFirstName[8];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLastName[8];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLoginName[8];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsOperatorIdentifier[8];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsPw[8];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARwsUserGroupName[8];
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.iQtyUserReg[8];	
+	
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARbUserStatus[9];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.AReActorType[9];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARiUserGroupID[9];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsFirstName[9];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLastName[9];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLoginName[9];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsOperatorIdentifier[9];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsPw[9];
+	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARwsUserGroupName[9];
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.iQtyUserReg[9];	
+
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARbUserStatus[1];
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.AReActorType[1];
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARiUserGroupID[1];
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsFirstName[1];
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLastName[1];
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsLoginName[1];
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsOperatorIdentifier[1];
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARsPw[1];
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.ARwsUserGroupName[1];
+//	fbHmiTF1800_UserlevelManagement.dsHmiUserReg.iQtyUserReg[1];	]]></ST>
+    </Implementation>
+    <LineIds Name="UserCtrl">
+      <LineId Id="237" Count="0" />
+      <LineId Id="3" Count="0" />
+      <LineId Id="230" Count="6" />
+      <LineId Id="229" Count="0" />
+      <LineId Id="269" Count="0" />
+      <LineId Id="238" Count="0" />
+      <LineId Id="281" Count="0" />
+      <LineId Id="283" Count="0" />
+      <LineId Id="282" Count="0" />
+      <LineId Id="4" Count="39" />
+      <LineId Id="240" Count="0" />
+      <LineId Id="247" Count="0" />
+      <LineId Id="284" Count="0" />
+      <LineId Id="254" Count="0" />
+      <LineId Id="251" Count="0" />
+      <LineId Id="250" Count="0" />
+      <LineId Id="252" Count="1" />
+      <LineId Id="270" Count="1" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="299" Count="16" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="318" Count="5" />
+      <LineId Id="317" Count="0" />
+      <LineId Id="316" Count="0" />
+      <LineId Id="45" Count="4" />
+      <LineId Id="248" Count="1" />
+      <LineId Id="228" Count="0" />
+      <LineId Id="227" Count="0" />
+      <LineId Id="50" Count="73" />
+      <LineId Id="255" Count="0" />
+      <LineId Id="257" Count="8" />
+      <LineId Id="256" Count="0" />
+      <LineId Id="124" Count="0" />
+      <LineId Id="331" Count="0" />
+      <LineId Id="267" Count="0" />
+      <LineId Id="125" Count="97" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

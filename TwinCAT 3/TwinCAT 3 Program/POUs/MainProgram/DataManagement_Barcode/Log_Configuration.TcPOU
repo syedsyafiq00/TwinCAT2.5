@@ -1,0 +1,450 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Log_Configuration" Id="{8eed5b12-d80e-4a8e-a842-05c3e234a4ca}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Log_Configuration
+VAR
+	fb1_dataLog: FB_jx_DataLog;
+	fb2_dataLog: FB_jx_DataLog;
+	fb3_dataLog: FB_jx_DataLog;
+	fb4_dataLog: FB_jx_DataLog;
+	fb5_dataLog: FB_jx_DataLog;
+	fb6_dataLog: FB_jx_DataLog;
+	fb7_dataLog: FB_jx_DataLog;
+	fb8_dataLog: FB_jx_DataLog;
+	fb9_dataLog: FB_jx_DataLog;
+	fb10_dataLog: FB_jx_DataLog;
+	(*fb11_dataLog: FB_jx_DataLog;
+	fb12_dataLog: FB_jx_DataLog;*)
+	fb13_dataLog: FB_jx_DataLog;
+
+	tStn1		: TON;
+	tStn2		: TON;
+	tStn3		: TON;
+	tStn4		: TON;
+	tStn5		: TON;
+	tStn6		: TON;
+	tStn7		: TON;
+	tStn8		: TON;
+	tStn9		: TON;
+	tStn10		: TON;
+	tStn11		: TON;
+	tStn12		: TON;
+	tStn13		: TON;
+	uldONtrig	:TON;
+
+	test1		:BOOL;
+	test2		:BOOL;
+	test3		:BOOL;
+	test4		:BOOL;
+	test5		:BOOL;
+	test6		:BOOL;
+	test7		:BOOL;
+	test8		:BOOL;
+	test9		:BOOL;
+	test10		:BOOL;
+	test11		:BOOL;
+	test12		:BOOL;
+	test13		:BOOL;
+	test14		:BOOL;
+	R_TRIG1	:R_TRIG;
+	R_TRIG2	:R_TRIG;
+	R_TRIG3	:R_TRIG;
+
+	reset		: BOOL;
+	start			: BOOL;
+	busy		: BOOL;
+	Done		: BOOL;
+	write			:BOOL;
+	write_done	:BOOL;
+	ErrMsg		: STRING;
+
+	tsTimeNow: TIMESTRUCT;
+
+
+	fbFileRename    : FB_FileRename;
+	sNetId          : T_AmsNetId;
+        sOldName                : T_MaxString;
+        sNewName                : T_MaxString;
+        ePath           : E_OpenPath := PATH_GENERIC;          (* Default: generic file path*)
+        bExecute                : BOOL;
+        tTimeout                : TIME;
+
+	start1: BOOL;
+	sPath: STRING;
+	sPath1: STRING;
+	sNameFile: STRING(255);
+	sNameFile1: STRING(255);
+	sNameFile2: STRING(255);
+	sNameFile3: STRING(255);
+	sNameFile4: STRING(255);
+	sNameFile5: STRING(255);	(*  *)
+	sNameFile6: STRING(255);	(*  *)
+	sNameFile7: STRING(255);	(*  *)
+	sNameFile8: STRING(255);	(*  *)
+	sNameFile9: STRING(255);	(*  *)
+	sNameFile10: STRING(255);	(*  *)
+	sNameFile11: STRING(255);	(*  *)
+
+	sTimeNow	:STRING;
+	RE_BasketCount :R_TRIG;
+	iBasketCount:INT;
+
+	bRename: BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*
+(*All station, only after Remaining timer less than 10 sec, trigger Write CSV*)
+
+tStn1(IN:=ARDsStnSeqProcessCtrl[1].Out_iTotalProcessTimeEV >0 AND ARDsStnSeqProcessCtrl[1].Out_iTotalProcessTimeEV <10 , PT:=T#1s , Q=> , ET=> );
+tStn2(IN:=ARDsStnSeqProcessCtrl[2].Out_iTotalProcessTimeEV >0 AND ARDsStnSeqProcessCtrl[2].Out_iTotalProcessTimeEV <10 , PT:=T#1s , Q=> , ET=> );
+tStn3(IN:=ARDsStnSeqProcessCtrl[3].Out_iTotalProcessTimeEV >0 AND ARDsStnSeqProcessCtrl[3].Out_iTotalProcessTimeEV <10 , PT:=T#1s , Q=> , ET=> );
+tStn4(IN:=ARDsStnSeqProcessCtrl[4].Out_iTotalProcessTimeEV >0 AND ARDsStnSeqProcessCtrl[4].Out_iTotalProcessTimeEV <10  , PT:=T#1s , Q=> , ET=> );
+tStn5(IN:=ARDsStnSeqProcessCtrl[5].Out_iTotalProcessTimeEV >0 AND ARDsStnSeqProcessCtrl[5].Out_iTotalProcessTimeEV <10 , PT:=T#1s , Q=> , ET=> );
+tStn6(IN:=ARDsStnSeqProcessCtrl[6].Out_iTotalProcessTimeEV >0 AND ARDsStnSeqProcessCtrl[6].Out_iTotalProcessTimeEV <10 , PT:=T#1s , Q=> , ET=> );
+tStn7(IN:=ARDsStnSeqProcessCtrl[7].Out_iTotalProcessTimeEV >0 AND ARDsStnSeqProcessCtrl[7].Out_iTotalProcessTimeEV <10 , PT:=T#1s , Q=> , ET=> );
+tStn8(IN:=ARDsStnSeqProcessCtrl[8].Out_iTotalProcessTimeEV >0 AND ARDsStnSeqProcessCtrl[8].Out_iTotalProcessTimeEV <10 , PT:=T#1s , Q=> , ET=> );
+tStn9(IN:=ARDsStnSeqProcessCtrl[9].Out_iTotalProcessTimeEV >0 AND ARDsStnSeqProcessCtrl[9].Out_iTotalProcessTimeEV <10 , PT:=T#1s, Q=> , ET=> );
+tStn10(IN:=ARDsStnSeqProcessCtrl[10].Out_iTotalProcessTimeEV >0 AND ARDsStnSeqProcessCtrl[10].Out_iTotalProcessTimeEV <10 , PT:=T#1s , Q=> , ET=> );
+tStn11(IN:=ARDsStnSeqProcessCtrl[11].Out_iTotalProcessTimeEV >0 AND ARDsStnSeqProcessCtrl[11].Out_iTotalProcessTimeEV <10 , PT:=T#1s , Q=> , ET=> );
+tStn12(IN:=ARDsStnSeqProcessCtrl[12].Out_iTotalProcessTimeEV >0 AND ARDsStnSeqProcessCtrl[12].Out_iTotalProcessTimeEV <10 , PT:=T#1s , Q=> , ET=> );
+
+
+
+(*Create a counter to give a number basket count at the File Name*)
+
+sStn1tittle := CONCAT('-',DSStnBasketInfo[1].ARsBarcodeData[1]);
+sStn1tittle := CONCAT(DSStnBasketInfo[1].ARsBarcodeData[2],sStn1tittle);
+sStn1tittle := CONCAT('-',sStn1tittle);
+sStn1tittle := CONCAT(DSStnBasketInfo[1].ARsBarcodeData[3],sStn1tittle);
+sStn1tittle := CONCAT('-',sStn1tittle);
+sStn1tittle := CONCAT(DSStnBasketInfo[1].sReservedInt,sStn1tittle);
+
+
+
+fb1_dataLog(
+	bActivate:= DSStnBasketInfo[1].bAvailibility AND  (tStn1.Q OR GeneratorComparison.ARUpdate_bIntAddress[1]) ,
+	FolderDirectory:= 'C:\JKS\report_csv',
+	sFileName:= sStn1tittle,
+	Tittle := sStn1tittle,
+	nNumberOfData:= 50,		(*Max 1000*)
+	a_sDataLog_In:= a1_dataLink,
+	TimeInterval:= Interval_5s,
+	sCsvSeperator:= ',',
+	tsTimeNow:=CurrentTime,
+	enFIleType:= TXT, 			(*or	 enFIleType:= TXT, 		two option*)
+	sMsg=> );
+
+
+sStn2tittle := CONCAT('-',DSStnBasketInfo[2].ARsBarcodeData[1]);
+sStn2tittle := CONCAT(DSStnBasketInfo[2].ARsBarcodeData[2],sStn2tittle);
+sStn2tittle := CONCAT('-',sStn2tittle);
+sStn2tittle := CONCAT(DSStnBasketInfo[2].ARsBarcodeData[3],sStn2tittle);
+sStn2tittle := CONCAT('-',sStn2tittle);
+sStn2tittle := CONCAT(DSStnBasketInfo[2].sReservedInt,sStn2tittle);
+
+fb2_dataLog(
+	bActivate:= DSStnBasketInfo[2].bAvailibility AND  (tStn2.Q OR GeneratorComparison.ARUpdate_bIntAddress[2]) ,
+	FolderDirectory:= 'C:\JKS\report_csv',
+	sFileName:= sStn2tittle,
+	Tittle := sStn2tittle,
+	nNumberOfData:= 50,		(*Max 1000*)
+	a_sDataLog_In:= a2_dataLink,
+	TimeInterval:= Interval_5s,
+	sCsvSeperator:= ',',
+	tsTimeNow:=CurrentTime,
+	enFIleType:= TXT, 			(*or	 enFIleType:= TXT, 		two option*)
+	sMsg=> );
+
+
+sStn3tittle := CONCAT('-',DSStnBasketInfo[3].ARsBarcodeData[1]);
+sStn3tittle := CONCAT(DSStnBasketInfo[3].ARsBarcodeData[2],sStn3tittle);
+sStn3tittle := CONCAT('-',sStn3tittle);
+sStn3tittle := CONCAT(DSStnBasketInfo[3].ARsBarcodeData[3],sStn3tittle);
+sStn3tittle := CONCAT('-',sStn3tittle);
+sStn3tittle := CONCAT(DSStnBasketInfo[3].sReservedInt,sStn3tittle);
+
+
+fb3_dataLog(
+	bActivate:= DSStnBasketInfo[3].bAvailibility AND  (tStn3.Q OR GeneratorComparison.ARUpdate_bIntAddress[3]) ,
+	FolderDirectory:= 'C:\JKS\report_csv',
+	sFileName:= sStn3tittle,
+	Tittle := sStn3tittle,
+	nNumberOfData:= 50,		(*Max 1000*)
+	a_sDataLog_In:= a3_dataLink,
+	TimeInterval:= Interval_5s,
+	sCsvSeperator:= ',',
+	tsTimeNow:=CurrentTime,
+	enFIleType:= TXT, 			(*or	 enFIleType:= TXT, 		two option*)
+	sMsg=> );
+
+
+sStn4tittle := CONCAT('-',DSStnBasketInfo[4].ARsBarcodeData[1]);
+sStn4tittle := CONCAT(DSStnBasketInfo[4].ARsBarcodeData[2],sStn4tittle);
+sStn4tittle := CONCAT('-',sStn4tittle);
+sStn4tittle := CONCAT(DSStnBasketInfo[4].ARsBarcodeData[3],sStn4tittle);
+sStn4tittle := CONCAT('-',sStn4tittle);
+sStn4tittle := CONCAT(DSStnBasketInfo[4].sReservedInt,sStn4tittle);
+
+
+fb4_dataLog(
+	bActivate:= DSStnBasketInfo[4].bAvailibility AND  tStn4.Q ,
+	FolderDirectory:= 'C:\JKS\report_csv',
+	sFileName:= sStn4tittle,
+	Tittle := sStn4tittle,
+	nNumberOfData:= 50,		(*Max 1000*)
+	a_sDataLog_In:= a4_dataLink,
+	TimeInterval:= Interval_5s,
+	sCsvSeperator:= ',',
+	tsTimeNow:=CurrentTime,
+	enFIleType:= TXT, 			(*or	 enFIleType:= TXT, 		two option*)
+	sMsg=> );
+
+
+sStn5tittle := CONCAT('-',DSStnBasketInfo[5].ARsBarcodeData[1]);
+sStn5tittle := CONCAT(DSStnBasketInfo[5].ARsBarcodeData[2],sStn5tittle);
+sStn5tittle := CONCAT('-',sStn5tittle);
+sStn5tittle := CONCAT(DSStnBasketInfo[5].ARsBarcodeData[3],sStn5tittle);
+sStn5tittle := CONCAT('-',sStn5tittle);
+sStn5tittle := CONCAT(DSStnBasketInfo[5].sReservedInt,sStn5tittle);
+
+
+fb5_dataLog(
+	bActivate:= DSStnBasketInfo[5].bAvailibility AND  (tStn5.Q OR GeneratorComparison.ARUpdate_bIntAddress[5]) ,
+	FolderDirectory:= 'C:\JKS\report_csv',
+	sFileName:= sStn5tittle,
+	Tittle := sStn5tittle,
+	nNumberOfData:= 50,		(*Max 1000*)
+	a_sDataLog_In:= a5_dataLink,
+	TimeInterval:= Interval_5s,
+	sCsvSeperator:= ',',
+	tsTimeNow:=CurrentTime,
+	enFIleType:= TXT, 			(*or	 enFIleType:= TXT, 		two option*)
+	sMsg=> );
+
+
+sStn6tittle := CONCAT('-',DSStnBasketInfo[6].ARsBarcodeData[1]);
+sStn6tittle := CONCAT(DSStnBasketInfo[6].ARsBarcodeData[2],sStn6tittle);
+sStn6tittle := CONCAT('-',sStn6tittle);
+sStn6tittle := CONCAT(DSStnBasketInfo[6].ARsBarcodeData[3],sStn6tittle);
+sStn6tittle := CONCAT('-',sStn6tittle);
+sStn6tittle := CONCAT(DSStnBasketInfo[6].sReservedInt,sStn6tittle);
+
+
+fb6_dataLog(
+	bActivate:= DSStnBasketInfo[6].bAvailibility AND  tStn6.Q ,
+	FolderDirectory:= 'C:\JKS\report_csv',
+	sFileName:= sStn6tittle,
+	Tittle := sStn6tittle,
+	nNumberOfData:= 50,		(*Max 1000*)
+	a_sDataLog_In:= a6_dataLink,
+	TimeInterval:= Interval_5s,
+	sCsvSeperator:= ',',
+	tsTimeNow:=CurrentTime,
+	enFIleType:= TXT, 			(*or	 enFIleType:= TXT, 		two option*)
+	sMsg=> );
+
+
+sStn7tittle := CONCAT('-',DSStnBasketInfo[7].ARsBarcodeData[1]);
+sStn7tittle := CONCAT(DSStnBasketInfo[7].ARsBarcodeData[2],sStn7tittle);
+sStn7tittle := CONCAT('-',sStn7tittle);
+sStn7tittle := CONCAT(DSStnBasketInfo[7].ARsBarcodeData[3],sStn7tittle);
+sStn7tittle := CONCAT('-',sStn7tittle);
+sStn7tittle := CONCAT(DSStnBasketInfo[7].sReservedInt,sStn7tittle);
+
+fb7_dataLog(
+	bActivate:= DSStnBasketInfo[7].bAvailibility AND  (tStn7.Q OR GeneratorComparison.ARUpdate_bIntAddress[7]) ,
+	FolderDirectory:= 'C:\JKS\report_csv',
+	sFileName:= sStn7tittle,
+	Tittle := sStn7tittle,
+	nNumberOfData:= 50,		(*Max 1000*)
+	a_sDataLog_In:= a7_dataLink,
+	TimeInterval:= Interval_5s,
+	sCsvSeperator:= ',',
+	tsTimeNow:=CurrentTime,
+	enFIleType:= TXT, 			(*or	 enFIleType:= TXT, 		two option*)
+	sMsg=> );
+
+
+sStn8tittle := CONCAT('-',DSStnBasketInfo[8].ARsBarcodeData[1]);
+sStn8tittle := CONCAT(DSStnBasketInfo[8].ARsBarcodeData[2],sStn8tittle);
+sStn8tittle := CONCAT('-',sStn8tittle);
+sStn8tittle := CONCAT(DSStnBasketInfo[8].ARsBarcodeData[3],sStn8tittle);
+sStn8tittle := CONCAT('-',sStn8tittle);
+sStn8tittle := CONCAT(DSStnBasketInfo[8].sReservedInt,sStn8tittle);
+
+fb8_dataLog(
+	bActivate:= DSStnBasketInfo[8].bAvailibility AND  tStn8.Q,
+	FolderDirectory:= 'C:\JKS\report_csv',
+	sFileName:= sStn8tittle,
+	Tittle := sStn8tittle,
+	nNumberOfData:= 50,		(*Max 1000*)
+	a_sDataLog_In:= a8_dataLink,
+	TimeInterval:= Interval_5s,
+	sCsvSeperator:= ',',
+	tsTimeNow:=CurrentTime,
+	enFIleType:= TXT, 			(*or	 enFIleType:= TXT, 		two option*)
+	sMsg=> );
+
+
+sStn9tittle := CONCAT('-',DSStnBasketInfo[9].ARsBarcodeData[1]);
+sStn9tittle := CONCAT(DSStnBasketInfo[9].ARsBarcodeData[2],sStn9tittle);
+sStn9tittle := CONCAT('-',sStn9tittle);
+sStn9tittle := CONCAT(DSStnBasketInfo[9].ARsBarcodeData[3],sStn9tittle);
+sStn9tittle := CONCAT('-',sStn9tittle);
+sStn9tittle := CONCAT(DSStnBasketInfo[9].sReservedInt,sStn9tittle);
+
+fb9_dataLog(
+	bActivate:= DSStnBasketInfo[9].bAvailibility AND  tStn9.Q ,
+	FolderDirectory:= 'C:\JKS\report_csv',
+	sFileName:= sStn9tittle,
+	Tittle := sStn9tittle,
+	nNumberOfData:= 50,		(*Max 1000*)
+	a_sDataLog_In:= a9_dataLink,
+	TimeInterval:= Interval_5s,
+	sCsvSeperator:= ',',
+	tsTimeNow:=CurrentTime,
+	enFIleType:= TXT, 			(*or	 enFIleType:= TXT, 		two option*)
+	sMsg=> );
+
+
+sStn10tittle := CONCAT('-',DSStnBasketInfo[10].ARsBarcodeData[1]);
+sStn10tittle := CONCAT(DSStnBasketInfo[10].ARsBarcodeData[2],sStn10tittle);
+sStn10tittle := CONCAT('-',sStn10tittle);
+sStn10tittle := CONCAT(DSStnBasketInfo[10].ARsBarcodeData[3],sStn10tittle);
+sStn10tittle := CONCAT('-',sStn10tittle);
+sStn10tittle := CONCAT(DSStnBasketInfo[10].sReservedInt,sStn10tittle);
+
+fb10_dataLog(
+	bActivate:=DSStnBasketInfo[10].bAvailibility AND  tStn10.Q,
+	FolderDirectory:= 'C:\JKS\report_csv',
+	sFileName:= sStn10tittle,
+	Tittle := sStn10tittle,
+	nNumberOfData:= 50,		(*Max 1000*)
+	a_sDataLog_In:= a10_dataLink,
+	TimeInterval:= Interval_5s,
+	sCsvSeperator:= ',',
+	tsTimeNow:=CurrentTime,
+	enFIleType:= TXT, 			(*or	 enFIleType:= TXT, 		two option*)
+	sMsg=> );
+
+(*
+sStn11tittle := CONCAT('-',DSStnBasketInfo[11].ARsBarcodeData[1]);
+sStn11tittle := CONCAT(DSStnBasketInfo[11].ARsBarcodeData[2],sStn11tittle);
+sStn11tittle := CONCAT('-',sStn11tittle);
+sStn11tittle := CONCAT(DSStnBasketInfo[11].ARsBarcodeData[3],sStn11tittle);
+sStn11tittle := CONCAT('-',sStn11tittle);
+sStn11tittle := CONCAT(DSStnBasketInfo[11].sReservedInt,sStn11tittle);
+
+fb11_dataLog(
+	bActivate:=DSStnBasketInfo[11].bAvailibility AND  tStn11.Q ,
+	FolderDirectory:= 'C:\JKS\report_csv',
+	sFileName:= sStn11tittle,
+	Tittle := sStn11tittle,
+	nNumberOfData:= 50,		(*Max 1000*)
+	a_sDataLog_In:= a11_dataLink,
+	TimeInterval:= Interval_5s,
+	sCsvSeperator:= ',',
+	tsTimeNow:=CurrentTime,
+	enFIleType:= TXT, 			(*or	 enFIleType:= TXT, 		two option*)
+	sMsg=> );
+
+sStn12tittle := CONCAT('-',DSStnBasketInfo[12].ARsBarcodeData[1]);
+sStn12tittle := CONCAT(DSStnBasketInfo[12].ARsBarcodeData[2],sStn12tittle);
+sStn12tittle := CONCAT('-',sStn12tittle);
+sStn12tittle := CONCAT(DSStnBasketInfo[12].ARsBarcodeData[3],sStn12tittle);
+sStn12tittle := CONCAT('-',sStn12tittle);
+sStn12tittle := CONCAT(DSStnBasketInfo[12].sReservedInt,sStn12tittle);
+
+fb12_dataLog(
+	bActivate:=DSStnBasketInfo[12].bAvailibility AND  tStn12.Q ,
+	FolderDirectory:= 'C:\JKS\report_csv',
+	sFileName:= sStn12tittle,
+	Tittle := sStn12tittle,
+	nNumberOfData:= 50,		(*Max 1000*)
+	a_sDataLog_In:= a12_dataLink,
+	TimeInterval:= Interval_5s,
+	sCsvSeperator:= ',',
+	tsTimeNow:=CurrentTime,
+	enFIleType:= TXT, 			(*or	 enFIleType:= TXT, 		two option*)
+	sMsg=> );
+*)
+
+(*
+sStn13tittle := CONCAT('-',AR2sDSCv_UldConfirmBasketInfo[1,1].ARsBarcodeData[1]);
+sStn13tittle := CONCAT(AR2sDSCv_UldConfirmBasketInfo[1,1].ARsBarcodeData[2],sStn13tittle);
+sStn13tittle := CONCAT('-',sStn13tittle);
+sStn13tittle := CONCAT(AR2sDSCv_UldConfirmBasketInfo[1,1].ARsBarcodeData[3],sStn13tittle);
+
+
+fb13_dataLog(
+	bActivate:= AR2sDSCv_UldConfirmBasketInfo[1,1].bAvailibility (*AND tStn12.Q*) OR test12 (*Trigger Bit when Arm in Down unhook pos*) ,
+	FolderDirectory:= 'C:\JKS\report_csv',
+	sFileName:= sStn13tittle,
+	Tittle := sStn13tittle,
+	nNumberOfData:= 50,		(*Max 1000*)
+	a_sDataLog_In:= a12_dataLink,
+	TimeInterval:= Interval_5s,
+	sCsvSeperator:= ',',
+	tsTimeNow:=CurrentTime,
+	enFIleType:= TXT, 			(*or	 enFIleType:= TXT, 		two option*)
+	sMsg=> );
+*)
+
+(*To complete the CSV file write at Unloading area*)
+IF ARDSArmCtrl[2].AR3sbPositionCfm[3,1,8] OR test14 THEN
+
+	sStn13tittle := CONCAT('-',DSArmBasketInfo[2].ARsBarcodeData[1]);
+	sStn13tittle := CONCAT(DSArmBasketInfo[2].ARsBarcodeData[2],sStn13tittle);
+	sStn13tittle := CONCAT('-',sStn13tittle);
+	sStn13tittle := CONCAT(DSArmBasketInfo[2].ARsBarcodeData[3],sStn13tittle);
+	sStn13tittle := CONCAT('-',sStn13tittle);
+	sStn13tittle := CONCAT(DSArmBasketInfo[2].sReservedInt,sStn13tittle);
+
+END_IF
+
+
+
+(* Trigger bit when Unloading*)
+tStn13(IN:=AR2sDSCv_UldConfirmBasketInfo[1,1].bAvailibility , PT:=T#1s , Q=> , ET=> );
+R_TRIG1(CLK:=tStn13.Q  OR test13  , Q=> );
+
+	IF R_TRIG1.Q  THEN
+		start:=TRUE;
+		ELSE
+		start:=FALSE;
+	END_IF
+
+
+CurrentTime:=stGetCurrentTime.SysTime;
+
+(*NOTE:-
+
+1-sPath and sPath MUST SAME NAME, otherwise file will not overwrite*)
+
+sPath:=CONCAT('C:\JKS\report_csv','\');
+sPath:=CONCAT(sPath,sStn13tittle);
+sPath:=CONCAT(sPath,'_');
+sPath:=CONCAT(sPath,F_jx_TS_TO_DATE_STRING_1(CurrentTime, '_'));
+sPath:=CONCAT(sPath,'.cs_');
+
+
+sPath1:=CONCAT('C:\JKS\report_csv','\');
+sPath1:=CONCAT(sPath1,sStn13tittle);
+sPath1:=CONCAT(sPath1,'_');
+sPath1:=CONCAT(sPath1,F_jx_TS_TO_DATE_STRING_1(CurrentTime, '_'));
+sPath1:=CONCAT(sPath1,'.csv');
+
+fbFileRename(
+	sOldName:=sPath ,
+	sNewName:=sPath1 ,
+	ePath:= PATH_GENERIC,
+	bExecute:=bRename OR start);
+*)	]]></ST>
+    </Implementation>
+    <LineIds Name="Log_Configuration">
+      <LineId Id="525" Count="0" />
+      <LineId Id="90" Count="345" />
+      <LineId Id="526" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

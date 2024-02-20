@@ -1,0 +1,319 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbStationSubRecipe" Id="{b5f51ebc-7a9c-460b-aef6-2b0323811c55}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbStationSubRecipe
+
+VAR_INPUT
+	bSavePB : BOOL;
+	bLoadPB : BOOL;
+	bClearPB: BOOL;
+	bCopyPB : BOOL;
+(*	iCopyFromSubRecipeNo : INT;*)
+	iCopyToSubRecipeNo : INT;
+	DsStnSeqProInput 				: DS_StnSeqProInput;						(* Input - PV of Instrument (Temperature, pressure, vacuum and etc), Signal of Sensor to allowed program under the current station status.*)
+
+END_VAR
+
+
+VAR_IN_OUT PERSISTENT
+	iSubRecipeNo : INT; (* x sets of Sub Recipe *)
+	sSubRecipeDescription : STRING(50); (* Description of Sub Recipe - Naming*)
+	DsInSubRecipeMemory : DS_SubRecipeMemory;
+
+	Call_iSubRecipe : INT;
+	bCallPB: BOOL;
+(*	bCallPBEnable : BOOL;*)
+
+
+
+END_VAR
+VAR_OUTPUT
+	bSaveInd: BOOL;
+	bLoadInd: BOOL;
+	bClearInd: BOOL;
+	bCallCompleted : BOOL;
+
+	bInvalidCallSubRecipeNoHold: BOOL;
+	bInvalidCallSubRecipeNoPulse: BOOL;
+
+
+	Call_sSubDescription : STRING(50);
+	Call_DsSubRecipeMemory : DS_SubRecipeMemory;
+
+
+END_VAR
+VAR
+	SaveIndHr	: BOOL;
+	LoadIndHr	: BOOL;
+	ClearIndHr  : BOOL;
+
+	SaveTimerDelay: TON;
+	LoadTimerDelay: TON;
+	ClearTimerDelay: TON;
+	SelfCheckTimer: TON;
+	bLoadEn: BOOL;
+	SelfCheckloopSub: BOOL;
+	SelfCheckloopMain: BOOL;
+	PreviousNoMain: INT;
+	PreviousNoSub: INT;
+
+	LoadDF : R_TRIG;
+	LoadENDF : R_TRIG;
+	ClearDF : R_TRIG;
+	SaveDF: R_TRIG;
+	CallIntervalTimer: TON;
+	CallIntervalDIFU: R_TRIG;
+	CallMFL: INT;
+
+	bCallCompletedHR: BOOL;
+	bCallCompletedHRRE: R_TRIG;
+	CallCompletedTimer: TON;
+	CallSelfCheckTimer : TON;
+	CallSelfCheckloop : BOOL;
+	PreviousCallNo : INT;
+
+	CallSelfCheckRE: R_TRIG;
+	CallStep: INT;
+	CallSelfCheckHR: BOOL;
+	bCallPBRE: R_TRIG;
+
+	febInvalidCallSubRecipeNo: F_TRIG;
+
+	rebInvalidCallSubRecipeNo: R_TRIG;
+	tInvalidCallStationSubNoPulseTimer: TON;
+	CopyDF: R_TRIG;
+	
+	DsSubRecipeMemory_Empty 			   : DS_SubRecipeMemory; 
+END_VAR
+
+VAR PERSISTENT
+	ARDsStorageSubRecipeMemory : ARRAY [1..IStationSubRecipeArrayQty] OF DS_SubRecipeMemory;
+
+	ARsStorageSubDescription: ARRAY [0..IStationSubRecipeArrayQty] OF STRING(50);
+
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF iSubRecipeNo < 1 THEN
+iSubRecipeNo := 1;
+END_IF
+
+IF iSubRecipeNo > IStationSubRecipeArrayQty THEN
+iSubRecipeNo := IStationSubRecipeArrayQty;
+END_IF
+
+
+
+(*Add new*)
+ARsStorageSubDescription[0] := '- - - End Step - - -';
+
+(*Clear Indicator*)
+IF bClearPB THEN
+ClearIndHr := TRUE;
+END_IF
+
+ClearTimerDelay(IN:=ClearIndHr, PT := T#1S, Q=>, ET=>);
+IF ClearTimerDelay.Q THEN
+ClearIndHr := FALSE;
+END_IF
+
+IF ClearIndHr AND NOT ClearTimerDelay.Q THEN
+bClearInd := TRUE;
+ELSE
+bClearInd := FALSE;
+END_IF
+
+(*Load and Save Indicator*)
+IF bSavePB THEN
+SaveIndHr := TRUE;
+END_IF
+
+SaveTimerDelay(IN:=SaveIndHr, PT := T#1s, Q=>, ET=>);
+IF SaveTimerDelay.Q THEN
+SaveIndHr := FALSE;
+END_IF
+
+IF SaveIndHr AND NOT SaveTimerDelay.Q THEN
+bSaveInd := TRUE;
+ELSE
+bSaveInd := FALSE;
+END_IF
+
+IF bLoadPB THEN
+LoadIndHr := TRUE;
+END_IF
+
+LoadTimerDelay(IN:=LoadIndHr, PT := T#1s, Q=>, ET=>);
+IF loadtimerdelay.Q THEN
+LoadIndHr := FALSE;
+END_IF
+
+IF loadIndHr AND NOT LoadTimerDelay.Q THEN
+bLoadInd := TRUE;
+ELSE
+bLoadInd := FALSE;
+END_IF
+
+
+IF iSubRecipeNo <> PreviousNoSub THEN
+bLoadEn := TRUE;
+ELSE
+bLoadEn := FALSE;
+END_IF
+
+(* Add for Slow Pull*)
+IF DsInSubRecipeMemory.bOut12EnSlowPull THEN
+	IF DsStnSeqProInput.iSlowPullUpPos > 0 AND DsStnSeqProInput.iSlowPullDownPos > 0 AND DsInSubRecipeMemory.iOut18SlowPullVelocity >0 THEN
+			IF DsInSubRecipeMemory.iComCon5ProcessTimer <
+			(((DsStnSeqProInput.iSlowPullUpPos-DsStnSeqProInput.iSlowPullDownPos) / (DsInSubRecipeMemory.iOut18SlowPullVelocity))+1)
+			THEN
+				DsInSubRecipeMemory.iComCon5ProcessTimer := (((DsStnSeqProInput.iSlowPullUpPos-DsStnSeqProInput.iSlowPullDownPos) / (DsInSubRecipeMemory.iOut18SlowPullVelocity))+1);
+			END_IF
+
+			DsInSubRecipeMemory.iOut19SlowPullDelayTime :=
+			DsInSubRecipeMemory.iComCon5ProcessTimer -
+			(((DsStnSeqProInput.iSlowPullUpPos-DsStnSeqProInput.iSlowPullDownPos) / (DsInSubRecipeMemory.iOut18SlowPullVelocity))+1) ;
+
+	ELSE
+	DsInSubRecipeMemory.iOut19SlowPullDelayTime :=0;
+
+	END_IF
+END_IF
+
+
+
+
+
+(* Load Recipe *)
+
+LoadDF(CLK:=bLoadPB,Q=>);
+LoadENDF(CLK:=bLoadEn,Q=>);
+
+IF LoadDF.Q OR LoadENDF.Q THEN
+
+DsInSubRecipeMemory := ARDsStorageSubRecipeMemory[iSubRecipeNo];
+sSubRecipeDescription := ARsStorageSubDescription[iSubRecipeNo];
+PreviousNoSub := iSubRecipeNo;
+
+END_IF
+
+
+(* Save Recipe *)
+
+SaveDF(CLK:=bSavePB,Q=>);
+
+IF SaveDF.Q THEN
+
+ARDsStorageSubRecipeMemory[iSubRecipeNo] := DsInSubRecipeMemory;
+ARsStorageSubDescription[iSubRecipeNo] := sSubRecipeDescription;
+
+END_IF
+
+(*Copy Recipe*)
+
+CopyDF(CLK:=bCopyPB,Q=>);
+
+IF CopyDF.Q THEN
+
+ARDsStorageSubRecipeMemory[iCopyToSubRecipeNo] := ARDsStorageSubRecipeMemory[iSubRecipeNo];
+ARsStorageSubDescription[iCopyToSubRecipeNo] := ARsStorageSubDescription[iSubRecipeNo];
+
+END_IF
+
+ClearDF(CLK:=bClearPB,Q=>);
+
+IF ClearDF.Q THEN
+
+ARDsStorageSubRecipeMemory[iSubRecipeNo] 		:=DsSubRecipeMemory_Empty;
+ARsStorageSubDescription[iSubRecipeNo] 			:= '';
+
+END_IF
+
+
+
+(* Call Recipe *)
+(* ---- Call Recipe Complete Flag ---*)
+
+(*
+CallCompletedTimer(IN:=bCallCompleted , PT:=t#0.5s , Q=> , ET=> );
+*)
+IF (*CallCompletedTimer.Q*) NOT bCallPB THEN
+bCallCompleted := FALSE;
+END_IF
+(*
+CallSelfCheckRE(CLK:=PreviousCallNo <> Call_iSubRecipe , Q=> );
+
+IF CallSelfCheckRE.Q THEN
+CallSelfCheckHR := TRUE;
+END_IF
+*)
+bCallPBRE(CLK:=bCallPB , Q=> );
+
+IF (Call_iSubRecipe <=0 OR Call_iSubRecipe > IStationSubRecipeArrayQty) AND bCallPB THEN
+bInvalidCallSubRecipeNoHold := TRUE;
+ELSE
+bInvalidCallSubRecipeNoHold := FALSE;
+END_IF
+
+rebInvalidCallSubRecipeNo(CLK:= bCallPB AND bInvalidCallSubRecipeNoHold, Q=> );
+
+IF rebInvalidCallSubRecipeNo.Q THEN
+bInvalidCallSubRecipeNoPulse := TRUE;
+END_IF
+
+tInvalidCallStationSubNoPulseTimer(IN:=bInvalidCallSubRecipeNoPulse , PT:=t#0.5s , Q=> , ET=> );
+
+IF tInvalidCallStationSubNoPulseTimer.Q OR NOT bCallPB THEN
+bInvalidCallSubRecipeNoPulse := FALSE;
+END_IF
+
+(*
+febInvalidCallSubRecipeNo(CLK:=bInvalidCallSubRecipeNoHold , Q=> );
+*)
+IF (bCallPBRE.Q AND NOT bInvalidCallSubRecipeNoHold) (*OR febInvalidCallSubRecipeNo.Q*) THEN
+bCallCompleted := FALSE;
+CallStep:= 1;
+END_IF
+CASE CallStep OF
+
+1:
+
+Call_DsSubRecipeMemory := ARDsStorageSubRecipeMemory[Call_iSubRecipe];
+Call_sSubDescription := ARsStorageSubDescription[Call_iSubRecipe];
+(*
+IF NOT bCallPBEnable AND CallSelfCheckHR THEN
+CallStep := 10;
+END_IF
+
+IF bCallPBEnable THEN*)
+CallStep := 11;
+(*END_IF*)
+
+10:
+bCallCompleted := TRUE;
+CallSelfCheckHR := FALSE;
+PreviousCallNo := Call_iSubRecipe;
+CallStep := 99;
+
+11:
+(*
+IF bCallPBEnable AND bCallPB THEN*)
+bCallCompleted := TRUE;
+CallStep := 99;
+
+
+
+
+99:;
+
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="fbStationSubRecipe">
+      <LineId Id="86" Count="11" />
+      <LineId Id="364" Count="14" />
+      <LineId Id="98" Count="97" />
+      <LineId Id="379" Count="8" />
+      <LineId Id="196" Count="78" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

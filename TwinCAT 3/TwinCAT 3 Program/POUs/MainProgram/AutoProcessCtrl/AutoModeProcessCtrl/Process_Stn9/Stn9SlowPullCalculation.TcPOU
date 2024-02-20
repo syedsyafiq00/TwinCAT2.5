@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Stn9SlowPullCalculation" Id="{665021eb-9fb1-4166-8d2a-306d33278b4f}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Stn9SlowPullCalculation
+VAR
+
+	bStn9ProcessCompleted: BOOL;
+	bCutSlowPullHR: BOOL;
+	bSlowPullDelayComplete: BOOL;
+	bSlowPullHolding: BOOL;
+	bStn9ProcessStart: BOOL;
+	bAgitationStart: BOOL;
+
+	bSlowPullUpFE: F_TRIG;
+	bSlowPullHoldingRE: R_TRIG;
+	bSlowPullDelayCompleteRE: R_TRIG;
+
+	tSlowpullResume: TON;
+	bSlowpullResumeRE: R_TRIG;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[DS_ArmLifterPosition.lrSlowPullUpAcc:=DS_ArmLifterPosition.lrSlowPullUpVelo;(*Velo*)
+DS_ArmLifterPosition.lrSlowPullUpDcc:=DS_ArmLifterPosition.lrSlowPullUpVelo;(*Velo*)
+
+(*
+(*********Slow Pull Travel Time*********)
+IF DS_Horz1Position.lrSlowPullUpVelo >0 THEN
+iStn8SlowPullTravelTime:=LREAL_TO_INT((DS_Horz1Position.lrSlowPullUpPos-DS_Horz1Position.lrSlowPullDownPos)/(DS_Horz1Position.lrSlowPullUpVelo))+1;
+END_IF
+*)
+(*
+(*********Calculate the Total Process Time with added Slow Pull Delay Timer if Enquiry*********)
+IF DS_Horz1Position.lrSlowPullUpVelo >0 THEN
+	AR10DSStationSSURStore[8].DsSubRecipeMemory.iComCon5ProcessTimer := iStn8SlowPullTravelTime + iStn8SlowPullDelayTimer ;
+END_IF
+*)
+
+
+tSlowpullResume(IN:= NOT  ARdsEventCtrl[114].bEventOutput  AND NOT ARdsEventCtrl[115].bEventOutput AND NOT oArmSlowPullHomingCtrl.LifterReadStatus.Error , PT:= T#8S , Q=> , ET=> ); (*New- added by Lee- to resume movement on liftout after curtain sensor alarm reset*)
+bSlowpullResumeRE(CLK:= tSlowpullResume.Q , Q=> );
+
+
+
+(*********Process Start once Arm reach Up Postion*********)
+IF bAutoStartPb AND DSStnBasketInfo[9].bAvailibility AND (ARDSArmCtrl[1].AR3sbPositionCfm[1,9,1] OR bStn9ProcessStart) AND NOT bStnLiftoutMechanismBypass THEN
+bStn9ProcessStart := TRUE;
+ELSE
+bStn9ProcessStart := FALSE;
+END_IF
+
+(*********Slow Pull Delay Timer End, Slow Pull Start Travel Up*********)
+IF bAutoStartPb AND DSStnBasketInfo[9].bAvailibility AND bStn9ProcessStart
+AND
+((*ARDsStnSeqProcessCtrl[6].Out_DSStnSeqProOutput.b12SlowPull AND*) ARDsStnSeqProcessCtrl[9].Out_DSStnSeqProOutput.i19SlowPullDelayTime <=0 OR (bSlowPullHolding AND bSlowPullHoldingRE.Q) OR (bSlowPull1LifterStn9Up_01))
+AND NOT bStn9ProcessCompleted AND tSlowpullResume.Q (*New Added*) AND NOT bStnLiftoutMechanismBypass THEN
+bSlowPull1LifterStn9Up_01 := TRUE;
+ELSE
+bSlowPull1LifterStn9Up_01 := FALSE;
+END_IF
+
+(*********Slow Pull Delay Timer End*********)
+IF bAutoStartPb AND DSStnBasketInfo[9].bAvailibility AND bStn9ProcessStart
+AND (ARDsStnSeqProcessCtrl[9].Out_DSStnSeqProOutput.i19SlowPullDelayTime <=0 OR bSlowPullDelayComplete)
+AND NOT bStn9ProcessCompleted AND NOT bStnLiftoutMechanismBypass THEN
+bSlowPullDelayComplete := TRUE;
+ELSE
+bSlowPullDelayComplete := FALSE;
+END_IF
+
+(*********Slow Pull Delay Timer End,Slow Pull Holding Bit for Slow Pull Travel Up*********)
+IF bMainOnOff AND ((bArmSlowPullDownCFM AND bAutoStartPb AND bSlowPullDelayComplete) OR bSlowPullHolding)
+AND NOT bCutSlowPullHR AND NOT bStnLiftoutMechanismBypass THEN
+bSlowPullHolding := TRUE;
+ELSE
+bSlowPullHolding := FALSE;
+END_IF
+
+(*********Slow Pull RE Holding Bit*********)
+bSlowPullHoldingRE(CLK:= bAutoStartPb , Q=> );
+
+(*********Slow Pull Cut Once Slow Pull Up Bit Off*********)
+bSlowPullUpFE(CLK:= bSlowPull1LifterStn9Up_01 , Q=> );
+IF bSlowPullUpFE.Q AND bAutoStartPb AND NOT bStnLiftoutMechanismBypass THEN
+bCutSlowPullHR := TRUE;
+ELSE
+bCutSlowPullHR := FALSE;
+END_IF
+
+(*********Slow Pull Up Position, Process Completed*********)
+IF bAutoStartPb AND DSStnBasketInfo[9].bAvailibility
+AND ((bArmSlowPullUpCFM AND ARDsStnSeqProcessCtrl[9].Out_bProcessCompleted) OR bStn9ProcessCompleted) AND NOT bStnLiftoutMechanismBypass
+THEN
+bStn9ProcessCompleted := TRUE;
+ELSE
+bStn9ProcessCompleted := FALSE;
+END_IF
+
+(*********Process Completed, Slow Pull Start to Travel Down once No have Basket Availability*********)
+IF bAutoStartPb AND NOT DSStnBasketInfo[9].bAvailibility
+AND ((ARDSArmCtrl[1].AR3sbPositionCfm[1,9,1] AND ARbArm1HorzStnZoneConfirm[9]) OR NOT ARbArm1HorzStnZoneConfirm[9] OR  bSlowPull1LifterStn9Down_02)
+AND NOT bArmSlowPulldownCFM AND tSlowpullResume.Q AND NOT bStnLiftoutMechanismBypass THEN
+bSlowPull1LifterStn9Down_02 := TRUE;
+ELSE
+bSlowPull1LifterStn9Down_02 := FALSE;
+END_IF
+
+(*
+(*********Slow Pull Agitation if Enquiry*********)
+IF bAutoStartPb AND DSStnBasketInfo[8].bAvailibility
+AND ((bStn8ProcessStart AND bArmSlowPulldownCFM) OR bAgitationStart )
+AND NOT bSlowPullDelayComplete AND NOT bSlowPullAgitationBypass THEN
+bAgitationStart := TRUE;
+ELSE
+bAgitationStart := FALSE;
+END_IF
+
+IF bAutoStartPb AND bAgitationStart
+AND NOT bArmSlowPullUpAgitationCFM AND NOT wArmSlowPullPosStart.4 THEN
+wArmSlowPullUpAgitation.2 := TRUE;
+ELSE
+wArmSlowPullUpAgitation.2 := FALSE;
+END_IF
+
+IF bAutoStartPb AND bAgitationStart AND (bArmSlowPullUpAgitationCFM OR wArmSlowPullPosStart.4)
+AND NOT bArmSlowPullDownAgitationCFM AND NOT wArmSlowPullPosStart.3 THEN
+wArmSlowPullDownAgitation.2 := TRUE;
+ELSE
+wArmSlowPullDownAgitation.2 := FALSE;
+END_IF
+
+bSlowPullDelayCompleteRE(CLK:= bAutoStartPb AND DSStnBasketInfo[8].bAvailibility AND bSlowPullDelayComplete , Q=> );
+
+IF bAutoStartPb AND bStn8ProcessStart AND (bSlowPullDelayCompleteRE.Q OR wArmSlowPulldown.3)
+AND NOT bArmSlowPulldownCFM AND NOT bSlowPullAgitationBypass THEN
+wArmSlowPulldown.3 := TRUE;
+ELSE
+wArmSlowPulldown.3 := FALSE;
+END_IF
+*)]]></ST>
+    </Implementation>
+    <LineIds Name="Stn9SlowPullCalculation">
+      <LineId Id="18" Count="117" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

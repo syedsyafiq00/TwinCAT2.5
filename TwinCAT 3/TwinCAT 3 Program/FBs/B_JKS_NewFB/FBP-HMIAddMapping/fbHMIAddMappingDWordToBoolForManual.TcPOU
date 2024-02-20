@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbHMIAddMappingDWordToBoolForManual" Id="{bb2571cb-ba2e-471f-9792-9a463b19a505}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbHMIAddMappingDWordToBoolForManual
+
+
+VAR_INPUT
+	bEN : BOOL;
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+	ARdwBoolAddress_Pro 					: DWORD;
+	ARbBoolAddress_Hmi 				: BOOL;
+END_VAR
+
+VAR_OUTPUT
+END_VAR
+
+
+VAR
+	ARBufferbBoolAddress_Pro 				:  BOOL;
+	ARBufferbBoolAddress_Hmi 				:  BOOL;
+
+	ARUpdate_bBoolAddress_Pro 				:  BOOL;
+	ARUpdate_bBoolAddress_Hmi 				:  BOOL;
+
+END_VAR
+VAR
+	bENRE : R_TRIG;
+
+	ProSideFL: INT;
+	HmiSideFL: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Initialized*)
+bENRE(CLK:=bEN , Q=> );
+IF bENRE.Q THEN
+			(*Bool*)
+			ARBufferbBoolAddress_Pro := ARdwBoolAddress_Pro.31;
+			ARBufferbBoolAddress_Hmi := ARdwBoolAddress_Pro.31;
+			ARbBoolAddress_Hmi := ARdwBoolAddress_Pro.31;
+END_IF
+
+(*Program*)
+
+
+ARUpdate_bBoolAddress_Pro := FALSE;
+
+	IF ARBufferbBoolAddress_Pro <> ARdwBoolAddress_Pro.31 THEN
+		ARUpdate_bBoolAddress_Pro := TRUE;
+	END_IF
+
+	IF ARUpdate_bBoolAddress_Pro THEN
+		ARBufferbBoolAddress_Pro := ARdwBoolAddress_Pro.31;
+		ARBufferbBoolAddress_Hmi := ARdwBoolAddress_Pro.31;
+		ARbBoolAddress_Hmi := ARdwBoolAddress_Pro.31;
+	END_IF
+
+
+
+			(**********HMI Side Value Change**********)
+
+ARUpdate_bBoolAddress_Hmi := FALSE;
+
+	(**********Bool**********)
+	IF ARBufferbBoolAddress_Hmi <> ARbBoolAddress_Hmi THEN
+		ARUpdate_bBoolAddress_Hmi := TRUE;
+	END_IF
+
+	IF ARUpdate_bBoolAddress_Hmi THEN
+		ARBufferbBoolAddress_Pro := ARbBoolAddress_Hmi;
+		ARBufferbBoolAddress_Hmi := ARbBoolAddress_Hmi;
+		ARdwBoolAddress_Pro.31 := ARbBoolAddress_Hmi;
+	END_IF
+
+(*
+(*Bool 001*)
+IF NOT ARUpdate_bBoolAddress_Hmi THEN ARdwBoolAddress_Pro.31 := Pro_bBool_001; ELSE Pro_bBool_001 := ARdwBoolAddress_Pro.31; END_IF
+IF NOT ARUpdate_bBoolAddress_Pro THEN ARbBoolAddress_Hmi := Hmi_bBool_001; ELSE Hmi_bBool_001 := ARbBoolAddress_Hmi; END_IF
+*)]]></ST>
+    </Implementation>
+    <LineIds Name="fbHMIAddMappingDWordToBoolForManual">
+      <LineId Id="30" Count="45" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

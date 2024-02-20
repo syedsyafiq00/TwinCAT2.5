@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbA32_MachineZoneHeight" Id="{b3062f9c-6eed-4e84-8fd4-803edef58cec}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbA32_MachineZoneHeight
+
+VAR_IN_OUT PERSISTENT
+
+	DSLdZoneHeight : DSA32_StationZoneHeight;
+	ARDSStationZoneHeight : ARRAY [0..iStnQty] OF DSA32_StationZoneHeight;
+	DSUldZoneHeight : DSA32_StationZoneHeight;
+
+
+END_VAR
+VAR_OUTPUT
+	DSLdZonePosOut : DSA32_StationZonePosOut;
+	ARDSStationZonePosOut : ARRAY [0..iStnQty] OF DSA32_StationZonePosOut;
+	DSUldZonePosOut : DSA32_StationZonePosOut;
+
+END_VAR
+VAR PERSISTENT
+
+	fbLdStationZoneHeight : fbA32_StationZoneHeight;
+	ARfbStationZoneHeight : ARRAY [0..iStnQty] OF fbA32_StationZoneHeight;
+	fbUldStationZoneHeight : fbA32_StationZoneHeight;
+
+END_VAR
+VAR
+	Loop: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Loading*)
+fbLdStationZoneHeight(DSStationZoneHeight:=DSLdZoneHeight , DSStationZonePosOut=>DSLdZonePosOut );
+
+Loop := 1;
+IF Loop >= 1 THEN
+
+	FOR Loop := 1 TO iStnQty DO
+
+		(*Station x20*)
+		ARfbStationZoneHeight[Loop](DSStationZoneHeight:=ARDSStationZoneHeight[Loop] , DSStationZonePosOut=>ARDSStationZonePosOut[Loop] );
+
+	END_FOR
+
+END_IF
+
+(*Unloading*)
+fbUldStationZoneHeight(DSStationZoneHeight:=DSUldZoneHeight , DSStationZonePosOut=>DSUldZonePosOut );]]></ST>
+    </Implementation>
+    <LineIds Name="fbA32_MachineZoneHeight">
+      <LineId Id="26" Count="16" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

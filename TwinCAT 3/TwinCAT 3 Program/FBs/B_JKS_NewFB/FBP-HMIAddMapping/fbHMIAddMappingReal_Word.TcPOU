@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbHMIAddMappingReal_Word" Id="{35862d38-2527-42d3-8784-39b4865658d5}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbHMIAddMappingReal_Word
+
+
+VAR_INPUT
+	bEN : BOOL;
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+	ARrRealAddress_Pro 					: REAL;
+	ARwAddress_Hmi 					: WORD;
+END_VAR
+
+
+VAR_OUTPUT
+END_VAR
+
+
+VAR
+	ARBufferrRealAddress_Pro 				:  REAL;
+	ARBufferwAddress_Hmi 					:  WORD;
+
+	ARUpdate_bRealAddress_Pro 				:  BOOL;
+	ARUpdate_bWordAddress_Hmi 			:  BOOL;
+
+END_VAR
+VAR
+	bENRE : R_TRIG;
+
+	ProSideFL: REAL;
+	HmiSideFL: REAL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Initialized*)
+bENRE(CLK:=bEN , Q=> );
+IF bENRE.Q THEN
+			(*Int*)
+			ARBufferrRealAddress_Pro := ARrRealAddress_Pro;
+			ARBufferwAddress_Hmi := REAL_TO_WORD(ARrRealAddress_Pro);
+			ARwAddress_Hmi := REAL_TO_WORD(ARrRealAddress_Pro);
+END_IF
+
+(*Program*)
+
+
+ARUpdate_bRealAddress_Pro := FALSE;
+
+	IF ARBufferrRealAddress_Pro <> ARrRealAddress_Pro THEN
+		ARUpdate_bRealAddress_Pro := TRUE;
+	END_IF
+
+	IF ARUpdate_bRealAddress_Pro THEN
+		ARBufferrRealAddress_Pro := ARrRealAddress_Pro;
+		ARBufferwAddress_Hmi := REAL_TO_WORD(ARrRealAddress_Pro);
+		ARwAddress_Hmi := REAL_TO_WORD(ARrRealAddress_Pro);
+	END_IF
+
+
+
+			(**********HMI Side Value Change**********)
+
+ARUpdate_bWordAddress_Hmi := FALSE;
+
+	(**********Int**********)
+	IF ARBufferwAddress_Hmi <> ARwAddress_Hmi THEN
+		ARUpdate_bWordAddress_Hmi := TRUE;
+	END_IF
+
+	IF ARUpdate_bWordAddress_Hmi THEN
+		ARBufferrRealAddress_Pro := WORD_TO_REAL(ARwAddress_Hmi);
+		ARBufferwAddress_Hmi := ARwAddress_Hmi;
+		ARrRealAddress_Pro := WORD_TO_REAL(ARwAddress_Hmi);
+	END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbHMIAddMappingReal_Word">
+      <LineId Id="31" Count="39" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

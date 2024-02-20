@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbA32_StationZoneHeight" Id="{805ef62d-9c88-4c8f-aac7-2c44e0dd8c5f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbA32_StationZoneHeight
+VAR_IN_OUT PERSISTENT
+
+	DSStationZoneHeight : DSA32_StationZoneHeight;
+
+
+END_VAR
+VAR_OUTPUT
+	DSStationZonePosOut : DSA32_StationZonePosOut;
+
+END_VAR
+VAR
+	bZone1RangeValid: BOOL;
+	bZone2RangeValid: BOOL;
+	bZone3RangeValid: BOOL;
+	bZone4RangeValid: BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[DSStationZonePosOut.lrZone1StartPos := DSStationZoneHeight.lrTopPos;
+DSStationZonePosOut.lrZone2StartPos := DSStationZonePosOut.lrZone1EndPos;
+DSStationZonePosOut.lrZone3StartPos := DSStationZonePosOut.lrZone2EndPos;
+DSStationZonePosOut.lrZone4StartPos := DSStationZonePosOut.lrZone3EndPos;
+
+DSStationZonePosOut.lrZone1EndPos := DSStationZoneHeight.lrTopPos + DSStationZoneHeight.lrZone1Range;
+DSStationZonePosOut.lrZone2EndPos := DSStationZoneHeight.lrTopPos + DSStationZoneHeight.lrZone1Range + DSStationZoneHeight.lrZone2Range;
+DSStationZonePosOut.lrZone3EndPos := DSStationZoneHeight.lrTopPos + DSStationZoneHeight.lrZone1Range + DSStationZoneHeight.lrZone2Range + DSStationZoneHeight.lrZone3Range;
+DSStationZonePosOut.lrZone4EndPos := DSStationZoneHeight.lrBottomPos;
+
+DSStationZonePosOut.lrMidPos := DSStationZoneHeight.lrMidPos; (*Added New*)
+
+DSStationZoneHeight.lrZone4Range := DSStationZoneHeight.lrBottomPos - DSStationZonePosOut.lrZone3EndPos;
+
+IF DSStationZoneHeight.lrZone1Range > (DSStationZoneHeight.lrBottomPos - DSStationZoneHeight.lrTopPos) THEN
+DSStationZoneHeight.lrZone1Range := DSStationZoneHeight.lrBottomPos - DSStationZoneHeight.lrTopPos;
+END_IF
+
+IF DSStationZoneHeight.lrZone2Range > (DSStationZoneHeight.lrBottomPos - DSStationZoneHeight.lrZone1Range - DSStationZoneHeight.lrTopPos) THEN
+DSStationZoneHeight.lrZone2Range := DSStationZoneHeight.lrBottomPos - DSStationZoneHeight.lrZone1Range - DSStationZoneHeight.lrTopPos;
+END_IF
+
+IF DSStationZoneHeight.lrZone3Range > (DSStationZoneHeight.lrBottomPos - DSStationZoneHeight.lrZone1Range - DSStationZoneHeight.lrZone2Range - DSStationZoneHeight.lrTopPos) THEN
+DSStationZoneHeight.lrZone3Range := DSStationZoneHeight.lrBottomPos - DSStationZoneHeight.lrZone1Range - DSStationZoneHeight.lrZone2Range - DSStationZoneHeight.lrTopPos;
+END_IF
+
+
+IF DSStationZoneHeight.lrZone1Range < 0 THEN
+DSStationZoneHeight.lrZone1Range := 0;
+ELSIF DSStationZoneHeight.lrZone2Range < 0 THEN
+DSStationZoneHeight.lrZone2Range := 0;
+ELSIF DSStationZoneHeight.lrZone3Range < 0 THEN
+DSStationZoneHeight.lrZone3Range := 0;
+END_IF
+
+
+
+
+
+
+
+IF DSStationZoneHeight.lrZone1Range <> 0 THEN
+bZone1RangeValid := TRUE;
+ELSE
+bZone1RangeValid := FALSE;
+END_IF
+
+IF DSStationZoneHeight.lrZone2Range <> 0 THEN
+bZone2RangeValid := TRUE;
+ELSE
+bZone2RangeValid := FALSE;
+END_IF
+
+IF DSStationZoneHeight.lrZone3Range <> 0 THEN
+bZone3RangeValid := TRUE;
+ELSE
+bZone3RangeValid := FALSE;
+END_IF
+
+IF DSStationZoneHeight.lrZone4Range <> 0 THEN
+bZone4RangeValid := TRUE;
+ELSE
+bZone4RangeValid := FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbA32_StationZoneHeight">
+      <LineId Id="17" Count="63" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

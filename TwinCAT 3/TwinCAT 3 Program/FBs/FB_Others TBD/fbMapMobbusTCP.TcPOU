@@ -1,0 +1,774 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbMapMobbusTCP" Id="{7569801b-e4d3-4a45-bf75-4354d193e20e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbMapMobbusTCP
+VAR_INPUT
+
+	bEnable					: BOOL;
+	sIPAddr					: STRING;
+	nMBAddr				: WORD;
+	bWriteOut				: ARRAY [0..255] OF BOOL;
+	wWriteOut				: ARRAY [0..255] OF WORD;
+
+
+END_VAR
+VAR_OUTPUT
+
+	bReadIn				: ARRAY [0..255] OF BOOL;
+	wReadIn					: ARRAY  [0..255] OF WORD;
+
+END_VAR
+
+VAR
+
+	fbWriteCoils				: FB_MBWriteCoils;
+	bWriteCoils					: BOOL;
+
+	fbWriteRegs   			: FB_MBWriteRegs;
+ 	bWriteRegs    			: BOOL;
+
+	fbWriteRegs2   			: FB_MBWriteRegs;
+ 	bWriteRegs2    			: BOOL;
+
+	fbReadInputRegs     		: FB_MBReadInputRegs;
+          bReadRegs       			: BOOL;
+
+	fbReadInputs     			: FB_MBReadInputs;
+	 bReadInputs     			: BOOL;
+
+	n						: INT;
+	x						: INT;
+	start						: BOOL:=TRUE;
+
+	BRead					: ARRAY [0..31] OF BYTE;
+	BWrite					: ARRAY [0..31] OF BYTE;
+	wWrite					: ARRAY  [0..128] OF WORD;
+	wWrite2					: ARRAY  [0..128] OF WORD;
+
+
+
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF bEnable THEN
+
+(*Read Byte/Bool Slave Input coils*)
+IF NOT bReadInputs THEN
+
+	 bReadInputs :=TRUE;
+
+	fbReadInputs.sIPAddr		:=sIPAddr;
+	fbReadInputs.nQuantity 	:= 256;
+	fbReadInputs.nMBAddr 	:= nMBAddr; (*16#8000*)
+	fbReadInputs.cbLength 	:= SIZEOF(BRead);
+	fbReadInputs.pDestAddr 	:= ADR(BRead);
+	fbReadInputs.tTimeout 		:= T#5s;
+	fbReadInputs(bExecute:=TRUE);
+ELSE
+	 IF NOT fbReadInputs.bBUSY THEN
+		 bReadInputs:=FALSE;
+	END_IF
+		 fbReadInputs(bExecute:=FALSE);
+END_IF
+
+
+(*Write Byte/Bool slave Output_coils*)
+IF NOT bWriteCoils THEN
+
+	bWriteCoils := TRUE;
+
+	fbWriteCoils.sIPAddr	:=sIPAddr;
+	fbWriteCoils.nQuantity 	:=256;
+	fbWriteCoils.nMBAddr  := nMBAddr;(*16#8000*)
+	fbWriteCoils.cbLength 	:= SIZEOF(BWrite);
+	fbWriteCoils.pSrcAddr 	:= ADR(BWrite);
+	fbWriteCoils.tTimeout 	:= T#5s;
+	fbWriteCoils(bExecute:=TRUE);
+
+
+ELSE
+	IF  NOT fbWriteCoils.bBUSY  THEN
+		bWriteCoils :=FALSE;
+	END_IF
+	fbWriteCoils(bExecute:=FALSE);
+
+END_IF
+
+
+(*Read word slave  Input_register FB*)
+IF NOT bReadRegs THEN
+
+	 bReadRegs :=TRUE;
+
+	 fbReadInputRegs.sIPAddr		:=sIPAddr;
+	 fbReadInputRegs.nQuantity		:= 256;
+	 fbReadInputRegs.nMBAddr 	:= nMBAddr;(*16#8000*)
+	 fbReadInputRegs.cbLength 	:= SIZEOF(wReadIn);
+	 fbReadInputRegs.pDestAddr 	:= ADR(wReadIn);
+	 fbReadInputRegs.tTimeout 		:= T#5s;
+	 fbReadInputRegs(bExecute:=TRUE);
+ELSE
+	 IF NOT fbReadInputRegs.bBUSY THEN
+		 bReadRegs :=FALSE;
+	END_IF
+		 fbReadInputRegs(bExecute:=FALSE);
+END_IF
+
+
+(* Write Word slave Output_Register (0-128)*)
+IF NOT bWriteRegs THEN
+
+	 bWriteRegs :=TRUE;
+
+	 fbWriteRegs.sIPAddr 		:=sIPAddr;
+	 fbWriteRegs.nQuantity 		:= 128;
+	 fbWriteRegs.nMBAddr 	:= nMBAddr;(*16#8000*)
+	 fbWriteRegs.cbLength 		:= SIZEOF(wWrite);
+	 fbWriteRegs.pSrcAddr 	:= ADR(wWrite);
+	 fbWriteRegs.tTimeout 		:= T#5s;
+	 fbWriteRegs(bExecute:=TRUE);
+
+ELSE
+	 IF NOT fbWriteRegs.bBUSY THEN
+		 bWriteRegs :=FALSE;
+	END_IF
+		 fbWriteRegs(bExecute:=FALSE);
+END_IF
+
+
+(*Write Word slave Output_Register (129-256)*)
+IF NOT bWriteRegs2 THEN
+
+	 bWriteRegs2 :=TRUE;
+
+	 fbWriteRegs2.sIPAddr 		:=sIPAddr;
+	 fbWriteRegs2.nQuantity	:= 128;
+	 fbWriteRegs2.nMBAddr 	:=(nMBAddr+16#0080); (*16#8080 is 128*)
+	 fbWriteRegs2.cbLength 	:= SIZEOF(wWrite2);
+	 fbWriteRegs2.pSrcAddr 	:= ADR(wWrite2);
+	 fbWriteRegs2.tTimeout 	:= T#5s;
+	 fbWriteRegs2(bExecute:=TRUE);
+
+ELSE
+	 IF NOT fbWriteRegs2.bBUSY THEN
+		 bWriteRegs2 :=FALSE;
+	END_IF
+		 fbWriteRegs2(bExecute:=FALSE);
+END_IF
+
+
+(* Write register word from two FB variables to one variable*)
+IF start THEN
+	FOR
+		n:=0 TO 128 DO
+
+			wWrite[n]:=wWriteOut[n];
+
+	END_FOR
+
+	x:=0;
+	FOR
+		n:=128 TO 255 DO
+	
+			wWrite2[x]:=wWriteOut[n];
+			x:=x+1;
+	END_FOR
+
+END_IF
+
+
+
+
+
+
+
+(* Write Bool to Byte Mapping*)
+		BWrite[0].0:=bWriteOut[0];
+		BWrite[0].1:=BWriteOut[1];
+		BWrite[0].2:=BWriteOut[2];
+		BWrite[0].3:=BWriteOut[3];
+		BWrite[0].4:=BWriteOut[4];
+		BWrite[0].5:=BWriteOut[5];
+		BWrite[0].6:=BWriteOut[6];
+		BWrite[0].7:=BWriteOut[7];
+
+		BWrite[1].0:=BWriteOut[8];
+		BWrite[1].1:=BWriteOut[9];
+		BWrite[1].2:=BWriteOut[10];
+		BWrite[1].3:=BWriteOut[11];
+		BWrite[1].4:=BWriteOut[12];
+		BWrite[1].5:=BWriteOut[13];
+		BWrite[1].6:=BWriteOut[14];
+		BWrite[1].7:=BWriteOut[15];
+
+		BWrite[2].0:=BWriteOut[16];
+		BWrite[2].1:=BWriteOut[17];
+		BWrite[2].2:=BWriteOut[18];
+		BWrite[2].3:=BWriteOut[19];
+		BWrite[2].4:=BWriteOut[20];
+		BWrite[2].5:=BWriteOut[21];
+		BWrite[2].6:=BWriteOut[22];
+		BWrite[2].7:=BWriteOut[23];
+
+		BWrite[3].0:=BWriteOut[24];
+		BWrite[3].1:=BWriteOut[25];
+		BWrite[3].2:=BWriteOut[26];
+		BWrite[3].3:=BWriteOut[27];
+		BWrite[3].4:=BWriteOut[28];
+		BWrite[3].5:=BWriteOut[29];
+		BWrite[3].6:=BWriteOut[30];
+		BWrite[3].7:=BWriteOut[31];
+
+		BWrite[4].0:=BWriteOut[32];
+		BWrite[4].1:=BWriteOut[33];
+		BWrite[4].2:=BWriteOut[34];
+		BWrite[4].3:=BWriteOut[35];
+		BWrite[4].4:=BWriteOut[36];
+		BWrite[4].5:=BWriteOut[37];
+		BWrite[4].6:=BWriteOut[38];
+		BWrite[4].7:=BWriteOut[39];
+
+		BWrite[5].0:=BWriteOut[40];
+		BWrite[5].1:=BWriteOut[41];
+		BWrite[5].2:=BWriteOut[42];
+		BWrite[5].3:=BWriteOut[43];
+		BWrite[5].4:=BWriteOut[44];
+		BWrite[5].5:=BWriteOut[45];
+		BWrite[5].6:=BWriteOut[46];
+		BWrite[5].7:=BWriteOut[47];
+
+		BWrite[6].0:=BWriteOut[48];
+		BWrite[6].1:=BWriteOut[49];
+		BWrite[6].2:=BWriteOut[50];
+		BWrite[6].3:=BWriteOut[51];
+		BWrite[6].4:=BWriteOut[52];
+		BWrite[6].5:=BWriteOut[53];
+		BWrite[6].6:=BWriteOut[54];
+		BWrite[6].7:=BWriteOut[55];
+
+		BWrite[7].0:=BWriteOut[56];
+		BWrite[7].1:=BWriteOut[57];
+		BWrite[7].2:=BWriteOut[58];
+		BWrite[7].3:=BWriteOut[59];
+		BWrite[7].4:=BWriteOut[60];
+		BWrite[7].5:=BWriteOut[61];
+		BWrite[7].6:=BWriteOut[62];
+		BWrite[7].7:=BWriteOut[63];
+
+		BWrite[8].0:=BWriteOut[64];
+		BWrite[8].1:=BWriteOut[65];
+		BWrite[8].2:=BWriteOut[66];
+		BWrite[8].3:=BWriteOut[67];
+		BWrite[8].4:=BWriteOut[68];
+		BWrite[8].5:=BWriteOut[69];
+		BWrite[8].6:=BWriteOut[70];
+		BWrite[8].7:=BWriteOut[71];
+
+		BWrite[9].0:=BWriteOut[72];
+		BWrite[9].1:=BWriteOut[73];
+		BWrite[9].2:=BWriteOut[74];
+		BWrite[9].3:=BWriteOut[75];
+		BWrite[9].4:=BWriteOut[76];
+		BWrite[9].5:=BWriteOut[77];
+		BWrite[9].6:=BWriteOut[78];
+		BWrite[9].7:=BWriteOut[79];
+
+		BWrite[10].0:=BWriteOut[80];
+		BWrite[10].1:=BWriteOut[81];
+		BWrite[10].2:=BWriteOut[82];
+		BWrite[10].3:=BWriteOut[83];
+		BWrite[10].4:=BWriteOut[84];
+		BWrite[10].5:=BWriteOut[85];
+		BWrite[10].6:=BWriteOut[86];
+		BWrite[10].7:=BWriteOut[87];
+
+		BWrite[11].0:=BWriteOut[88];
+		BWrite[11].1:=BWriteOut[89];
+		BWrite[11].2:=BWriteOut[90];
+		BWrite[11].3:=BWriteOut[91];
+		BWrite[11].4:=BWriteOut[92];
+		BWrite[11].5:=BWriteOut[93];
+		BWrite[11].6:=BWriteOut[94];
+		BWrite[11].7:=BWriteOut[95];
+
+		BWrite[12].0:=BWriteOut[96];
+		BWrite[12].1:=BWriteOut[97];
+		BWrite[12].2:=BWriteOut[98];
+		BWrite[12].3:=BWriteOut[99];
+		BWrite[12].4:=BWriteOut[100];
+		BWrite[12].5:=BWriteOut[101];
+		BWrite[12].6:=BWriteOut[102];
+		BWrite[12].7:=BWriteOut[103];
+
+		BWrite[13].0:=BWriteOut[104];
+		BWrite[13].1:=BWriteOut[105];
+		BWrite[13].2:=BWriteOut[106];
+		BWrite[13].3:=BWriteOut[107];
+		BWrite[13].4:=BWriteOut[108];
+		BWrite[13].5:=BWriteOut[109];
+		BWrite[13].6:=BWriteOut[110];
+		BWrite[13].7:=BWriteOut[111];
+
+		BWrite[14].0:=BWriteOut[112];
+		BWrite[14].1:=BWriteOut[113];
+		BWrite[14].2:=BWriteOut[114];
+		BWrite[14].3:=BWriteOut[115];
+		BWrite[14].4:=BWriteOut[116];
+		BWrite[14].5:=BWriteOut[117];
+		BWrite[14].6:=BWriteOut[118];
+		BWrite[14].7:=BWriteOut[119];
+
+		BWrite[15].0:=BWriteOut[120];
+		BWrite[15].1:=BWriteOut[121];
+		BWrite[15].2:=BWriteOut[122];
+		BWrite[15].3:=BWriteOut[123];
+		BWrite[15].4:=BWriteOut[124];
+		BWrite[15].5:=BWriteOut[125];
+		BWrite[15].6:=BWriteOut[126];
+		BWrite[15].7:=BWriteOut[127];
+
+		BWrite[16].0:=BWriteOut[128];
+		BWrite[16].1:=BWriteOut[129];
+		BWrite[16].2:=BWriteOut[130];
+		BWrite[16].3:=BWriteOut[131];
+		BWrite[16].4:=BWriteOut[132];
+		BWrite[16].5:=BWriteOut[133];
+		BWrite[16].6:=BWriteOut[134];
+		BWrite[16].7:=BWriteOut[135];
+
+		BWrite[17].0:=BWriteOut[136];
+		BWrite[17].1:=BWriteOut[137];
+		BWrite[17].2:=BWriteOut[138];
+		BWrite[17].3:=BWriteOut[139];
+		BWrite[17].4:=BWriteOut[140];
+		BWrite[17].5:=BWriteOut[141];
+		BWrite[17].6:=BWriteOut[142];
+		BWrite[17].7:=BWriteOut[143];
+
+		BWrite[18].0:=BWriteOut[144];
+		BWrite[18].1:=BWriteOut[145];
+		BWrite[18].2:=BWriteOut[146];
+		BWrite[18].3:=BWriteOut[147];
+		BWrite[18].4:=BWriteOut[148];
+		BWrite[18].5:=BWriteOut[149];
+		BWrite[18].6:=BWriteOut[150];
+		BWrite[18].7:=BWriteOut[151];
+
+		BWrite[19].0:=BWriteOut[152];
+		BWrite[19].1:=BWriteOut[153];
+		BWrite[19].2:=BWriteOut[154];
+		BWrite[19].3:=BWriteOut[155];
+		BWrite[19].4:=BWriteOut[156];
+		BWrite[19].5:=BWriteOut[157];
+		BWrite[19].6:=BWriteOut[158];
+		BWrite[19].7:=BWriteOut[159];
+
+		BWrite[20].0:=BWriteOut[160];
+		BWrite[20].1:=BWriteOut[161];
+		BWrite[20].2:=BWriteOut[162];
+		BWrite[20].3:=BWriteOut[163];
+		BWrite[20].4:=BWriteOut[164];
+		BWrite[20].5:=BWriteOut[165];
+		BWrite[20].6:=BWriteOut[166];
+		BWrite[20].7:=BWriteOut[167];
+		BWrite[21].0:=BWriteOut[168];
+
+		BWrite[21].1:=BWriteOut[169];
+		BWrite[21].2:=BWriteOut[170];
+		BWrite[21].3:=BWriteOut[171];
+		BWrite[21].4:=BWriteOut[172];
+		BWrite[21].5:=BWriteOut[173];
+		BWrite[21].6:=BWriteOut[174];
+		BWrite[21].7:=BWriteOut[175];
+
+		BWrite[22].0:=BWriteOut[176];
+		BWrite[22].1:=BWriteOut[177];
+		BWrite[22].2:=BWriteOut[178];
+		BWrite[22].3:=BWriteOut[179];
+		BWrite[22].4:=BWriteOut[180];
+		BWrite[22].5:=BWriteOut[181];
+		BWrite[22].6:=BWriteOut[182];
+		BWrite[22].7:=BWriteOut[183];
+
+		BWrite[23].0:=BWriteOut[184];
+		BWrite[23].1:=BWriteOut[185];
+		BWrite[23].2:=BWriteOut[186];
+		BWrite[23].3:=BWriteOut[187];
+		BWrite[23].4:=BWriteOut[188];
+		BWrite[23].5:=BWriteOut[189];
+		BWrite[23].6:=BWriteOut[190];
+		BWrite[23].7:=BWriteOut[191];
+
+		BWrite[24].0:=BWriteOut[192];
+		BWrite[24].1:=BWriteOut[193];
+		BWrite[24].2:=BWriteOut[194];
+		BWrite[24].3:=BWriteOut[195];
+		BWrite[24].4:=BWriteOut[196];
+		BWrite[24].5:=BWriteOut[197];
+		BWrite[24].6:=BWriteOut[198];
+		BWrite[24].7:=BWriteOut[199];
+
+		BWrite[25].0:=BWriteOut[200];
+		BWrite[25].1:=BWriteOut[201];
+		BWrite[25].2:=BWriteOut[202];
+		BWrite[25].3:=BWriteOut[203];
+		BWrite[25].4:=BWriteOut[204];
+		BWrite[25].5:=BWriteOut[205];
+		BWrite[25].6:=BWriteOut[206];
+		BWrite[25].7:=BWriteOut[207];
+
+		BWrite[26].0:=BWriteOut[208];
+		BWrite[26].1:=BWriteOut[209];
+		BWrite[26].2:=BWriteOut[210];
+		BWrite[26].3:=BWriteOut[211];
+		BWrite[26].4:=BWriteOut[212];
+		BWrite[26].5:=BWriteOut[213];
+		BWrite[26].6:=BWriteOut[214];
+		BWrite[26].7:=BWriteOut[215];
+
+		BWrite[27].0:=BWriteOut[216];
+		BWrite[27].1:=BWriteOut[217];
+		BWrite[27].2:=BWriteOut[218];
+		BWrite[27].3:=BWriteOut[219];
+		BWrite[27].4:=BWriteOut[220];
+		BWrite[27].5:=BWriteOut[221];
+		BWrite[27].6:=BWriteOut[222];
+		BWrite[27].7:=BWriteOut[223];
+
+		BWrite[28].0:=BWriteOut[224];
+		BWrite[28].1:=BWriteOut[225];
+		BWrite[28].2:=BWriteOut[226];
+		BWrite[28].3:=BWriteOut[227];
+		BWrite[28].4:=BWriteOut[228];
+		BWrite[28].5:=BWriteOut[229];
+		BWrite[28].6:=BWriteOut[230];
+		BWrite[28].7:=BWriteOut[231];
+
+		BWrite[29].0:=BWriteOut[232];
+		BWrite[29].1:=BWriteOut[233];
+		BWrite[29].2:=BWriteOut[234];
+		BWrite[29].3:=BWriteOut[235];
+		BWrite[29].4:=BWriteOut[236];
+		BWrite[29].5:=BWriteOut[237];
+		BWrite[29].6:=BWriteOut[238];
+		BWrite[29].7:=BWriteOut[239];
+
+		BWrite[30].0:=BWriteOut[240];
+		BWrite[30].1:=BWriteOut[241];
+		BWrite[30].2:=BWriteOut[242];
+		BWrite[30].3:=BWriteOut[243];
+		BWrite[30].4:=BWriteOut[244];
+		BWrite[30].5:=BWriteOut[245];
+		BWrite[30].6:=BWriteOut[246];
+		BWrite[30].7:=BWriteOut[247];
+
+		BWrite[30].0:=BWriteOut[248];
+		BWrite[31].1:=BWriteOut[249];
+		BWrite[31].2:=BWriteOut[250];
+		BWrite[31].3:=BWriteOut[251];
+		BWrite[31].4:=BWriteOut[252];
+		BWrite[31].5:=BWriteOut[253];
+		BWrite[31].6:=BWriteOut[254];
+		BWrite[31].7:=BWriteOut[255];
+
+
+
+		(*Read Byte to Bool mapping*)
+		bReadIn[0]:=BRead[0].0;
+		bReadIn[1]:=BRead[0].1;
+		bReadIn[2]:=BRead[0].2;
+		bReadIn[3]:=BRead[0].3;
+		bReadIn[4]:=BRead[0].4;
+		bReadIn[5]:=BRead[0].5;
+		bReadIn[6]:=BRead[0].6;
+		bReadIn[7]:=BRead[0].7;
+
+		bReadIn[8]:=BRead[1].0;
+		bReadIn[9]:=BRead[1].1;
+		bReadIn[10]:=BRead[1].2;
+		bReadIn[11]:=BRead[1].3;
+		bReadIn[12]:=BRead[1].4;
+		bReadIn[13]:=BRead[1].5;
+		bReadIn[14]:=BRead[1].6;
+		bReadIn[15]:=BRead[1].7;
+
+		bReadIn[16]:=BRead[2].0;
+		bReadIn[17]:=BRead[2].1;
+		bReadIn[18]:=BRead[2].2;
+		bReadIn[19]:=BRead[2].3;
+		bReadIn[20]:=BRead[2].4;
+		bReadIn[21]:=BRead[2].5;
+		bReadIn[22]:=BRead[2].6;
+		bReadIn[23]:=BRead[2].7;
+
+		bReadIn[24]:=BRead[3].0;
+		bReadIn[25]:=BRead[3].1;
+		bReadIn[26]:=BRead[3].2;
+		bReadIn[27]:=BRead[3].3;
+		bReadIn[28]:=BRead[3].4;
+		bReadIn[29]:=BRead[3].5;
+		bReadIn[30]:=BRead[3].6;
+		bReadIn[31]:=BRead[3].7;
+
+		bReadIn[32]:=BRead[4].0;
+		bReadIn[33]:=BRead[4].1;
+		bReadIn[34]:=BRead[4].2;
+		bReadIn[35]:=BRead[4].3;
+		bReadIn[36]:=BRead[4].4;
+		bReadIn[37]:=BRead[4].5;
+		bReadIn[38]:=BRead[4].6;
+		bReadIn[39]:=BRead[4].7;
+
+		bReadIn[40]:=BRead[5].0;
+		bReadIn[41]:=BRead[5].1;
+		bReadIn[42]:=BRead[5].2;
+		bReadIn[43]:=BRead[5].3;
+		bReadIn[44]:=BRead[5].4;
+		bReadIn[45]:=BRead[5].5;
+		bReadIn[46]:=BRead[5].6;
+		bReadIn[47]:=BRead[5].7;
+
+		bReadIn[48]:=BRead[6].0;
+		bReadIn[49]:=BRead[6].1;
+		bReadIn[50]:=BRead[6].2;
+		bReadIn[51]:=BRead[6].3;
+		bReadIn[52]:=BRead[6].4;
+		bReadIn[53]:=BRead[6].5;
+		bReadIn[54]:=BRead[6].6;
+		bReadIn[55]:=BRead[6].7;
+
+		bReadIn[56]:=BRead[7].0;
+		bReadIn[57]:=BRead[7].1;
+		bReadIn[58]:=BRead[7].2;
+		bReadIn[59]:=BRead[7].3;
+		bReadIn[60]:=BRead[7].4;
+		bReadIn[61]:=BRead[7].5;
+		bReadIn[62]:=BRead[7].6;
+		bReadIn[63]:=BRead[7].7;
+
+		bReadIn[64]:=BRead[8].0;
+		bReadIn[65]:=BRead[8].1;
+		bReadIn[66]:=BRead[8].2;
+		bReadIn[67]:=BRead[8].3;
+		bReadIn[68]:=BRead[8].4;
+		bReadIn[69]:=BRead[8].5;
+		bReadIn[70]:=BRead[8].6;
+		bReadIn[71]:=BRead[8].7;
+
+		bReadIn[72]:=BRead[9].0;
+		bReadIn[73]:=BRead[9].1;
+		bReadIn[74]:=BRead[9].2;
+		bReadIn[75]:=BRead[9].3;
+		bReadIn[76]:=BRead[9].4;
+		bReadIn[77]:=BRead[9].5;
+		bReadIn[78]:=BRead[9].6;
+		bReadIn[79]:=BRead[9].7;
+
+		bReadIn[80]:=BRead[10].0;
+		bReadIn[81]:=BRead[10].1;
+		bReadIn[82]:=BRead[10].2;
+		bReadIn[83]:=BRead[10].3;
+		bReadIn[84]:=BRead[10].4;
+		bReadIn[85]:=BRead[10].5;
+		bReadIn[86]:=BRead[10].6;
+		bReadIn[87]:=BRead[10].7;
+
+		bReadIn[88]:=BRead[11].0;
+		bReadIn[89]:=BRead[11].1;
+		bReadIn[90]:=BRead[11].2;
+		bReadIn[91]:=BRead[11].3;
+		bReadIn[92]:=BRead[11].4;
+		bReadIn[93]:=BRead[11].5;
+		bReadIn[94]:=BRead[11].6;
+		bReadIn[95]:=BRead[11].7;
+
+		bReadIn[96]:=BRead[12].0;
+		bReadIn[97]:=BRead[12].1;
+		bReadIn[98]:=BRead[12].2;
+		bReadIn[99]:=BRead[12].3;
+		bReadIn[100]:=BRead[12].4;
+		bReadIn[101]:=BRead[12].5;
+		bReadIn[102]:=BRead[12].6;
+		bReadIn[103]:=BRead[12].7;
+
+		bReadIn[104]:=BRead[13].0;
+		bReadIn[105]:=BRead[13].1;
+		bReadIn[106]:=BRead[13].2;
+		bReadIn[107]:=BRead[13].3;
+		bReadIn[108]:=BRead[13].4;
+		bReadIn[109]:=BRead[13].5;
+		bReadIn[110]:=BRead[13].6;
+		bReadIn[111]:=BRead[13].7;
+
+		bReadIn[112]:=BRead[14].0;
+		bReadIn[113]:=BRead[14].1;
+		bReadIn[114]:=BRead[14].2;
+		bReadIn[115]:=BRead[14].3;
+		bReadIn[116]:=BRead[14].4;
+		bReadIn[117]:=BRead[14].5;
+		bReadIn[118]:=BRead[14].6;
+		bReadIn[119]:=BRead[14].7;
+
+		bReadIn[120]:=BRead[15].0;
+		bReadIn[121]:=BRead[15].1;
+		bReadIn[122]:=BRead[15].2;
+		bReadIn[123]:=BRead[15].3;
+		bReadIn[124]:=BRead[15].4;
+		bReadIn[125]:=BRead[15].5;
+		bReadIn[126]:=BRead[15].6;
+		bReadIn[127]:=BRead[15].7;
+
+		bReadIn[128]:=BRead[16].0;
+		bReadIn[129]:=BRead[16].1;
+		bReadIn[130]:=BRead[16].2;
+		bReadIn[131]:=BRead[16].3;
+		bReadIn[132]:=BRead[16].4;
+		bReadIn[133]:=BRead[16].5;
+		bReadIn[134]:=BRead[16].6;
+		bReadIn[135]:=BRead[16].7;
+
+		bReadIn[136]:=BRead[17].0;
+		bReadIn[137]:=BRead[17].1;
+		bReadIn[138]:=BRead[17].2;
+		bReadIn[139]:=BRead[17].3;
+		bReadIn[140]:=BRead[17].4;
+		bReadIn[141]:=BRead[17].5;
+		bReadIn[142]:=BRead[17].6;
+		bReadIn[143]:=BRead[17].7;
+
+		bReadIn[144]:=BRead[18].0;
+		bReadIn[145]:=BRead[18].1;
+		bReadIn[146]:=BRead[18].2;
+		bReadIn[147]:=BRead[18].3;
+		bReadIn[148]:=BRead[18].4;
+		bReadIn[149]:=BRead[18].5;
+		bReadIn[150]:=BRead[18].6;
+		bReadIn[151]:=BRead[18].7;
+
+		bReadIn[152]:=BRead[19].0;
+		bReadIn[153]:=BRead[19].1;
+		bReadIn[154]:=BRead[19].2;
+		bReadIn[155]:=BRead[19].3;
+		bReadIn[156]:=BRead[19].4;
+		bReadIn[157]:=BRead[19].5;
+		bReadIn[158]:=BRead[19].6;
+		bReadIn[159]:=BRead[19].7;
+
+		bReadIn[160]:=BRead[20].0;
+		bReadIn[161]:=BRead[20].1;
+		bReadIn[162]:=BRead[20].2;
+		bReadIn[163]:=BRead[20].3;
+		bReadIn[164]:=BRead[20].4;
+		bReadIn[165]:=BRead[20].5;
+		bReadIn[166]:=BRead[20].6;
+		bReadIn[167]:=BRead[20].7;
+
+		bReadIn[168]:=BRead[21].0;
+		bReadIn[169]:=BRead[21].1;
+		bReadIn[170]:=BRead[21].2;
+		bReadIn[171]:=BRead[21].3;
+		bReadIn[172]:=BRead[21].4;
+		bReadIn[173]:=BRead[21].5;
+		bReadIn[174]:=BRead[21].6;
+		bReadIn[175]:=BRead[21].7;
+
+		bReadIn[176]:=BRead[22].0;
+		bReadIn[177]:=BRead[22].1;
+		bReadIn[178]:=BRead[22].2;
+		bReadIn[179]:=BRead[22].3;
+		bReadIn[180]:=BRead[22].4;
+		bReadIn[181]:=BRead[22].5;
+		bReadIn[182]:=BRead[22].6;
+		bReadIn[183]:=BRead[22].7;
+
+		bReadIn[184]:=BRead[23].0;
+		bReadIn[185]:=BRead[23].1;
+		bReadIn[186]:=BRead[23].2;
+		bReadIn[187]:=BRead[23].3;
+		bReadIn[188]:=BRead[23].4;
+		bReadIn[189]:=BRead[23].5;
+		bReadIn[190]:=BRead[23].6;
+		bReadIn[191]:=BRead[23].7;
+
+		bReadIn[192]:=BRead[24].0;
+		bReadIn[193]:=BRead[24].1;
+		bReadIn[194]:=BRead[24].2;
+		bReadIn[195]:=BRead[24].3;
+		bReadIn[196]:=BRead[24].4;
+		bReadIn[197]:=BRead[24].5;
+		bReadIn[198]:=BRead[24].6;
+		bReadIn[199]:=BRead[24].7;
+
+		bReadIn[200]:=BRead[25].0;
+		bReadIn[201]:=BRead[25].1;
+		bReadIn[202]:=BRead[25].2;
+		bReadIn[203]:=BRead[25].3;
+		bReadIn[204]:=BRead[25].4;
+		bReadIn[205]:=BRead[25].5;
+		bReadIn[206]:=BRead[25].6;
+		bReadIn[207]:=BRead[25].7;
+
+		bReadIn[208]:=BRead[26].0;
+		bReadIn[209]:=BRead[26].1;
+		bReadIn[210]:=BRead[26].2;
+		bReadIn[211]:=BRead[26].3;
+		bReadIn[212]:=BRead[26].4;
+		bReadIn[213]:=BRead[26].5;
+		bReadIn[214]:=BRead[26].6;
+		bReadIn[215]:=BRead[26].7;
+
+		bReadIn[216]:=BRead[27].0;
+		bReadIn[217]:=BRead[27].1;
+		bReadIn[218]:=BRead[27].2;
+		bReadIn[219]:=BRead[27].3;
+		bReadIn[220]:=BRead[27].4;
+		bReadIn[221]:=BRead[27].5;
+		bReadIn[222]:=BRead[27].6;
+		bReadIn[223]:=BRead[27].7;
+
+		bReadIn[224]:=BRead[28].0;
+		bReadIn[225]:=BRead[28].1;
+		bReadIn[226]:=BRead[28].2;
+		bReadIn[227]:=BRead[28].3;
+		bReadIn[228]:=BRead[28].4;
+		bReadIn[229]:=BRead[28].5;
+		bReadIn[230]:=BRead[28].6;
+		bReadIn[231]:=BRead[28].7;
+
+		bReadIn[232]:=BRead[29].0;
+		bReadIn[233]:=BRead[29].1;
+		bReadIn[234]:=BRead[29].2;
+		bReadIn[235]:=BRead[29].3;
+		bReadIn[236]:=BRead[29].4;
+		bReadIn[237]:=BRead[29].5;
+		bReadIn[238]:=BRead[29].6;
+		bReadIn[239]:=BRead[29].7;
+
+		bReadIn[240]:=BRead[30].0;
+		bReadIn[241]:=BRead[30].1;
+		bReadIn[242]:=BRead[30].2;
+		bReadIn[243]:=BRead[30].3;
+		bReadIn[244]:=BRead[30].4;
+		bReadIn[245]:=BRead[30].5;
+		bReadIn[246]:=BRead[30].6;
+		bReadIn[247]:=BRead[30].7;
+		bReadIn[248]:=BRead[30].0;
+
+		bReadIn[249]:=BRead[31].1;
+		bReadIn[250]:=BRead[31].2;
+		bReadIn[251]:=BRead[31].3;
+		bReadIn[252]:=BRead[31].4;
+		bReadIn[253]:=BRead[31].5;
+		bReadIn[254]:=BRead[31].6;
+		bReadIn[255]:=BRead[31].7;
+
+
+
+
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbMapMobbusTCP">
+      <LineId Id="48" Count="715" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

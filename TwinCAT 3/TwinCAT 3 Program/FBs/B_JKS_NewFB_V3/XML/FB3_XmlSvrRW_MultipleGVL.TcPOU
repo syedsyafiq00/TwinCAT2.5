@@ -1,0 +1,387 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB3_XmlSvrRW_MultipleGVL" Id="{a924f517-dde2-45e9-ad8d-c37d35544ed1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB3_XmlSvrRW_MultipleGVL
+VAR_INPUT
+	bWriteSt				: BOOL;
+	bReadSt					: BOOL;
+	ARp_SymAddr				: ARRAY [1..C_iXMLSrvMultiGVLQty] OF PVOID;
+	ARp_SymSize				: ARRAY [1..C_iXMLSrvMultiGVLQty] OF UDINT;
+	ARs_FolderName			: ARRAY [1..C_iXMLSrvMultiGVLQty] OF T_MaxString;  // Make sure the Default File Path and the Folder is Exist otherwise it will prompt Error
+	ARs_VariableName		: ARRAY [1..C_iXMLSrvMultiGVLQty] OF T_MaxString;  // Make sure the Variable Name is matching with the SymAddr
+	sDefaultFilePath		: STRING := 'C:\JKS\PLC\XML\';
+	sFileExtension			: STRING := 'XML';
+	
+END_VAR
+VAR_OUTPUT
+	bWrite_Done				: BOOL;
+	bWrite_Busy				: BOOL;
+	bWrite_Error			: BOOL;
+	udWrite_ErrId			: UDINT;
+	bRead_Done				: BOOL;
+	bRead_Busy				: BOOL;
+	bRead_Error				: BOOL;
+	udRead_ErrId 			: UDINT;
+	iErrorArrayId			: INT;
+	iTotalTime_100ms		: INT;
+END_VAR
+
+VAR
+		fbXmlSrvWriteByAdd	: FB_XmlSrvWrite;
+		fbXmlSrvReadByAdd	: FB_XmlSrvRead;
+
+	bWriteStRE			: R_TRIG;
+	bReadStRE			: R_TRIG;
+	iArrayId			: INT;
+	iFL					: INT;
+	iCase				: INT;
+	bFound				: BOOL;
+
+	bWriteSt_Int		: BOOL 	:= FALSE;
+	bReadSt_Int			: BOOL	:= FALSE;
+	bWrite_Busy_Int		: BOOL	:= FALSE;
+	bRead_Busy_Int		: BOOL	:= FALSE;
+	sFilePath_Int		: T_MaxString;
+	sXPath_Int			: T_MaxString;
+	sFilePath_Rename	: T_MaxString;
+	sFilePath_Delete	: T_MaxString;
+//	bRenameSt_Int		: BOOL;
+//	bRename_Busy_Int	: BOOL;
+//	bDeleteSt_Int		: BOOL;
+//	bDelete_Busy_Int	: BOOL;
+	iSFL: INT;
+	sFilenameDateToDelete: STRING;
+	fbFileRename		: FB_FileRename;
+	fbFileDelete		: FB_FileDelete;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF NOT bWriteSt AND NOT bReadSt THEN
+	iCase 					:= 0;
+
+END_IF
+
+bWriteStRE(CLK	:=bWriteSt 	, Q=> );
+bReadStRE(CLK	:=bReadSt  	, Q=> );
+
+// Capture Total Time for Read or Write
+IF iCase = 1 OR (iCase >= 10 AND iCase < 19) OR (iCase >= 20 AND iCase < 29) THEN
+	IF bClockPulse_0_1Sec THEN
+		iTotalTime_100ms := iTotalTime_100ms + 1;
+	END_IF
+END_IF
+
+IF iArrayId >= 1 THEN
+	fbXmlSrvWriteByAdd(
+		sNetId			:= '', 
+		ePath			:= PATH_GENERIC, 
+		nMode			:= XMLSRV_ADDMISSING, 
+		pSymAddr		:= ARp_SymAddr[iArrayId], 
+		cbSymSize		:= ARp_SymSize[iArrayId], 
+		sFilePath		:= sFilePath_Int, 
+		sXPath			:= sXPath_Int, 
+		bExecute		:= bWriteSt_Int, 
+		tTimeout		:= T#5S, 
+		bBusy			=> bWrite_Busy_Int, 
+		bError			=> bWrite_Error);
+	
+	fbXmlSrvReadByAdd(
+		sNetId			:= '', 
+		ePath			:= PATH_GENERIC, 
+		nMode			:= XMLSRV_ADDMISSING, 
+		pSymAddr		:= ARp_SymAddr[iArrayId], 
+		cbSymSize		:= ARp_SymSize[iArrayId], 
+		sFilePath		:= sFilePath_Int, 
+		sXPath			:= sXPath_Int, 
+		bExecute		:= bReadSt_Int, 
+		tTimeout		:= T#5S, 
+		bBusy			=> bRead_Busy_Int, 
+		bError			=> bRead_Error, 
+		nErrId			=> );
+END_IF
+	
+IF 		bWriteStRE.Q 	AND NOT bReadSt 	AND NOT bRead_Busy 	THEN 	iCase := 1; 	bWrite_Busy := TRUE;
+ELSIF	bReadStRE.Q		AND NOT bWriteSt 	AND NOT bWrite_Busy	THEN 	iCase := 1;		bRead_Busy := TRUE;			END_IF	
+
+
+CASE iCase OF
+	
+	0: 	// Reset ALL
+
+			iArrayId 				:= 0;
+			iErrorArrayId			:= 0;
+
+			udWrite_ErrId			:= 0;
+			bWrite_Busy				:= FALSE;
+			bWrite_Error			:= FALSE;
+			bWrite_Done				:= FALSE;
+
+			udRead_ErrId			:= 0;
+			bRead_Busy				:= FALSE;
+			bRead_Error				:= FALSE;
+			bRead_Done				:= FALSE;
+
+			bWriteSt_Int			:= FALSE;
+			bReadSt_Int				:= FALSE;
+			bWrite_Busy_Int			:= FALSE;
+			bRead_Busy_Int			:= FALSE;
+	
+			iTotalTime_100ms		:= 0;	
+
+			sFilePath_Int			:= '';
+			sXPath_Int				:= '';	
+
+	1: // Check Avaiable Array to trigger Read/Write
+
+			
+	
+			FOR iFL := 1 TO C_iXMLSrvMultiGVLQty DO
+	
+				IF iArrayId+iFL <= C_iXMLSrvMultiGVLQty THEN			
+					IF ARs_FolderName[iArrayId+iFL] <> '' AND ARs_VariableName[iArrayId+iFL] <> '' THEN
+						iArrayId 	:= iArrayId+iFL;				
+						bFound		:= TRUE;
+						iFL			:= C_iXMLSrvMultiGVLQty + 1;
+					END_IF
+				END_IF
+			END_FOR	
+			
+			
+			IF 	bFound THEN
+
+				sFilePath_Int	:=	concat(sDefaultFilePath,	ARs_FolderName[iArrayId]		);
+				sFilePath_Int	:=	concat(sFilePath_Int,		'\'								);
+				sFilePath_Int	:=	concat(sFilePath_Int,		ARs_VariableName[iArrayId]		);
+				sFilePath_Int	:=	concat(sFilePath_Int,		'.'								);
+				sFilePath_Int	:=	concat(sFilePath_Int,		sFileExtension					);
+
+				sXPath_Int		:=	concat('/GVL/',				ARs_FolderName[iArrayId]		);
+				sXPath_Int		:=	concat(sXPath_Int,			'/'								);
+				sXPath_Int		:=	concat(sXPath_Int,			ARs_VariableName[iArrayId]		);
+					
+		
+					IF 		bWrite_Busy THEN		
+							iCase 	:= 12;					
+							bFound 	:= FALSE;
+					
+					ELSIF 	bRead_Busy THEN		
+							iCase 	:= 22;					
+							bFound 	:= FALSE;
+					END_IF			
+
+			ELSE
+			
+					IF 		bWrite_Busy THEN	iCase	:= 19; 			// Write Done
+					ELSIF	bRead_Busy 	THEN	iCase	:= 29; END_IF 	// Read Done
+
+			END_IF	
+
+	12: // Check Previous Write date and prepare to rename before write
+	
+				IF AR2sXMLMultipleGVLVerDate[iArrayId][1] = DSLocalSystemTimeML.sCurrentDate_General THEN // Same date, no shifting required, Proceed Write/Overwrite
+					iCase := 17;
+				ELSE
+
+					sFilenameDateToDelete := AR2sXMLMultipleGVLVerDate[iArrayId][C_iXMLMultipleGVLVerQty];
+					AR2sXMLMultipleGVLVerDate[iArrayId][C_iXMLMultipleGVLVerQty] := '';
+
+					FOR iSFL := 1 TO C_iXMLMultipleGVLVerQty DO
+						IF iSFL < C_iXMLMultipleGVLVerQty THEN
+							AR2sXMLMultipleGVLVerDate[iArrayId][C_iXMLMultipleGVLVerQty-iSFL+1] := AR2sXMLMultipleGVLVerDate[iArrayId][C_iXMLMultipleGVLVerQty-iSFL];
+						ELSIF iSFL = C_iXMLMultipleGVLVerQty THEN
+							AR2sXMLMultipleGVLVerDate[iArrayId][1] := '';
+						END_IF
+					END_FOR
+
+					IF sFilenameDateToDelete <> '' THEN
+						iCase := 13; // Proceed to delete Outdated MultipleGVL XML
+					ELSE
+						iCase := 15; // Proceed to Rename MultipleGVL XML
+					END_IF
+
+
+				END_IF
+
+				
+	13: // Delete File
+
+				sFilePath_Delete	:=	concat(sDefaultFilePath,	ARs_FolderName[iArrayId]					);
+				sFilePath_Delete	:=	concat(sFilePath_Delete,	'\'											);
+				sFilePath_Delete	:=	concat(sFilePath_Delete,	ARs_VariableName[iArrayId]					);
+				sFilePath_Delete	:=	concat(sFilePath_Delete,	'_'											);
+				sFilePath_Delete	:=	concat(sFilePath_Delete,	sFilenameDateToDelete						);
+				sFilePath_Delete	:=	concat(sFilePath_Delete,	'.'											);
+				sFilePath_Delete	:=	concat(sFilePath_Delete,	sFileExtension								);
+
+			fbFileDelete(bExecute	:= FALSE);	
+			fbFileDelete(
+						sPathName	:= sFilePath_Delete, 
+						ePath		:= PATH_GENERIC, 
+						bExecute	:= TRUE);
+						
+			IF fbFileDelete.bBusy THEN
+				iCase := 14; // Wait Delete FB to complete
+			END_IF
+
+
+	14: // Delete File - Verify completion
+			fbFileDelete(bExecute	:= FALSE);	
+			IF NOT fbFileDelete.bBusy THEN
+				iCase := 15; // Proceed to rename file regardless the the said file being delete (if found) or not found
+			END_IF
+			
+	15: // Rename File
+
+				sFilePath_Rename	:=	concat(sDefaultFilePath,	ARs_FolderName[iArrayId]					);
+				sFilePath_Rename	:=	concat(sFilePath_Rename,	'\'											);
+				sFilePath_Rename	:=	concat(sFilePath_Rename,	ARs_VariableName[iArrayId]					);
+				sFilePath_Rename	:=	concat(sFilePath_Rename,	'_'											);
+				sFilePath_Rename	:=	concat(sFilePath_Rename,	DSLocalSystemTimeML.sCurrentDate_General	);
+				sFilePath_Rename	:=	concat(sFilePath_Rename,	'.'											);
+				sFilePath_Rename	:=	concat(sFilePath_Rename,	sFileExtension								);
+			
+			fbFileRename(bExecute	:= FALSE);	
+			fbFileRename(
+						sOldName		:= sFilePath_Int, 
+						sNewName		:= sFilePath_Rename, 
+						ePath			:= PATH_GENERIC, 
+						bExecute		:= TRUE ); 
+			
+			IF fbFileRename.bBusy THEN
+				iCase := 16; // Wait Rename FB to complete
+			END_IF
+
+	16: // Rename File - Verify completion
+			fbFileRename(bExecute	:= FALSE);	
+			IF NOT fbFileRename.bBusy THEN
+				iCase := 17; // Proceed to Write file regardless the the said file being rename (if found) or not found
+				AR2sXMLMultipleGVLVerDate[iArrayId][1] := DSLocalSystemTimeML.sCurrentDate_General;
+			END_IF
+						
+	17: // Write Start
+
+			bWriteSt_Int := TRUE;
+	
+			IF fbXmlSrvWriteByAdd.bExecute AND NOT fbXmlSrvWriteByAdd.bBusy AND NOT fbXmlSrvWriteByAdd.bError 
+			AND fbXmlSrvWriteByAdd.sFilePath 	= sFilePath_Int
+			AND fbXmlSrvWriteByAdd.sXPath		= sXPath_Int	THEN
+				iCase := 18; // Write Done -> Proceed to clear FB to prepare for Next Cycle (Array) 			
+				
+			ELSIF fbXmlSrvWriteByAdd.bError THEN
+				udWrite_ErrId := fbXmlSrvWriteByAdd.nErrId;
+				iCase := 99;	// WRITE ERROR
+				iErrorArrayId	:= iArrayId;
+			END_IF
+
+	18: 	//  Write - prepare for Next Cycle (Array) 
+			
+			bWriteSt_Int := FALSE;
+	
+			IF NOT fbXmlSrvWriteByAdd.bExecute AND NOT fbXmlSrvWriteByAdd.bBusy  THEN
+				iCase := 1; // Proceed to Next Cycle (Array) 
+			END_IF
+		
+		
+	19: // Write - All Done 
+		
+			bWrite_Busy 	:= FALSE;
+			bWrite_Done 	:= TRUE;
+			
+	22: // Read Start
+
+			bReadSt_Int := TRUE;
+	
+			IF fbXmlSrvReadByAdd.bExecute AND NOT fbXmlSrvReadByAdd.bBusy AND NOT fbXmlSrvReadByAdd.bError 
+			AND fbXmlSrvReadByAdd.sFilePath 	= sFilePath_Int
+			AND fbXmlSrvReadByAdd.sXPath		= sXPath_Int	THEN
+				iCase := 23; // Read Done -> Proceed to clear FB to prepare for Next Cycle (Array)			
+				
+			ELSIF fbXmlSrvReadByAdd.bError THEN
+				udRead_ErrId := fbXmlSrvReadByAdd.nErrId;
+				iCase := 99;	// READ ERROR
+				iErrorArrayId	:= iArrayId;
+			END_IF
+
+	23: 	//  Read - prepare for Next Cycle (Array) 
+			
+			bReadSt_Int := FALSE;
+	
+			IF NOT fbXmlSrvReadByAdd.bExecute AND NOT fbXmlSrvReadByAdd.bBusy  THEN
+				iCase := 1; // Proceed to Next Cycle (Array)
+			END_IF
+		
+		
+	29: // Read - All Done 
+		
+			bRead_Busy 	:= FALSE;
+			bRead_Done 	:= TRUE;
+		
+	
+	99: // Error
+	
+			bWriteSt_Int 	:= FALSE;
+			bReadSt_Int 	:= FALSE;
+
+END_CASE
+	]]></ST>
+    </Implementation>
+    <LineIds Name="FB3_XmlSvrRW_MultipleGVL">
+      <LineId Id="3" Count="13" />
+      <LineId Id="224" Count="0" />
+      <LineId Id="17" Count="26" />
+      <LineId Id="225" Count="0" />
+      <LineId Id="44" Count="20" />
+      <LineId Id="226" Count="4" />
+      <LineId Id="65" Count="23" />
+      <LineId Id="278" Count="5" />
+      <LineId Id="95" Count="19" />
+      <LineId Id="293" Count="2" />
+      <LineId Id="302" Count="0" />
+      <LineId Id="307" Count="0" />
+      <LineId Id="309" Count="0" />
+      <LineId Id="318" Count="1" />
+      <LineId Id="321" Count="0" />
+      <LineId Id="488" Count="0" />
+      <LineId Id="310" Count="0" />
+      <LineId Id="408" Count="0" />
+      <LineId Id="311" Count="0" />
+      <LineId Id="409" Count="0" />
+      <LineId Id="411" Count="0" />
+      <LineId Id="410" Count="0" />
+      <LineId Id="312" Count="0" />
+      <LineId Id="480" Count="0" />
+      <LineId Id="483" Count="4" />
+      <LineId Id="481" Count="1" />
+      <LineId Id="308" Count="0" />
+      <LineId Id="412" Count="1" />
+      <LineId Id="417" Count="9" />
+      <LineId Id="442" Count="1" />
+      <LineId Id="445" Count="2" />
+      <LineId Id="455" Count="0" />
+      <LineId Id="297" Count="0" />
+      <LineId Id="456" Count="2" />
+      <LineId Id="460" Count="0" />
+      <LineId Id="459" Count="0" />
+      <LineId Id="463" Count="0" />
+      <LineId Id="462" Count="0" />
+      <LineId Id="464" Count="0" />
+      <LineId Id="461" Count="0" />
+      <LineId Id="467" Count="0" />
+      <LineId Id="454" Count="0" />
+      <LineId Id="305" Count="0" />
+      <LineId Id="402" Count="3" />
+      <LineId Id="314" Count="2" />
+      <LineId Id="372" Count="0" />
+      <LineId Id="468" Count="0" />
+      <LineId Id="373" Count="0" />
+      <LineId Id="375" Count="3" />
+      <LineId Id="383" Count="0" />
+      <LineId Id="470" Count="7" />
+      <LineId Id="489" Count="0" />
+      <LineId Id="478" Count="0" />
+      <LineId Id="115" Count="65" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

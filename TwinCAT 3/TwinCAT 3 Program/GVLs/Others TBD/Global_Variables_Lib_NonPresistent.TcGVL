@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_Lib_NonPresistent" Id="{991624a2-c0b8-4f4c-ba5b-76e9ff75474d}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+(*Global Variable for FunctionBlock in Library *)
+
+	(* HMI Declaration *)
+	iHMIRecipeNo				: INT;
+	bRecipeLoadPb				: BOOL;
+	bRecipeSavePb				: BOOL;
+	bProductRecipeClearPb		: BOOL;
+	bClearPB_SSER 				: ARRAY [1..6] OF BOOL;
+	bClearPB_SSUR 				: ARRAY [1..6] OF BOOL;
+	bClearPB_SSER_Uni			: BOOL;
+	bClearPB_SSUR_Uni			: BOOL;
+	
+
+	(*XML Handler & XML Fb*)
+	iXMLRecipeNo				: INT := 1;
+	FBXmlSrvRead				:  FB_XmlSrvRead;
+	FBXmlSrvWrite				:  FB_XmlSrvWrite;
+	DSV3XML_Recipe			: DSV3_XML_Recipe;
+
+	ARiSubAction					: ARRAY [1..10] OF INT; (* 0-Idle, 1-Import, 2-Export, 3-Clear/Delete 8-Done *)
+
+
+
+	(*SecsGem Simulation Used Only*)
+
+	iSecsGemRecipeNo			: INT := 1;
+
+	iSecsGemLoadHS			: INT; 				(* S7F1/S7F2 		: 0-Idle, 1-Enable, 2-Busy, 3-Done, 4-Error *)
+	iSecsGemSentHS				: INT; 				(* S7F3/S7F4 		: 0-Idle, 1-Enable, 2-Busy, 3-Done, 4-Error *)
+	iSecsGemRequestHS			: INT; 				(* S7F5/S7F6 		: 0-Idle, 1-Enable, 2-Busy, 3-Done, 4-Error *)
+	iSecsGemDeleteHS			: INT; 				(* S7F17/S7F18 	: 0-Idle, 1-Enable, 2-Busy, 3-Done, 4-Error *)
+
+
+	(* Declared for S7F18 -> Delete Request *)
+	ARDsPnpSequenceMemory_Delete 									: ARRAY [1..iProductRecipeArrayQty] OF DSV2_A1_PnpSequenceMemory;
+	AR3SiRecipeTimeBlockMemoryNoCallArmTime_Delete				    : ARRAY [1..iProductRecipeArrayQty, 1..iRecipeBlockQty, 1..9] OF INT;
+	AR3SiRecipeTimeBlockMemoryWithCallArmTime_Delete				: ARRAY [1..iProductRecipeArrayQty, 1..iRecipeBlockQty, 1..9] OF INT;
+	ARbProductRecipeTimeBlockAvailable_Delete 						: ARRAY [0..iProductRecipeArrayQty] OF BOOL;
+	ARDSTempCtrlRecipe_Delete 										: ARRAY [0..iProductRecipeArrayQty] OF DSV3_TempCtrlRecipe;
+
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

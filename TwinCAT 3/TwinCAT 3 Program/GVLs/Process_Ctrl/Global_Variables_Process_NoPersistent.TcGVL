@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_Process_NoPersistent" Id="{f23fd9f0-7234-40ee-93bc-c9586d24d344}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+(* xxxxxxxxxxxxxxxxxxxxxxx DosingPumpControl Process Variable xxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+(*Input*)
+	ARbStnErrorReset										: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnDrainST										: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnManualDosingST 								: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnFirstFillST										: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnAutoDosingST									: ARRAY [1..iStnQty] OF BOOL;
+
+(*Output*)
+
+	ARbStnAutoDosingDone 								: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnManualDosingDone 							: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnFirstFillInProgress 								: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnAutoDosingInProgress 							: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnManualDosingInProgress 						: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnPumpHealthCheckPulseError						: ARRAY [1..iStnQty] OF BOOL;
+
+	ARiStnHealthCheckPulsePV							: ARRAY [1..iStnQty] OF INT;
+
+	ARbStnFirstFillingHR									: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnFirstFillDone									: ARRAY [1..iStnQty] OF BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx Conveyor Motor Control xxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARbLdIndexPB 										: ARRAY [0..iLdStnQty] OF BOOL;
+	ARsLdConvStatus										: ARRAY [0..iLdStnQty] OF STRING;
+
+	ARbUldIndexPB 										: ARRAY [0..iUldStnQty] OF BOOL;
+	ARsUldConvStatus									: ARRAY [0..iUldStnQty] OF STRING;
+
+	ARbLdConveyorIdErrorFlag 							: ARRAY [1..iCvLdQty] OF BOOL;
+	ARbUldConveyorIdErrorFlag 							: ARRAY [1..iCvUldQty] OF BOOL;
+
+	ARtLdIndexPBDelayTimePV 							: ARRAY [0..iLdStnQty] OF TIME;
+	ARtLdRapidPBDelayTimePV 							: ARRAY [0..iLdStnQty] OF TIME;
+	ARtLdTimerBasedRapidDelayTimePV					: ARRAY [0..iLdStnQty] OF TIME;
+	ARtLdIndexConfirmDelayTimePV 						: ARRAY [0..iLdStnQty] OF TIME;
+	ARtLdEndZoneDelayTimePV 							: ARRAY [0..iLdStnQty] OF TIME;
+
+	ARtUldIndexPBDelayTimePV 							: ARRAY [0..iUldStnQty] OF TIME;
+	ARtUldRapidPBDelayTimePV 							: ARRAY [0..iUldStnQty] OF TIME;
+	ARtUldTimerBasedRapidDelayTimePV					: ARRAY [0..iUldStnQty] OF TIME;
+	ARtUldIndexConfirmDelayTimePV 						: ARRAY [0..iUldStnQty] OF TIME;
+	ARtUldEndZoneDelayTimePV 							: ARRAY [0..iUldStnQty] OF TIME;
+
+	bConveyorStartInternal									: BOOL;
+	bConveyorInternal											: BOOL	;
+
+	Ld1ConvFb											: fbV2_LdUldCvCtrl;
+	Uld1ConvFb											: fbV2_LdUldCvCtrl;
+	Uld2ConvFb											: fbV2_LdUldCvCtrl;
+
+	fbV2LdCv5zonewith5m5sCtrl								: fbV2_Cv5zonewith5m5sCtrl;
+	fbV2LdCv4zonewith4m4sCtrl								: fbV2_Cv4zonewith4m4sCtrl;
+	fbV2LdCv3zonewith3m3sCtrl								: fbV2_Cv3zonewith3m3sCtrl;
+	bLdCvBasketEndReached								: BOOL;
+	bLdCvBasketFull										: BOOL;
+
+	fbV2UldCv5zonewith5m5sCtrl							: fbV2_Cv5zonewith5m5sCtrl;
+	fbV2UldCv4zonewith4m4sCtrl							: fbV2_Cv4zonewith4m4sCtrl;
+	fbV2UldCv3zonewith3m3sCtrl							: fbV2_Cv3zonewith3m3sCtrl;
+	bUldCvBasketEndReached								: BOOL;
+	bUldCvBasketFull										: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx AutoPreparation Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARtStnDelayOffTopupTimerOn							: ARRAY [0..iStnQty] OF TON;
+	ARtStnSubTankDelayOffTopupTimerOn					: ARRAY [0..iStnQty] OF TON;
+	ARtMainTankDelayOffTopupTimerOn						: TON;
+	ARtMainTankRowDelayOffTopupTimerOn					: TON;
+	ARtLoadingRowDelayOffTopupTimerOn					: TON;
+
+	ARtStnTimeEV										: ARRAY [0..iStnQty] OF TIME;
+	ARtStnSubTankTimeEV								: ARRAY [0..iStnQty] OF TIME;
+(* xxxxxxxxxxxxxxxxxxxxxxxxxx Manual Drain Process Variable xxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARtStnDrainLowLevelDelayTimer						: ARRAY [0..iStnQty] OF TON;
+
+	ARtStnDrainDelayEV									: ARRAY [0..iStnQty] OF TIME;
+
+	bManualAllTankDrainEn 								: BOOL;
+	bManualAllTankDrainCompletedFlag						: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxx  Process Variable xxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARbStnCylinderInOutCtrl 								: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnCylinderOriginFlag								: ARRAY [1..iStnQty] OF BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxx Vacuum Drain Variable Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	bCCtankDrainDone									: BOOL;
+	bManualClearWaterTrap								: BOOL;
+	bStnManualDrainCut									: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx General Process Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARiStnToleranceTimePV								: ARRAY [0..iStnQty] OF INT;
+	ARbStnAssignBadBskBit								: ARRAY [0..iStnQty] OF BOOL;
+	bBasketMissingReset									: BOOL;
+
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Station Min  Process Time Displayed Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+	fbV3TotalProcessTimeTracker							: fbV3_TotalProcessTimeTracker;
+	ARiStationMinTimeDisplay								: ARRAY [1..iStnQty] OF INT;
+	sStationDescriptionDisplay								: STRING;
+
+
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

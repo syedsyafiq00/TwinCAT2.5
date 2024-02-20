@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_Digital_Persistent" Id="{fc85d624-1609-4e2d-9d7d-19eba279c54d}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL PERSISTENT
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx DEACTIVATED xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+
+	ARbArmMissHookByPass1				: ARRAY [1..iArmQty] OF BOOL;
+	ARbArmMissHookByPass2				: ARRAY [1..iArmQty] OF BOOL;
+	ARbArmCrashByPass					: ARRAY [1..iArmQty] OF BOOL;
+	ARbConductivityBypass				: ARRAY [1..iStnQty] OF BOOL;
+	ARbResistivityBypass					: ARRAY [1..iStnQty] OF BOOL;
+	bIncResistivityBypass					: BOOL;
+	ARbFilterPressureBypass				: ARRAY [1..iStnQty] OF BOOL;
+	ARbFlowSwitchBypass					: ARRAY [1..iStnQty] OF BOOL;
+	ARbIncFlowSwitchBypass				: ARRAY [1..iStnQty] OF BOOL;
+	ARbPhBypass						: ARRAY [1..iStnQty] OF BOOL;
+	bSafetyDoorSensorBypass				: BOOL;
+	bStandaloneInlineHeaterBypass			: BOOL;
+
+	ARlrArmDetectZoneRange				: ARRAY [1..iStnQty] OF LREAL;
+	ARlrArmStnDetectZoneRange			: ARRAY [1..iArmQty,1..iStnQty] OF LREAL;
+	ARiArmDeactDetectZoneRange			: ARRAY [1..iArmQty] OF INT;
+	ARbArmMisshook1Alarm				: ARRAY [1..iArmQty] OF BOOL;
+	ARbArmMisshook2Alarm				: ARRAY [1..iArmQty] OF BOOL;
+
+	ARbStationFunctionBypass				: ARRAY [1..iStnQty] OF BOOL;
+
+	bStnLiftoutMechanismBypass			: BOOL;
+
+	bBuzzerDisable						: BOOL;
+	bUnloadingBuzzerDisable				: BOOL;
+
+	ARbMultiStnAgitationBypass			: ARRAY [1..iStnQty] OF BOOL;
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

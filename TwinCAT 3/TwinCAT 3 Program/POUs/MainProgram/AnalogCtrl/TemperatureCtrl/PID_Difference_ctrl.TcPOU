@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="PID_Difference_ctrl" Id="{22fdeb07-2eee-48c5-8035-c5216089ad1d}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM PID_Difference_ctrl
+VAR
+		lrDiff: LREAL;
+	lrPrevious: LREAL;
+	lrOutput: LREAL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[lrDiff := PID_ctrl.rPump3_Freq_Reading_Raw - lrPrevious;
+lrPrevious := PID_ctrl.rPump3_Freq_Reading_Raw ;
+
+IF	lrOutput + lrDiff > 0 AND  lrOutput + lrDiff < 32767 THEN
+	lrOutput := lrOutput + lrDiff;
+ELSIF lrDiff > 0 THEN
+	lrOutput := 32767;	
+	
+ELSIF lrDiff < 0 THEN
+	lrOutput := 0;	
+	
+END_IF
+
+PID_ctrl.Stn3FlowRawData;
+PID_ctrl.Stn3ActualFlowRawData;]]></ST>
+    </Implementation>
+    <LineIds Name="PID_Difference_ctrl">
+      <LineId Id="6" Count="13" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

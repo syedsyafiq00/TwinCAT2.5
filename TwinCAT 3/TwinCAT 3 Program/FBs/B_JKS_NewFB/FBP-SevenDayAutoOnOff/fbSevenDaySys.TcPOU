@@ -1,0 +1,277 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbSevenDaySys" Id="{97437c01-5063-47a8-971d-6ef70efc29bf}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbSevenDaySys
+VAR_INPUT
+
+	bEmergencyStop : BOOL;
+
+	MondayEnable: BOOL;
+	TuesdayEnable: BOOL;
+	WednesdayEnable: BOOL;
+	ThursdayEnable: BOOL;
+	FridayEnable: BOOL;
+	SaturdayEnable: BOOL;
+	SundayEnable: BOOL;
+
+	wSunH : WORD;
+	wSunM : WORD;
+	wMonH : WORD;
+	wMonM : WORD;
+	wTueH : WORD;
+	wTueM : WORD;
+	wWedH : WORD;
+	wWedM : WORD;
+	wThuH : WORD;
+	wThuM : WORD;
+	wFriH : WORD;
+	wFriM : WORD;
+	wSatH : WORD;
+	wSatM: WORD;
+
+
+END_VAR
+
+VAR_IN_OUT
+
+	DayofTheDay: STRING;
+
+END_VAR
+
+VAR_OUTPUT
+
+
+	MondayEnableStart: BOOL;
+	TuesdayEnableStart: BOOL;
+	WednesdayEnableStart: BOOL;
+	ThursdayEnableStart: BOOL;
+	FridayEnableStart: BOOL;
+	SaturdayEnableStart: BOOL;
+	SundayEnableStart: BOOL;
+
+END_VAR
+VAR
+
+	LocalSystemTime:FB_LocalSystemTime;
+	SysTime:TIMESTRUCT;
+	wHour: WORD;
+	wMin: WORD;
+	wSec: WORD;
+	wDayOfWeek: WORD;
+	wDate: WORD;
+
+	bDailyRefresh: BOOL;
+	SundayEnableStartInt: BOOL;
+	SaturdayEnableStartint: BOOL;
+	FridayEnableStartint: BOOL;
+	ThursdayEnableStartint: BOOL;
+	WednesdayEnableStartint: BOOL;
+	TuesdayEnableStartint: BOOL;
+	MondayEnableStartint: BOOL;
+	MondayEnableStartRE: R_TRIG;
+	TuesdayEnableStartRE: R_TRIG;
+	WednesdayEnableStartRE: R_TRIG;
+	ThursdayEnableStartRE: R_TRIG;
+	FridayEnableStartRE: R_TRIG;
+	SaturdayEnableStartRE: R_TRIG;
+	SundayEnableStartRE: R_TRIG;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[LocalSystemTime(
+	sNetID:='' ,
+	bEnable:=TRUE ,
+	dwCycle:= ,
+	dwOpt:= ,
+	tTimeout:= ,
+	bValid=> ,
+	systemTime=>SysTime,
+	tzID=> );
+
+wDate:=SysTime.wDay;
+wDayOfWeek:=SysTime.wDayOfWeek;
+wHour:=SysTime.wHour;
+wMin:=SysTime.wMinute;
+wSec:=SysTime.wSecond;
+
+
+(*Display today day*)
+(*=========================================================================*)
+IF wDayOfWeek =1 THEN
+	DayofTheDay:='Monday';
+
+END_IF
+
+IF wDayOfWeek =2 THEN
+	DayofTheDay:='Tuesday';
+END_IF
+
+IF wDayOfWeek =3 THEN
+	DayofTheDay:='Wednesday';
+END_IF
+
+IF wDayOfWeek =4 THEN
+	DayofTheDay:='Thursday';
+END_IF
+
+IF wDayOfWeek =5 THEN
+	DayofTheDay:='Friday';
+END_IF
+
+IF wDayOfWeek =6 THEN
+	DayofTheDay:='Saturday';
+END_IF
+
+IF wDayOfWeek =7 THEN
+	DayofTheDay:='Sunday';
+END_IF
+(*=========================================================================*)
+(*
+IF wHour = 0 THEN
+bDailyRefresh := TRUE;
+END_IF
+
+IF bEmergencyStop THEN
+bDailyRefresh := FALSE;
+END_IF
+*)
+
+(*Timer Count up*)
+(*===========================================================================*)
+MondayEnableStartRE(CLK:=MondayEnableStartint , Q=> );
+TuesdayEnableStartRE(CLK:=TuesdayEnableStartint , Q=> );
+WednesdayEnableStartRE(CLK:=WednesdayEnableStartint , Q=> );
+ThursdayEnableStartRE(CLK:=ThursdayEnableStartint , Q=> );
+FridayEnableStartRE(CLK:=FridayEnableStartint , Q=> );
+SaturdayEnableStartRE(CLK:=SaturdayEnableStartint , Q=> );
+SundayEnableStartRE(CLK:=SundayEnableStartint , Q=> );
+
+IF MondayEnableStartRE.Q THEN
+MondayEnableStart := TRUE;
+END_IF
+IF TuesdayEnableStartRE.Q THEN
+TuesdayEnableStart := TRUE;
+END_IF
+IF WednesdayEnableStartRE.Q THEN
+WednesdayEnableStart := TRUE;
+END_IF
+IF ThursdayEnableStartRE.Q THEN
+ThursdayEnableStart := TRUE;
+END_IF
+IF FridayEnableStartRE.Q THEN
+FridayEnableStart := TRUE;
+END_IF
+IF SaturdayEnableStartRE.Q THEN
+SaturdayEnableStart := TRUE;
+END_IF
+IF SundayEnableStartRE.Q THEN
+SundayEnableStart := TRUE;
+END_IF
+
+IF	MondayEnable
+	AND DayofTheDay='Monday'
+	AND wMonH =wHour
+	AND wMonM = wMin THEN
+	MondayEnableStartint:=TRUE;
+END_IF
+
+IF 	NOT MondayEnable
+	OR bEmergencyStop THEN
+	MondayEnableStartint:=FALSE;
+	MondayEnableStart:=FALSE;
+END_IF
+
+
+IF	TuesdayEnable
+	AND DayofTheDay='Tuesday'
+	AND wTueH =wHour
+	AND wTueM = wMin THEN
+	TuesdayEnableStartint:=TRUE;
+END_IF
+
+
+IF 	NOT TuesdayEnable
+	OR bEmergencyStop THEN
+	TuesdayEnableStartint:=FALSE;
+	TuesdayEnableStart:=FALSE;
+END_IF
+
+
+IF	WednesdayEnable
+	AND DayofTheDay='Wednesday'
+	AND wWedH =wHour
+	AND wWedM = wMin THEN
+	WednesdayEnableStartint:=TRUE;
+END_IF
+
+
+IF 	NOT WednesdayEnable
+	OR bEmergencyStop  THEN
+	WednesdayEnableStartint:=FALSE;
+	WednesdayEnableStart:=FALSE;
+END_IF
+
+
+IF	ThursdayEnable
+	AND DayofTheDay='Thursday'
+	AND wThuH =wHour
+	AND wThuM = wMin THEN
+	ThursdayEnableStartint:=TRUE;
+END_IF
+
+
+IF 	NOT ThursdayEnable
+	OR bEmergencyStop  THEN
+	ThursdayEnableStartint:=FALSE;
+	ThursdayEnableStart:=FALSE;
+END_IF
+
+
+IF	FridayEnable
+	AND DayofTheDay='Friday'
+	AND wFriH =wHour
+	AND wFriM = wMin THEN
+	FridayEnableStartint:=TRUE;
+END_IF
+
+
+IF 	NOT FridayEnable
+	OR bEmergencyStop THEN
+	FridayEnableStartint:=FALSE;
+	FridayEnableStart:=FALSE;
+END_IF
+
+
+IF	SaturdayEnable
+	AND DayofTheDay='Saturday'
+	AND wSatH =wHour
+	AND wSatM = wMin THEN
+	SaturdayEnableStartint:=TRUE;
+END_IF
+
+
+IF 	NOT SaturdayEnable
+	OR bEmergencyStop  THEN
+	SaturdayEnableStartint:=FALSE;
+	SaturdayEnableStart:=FALSE;
+END_IF
+
+
+IF	SundayEnable
+	AND DayofTheDay='Sunday'
+	AND wSunH =wHour
+	AND wSunM = wMin THEN
+	SundayEnableStartInt:=TRUE;
+END_IF
+
+
+IF 	NOT SundayEnable
+	OR bEmergencyStop THEN
+	SundayEnableStartint:=FALSE;
+	SundayEnableStart:=FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbSevenDaySys">
+      <LineId Id="75" Count="191" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_XML_Persistent_Digital" Id="{a3f62fc2-033a-4ae2-86cf-0b7cc7301630}">
+    <Declaration><![CDATA[TYPE DS_XML_Persistent_Digital :
+STRUCT
+	
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx DEACTIVATED/BYPASS xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+
+	ARbArmMissHookByPass1				: ARRAY [1..iArmQty] OF BOOL;
+	ARbArmMissHookByPass2				: ARRAY [1..iArmQty] OF BOOL;
+	ARbConductivityBypass				: ARRAY [1..iStnQty] OF BOOL;
+	ARbFilterPressureBypass				: ARRAY [1..iStnQty] OF BOOL;
+	bSafetyDoorSensorBypass				: BOOL;
+	ARlrArmDetectZoneRange				: ARRAY [1..iStnQty] OF LREAL;
+	ARlrArmStnDetectZoneRange			: ARRAY [1..iArmQty,1..iStnQty] OF LREAL;
+	ARiArmDeactDetectZoneRange			: ARRAY [1..iArmQty] OF INT;
+	ARbArmMisshook1Alarm				: ARRAY [1..iArmQty] OF BOOL;
+	ARbArmMisshook2Alarm				: ARRAY [1..iArmQty] OF BOOL;
+	ARbStationFunctionBypass			: ARRAY [1..iStnQty] OF BOOL;
+	bStnLiftoutMechanismBypass			: BOOL;
+	bBuzzerDisable						: BOOL;
+	bUnloadingBuzzerDisable				: BOOL;
+
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

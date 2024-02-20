@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbRawRatioConversionUs" Id="{d1d6f698-efb5-4799-9740-b7eebbf392a4}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbRawRatioConversionUs
+VAR_INPUT
+
+	iRawData : INT;
+	rRawRatio : LREAL;
+
+
+END_VAR
+VAR_OUTPUT
+
+	rConvertedResult : INT;
+END_VAR
+VAR
+	rRawData: LREAL;
+	rConvertedResult_1: LREAL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[rRawData := INT_TO_LREAL (iRawData);
+
+IF rRawData <> 0 AND rRawRatio <> 0 THEN
+rConvertedResult_1 := rRawData * rRawRatio;
+END_IF
+
+IF rRawData = 0 OR rRawRatio = 0 THEN
+rConvertedResult := 0;
+END_IF
+
+rConvertedResult := LREAL_TO_INT(rConvertedResult_1);]]></ST>
+    </Implementation>
+    <LineIds Name="fbRawRatioConversionUs">
+      <LineId Id="16" Count="10" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

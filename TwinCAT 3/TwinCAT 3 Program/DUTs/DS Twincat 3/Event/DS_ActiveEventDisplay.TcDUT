@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_ActiveEventDisplay" Id="{fbae2a51-331b-413a-b253-9f585dd1e9fb}">
+    <Declaration><![CDATA[TYPE DS_ActiveEventDisplay EXTENDS DS_EventDescriptionCausedRemedy :
+STRUCT
+
+	iEventID						: INT; (*To Keep the array number ot repersent as Event ID when it stored in Event logger*)
+	sTimeAndDate_Occurred 			: STRING(50);
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,298 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_Analog_Persistent" Id="{fa4b82c6-09b5-4aba-a4b9-6c0450e7204c}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL PERSISTENT
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Temperature Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARfbStnTempControl									: ARRAY [1..iStnQty] OF fbV2_TempControl;
+
+	ARrAnalogInputFineTuneRatio							: ARRAY [1..iStnQty] OF REAL;
+
+	ARrStnTempHYSsv										: ARRAY [1..iStnQty] OF REAL;
+	ARrStnTempHALsv										: ARRAY [1..iStnQty] OF REAL;
+	ARrStnTempSV										: ARRAY [1..iStnQty] OF REAL;
+	ARrStnTempRDYsv										: ARRAY [1..iStnQty] OF REAL;
+	ARrStnTemp1stLimitSv								: ARRAY [1..iStnQty] OF REAL;
+	ARrStnTemp2ndLimitSv								: ARRAY [1..iStnQty] OF REAL;
+	ARiStnPreparationTempSv								: ARRAY [1..iStnQty] OF INT;
+	
+	ARrStnTempHYSMINsv									: ARRAY [1..iStnQty] OF REAL;
+	ARrStnTempHYSMAXsv									: ARRAY [1..iStnQty] OF REAL;
+	
+	ARrStnTempHALMINsv									: ARRAY [1..iStnQty] OF REAL;
+	ARrStnTempHALMAXsv									: ARRAY [1..iStnQty] OF REAL;
+	
+	ARrStnTempMINsv										: ARRAY [1..iStnQty] OF REAL;
+	ARrStnTempMAXsv										: ARRAY [1..iStnQty] OF REAL;
+	
+	ARrStnTempRDYMINsv									: ARRAY [1..iStnQty] OF REAL;
+	ARrStnTempRDYMAXsv									: ARRAY [1..iStnQty] OF REAL;
+	
+	ARrStnTemp1stLimitMINsv								: ARRAY [1..iStnQty] OF REAL;
+	ARrStnTemp1stLimitMAXsv								: ARRAY [1..iStnQty] OF REAL;
+	
+	ARiStnPreparationTempMINsv							: ARRAY [1..iStnQty] OF INT;
+	ARiStnPreparationTempMAXsv							: ARRAY [1..iStnQty] OF INT;
+	
+	fbChillerSystemTempControl							: fbV2_TempControl;
+	
+	rChillerSystemAnalogInputFineTuneRatio				: REAL;
+
+	rChillerSystemTempHYSsv								: REAL;
+	rChillerSystemTempHALsv								: REAL;
+	rChillerSystemTempSV								: REAL;
+	rChillerSystemTempRDYsv								: REAL;
+	rChillerSystemTemp1stLimitSv						: REAL;
+	rChillerSystemTemp2ndLimitSv						: REAL;
+	iChillerSystemPreparationTempSv						: INT;
+	
+		rChillerSystemTempHYSMINsv							: REAL;
+	rChillerSystemTempHYSMAXsv							: REAL;
+	
+	rChillerSystemTempHALMINsv							: REAL;
+	rChillerSystemTempHALMAXsv							: REAL;
+	
+	rChillerSystemTempMINsv								: REAL;
+	rChillerSystemTempMAXsv								: REAL;
+	
+	rChillerSystemTempRDYMINsv							: REAL;
+	rChillerSystemTempRDYMAXsv							: REAL;
+	
+	rChillerSystemTemp1stLimitMINsv						: REAL;
+	rChillerSystemTemp1stLimitMAXsv						: REAL;
+	
+	iChillerSystemPreparationTempMINsv					: INT;
+	iChillerSystemPreparationTempMAXsv					: INT;
+	
+
+	ARrStnChillerValueTempSetpoint						: ARRAY [1..iStnQty] OF REAL;
+	
+		rChillerSystemTempMINsvHMIDisplay					: REAL;
+	rChillerSystemTempMAXsvHMIDisplay					: REAL;
+	
+	rChillerSystemTempHALMINsvHMIDisplay				: REAL;
+	rChillerSystemTempHALMAXsvHMIDisplay				: REAL;
+	
+	rChillerSystemTempHYSMINsvHMIDisplay				: REAL;
+	rChillerSystemTempHYSMAXsvHMIDisplay				: REAL;
+	
+	rChillerSystemTempRDYMINsvHMIDisplay				: REAL;
+	rChillerSystemTempRDYMAXsvHMIDisplay				: REAL;
+	
+	rChillerSystemTemp1stLimitMINsvHMIDisplay			: REAL;
+	rChillerSystemTemp1stLimitMAXsvHMIDisplay			: REAL;
+	
+	iChillerSystemPreparationTempMINsvHMIDisplay		: INT;
+	iChillerSystemPreparationTempMAXsvHMIDisplay		: INT;
+
+(*****Temperature Changed Based on Recipe Ctrl *****)
+
+	fbTemperatureParaRecipe								: fbV3_TemperatureParaRecipe;
+
+	DSTempCtrlParameter_Min 							: DSV3_TempCtrlParameter;
+	DSTempCtrlParameter_Max 							: DSV3_TempCtrlParameter;
+
+	HMI_DSTempCtrlParameter_Input 						: DSV3_TempCtrlParameter;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Conductivity Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARfbStnConductivity 									: ARRAY [1..iStnQty] OF fbRawRatioConversionReal;
+
+	ARrStnLowConductivitySv									: ARRAY [1..iStnQty] OF REAL;
+	ARrStnHighConductivitySv								: ARRAY [1..iStnQty] OF REAL;
+	ARrStnConductivity1stLimitSv							: ARRAY [1..iStnQty] OF REAL;
+	ARrStnConductivity2ndLimitSv							: ARRAY [1..iStnQty] OF REAL;
+
+	bStnConductivityMaxLimitReach							: ARRAY [1..iStnQty] OF BOOL;
+	ARsConductivityMsgStatus								: ARRAY [1..iStnQty] OF STRING;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Resistivity Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARfbStnResistivity 										: ARRAY [1..iStnQty] OF fbRawRatioConversionReal;
+                                                	
+	ARrStnLowResistivitySv									: ARRAY [1..iStnQty] OF REAL;
+	ARrStnHighResistivitySv									: ARRAY [1..iStnQty] OF REAL;
+	ARrStnResistivity1stLimitSv									: ARRAY [1..iStnQty] OF REAL;
+	ARrStnResistivity2ndLimitSv								: ARRAY [1..iStnQty] OF REAL;
+
+	fbIncResistivity										: fbRawRatioConversionReal;
+	rIncLowResistivitySv									: REAL;
+	rIncHighResistivitySv									: REAL;
+	rIncResistivity1stLimitSv								: REAL;
+	rIncResistivity2ndLimitSv								: REAL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx PH Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARfbStnPH 											: ARRAY [1..iStnQty] OF fbRawRatioConversionReal;
+
+	ARrStnLowPHSv										: ARRAY [1..iStnQty] OF REAL;
+	ARrStnHighPHSv										: ARRAY [1..iStnQty] OF REAL;
+	ARrStnPH1stLimitSv									: ARRAY [1..iStnQty] OF REAL;
+	ARrStnPH2ndLimitSv									: ARRAY [1..iStnQty] OF REAL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Filter Pressure Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARfbStnFilterPressure 									: ARRAY [1..iStnQty] OF fbRawRatioConversionReal;
+
+	ARrStnLowFilterPressureSv								: ARRAY [1..iStnQty] OF REAL;
+	ARrStnHighFilterPressureSv								: ARRAY [1..iStnQty] OF REAL;
+	ARrStnFilterPressure1stLimitSv							: ARRAY [1..iStnQty] OF REAL;
+	ARrStnFilterPressure2ndLimitSv							: ARRAY [1..iStnQty] OF REAL;
+
+	ARfbIncFilterPressure									: ARRAY [1..iStnQty] OF fbRawRatioConversionReal;
+	ARrIncLowFilterPressureSv								: ARRAY [1..iStnQty] OF REAL;
+	ARrIncHighFilterPressureSv								: ARRAY [1..iStnQty] OF REAL;
+	ARrIncFilterPressure1stLimitSv							: ARRAY [1..iStnQty] OF REAL;
+	ARrIncFilterPressure2ndLimitSv							: ARRAY [1..iStnQty] OF REAL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Flow Switch Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARfbStnFlowSwitch 									: ARRAY [1..iStnQty] OF fbRawRatioConversionReal;
+
+	ARrStnLowFlowSwitchSv								: ARRAY [1..iStnQty] OF REAL;
+	ARrStnHighFlowSwitchSv								: ARRAY [1..iStnQty] OF REAL;
+	ARrStnFlowSwitch1stLimitSv							: ARRAY [1..iStnQty] OF REAL;
+	ARrStnFlowSwitch2ndLimitSv							: ARRAY [1..iStnQty] OF REAL;
+
+	ARfbIncFlowSwitch									: ARRAY [1..iStnQty] OF fbRawRatioConversionReal;
+	ARrIncLowFlowSwitchSv								: ARRAY [1..iStnQty] OF REAL;
+	ARrIncHighFlowSwitchSv								: ARRAY [1..iStnQty] OF REAL;
+	ARrIncFlowSwitch1stLimitSv							: ARRAY [1..iStnQty] OF REAL;
+	ARrIncFlowSwitch2ndLimitSv							: ARRAY [1..iStnQty] OF REAL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Compress Air Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARfbStnCompressAir 									: ARRAY [1..iStnQty] OF fbRawRatioConversionReal;
+
+	ARrStnLowCompressAirSv								: ARRAY [1..iStnQty] OF REAL;
+	ARrStnHighCompressAirSv								: ARRAY [1..iStnQty] OF REAL;
+	ARrStnCompressAir1stLimitSv							: ARRAY [1..iStnQty] OF REAL;
+	ARrStnCompressAir2ndLimitSv							: ARRAY [1..iStnQty] OF REAL;
+
+	ARfbIncCompressAir									: ARRAY [1..iStnQty] OF fbRawRatioConversionReal;
+	ARrIncLowCompressAirSv								: ARRAY [1..iStnQty] OF REAL;
+	ARrIncHighCompressAirSv								: ARRAY [1..iStnQty] OF REAL;
+	ARrIncCompressAir1stLimitSv							: ARRAY [1..iStnQty] OF REAL;
+	ARrIncCompressAir2ndLimitSv							: ARRAY [1..iStnQty] OF REAL;
+
+(* xxxxxxxxxxxxxxxxxxxxxx Manual WeberUltrasonic Variable Cltr xxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARiStnManualUSSideAsv								: ARRAY [1..iStnQty] OF INT;
+	ARiStnManualUSSideBsv								: ARRAY [1..iStnQty] OF INT;
+	ARiStnManualUSSideCsv								: ARRAY [1..iStnQty] OF INT;
+	ARiStnManualUSSideDsv								: ARRAY [1..iStnQty] OF INT;
+
+	ARiStnManualUSBtmAsv								: ARRAY [1..iStnQty] OF INT;
+	ARiStnManualUSBtmBsv								: ARRAY [1..iStnQty] OF INT;
+	ARiStnManualUSBtmCsv								: ARRAY [1..iStnQty] OF INT;
+	ARiStnManualUSBtmDsv								: ARRAY [1..iStnQty] OF INT;
+
+(* xxxxxxxxxxxxxxxxxxxxxx Blower Inverter Variable Cltr xxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARiStnManualBlowerInvPercentSV						: ARRAY [1..iStnQty] OF INT;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxx Clangsonic Ultrasonic Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	DSClangGenerator 									: ARRAY [1..iUSGeneratorQty] OF DS_ClangsonicGenerator;
+	DSClangGenerator2 									: ARRAY [1..iUSGeneratorQty] OF DS_ClangsonicGenerator;
+	iClangStepDelaySVns									: INT := 50;
+	iClangStepDelaySVns2								: INT := 50;
+
+	iClangTolerance										: INT;
+	iUSTolerance										: INT;
+	ARlrUsMaxData_Watt									: ARRAY [1..12] OF LREAL;
+
+	DSClangsonicGenerator 								: DSV2_ClangsonicGenerator;
+	DSClangsonicGenerator2 								: DSV2_ClangsonicGenerator;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Inverter Encoder Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARlrVertRatioPulseToMM 								: ARRAY [0..iArmQty] OF LREAL;
+	ARlrHorzRatioPulseToMM 								: ARRAY [0..iArmQty] OF LREAL;
+
+	ARiVertCounterValueResetTime_Sec 					: ARRAY [0..iArmQty] OF INT;
+	ARiHorzCounterValueResetTime_Sec 					: ARRAY [0..iArmQty] OF INT;
+
+	ARrVertGen_In_HzToRawRatio							: ARRAY [0..iArmQty] OF REAL ;
+	ARrHorzGen_In_HzToRawRatio							: ARRAY [0..iArmQty] OF REAL ;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Vacuum Value Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARrStnHighVacuumLevelSV							: ARRAY [1..iStnQty] OF REAL;
+	ARrStnLowVacuumLevelSV								: ARRAY [1..iStnQty] OF REAL;
+
+	ARrStnSubHighVacuumLevelSV							: ARRAY [1..iStnQty] OF REAL;
+	ARrStnSubLowVacuumLevelSV							: ARRAY [1..iStnQty] OF REAL;
+
+	rDCHighVacuumLevelSV								: REAL;
+	rDCLowVacuumLevelSV								: REAL;
+
+	rJRSCCHighVacuumLevelSV							: REAL;
+	rJRSCCLowVacuumLevelSV							: REAL;
+
+	ARrCCHighVacuumLevelSV							: ARRAY [1..iStnQty] OF REAL;
+	ARrCCLowVacuumLevelSV								: ARRAY [1..iStnQty] OF REAL;
+
+	ARrRevHighVacuumLevelSV							: ARRAY [1..iStnQty] OF REAL;
+	ARrRevLowVacuumLevelSV							: ARRAY [1..iStnQty] OF REAL;
+
+	ARdiVacPump1stLimitTimerSV							: ARRAY [1..iStnQty] OF DINT;
+	ARdiVacPump2ndLimitTimerSV							: ARRAY [1..iStnQty] OF DINT;
+
+	ARiWarningDaysSV_Routine							: ARRAY [1..iStnQty] OF INT;
+	ARiAlarmDaysSV_Routine								: ARRAY [1..iStnQty] OF INT;
+
+	ARiRunDaysPV_Routine								: ARRAY [1..iStnQty] OF INT;
+	ARsPreviousDate_Routine								: ARRAY [1..iStnQty] OF STRING;
+
+	ARiWarningDaysSV_Major								: ARRAY [1..iStnQty] OF INT;
+	ARiAlarmDaysSV_Major								: ARRAY [1..iStnQty] OF INT;
+
+	ARiRunDaysPV_Major									: ARRAY [1..iStnQty] OF INT;
+	ARsPreviousDate_Major								: ARRAY [1..iStnQty] OF STRING;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxx Keyence Vacuum Variable Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	fbDCVacuumSensorCtrl								: fbKeyenceVacSensorTuningkPa;
+	fbJRSCCVacuumSensorCtrl								: fbKeyenceVacSensorTuningkPa;
+	ARfbCCVacuumSensorCtrl								: ARRAY [1..iStnQty] OF fbKeyenceVacSensorTuningkPa;
+	ARfbStnVacuumSensorCtrl								: ARRAY [1..iStnQty] OF fbKeyenceVacSensorTuningkPa;
+	ARfbStnSubVacuumSensorCtrl							: ARRAY [1..iStnQty] OF fbKeyenceVacSensorTuningkPa;
+	ARfbRevVacuumSensorCtrl								: ARRAY [1..iStnQty] OF fbKeyenceVacSensorTuningkPa;
+
+	ARlrStnVacuumMaxReadSV							: ARRAY [1..iStnQty] OF LREAL;
+	ARlrStnSubVacuumMaxReadSV							: ARRAY [1..iStnQty] OF LREAL;
+
+	lrDCVacuumMaxReadSV								: LREAL;
+	lrJRSCCVacuumMaxReadSV							: LREAL;
+	ARlrCCVacuumMaxReadSV							: ARRAY [1..iStnQty] OF LREAL;
+	ARlrRevVacuumMaxReadSV							: ARRAY [1..iStnQty] OF LREAL;
+	
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxx Modbus Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+	DSV2ModbusControl									: DSV2_ModbusControl;
+	DSV2ModbusControl2 									: DSV2_ModbusControl;
+	
+	IStepDelaySVns										: INT := 50;
+	IStepDelaySVns2										: INT := 50;
+
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

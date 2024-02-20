@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_TimeTriggering" Id="{eb9bcf64-d6e5-4e12-8790-9dc580aaeba9}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_TimeTriggering
+VAR_INPUT
+	en_interval: En_TimeInterval;
+	tsTimeNow: TIMESTRUCT;
+END_VAR
+VAR_OUTPUT
+	bTrigWriLog: BOOL;
+END_VAR
+VAR
+	bTest: BOOL;
+	wSecPrev: WORD;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF tsTimeNow.wYear <> 1970 AND tsTimeNow.wYear <> 0 THEN
+
+CASE en_interval OF
+
+Interval_1s:
+	IF (tsTimeNow.wSecond <> wSecPrev) THEN
+		wSecPrev:=tsTimeNow.wSecond;
+		bTrigWriLog:=TRUE;
+	ELSE
+		bTrigWriLog:=FALSE;
+	END_IF
+
+Interval_5s:
+	IF (tsTimeNow.wSecond MOD 5 = 0) THEN
+		bTrigWriLog:=TRUE;
+	ELSE
+		bTrigWriLog:=FALSE;
+	END_IF
+
+Interval_10s:
+	IF (tsTimeNow.wSecond MOD 10 = 0) THEN
+		bTrigWriLog:=TRUE;
+	ELSE
+		bTrigWriLog:=FALSE;
+	END_IF
+
+Interval_20s:
+	IF (tsTimeNow.wSecond MOD 20 = 0) THEN
+	bTrigWriLog:=TRUE;
+	ELSE
+		bTrigWriLog:=FALSE;
+	END_IF
+
+Interval_30s:
+	IF (tsTimeNow.wSecond MOD 30 = 0) THEN
+	bTrigWriLog:=TRUE;
+	ELSE
+		bTrigWriLog:=FALSE;
+	END_IF
+
+Interval_1min:
+	IF (tsTimeNow.wSecond = 0) THEN
+	bTrigWriLog:=TRUE;
+	ELSE
+		bTrigWriLog:=FALSE;
+	END_IF
+
+Interval_2min:
+	IF (tsTimeNow.wSecond = 0) AND (tsTimeNow.wMinute MOD 2 = 0)THEN
+	bTrigWriLog:=TRUE;
+	ELSE
+		bTrigWriLog:=FALSE;
+	END_IF
+
+Interval_5min:
+	IF (tsTimeNow.wSecond = 0) AND (tsTimeNow.wMinute MOD 5 = 0)THEN
+	bTrigWriLog:=TRUE;
+	ELSE
+		bTrigWriLog:=FALSE;
+	END_IF
+
+Interval_10min:
+	IF (tsTimeNow.wSecond = 0) AND (tsTimeNow.wMinute MOD 10 = 0)THEN
+	bTrigWriLog:=TRUE;
+	ELSE
+		bTrigWriLog:=FALSE;
+	END_IF
+
+Interval_15min:
+	IF (tsTimeNow.wSecond = 0) AND (tsTimeNow.wMinute MOD 15 = 0)THEN
+	bTrigWriLog:=TRUE;
+	ELSE
+		bTrigWriLog:=FALSE;
+	END_IF
+
+Interval_20min:
+	IF (tsTimeNow.wSecond = 0) AND (tsTimeNow.wMinute MOD 20 = 0)THEN
+	bTrigWriLog:=TRUE;
+	ELSE
+		bTrigWriLog:=FALSE;
+	END_IF
+
+Interval_30min:
+	IF (tsTimeNow.wSecond = 0) AND (tsTimeNow.wMinute MOD 30 = 0)THEN
+	bTrigWriLog:=TRUE;
+	ELSE
+		bTrigWriLog:=FALSE;
+	END_IF
+
+Interval_1h:
+	IF (tsTimeNow.wSecond = 0) AND (tsTimeNow.wMinute = 0)THEN
+	bTrigWriLog:=TRUE;
+	ELSE
+		bTrigWriLog:=FALSE;
+	END_IF
+
+Interval_2h:
+	IF (tsTimeNow.wSecond = 0) AND (tsTimeNow.wMinute = 0) AND (tsTimeNow.wHour MOD 2 = 0)THEN
+	bTrigWriLog:=TRUE;
+	ELSE
+		bTrigWriLog:=FALSE;
+	END_IF
+
+
+END_CASE
+
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="FB_TimeTriggering">
+      <LineId Id="13" Count="106" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

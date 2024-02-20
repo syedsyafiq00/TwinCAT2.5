@@ -1,0 +1,287 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="GeneratorComparison" Id="{c9becf66-342b-4349-a8ed-4c87c606490a}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM GeneratorComparison
+VAR
+	ARbENRE 						: ARRAY[1..iUSGeneratorQty] OF R_TRIG;
+	ARBufferFreqiIntAddress 			: ARRAY[1..iUSGeneratorQty] OF INT;
+	ARBufferPoweriIntAddress 			: ARRAY[1..iUSGeneratorQty] OF INT;
+	ARUpdate_bIntAddress 			: ARRAY[1..iUSGeneratorQty] OF BOOL;
+	bTest							: BOOL;
+	TON1: TON;
+	TON2: TON;
+	TON3: TON;
+	TON4: TON;
+	TON5: TON;
+	TON6: TON;
+	TON7: TON;
+	TON8: TON;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[;(*(*Station 1 US*)
+ARbENRE[1](CLK:=bAutoStartPb OR ARbDO[eY10100_Stn01UltrasonicGeneratorOn_Off] , Q=> );
+IF ARbENRE[1].Q THEN
+
+	ARBufferFreqiIntAddress[1] := iDisplayFreqUs[1];
+	ARBufferPoweriIntAddress[1] := ARDsStnSeqProcessCtrl[1].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;
+
+END_IF
+
+(*Program*)
+TON1(IN:= bAutoStartPb AND ARbDO[eY10100_Stn01UltrasonicGeneratorOn_Off], PT:= T#10S , Q=> , ET=> );
+
+IF TON1.Q THEN
+
+ARUpdate_bIntAddress[1] := FALSE;
+
+	IF (ARBufferFreqiIntAddress[1] <> iDisplayFreqUs[1]) OR (ARBufferPoweriIntAddress[1] <> ARDsStnSeqProcessCtrl[1].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent) THEN
+		ARUpdate_bIntAddress[1] := TRUE;
+	END_IF
+
+	IF ARUpdate_bIntAddress[1] THEN
+		ARBufferFreqiIntAddress[1] := iDisplayFreqUs[1];
+		ARBufferPoweriIntAddress[1] := ARDsStnSeqProcessCtrl[1].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;
+	END_IF
+
+ELSE
+
+ARUpdate_bIntAddress[1] := FALSE;
+
+END_IF
+
+
+(*Station 2 US*)
+ARbENRE[2](CLK:=bAutoStartPb OR ARbDO[eY10101_Stn02UltrasonicGeneratorOn_Off] , Q=> );
+IF ARbENRE[2].Q THEN
+
+	ARBufferFreqiIntAddress[2] := iDisplayFreqUs[2];
+	ARBufferPoweriIntAddress[2] := ARDsStnSeqProcessCtrl[2].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;
+
+END_IF
+
+(*Program*)
+TON2(IN:= bAutoStartPb AND ARbDO[eY10101_Stn02UltrasonicGeneratorOn_Off], PT:= T#10S , Q=> , ET=> );
+
+IF TON2.Q THEN
+
+ARUpdate_bIntAddress[2] := FALSE;
+
+	IF (ARBufferFreqiIntAddress[2] <> iDisplayFreqUs[2]) OR (ARBufferPoweriIntAddress[2] <> ARDsStnSeqProcessCtrl[2].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent) THEN
+		ARUpdate_bIntAddress[2] := TRUE;
+	END_IF
+
+	IF ARUpdate_bIntAddress[2] THEN
+		ARBufferFreqiIntAddress[2] := iDisplayFreqUs[2];
+		ARBufferPoweriIntAddress[2] := ARDsStnSeqProcessCtrl[2].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;
+	END_IF
+
+ELSE
+
+ARUpdate_bIntAddress[2] := FALSE;
+
+END_IF
+
+
+(*Station 3 US*)
+ARbENRE[3](CLK:=bAutoStartPb OR ARbDO[eY11100_Stn03MegasonicGenerator01On_Off] OR ARbDO[eY11101_Stn03MegasonicGenerator02On_Off] , Q=> );
+IF ARbENRE[3].Q THEN
+
+	//ARBufferFreqiIntAddress[3] := iDisplayFreqUs[3];
+	ARBufferPoweriIntAddress[3] := ARDsStnSeqProcessCtrl[3].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;
+
+END_IF
+
+(*Program*)
+TON3(IN:= bAutoStartPb AND (ARbDO[eY11100_Stn03MegasonicGenerator01On_Off] OR ARbDO[eY11101_Stn03MegasonicGenerator02On_Off]), PT:= T#10S , Q=> , ET=> );
+
+IF TON3.Q THEN
+
+ARUpdate_bIntAddress[3] := FALSE;
+
+	IF (*(ARBufferFreqiIntAddress[3] <> DSWeberEnclosure[1].DSWeberGenerator[3].IN_iFreqSetPoint) OR*) (ARBufferPoweriIntAddress[3] <> ARDsStnSeqProcessCtrl[3].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent) THEN
+		ARUpdate_bIntAddress[3] := TRUE;
+	END_IF
+
+	IF ARUpdate_bIntAddress[3] THEN
+	//	ARBufferFreqiIntAddress[3] := DSWeberEnclosure[1].DSWeberGenerator[3].IN_iFreqSetPoint;
+		ARBufferPoweriIntAddress[3] := ARDsStnSeqProcessCtrl[3].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;
+	END_IF
+
+ELSE
+
+ARUpdate_bIntAddress[3] := FALSE;
+
+END_IF
+
+
+(*Station 4 US*)
+ARbENRE[4](CLK:=bAutoStartPb OR ARbDO[eY10102_Stn04UltrasonicGeneratorOn_Off] , Q=> );
+IF ARbENRE[4].Q THEN
+
+	ARBufferFreqiIntAddress[4] := iDisplayFreqUs[4];
+	ARBufferPoweriIntAddress[4] := ARDsStnSeqProcessCtrl[4].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;
+
+END_IF
+
+(*Program*)
+TON4(IN:= bAutoStartPb AND ARbDO[eY10102_Stn04UltrasonicGeneratorOn_Off], PT:= T#10S , Q=> , ET=> );
+
+IF TON4.Q THEN
+
+ARUpdate_bIntAddress[4] := FALSE;
+
+	IF (ARBufferFreqiIntAddress[4] <> iDisplayFreqUs[4]) OR (ARBufferPoweriIntAddress[4] <> ARDsStnSeqProcessCtrl[4].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent) THEN
+		ARUpdate_bIntAddress[4] := TRUE;
+	END_IF
+
+	IF ARUpdate_bIntAddress[4] THEN
+		ARBufferFreqiIntAddress[4] := iDisplayFreqUs[4];
+		ARBufferPoweriIntAddress[4] := ARDsStnSeqProcessCtrl[4].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;
+	END_IF
+
+ELSE
+
+ARUpdate_bIntAddress[4] := FALSE;
+
+END_IF
+
+
+(*Station 5 US*)
+ARbENRE[5](CLK:=bAutoStartPb OR ARbDO[eY10103_Stn05UltrasonicGeneratorOn_Off] , Q=> );
+IF ARbENRE[5].Q THEN
+
+	ARBufferFreqiIntAddress[5] := iDisplayFreqUs[5];
+	ARBufferPoweriIntAddress[5] := ARDsStnSeqProcessCtrl[5].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;
+
+END_IF
+
+(*Program*)
+TON5(IN:= bAutoStartPb AND ARbDO[eY10103_Stn05UltrasonicGeneratorOn_Off], PT:= T#10S , Q=> , ET=> );
+
+IF TON5.Q THEN
+
+ARUpdate_bIntAddress[5] := FALSE;
+
+	IF (ARBufferFreqiIntAddress[5] <> iDisplayFreqUs[5]) OR (ARBufferPoweriIntAddress[5] <> ARDsStnSeqProcessCtrl[5].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent) THEN
+		ARUpdate_bIntAddress[5] := TRUE;
+	END_IF
+
+	IF ARUpdate_bIntAddress[5] THEN
+		ARBufferFreqiIntAddress[5] := iDisplayFreqUs[5];
+		ARBufferPoweriIntAddress[5] := ARDsStnSeqProcessCtrl[5].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;
+	END_IF
+
+ELSE
+
+ARUpdate_bIntAddress[5] := FALSE;
+
+END_IF
+
+
+(*Station 6 US*)
+ARbENRE[6](CLK:=bAutoStartPb OR ARbDO[eY12001_Stn06MegasonicGenerator01On_Off] OR ARbDO[eY12002_Stn06MegasonicGenerator02On_Off] OR ARbDO[eY12003_Stn06MegasonicGenerator03On_Off] , Q=> );
+IF ARbENRE[6].Q THEN
+
+	//ARBufferFreqiIntAddress[6] := iDisplayFreqUs[6];
+	ARBufferPoweriIntAddress[6] := ARDsStnSeqProcessCtrl[6].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;
+
+END_IF
+
+(*Program*)
+TON6(IN:= bAutoStartPb AND (ARbDO[eY12001_Stn06MegasonicGenerator01On_Off] OR ARbDO[eY12002_Stn06MegasonicGenerator02On_Off] OR ARbDO[eY12003_Stn06MegasonicGenerator03On_Off]), PT:= T#10S , Q=> , ET=> );
+
+IF TON6.Q THEN
+
+ARUpdate_bIntAddress[6] := FALSE;
+
+	IF (*(ARBufferFreqiIntAddress[6] <> DSWeberEnclosure[1].DSWeberGenerator[6].IN_iFreqSetPoint) OR*) (ARBufferPoweriIntAddress[6] <> ARDsStnSeqProcessCtrl[6].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent) THEN
+		ARUpdate_bIntAddress[6] := TRUE;
+	END_IF
+
+	IF ARUpdate_bIntAddress[6] THEN
+	//	ARBufferFreqiIntAddress[6] := DSWeberEnclosure[1].DSWeberGenerator[6].IN_iFreqSetPoint;
+		ARBufferPoweriIntAddress[6] := ARDsStnSeqProcessCtrl[6].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;
+	END_IF
+
+ELSE
+
+ARUpdate_bIntAddress[6] := FALSE;
+
+END_IF
+
+
+(*Station 7 US*)
+ARbENRE[7](CLK:=bAutoStartPb OR ARbDO[eY10104_Stn07UltrasonicGeneratorOn_Off] , Q=> );
+IF ARbENRE[7].Q THEN
+
+	ARBufferFreqiIntAddress[7] := iDisplayFreqUs[7];
+	ARBufferPoweriIntAddress[7] := ARDsStnSeqProcessCtrl[7].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;
+
+END_IF
+
+(*Program*)
+TON7(IN:= bAutoStartPb AND ARbDO[eY10104_Stn07UltrasonicGeneratorOn_Off], PT:= T#10S , Q=> , ET=> );
+
+IF TON7.Q THEN
+
+ARUpdate_bIntAddress[7] := FALSE;
+
+	IF (ARBufferFreqiIntAddress[7] <> iDisplayFreqUs[7]) OR (ARBufferPoweriIntAddress[7] <> ARDsStnSeqProcessCtrl[7].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent) THEN
+		ARUpdate_bIntAddress[7] := TRUE;
+	END_IF
+
+	IF ARUpdate_bIntAddress[7] THEN
+		ARBufferFreqiIntAddress[7] := iDisplayFreqUs[7];
+		ARBufferPoweriIntAddress[7] := ARDsStnSeqProcessCtrl[7].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;
+	END_IF
+
+ELSE
+
+ARUpdate_bIntAddress[7] := FALSE;
+
+END_IF
+
+
+(*Station 8 US*)
+ARbENRE[8](CLK:=bAutoStartPb OR ARbDO[eY10105_Stn08UltrasonicGeneratorOn_Off] , Q=> );
+IF ARbENRE[8].Q THEN
+
+	ARBufferFreqiIntAddress[8] := iDisplayFreqUs[8];
+	ARBufferPoweriIntAddress[8] := ARDsStnSeqProcessCtrl[8].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;
+
+END_IF
+
+(*Program*)
+TON8(IN:= bAutoStartPb AND ARbDO[eY10105_Stn08UltrasonicGeneratorOn_Off], PT:= T#10S , Q=> , ET=> );
+
+IF TON8.Q THEN
+
+ARUpdate_bIntAddress[8] := FALSE;
+
+	IF (ARBufferFreqiIntAddress[8] <> iDisplayFreqUs[8]) OR (ARBufferPoweriIntAddress[8] <> ARDsStnSeqProcessCtrl[8].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent) THEN
+		ARUpdate_bIntAddress[8] := TRUE;
+	END_IF
+
+	IF ARUpdate_bIntAddress[8] THEN
+		ARBufferFreqiIntAddress[8] := iDisplayFreqUs[8];
+		ARBufferPoweriIntAddress[8] := ARDsStnSeqProcessCtrl[8].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;
+	END_IF
+
+ELSE
+
+ARUpdate_bIntAddress[8] := FALSE;
+
+END_IF
+*)]]></ST>
+    </Implementation>
+    <LineIds Name="GeneratorComparison">
+      <LineId Id="389" Count="157" />
+      <LineId Id="628" Count="0" />
+      <LineId Id="595" Count="31" />
+      <LineId Id="548" Count="30" />
+      <LineId Id="630" Count="30" />
+      <LineId Id="629" Count="0" />
+      <LineId Id="676" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

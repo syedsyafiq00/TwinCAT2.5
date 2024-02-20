@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_XML_Persistent_Barcode" Id="{89a59451-4630-4726-a7c5-c66b8e579de0}">
+    <Declaration><![CDATA[TYPE DS_XML_Persistent_Barcode :
+STRUCT
+	
+	ARsProgramDescrip							: ARRAY [0..iProductRecipeArrayQty] OF STRING;
+	ARsBarcodeOutput							: ARRAY [0..iProductRecipeArrayQty] OF STRING;
+	ARsBarcodeBatch								: ARRAY [0..iProductRecipeArrayQty] OF STRING;
+	ARsBarcodeJob								: ARRAY [0..iProductRecipeArrayQty] OF STRING;
+
+	ilengthElimater								: INT :=1;
+	bBarcodeBypass								: BOOL;
+	bBarcodeEnable 								: BOOL;
+	
+//V3 Barcode Scanner
+	
+	DsAr1sG_BarcodeRegistration 				: ARRAY [1..iBarcodeRegQty] 								OF 	DSV3_BarcodeRegistration;
+	bBarcodeReceiveStringRst					: BOOL;
+	sBarcodeScannerReceivedCmdForReg			: STRING;	
+	fbG_BarcodeScanner							: fb_V3BarcodeMasterCtrl;
+	
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxx fb_V1BarcodeRegistration_UTAC Variable xxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*=========================================================================*)
+
+	arProgramDescrip1							: ARRAY [0..50] 											OF STRING;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxx fb_V3StringEliminator Variable xxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*=========================================================================*)
+
+	fbG_V3StringEliminator 						: fb_V3StringEliminator;
+
+	bStringEliminatorEn							: BOOL;
+	iCharEliminateQty 							: INT;
+	iCharNeededQty								: INT;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxx fb_V3BarcodeRegistration Variable xxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*==============================================================================*)
+
+	fbG_V1BarcodeRegistration 					: fb_V1BarcodeRegistration_UTAC;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxx fb_V3BarcodeTracer Variable xxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*==============================================================================*)
+
+	fbG_V3BarcodeTracer 						: fb_V3BarcodeTracer;
+
+	bTracerEn									: BOOL;
+
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxx fb_V3BarcodeRegSectionDisplayController Variable xxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*=============================================================================================*)
+
+	fbG_V3BarcodeRegSectionDisplayController 	: fb_V3BarcodeRegSectionDisplayController;
+
+	DsAr1sG_BarcodeRegSectionDisplayHMI 		: ARRAY [0..iBarcodeRegSecDisplayQty] 						OF 	DSV3_BarcodeRegistration;
+	iAr1sG_BarcodeRegNoSectionDisplayHMI 		: ARRAY [0..iBarcodeRegSecDisplayQty] 						OF 	INT;
+
+	bBarcodeRegEn 								: BOOL;
+
+
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

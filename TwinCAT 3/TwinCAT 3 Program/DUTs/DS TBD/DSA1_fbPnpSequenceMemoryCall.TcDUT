@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSA1_fbPnpSequenceMemoryCall" Id="{8a311121-c49d-4f05-903d-41ad9c5817dd}">
+    <Declaration><![CDATA[TYPE DSA1_fbPnpSequenceMemoryCall : (*Full Occupied Byte = 1100*)
+STRUCT
+	bCallPB: BOOL; (* Byte "n" *)
+	bCallCompleted : BOOL; (* Byte "n+1" *)
+	bInvalidCallProductRecipeNoHold : BOOL; (* Byte "n+2" *)
+	bInvalidCallProductRecipeNoPulse : BOOL; (* Byte "n+3" *)
+	sReservedBool : STRING(50); (* Byte "n+4~n+99" *)
+
+
+	Call_iProductRecipeNo : INT; (* Byte "n+100, n+101" *)
+	sReservedInt : STRING(50); (* Byte "n+102~n+199" *)
+
+
+(*	Call_sSequenceRecipeDescription : STRING(50); (* Byte "n+200~n+299" *)*)
+	sReserveString : STRING(50); (* Byte "n+200~n+299" *)
+
+	Call_DsPnpSequenceMemory : DSA1_PnpSequenceMemory; (* Byte "n+300 onward" *)
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

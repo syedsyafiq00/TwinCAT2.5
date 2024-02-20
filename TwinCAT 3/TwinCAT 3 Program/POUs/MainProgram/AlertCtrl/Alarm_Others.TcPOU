@@ -1,0 +1,1391 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Alarm_Others" Id="{72a2b427-7387-4397-9f07-318f30eea517}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Alarm_Others
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// ARdsEventCtrl[300] - ARdsEventCtrl[500]
+
+// Others Alarm ex High Temp, First Limit, Low Flow, High Pressure and etc
+	
+	ARdsEventCtrl[300].bSignalInput							:=	NOT ARbStnTempHAL[1]; // STN 01 PROCESS TANK HIGH TEMP ALARM
+	ARdsEventCtrl[300].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[300].bHoldingDisable;
+	ARdsEventCtrl[300].bTest_InvertedInputEn;
+	ARdsEventCtrl[300].bEventOutput;						
+	
+	ARdsEventCtrl[301].bSignalInput							:=	NOT ARbStnTempHAL[2]; // STN 02 PROCESS TANK HIGH TEMP ALARM
+	ARdsEventCtrl[301].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[301].bHoldingDisable;
+	ARdsEventCtrl[301].bTest_InvertedInputEn;
+	ARdsEventCtrl[301].bEventOutput;						
+	
+	ARdsEventCtrl[302].bSignalInput							:=	NOT ARbStnTempHAL[3]; // STN 03 PROCESS TANK HIGH TEMP ALARM
+	ARdsEventCtrl[302].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[302].bHoldingDisable;
+	ARdsEventCtrl[302].bTest_InvertedInputEn;
+	ARdsEventCtrl[302].bEventOutput;						
+	
+	ARdsEventCtrl[303].bSignalInput							:=	NOT ARbStnTempHAL[4]; // STN 04 PROCESS TANK HIGH TEMP ALARM
+	ARdsEventCtrl[303].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[303].bHoldingDisable;
+	ARdsEventCtrl[303].bTest_InvertedInputEn;
+	ARdsEventCtrl[303].bEventOutput;						
+	
+	ARdsEventCtrl[304].bSignalInput							:= 	NOT ARbStnTempHAL[5]; // STN 05 PROCESS TANK HIGH TEMP ALARM
+	ARdsEventCtrl[304].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[304].bHoldingDisable;
+	ARdsEventCtrl[304].bTest_InvertedInputEn;
+	ARdsEventCtrl[304].bEventOutput;						
+	
+	ARdsEventCtrl[305].bSignalInput							:= 	NOT ARbStnTempHAL[6]; // STN 06 PROCESS TANK HIGH TEMP ALARM;	
+	ARdsEventCtrl[305].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[305].bHoldingDisable;
+	ARdsEventCtrl[305].bTest_InvertedInputEn;
+	ARdsEventCtrl[305].bEventOutput;						
+	
+	ARdsEventCtrl[306].bSignalInput							:= 	NOT ARbStnTempHAL[7] ; // STN 07 PROCESS TANK HIGH TEMP ALARM;	
+	ARdsEventCtrl[306].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[306].bHoldingDisable;
+	ARdsEventCtrl[306].bTest_InvertedInputEn;
+	ARdsEventCtrl[306].bEventOutput;						
+	
+	ARdsEventCtrl[307].bSignalInput							:= 	NOT ARbStnTempHAL[8] ; // STN 08 PROCESS TANK HIGH TEMP ALARM;
+	ARdsEventCtrl[307].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[307].bHoldingDisable;
+	ARdsEventCtrl[307].bTest_InvertedInputEn;
+	ARdsEventCtrl[307].bEventOutput;											
+	
+	ARdsEventCtrl[308].bSignalInput							:=	NOT ARbStnTempHAL[9]; // STN 09 PROCESS TANK HIGH TEMP ALARM;	
+	ARdsEventCtrl[308].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[308].bHoldingDisable;
+	ARdsEventCtrl[308].bTest_InvertedInputEn;
+	ARdsEventCtrl[308].bEventOutput;
+	
+	ARdsEventCtrl[309].bSignalInput							:=	NOT ARbStnTempHAL[10]; // STN 10 PROCESS TANK HIGH TEMP ALARM;
+	ARdsEventCtrl[309].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[309].bHoldingDisable;
+	ARdsEventCtrl[309].bTest_InvertedInputEn;
+	ARdsEventCtrl[309].bEventOutput;
+	
+	ARdsEventCtrl[310].bSignalInput							:= 	NOT ARbStnExternalTempHAL[1]; //(* STN10 LEFT TOP *):	 
+	ARdsEventCtrl[310].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[310].bHoldingDisable;
+	ARdsEventCtrl[310].bTest_InvertedInputEn;
+	ARdsEventCtrl[310].bEventOutput;
+	
+	ARdsEventCtrl[311].bSignalInput							:= 	NOT ARbStnExternalTempHAL[2]; //(* STN10 LEFT BOTTOM *):	 
+	ARdsEventCtrl[311].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[311].bHoldingDisable;
+	ARdsEventCtrl[311].bTest_InvertedInputEn;
+	ARdsEventCtrl[311].bEventOutput;
+	
+	ARdsEventCtrl[312].bSignalInput							:= 	NOT ARbStnExternalTempHAL[3]; //(* STN10 RIGHT TOP *):	 
+	ARdsEventCtrl[312].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[312].bHoldingDisable;
+	ARdsEventCtrl[312].bTest_InvertedInputEn;
+	ARdsEventCtrl[312].bEventOutput;
+	
+	ARdsEventCtrl[313].bSignalInput							:= 	NOT ARbStnExternalTempHAL[4]; //(* STN10 RIGHT BOTTOM *):	
+	ARdsEventCtrl[313].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[313].bHoldingDisable;
+	ARdsEventCtrl[313].bTest_InvertedInputEn;
+	ARdsEventCtrl[313].bEventOutput;
+	
+	ARdsEventCtrl[314].bSignalInput							:=	NOT bChillerSystemTempHAL; //(* MAIN INC CHILLED WATER *):	 
+	ARdsEventCtrl[314].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[314].bHoldingDisable;
+	ARdsEventCtrl[314].bTest_InvertedInputEn;
+	ARdsEventCtrl[314].bEventOutput;
+	
+	ARdsEventCtrl[315].bSignalInput							:=ARbStnTempPreparationNoRdyAlarm[1];// PROCESS TANK 1 TEMP PREPARATION NO READY ALARM 
+	ARdsEventCtrl[315].iDelayTimeSV							:=0;
+	ARdsEventCtrl[315].bHoldingDisable;
+	ARdsEventCtrl[315].bTest_InvertedInputEn;
+	ARdsEventCtrl[315].bEventOutput;
+
+	
+	ARdsEventCtrl[316].bSignalInput							:=ARbStnTempPreparationNoRdyAlarm[2];// PROCESS TANK 2 TEMP PREPARATION NO READY ALARM 
+	ARdsEventCtrl[316].iDelayTimeSV							:=0;
+	ARdsEventCtrl[316].bHoldingDisable;
+	ARdsEventCtrl[316].bTest_InvertedInputEn;
+	ARdsEventCtrl[316].bEventOutput;
+
+	
+	ARdsEventCtrl[317].bSignalInput							:=ARbStnTempPreparationNoRdyAlarm[3];// PROCESS TANK 3 TEMP PREPARATION NO READY ALARM 
+	ARdsEventCtrl[317].iDelayTimeSV							:=0;
+	ARdsEventCtrl[317].bHoldingDisable;
+	ARdsEventCtrl[317].bTest_InvertedInputEn;
+	ARdsEventCtrl[317].bEventOutput;
+
+	
+	ARdsEventCtrl[318].bSignalInput							:=ARbStnTempPreparationNoRdyAlarm[4];// PROCESS TANK 4 TEMP PREPARATION NO READY ALARM 
+	ARdsEventCtrl[318].iDelayTimeSV							:=0;
+	ARdsEventCtrl[318].bHoldingDisable;
+	ARdsEventCtrl[318].bTest_InvertedInputEn;
+	ARdsEventCtrl[318].bEventOutput;
+
+	ARdsEventCtrl[319].bSignalInput							:=ARbStnTempPreparationNoRdyAlarm[5];// PROCESS TANK 5 TEMP PREPARATION NO READY ALARM 
+	ARdsEventCtrl[319].iDelayTimeSV							:=0;
+	ARdsEventCtrl[319].bHoldingDisable;
+	ARdsEventCtrl[319].bTest_InvertedInputEn;
+	ARdsEventCtrl[319].bEventOutput;
+	
+	ARdsEventCtrl[320].bSignalInput							:=ARbStnTempPreparationNoRdyAlarm[6];// PROCESS TANK 6 TEMP PREPARATION NO READY ALARM 
+	ARdsEventCtrl[320].iDelayTimeSV							:=0;
+	ARdsEventCtrl[320].bHoldingDisable;
+	ARdsEventCtrl[320].bTest_InvertedInputEn;
+	ARdsEventCtrl[320].bEventOutput;
+	
+	ARdsEventCtrl[321].bSignalInput							:=ARbStnTempPreparationNoRdyAlarm[7];// PROCESS TANK 7 TEMP PREPARATION NO READY ALARM  
+	ARdsEventCtrl[321].iDelayTimeSV							:=0;
+	ARdsEventCtrl[321].bHoldingDisable;
+	ARdsEventCtrl[321].bTest_InvertedInputEn;
+	ARdsEventCtrl[321].bEventOutput;
+	
+	ARdsEventCtrl[322].bSignalInput							:=ARbStnTempPreparationNoRdyAlarm[8];// PROCESS TANK 8 TEMP PREPARATION NO READY ALARM 
+	ARdsEventCtrl[322].iDelayTimeSV							:=0;
+	ARdsEventCtrl[322].bHoldingDisable;
+	ARdsEventCtrl[322].bTest_InvertedInputEn;
+	ARdsEventCtrl[322].bEventOutput;
+	
+	ARdsEventCtrl[323].bSignalInput							:=FALSE AND ARbStnTempPreparationNoRdyAlarm[9];// PROCESS TANK 9 TEMP PREPARATION NO READY ALARM 
+	ARdsEventCtrl[323].iDelayTimeSV							:=0;
+	ARdsEventCtrl[323].bHoldingDisable;
+	ARdsEventCtrl[323].bTest_InvertedInputEn;
+	ARdsEventCtrl[323].bEventOutput;
+	
+	ARdsEventCtrl[324].bSignalInput							:=ARbStnTempPreparationNoRdyAlarm[10];// PROCESS TANK 10 TEMP PREPARATION NO READY ALARM 
+	ARdsEventCtrl[324].iDelayTimeSV							:=0;
+	ARdsEventCtrl[324].bHoldingDisable;
+	ARdsEventCtrl[324].bTest_InvertedInputEn;
+	ARdsEventCtrl[324].bEventOutput;
+	
+	ARdsEventCtrl[325].bSignalInput							:=FALSE AND ARbStnTempPreparationNoRdyAlarm[11];// PROCESS TANK 11 TEMP PREPARATION NO READY ALARM 
+	ARdsEventCtrl[325].iDelayTimeSV							:=0;
+	ARdsEventCtrl[325].bHoldingDisable;
+	ARdsEventCtrl[325].bTest_InvertedInputEn;
+	ARdsEventCtrl[325].bEventOutput;
+
+	
+	ARdsEventCtrl[326].bSignalInput							:=FALSE AND ARbStnTempPreparationNoRdyAlarm[12];// PROCESS TANK 12 TEMP PREPARATION NO READY ALARM 
+	ARdsEventCtrl[326].iDelayTimeSV							:=0;
+	ARdsEventCtrl[326].bHoldingDisable;
+	ARdsEventCtrl[326].bTest_InvertedInputEn;
+	ARdsEventCtrl[326].bEventOutput;
+
+	
+	ARdsEventCtrl[327].bSignalInput							:=FALSE AND bIncTempPreparationNoRdyAlarm;	
+	ARdsEventCtrl[327].iDelayTimeSV							:=0;
+	ARdsEventCtrl[327].bHoldingDisable;
+	ARdsEventCtrl[327].bTest_InvertedInputEn;
+	ARdsEventCtrl[327].bEventOutput;
+
+	
+	ARdsEventCtrl[328].bSignalInput							:=FALSE AND ARbStnWaterJacketTempPreparationNoRdyAlarm[4];
+	ARdsEventCtrl[328].iDelayTimeSV							:=0;
+	ARdsEventCtrl[328].bHoldingDisable;
+	ARdsEventCtrl[328].bTest_InvertedInputEn;
+	ARdsEventCtrl[328].bEventOutput;
+	
+	ARdsEventCtrl[329].bSignalInput							:=FALSE;
+	ARdsEventCtrl[329].iDelayTimeSV							:=0;
+	ARdsEventCtrl[329].bHoldingDisable;
+	ARdsEventCtrl[329].bTest_InvertedInputEn;
+	ARdsEventCtrl[329].bEventOutput;
+	
+	ARdsEventCtrl[330].bSignalInput							:=	(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp1stLimitAlarm[1] AND NOT ARbStationFunctionBypass[1]; //PROCESS TANK 1 TEMP OVER 1ST LIMIT ALARM
+	ARdsEventCtrl[330].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[330].bHoldingDisable;
+	ARdsEventCtrl[330].bTest_InvertedInputEn;
+	ARdsEventCtrl[330].bEventOutput;
+	
+	ARdsEventCtrl[331].bSignalInput							:=	(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp1stLimitAlarm[2] AND NOT ARbStationFunctionBypass[2]; //PROCESS TANK 2 TEMP OVER 1ST LIMIT ALARM
+	ARdsEventCtrl[331].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[331].bHoldingDisable;
+	ARdsEventCtrl[331].bTest_InvertedInputEn;
+	ARdsEventCtrl[331].bEventOutput;
+		
+	ARdsEventCtrl[332].bSignalInput							:= 	(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp1stLimitAlarm[3] AND NOT ARbStationFunctionBypass[3]; //PROCESS TANK 3 TEMP OVER 1ST LIMIT ALARM
+	ARdsEventCtrl[332].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[332].bHoldingDisable;
+	ARdsEventCtrl[332].bTest_InvertedInputEn;
+	ARdsEventCtrl[332].bEventOutput;
+		
+	ARdsEventCtrl[333].bSignalInput							:=	(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp1stLimitAlarm[4] AND NOT ARbStationFunctionBypass[4]; //PROCESS TANK 4 TEMP OVER 1ST LIMIT ALARM 
+	ARdsEventCtrl[333].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[333].bHoldingDisable;
+	ARdsEventCtrl[333].bTest_InvertedInputEn;
+	ARdsEventCtrl[333].bEventOutput;
+		
+	ARdsEventCtrl[334].bSignalInput							:=	(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp1stLimitAlarm[5] AND NOT ARbStationFunctionBypass[5]; //PROCESS TANK 5 TEMP OVER 1ST LIMIT ALARM
+	ARdsEventCtrl[334].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[334].bHoldingDisable;
+	ARdsEventCtrl[334].bTest_InvertedInputEn;
+	ARdsEventCtrl[334].bEventOutput;
+	
+	ARdsEventCtrl[335].bSignalInput							:=	(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp1stLimitAlarm[6] AND NOT ARbStationFunctionBypass[6]; //PROCESS TANK 6 TEMP OVER 1ST LIMIT ALARM
+	ARdsEventCtrl[335].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[335].bHoldingDisable;
+	ARdsEventCtrl[335].bTest_InvertedInputEn;
+	ARdsEventCtrl[335].bEventOutput;
+		
+	ARdsEventCtrl[336].bSignalInput							:= 	(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp1stLimitAlarm[7] AND NOT ARbStationFunctionBypass[7]; //PROCESS TANK 7 TEMP OVER 1ST LIMIT ALARM
+	ARdsEventCtrl[336].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[336].bHoldingDisable;
+	ARdsEventCtrl[336].bTest_InvertedInputEn;
+	ARdsEventCtrl[336].bEventOutput;
+		
+	ARdsEventCtrl[337].bSignalInput							:=	(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp1stLimitAlarm[8] AND NOT ARbStationFunctionBypass[8]; //PROCESS TANK 8 TEMP OVER 1ST LIMIT ALARM
+	ARdsEventCtrl[337].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[337].bHoldingDisable;
+	ARdsEventCtrl[337].bTest_InvertedInputEn;
+	ARdsEventCtrl[337].bEventOutput;
+		
+	ARdsEventCtrl[338].bSignalInput							:=	FALSE AND (bAutoStartPb OR ManualPageEnable) AND ARbStnTemp1stLimitAlarm[9] AND NOT ARbStationFunctionBypass[9]; //PROCESS TANK 9 TEMP OVER 1ST LIMIT ALARM;
+	ARdsEventCtrl[338].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[338].bHoldingDisable;
+	ARdsEventCtrl[338].bTest_InvertedInputEn;
+	ARdsEventCtrl[338].bEventOutput;
+	
+	ARdsEventCtrl[339].bSignalInput							:=	(bAutoStartPb OR ManualPageEnable) AND DSStnBasketInfo[10].bAvailibility AND ARbStnTemp1stLimitAlarm[10] AND NOT ARbStationFunctionBypass[10]; //PROCESS TANK 10 TEMP OVER 1ST LIMIT ALARM;
+	ARdsEventCtrl[339].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[339].bHoldingDisable;
+	ARdsEventCtrl[339].bTest_InvertedInputEn;
+	ARdsEventCtrl[339].bEventOutput;
+	
+	ARdsEventCtrl[340].bSignalInput							:=	FALSE AND (bAutoStartPb OR ManualPageEnable) AND ARbStnTemp1stLimitAlarm[10] AND NOT ARbStationFunctionBypass[10]; //PROCESS TANK 10 TEMP OVER 1ST LIMIT ALARM
+	ARdsEventCtrl[340].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[340].bHoldingDisable;
+	ARdsEventCtrl[340].bTest_InvertedInputEn;
+	ARdsEventCtrl[340].bEventOutput;
+	
+	ARdsEventCtrl[341].bSignalInput							:=FALSE AND(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp1stLimitAlarm[11] AND NOT ARbStationFunctionBypass[11]; //PROCESS TANK 11 TEMP OVER 1ST LIMIT ALARM
+	ARdsEventCtrl[341].iDelayTimeSV							:=0;
+	ARdsEventCtrl[341].bHoldingDisable;
+	ARdsEventCtrl[341].bTest_InvertedInputEn;
+	ARdsEventCtrl[341].bEventOutput;
+	
+	ARdsEventCtrl[342].bSignalInput							:=FALSE AND(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp1stLimitAlarm[12] AND NOT ARbStationFunctionBypass[12]; //PROCESS TANK 1 TEMP OVER 1ST LIMIT ALARM
+	ARdsEventCtrl[342].iDelayTimeSV							:=0;
+	ARdsEventCtrl[342].bHoldingDisable;
+	ARdsEventCtrl[342].bTest_InvertedInputEn;
+	ARdsEventCtrl[342].bEventOutput;
+	
+	ARdsEventCtrl[343].bSignalInput							:= FALSE AND (bAutoStartPb OR ManualPageEnable) AND bIncTemp1stLimitAlarm; //INC TEMP OVER 1ST LIMIT ALARM 
+	ARdsEventCtrl[343].iDelayTimeSV							:=0;
+	ARdsEventCtrl[343].bHoldingDisable;
+	ARdsEventCtrl[343].bTest_InvertedInputEn;
+	ARdsEventCtrl[343].bEventOutput;
+	
+	ARdsEventCtrl[344].bSignalInput							:= FALSE AND (bAutoStartPb OR ManualPageEnable) AND ARbStnWaterJacketTemp1stLimitAlarm[4]; // STN4 WATER JACKET TEMP OVER 1ST LIMIT ALARM
+	ARdsEventCtrl[344].iDelayTimeSV							:=10;
+	ARdsEventCtrl[344].bHoldingDisable;
+	ARdsEventCtrl[344].bTest_InvertedInputEn;
+	ARdsEventCtrl[344].bEventOutput;
+	
+	ARdsEventCtrl[345].bSignalInput							:=FALSE;
+	ARdsEventCtrl[345].iDelayTimeSV							:=0;
+	ARdsEventCtrl[345].bHoldingDisable;
+	ARdsEventCtrl[345].bTest_InvertedInputEn;
+	ARdsEventCtrl[345].bEventOutput;
+	
+	ARdsEventCtrl[346].bSignalInput							:=(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp2ndLimitAlarm[1]; // PROCESS TANK 1 TEMP OVER 2ND LIMIT ALARM
+	ARdsEventCtrl[346].iDelayTimeSV							:=0;
+	ARdsEventCtrl[346].bHoldingDisable;
+	ARdsEventCtrl[346].bTest_InvertedInputEn;
+	ARdsEventCtrl[346].bEventOutput;
+	
+	ARdsEventCtrl[347].bSignalInput							:=(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp2ndLimitAlarm[2]; // PROCESS TANK 2 TEMP OVER 2ND LIMIT ALARM
+	ARdsEventCtrl[347].iDelayTimeSV							:=0;
+	ARdsEventCtrl[347].bHoldingDisable;
+	ARdsEventCtrl[347].bTest_InvertedInputEn;
+	ARdsEventCtrl[347].bEventOutput;
+	
+	ARdsEventCtrl[348].bSignalInput							:=(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp2ndLimitAlarm[3]; // PROCESS TANK 3 TEMP OVER 2ND LIMIT ALARM
+	ARdsEventCtrl[348].iDelayTimeSV							:=0;
+	ARdsEventCtrl[348].bHoldingDisable;
+	ARdsEventCtrl[348].bTest_InvertedInputEn;
+	ARdsEventCtrl[348].bEventOutput;
+	
+	ARdsEventCtrl[349].bSignalInput							:=(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp2ndLimitAlarm[4]; // PROCESS TANK 4 TEMP OVER 2ND LIMIT ALARM
+	ARdsEventCtrl[349].iDelayTimeSV							:=0;
+	ARdsEventCtrl[349].bHoldingDisable;
+	ARdsEventCtrl[349].bTest_InvertedInputEn;
+	ARdsEventCtrl[349].bEventOutput;
+	
+	ARdsEventCtrl[350].bSignalInput							:=(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp2ndLimitAlarm[5]; // PROCESS TANK 5 TEMP OVER 2ND LIMIT ALARM
+	ARdsEventCtrl[350].iDelayTimeSV							:=0;
+	ARdsEventCtrl[350].bHoldingDisable;
+	ARdsEventCtrl[350].bTest_InvertedInputEn;
+	ARdsEventCtrl[350].bEventOutput;
+	
+	ARdsEventCtrl[351].bSignalInput							:=(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp2ndLimitAlarm[6]; // PROCESS TANK 6 TEMP OVER 2ND LIMIT ALARM
+	ARdsEventCtrl[351].iDelayTimeSV							:=0;
+	ARdsEventCtrl[351].bHoldingDisable;
+	ARdsEventCtrl[351].bTest_InvertedInputEn;
+	ARdsEventCtrl[351].bEventOutput;
+	
+	ARdsEventCtrl[352].bSignalInput							:=(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp2ndLimitAlarm[7]; // PROCESS TANK 7 TEMP OVER 2ND LIMIT ALARM
+	ARdsEventCtrl[352].iDelayTimeSV							:=0;
+	ARdsEventCtrl[352].bHoldingDisable;
+	ARdsEventCtrl[352].bTest_InvertedInputEn;
+	ARdsEventCtrl[352].bEventOutput;
+	
+	ARdsEventCtrl[353].bSignalInput							:=(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp2ndLimitAlarm[8]; // PROCESS TANK 8 TEMP OVER 2ND LIMIT ALARM 
+	ARdsEventCtrl[353].iDelayTimeSV							:=0;
+	ARdsEventCtrl[353].bHoldingDisable;
+	ARdsEventCtrl[353].bTest_InvertedInputEn;
+	ARdsEventCtrl[353].bEventOutput;
+	
+	ARdsEventCtrl[354].bSignalInput							:=(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp2ndLimitAlarm[9]; // PROCESS TANK 9 TEMP OVER 2ND LIMIT ALARM
+	ARdsEventCtrl[354].iDelayTimeSV							:=0;
+	ARdsEventCtrl[354].bHoldingDisable;
+	ARdsEventCtrl[354].bTest_InvertedInputEn;
+	ARdsEventCtrl[354].bEventOutput;
+	
+	ARdsEventCtrl[355].bSignalInput							:=(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp2ndLimitAlarm[10]; // PROCESS TANK 10 TEMP OVER 2ND LIMIT ALARM
+	ARdsEventCtrl[355].iDelayTimeSV							:=0;
+	ARdsEventCtrl[355].bHoldingDisable;
+	ARdsEventCtrl[355].bTest_InvertedInputEn;
+	ARdsEventCtrl[355].bEventOutput;
+	
+	ARdsEventCtrl[356].bSignalInput							:=(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp2ndLimitAlarm[11]; // PROCESS TANK 11 TEMP OVER 2ND LIMIT ALARM
+	ARdsEventCtrl[356].iDelayTimeSV							:=0;
+	ARdsEventCtrl[356].bHoldingDisable;
+	ARdsEventCtrl[356].bTest_InvertedInputEn;
+	ARdsEventCtrl[356].bEventOutput;
+	
+	ARdsEventCtrl[357].bSignalInput							:=(bAutoStartPb OR ManualPageEnable) AND ARbStnTemp2ndLimitAlarm[12]; // PROCESS TANK 12 TEMP OVER 2ND LIMIT ALARM
+	ARdsEventCtrl[357].iDelayTimeSV							:=0;
+	ARdsEventCtrl[357].bHoldingDisable;
+	ARdsEventCtrl[357].bTest_InvertedInputEn;
+	ARdsEventCtrl[357].bEventOutput;
+	
+	ARdsEventCtrl[358].bSignalInput							:=FALSE AND (bAutoStartPb OR ManualPageEnable) AND bIncTemp2ndLimitAlarm; //INC TEMP OVER 2ND LIMIT ALARM
+	ARdsEventCtrl[358].iDelayTimeSV							:=0;
+	ARdsEventCtrl[358].bHoldingDisable;
+	ARdsEventCtrl[358].bTest_InvertedInputEn;
+	ARdsEventCtrl[358].bEventOutput;
+	
+	ARdsEventCtrl[359].bSignalInput							:=FALSE AND (bAutoStartPb OR ManualPageEnable) AND ARbStnWaterJacketTemp2ndLimitAlarm[4]; //STN4 WATER JACKET TEMP OVER 2ND LIMIT ALARM 
+	ARdsEventCtrl[359].iDelayTimeSV							:=0;
+	ARdsEventCtrl[359].bHoldingDisable;
+	ARdsEventCtrl[359].bTest_InvertedInputEn;
+	ARdsEventCtrl[359].bEventOutput;
+	
+	// ANALOG -  OVER 1ST LIMIT ALARM-
+	ARdsEventCtrl[360].bSignalInput							:=	bAutoPreparationPb AND NOT ARbConductivityBypass[1] AND ARbStnConductivityLowAlarm[1]; //	PROCESS TANK 1 CONDUCTIVITY OVER 1ST LIMIT ALARM 
+	ARdsEventCtrl[360].iDelayTimeSV							:=3;
+	ARdsEventCtrl[360].bHoldingDisable;
+	ARdsEventCtrl[360].bTest_InvertedInputEn;
+	ARdsEventCtrl[360].bEventOutput;
+	
+	ARdsEventCtrl[361].bSignalInput							:=	bAutoPreparationPb AND NOT ARbConductivityBypass[2] AND ARbStnConductivityLowAlarm[2]; //	PROCESS TANK 2 CONDUCTIVITY OVER 1ST LIMIT ALARM 
+	ARdsEventCtrl[361].iDelayTimeSV							:=3;
+	ARdsEventCtrl[361].bHoldingDisable;
+	ARdsEventCtrl[361].bTest_InvertedInputEn;
+	ARdsEventCtrl[361].bEventOutput;
+	
+	ARdsEventCtrl[362].bSignalInput							:=	bAutoPreparationPb AND NOT ARbConductivityBypass[3] AND ARbStnConductivityLowAlarm[3]; //	PROCESS TANK 3 CONDUCTIVITY OVER 1ST LIMIT ALARM 
+	ARdsEventCtrl[362].iDelayTimeSV							:=3;
+	ARdsEventCtrl[362].bHoldingDisable;
+	ARdsEventCtrl[362].bTest_InvertedInputEn;
+	ARdsEventCtrl[362].bEventOutput;
+	
+	ARdsEventCtrl[363].bSignalInput							:=	bAutoPreparationPb AND NOT ARbConductivityBypass[4] AND ARbStnConductivityLowAlarm[4]; //	PROCESS TANK 4 CONDUCTIVITY OVER 1ST LIMIT ALARM 
+	ARdsEventCtrl[363].iDelayTimeSV							:=3;
+	ARdsEventCtrl[363].bHoldingDisable;
+	ARdsEventCtrl[363].bTest_InvertedInputEn;
+	ARdsEventCtrl[363].bEventOutput;
+	
+	ARdsEventCtrl[364].bSignalInput							:=	bAutoPreparationPb AND NOT ARbConductivityBypass[5] AND ARbStnConductivityLowAlarm[5]; //	PROCESS TANK 5 CONDUCTIVITY OVER 1ST LIMIT ALARM 
+	ARdsEventCtrl[364].iDelayTimeSV							:=3;
+	ARdsEventCtrl[364].bHoldingDisable;
+	ARdsEventCtrl[364].bTest_InvertedInputEn;
+	ARdsEventCtrl[364].bEventOutput;
+	
+	ARdsEventCtrl[365].bSignalInput							:=	bAutoPreparationPb AND NOT ARbConductivityBypass[6] AND ARbStnConductivityLowAlarm[6];
+	ARdsEventCtrl[365].iDelayTimeSV							:=3;
+	ARdsEventCtrl[365].bHoldingDisable;
+	ARdsEventCtrl[365].bTest_InvertedInputEn;
+	ARdsEventCtrl[365].bEventOutput;
+	
+	ARdsEventCtrl[366].bSignalInput							:=	bAutoPreparationPb AND NOT ARbConductivityBypass[7] AND ARbStnConductivityLowAlarm[7];
+	ARdsEventCtrl[366].iDelayTimeSV							:=3;
+	ARdsEventCtrl[366].bHoldingDisable;
+	ARdsEventCtrl[366].bTest_InvertedInputEn;
+	ARdsEventCtrl[366].bEventOutput;
+	
+	ARdsEventCtrl[367].bSignalInput							:=	bAutoPreparationPb AND NOT ARbConductivityBypass[8] AND ARbStnConductivityLowAlarm[8];
+	ARdsEventCtrl[367].iDelayTimeSV							:=3;
+	ARdsEventCtrl[367].bHoldingDisable;
+	ARdsEventCtrl[367].bTest_InvertedInputEn;
+	ARdsEventCtrl[367].bEventOutput;
+	
+	ARdsEventCtrl[368].bSignalInput							:=	ARbDO[eY10107_Stn01ProcessTankPumpOn_Off] AND bAutoPreparationPb AND NOT ARbFilterPressureBypass[1] AND ARbStnFilterPressureLowAlarm[1]; // PROCESS TANK 1 PRESSURE SWITCH  LOW ALARM
+	ARdsEventCtrl[368].iDelayTimeSV							:=30;
+	ARdsEventCtrl[368].bHoldingDisable;
+	ARdsEventCtrl[368].bTest_InvertedInputEn;
+	ARdsEventCtrl[368].bEventOutput;
+	
+	ARdsEventCtrl[369].bSignalInput							:=	ARbDO[eY10108_Stn02ProcessTankPumpOn_Off] AND bAutoPreparationPb AND NOT ARbFilterPressureBypass[2] AND ARbStnFilterPressureLowAlarm[2]; // PROCESS TANK 2 PRESSURE SWITCH  LOW ALARM;
+	ARdsEventCtrl[369].iDelayTimeSV							:=30;
+	ARdsEventCtrl[369].bHoldingDisable;
+	ARdsEventCtrl[369].bTest_InvertedInputEn;
+	ARdsEventCtrl[369].bEventOutput;
+	
+	ARdsEventCtrl[370].bSignalInput							:=	ARbDO[eY10109_Stn03ProcessTankPumpOn_Off] AND bAutoPreparationPb AND NOT ARbFilterPressureBypass[3] AND ARbStnFilterPressureLowAlarm[3]; // PROCESS TANK 3 PRESSURE SWITCH  LOW ALARM
+	ARdsEventCtrl[370].iDelayTimeSV							:=30;
+	ARdsEventCtrl[370].bHoldingDisable;
+	ARdsEventCtrl[370].bTest_InvertedInputEn;
+	ARdsEventCtrl[370].bEventOutput;
+	
+	ARdsEventCtrl[371].bSignalInput							:=	ARbDO[eY10110_Stn04ProcessTankPumpOn_Off] AND bAutoPreparationPb AND NOT ARbFilterPressureBypass[4] AND ARbStnFilterPressureLowAlarm[4]; // PROCESS TANK 4 PRESSURE SWITCH  LOW ALARM
+	ARdsEventCtrl[371].iDelayTimeSV							:=30;
+	ARdsEventCtrl[371].bHoldingDisable;
+	ARdsEventCtrl[371].bTest_InvertedInputEn;
+	ARdsEventCtrl[371].bEventOutput;
+	
+	ARdsEventCtrl[372].bSignalInput							:=	ARbDO[eY10111_Stn05ProcessTankPumpOn_Off] AND bAutoPreparationPb AND NOT ARbFilterPressureBypass[5] AND ARbStnFilterPressureLowAlarm[5]; // PROCESS TANK 5 PRESSURE SWITCH  LOW ALARM
+	ARdsEventCtrl[372].iDelayTimeSV							:=30;
+	ARdsEventCtrl[372].bHoldingDisable;
+	ARdsEventCtrl[372].bTest_InvertedInputEn;
+	ARdsEventCtrl[372].bEventOutput;
+	
+	ARdsEventCtrl[373].bSignalInput							:=	ARbDO[eY10112_Stn06ProcessTankPumpOn_Off] AND bAutoPreparationPb AND NOT ARbFilterPressureBypass[6] AND ARbStnFilterPressureLowAlarm[6]; // PROCESS TANK 6 PRESSURE SWITCH  LOW ALARM
+	ARdsEventCtrl[373].iDelayTimeSV							:=30;
+	ARdsEventCtrl[373].bHoldingDisable;
+	ARdsEventCtrl[373].bTest_InvertedInputEn;
+	ARdsEventCtrl[373].bEventOutput;
+	
+	ARdsEventCtrl[374].bSignalInput							:=	ARbDO[eY10113_Stn07ProcessTankPumpOn_Off] AND bAutoPreparationPb AND NOT ARbFilterPressureBypass[7] AND ARbStnFilterPressureLowAlarm[7]; // PROCESS TANK 7 PRESSURE SWITCH  LOW ALARM
+	ARdsEventCtrl[374].iDelayTimeSV							:=30;
+	ARdsEventCtrl[374].bHoldingDisable;
+	ARdsEventCtrl[374].bTest_InvertedInputEn;
+	ARdsEventCtrl[374].bEventOutput;
+	
+	ARdsEventCtrl[375].bSignalInput							:=	ARbDO[eY10114_Stn08ProcessTankPumpOn_Off] AND bAutoPreparationPb AND NOT ARbFilterPressureBypass[8] AND ARbStnFilterPressureLowAlarm[8]; // PROCESS TANK 8 PRESSURE SWITCH  LOW ALARM; 
+	ARdsEventCtrl[375].iDelayTimeSV							:=30;
+	ARdsEventCtrl[375].bHoldingDisable;
+	ARdsEventCtrl[375].bTest_InvertedInputEn;
+	ARdsEventCtrl[375].bEventOutput;
+	
+	ARdsEventCtrl[376].bSignalInput							:=	ARbDO[eY10211_Stn09ProcessTankPumpOn_Off] AND bAutoPreparationPb AND NOT ARbFilterPressureBypass[9] AND ARbStnFilterPressureLowAlarm[9]; // PROCESS TANK 9 PRESSURE SWITCH  LOW ALARM;
+	ARdsEventCtrl[376].iDelayTimeSV							:=30;
+	ARdsEventCtrl[376].bHoldingDisable;
+	ARdsEventCtrl[376].bTest_InvertedInputEn;
+	ARdsEventCtrl[376].bEventOutput;
+	
+	ARdsEventCtrl[377].bSignalInput							:=	bAutoPreparationPb AND NOT ARbConductivityBypass[9] AND ARbStnConductivityLowAlarm[9];
+	ARdsEventCtrl[377].iDelayTimeSV							:=3;
+	ARdsEventCtrl[377].bHoldingDisable;
+	ARdsEventCtrl[377].bTest_InvertedInputEn;
+	ARdsEventCtrl[377].bEventOutput;
+	
+	ARdsEventCtrl[378].bSignalInput							:=FALSE;
+	ARdsEventCtrl[378].iDelayTimeSV							:=0;
+	ARdsEventCtrl[378].bHoldingDisable;
+	ARdsEventCtrl[378].bTest_InvertedInputEn;
+	ARdsEventCtrl[378].bEventOutput;
+
+	ARdsEventCtrl[379].bSignalInput							:=FALSE;
+	ARdsEventCtrl[379].iDelayTimeSV							:=0;
+	ARdsEventCtrl[379].bHoldingDisable;
+	ARdsEventCtrl[379].bTest_InvertedInputEn;
+	ARdsEventCtrl[379].bEventOutput;
+
+// ANALOG - OVER 2ND LIMIT ALARM-
+	ARdsEventCtrl[380].bSignalInput							:=	bAutoPreparationPb AND NOT ARbConductivityBypass[1] AND ARbStnConductivityHighAlarm[1]; //	PROCESS 1 CONDUCTIVITY OVER 2ND LIMIT ALARM
+	ARdsEventCtrl[380].iDelayTimeSV							:=3;
+	ARdsEventCtrl[380].bHoldingDisable;
+	ARdsEventCtrl[380].bTest_InvertedInputEn;
+	ARdsEventCtrl[380].bEventOutput;
+	
+	ARdsEventCtrl[381].bSignalInput							:=	bAutoPreparationPb AND NOT ARbConductivityBypass[2] AND ARbStnConductivityHighAlarm[2]; //	PROCESS 2 CONDUCTIVITY OVER 2ND LIMIT ALARM
+	ARdsEventCtrl[381].iDelayTimeSV							:=3;
+	ARdsEventCtrl[381].bHoldingDisable;
+	ARdsEventCtrl[381].bTest_InvertedInputEn;
+	ARdsEventCtrl[381].bEventOutput;
+	
+	ARdsEventCtrl[382].bSignalInput							:=	bAutoPreparationPb AND NOT ARbConductivityBypass[3] AND ARbStnConductivityHighAlarm[3]; //	PROCESS 3 CONDUCTIVITY OVER 2ND LIMIT ALARM
+	ARdsEventCtrl[382].iDelayTimeSV							:=3;
+	ARdsEventCtrl[382].bHoldingDisable;
+	ARdsEventCtrl[382].bTest_InvertedInputEn;
+	ARdsEventCtrl[382].bEventOutput;
+	
+	ARdsEventCtrl[383].bSignalInput							:=	bAutoPreparationPb AND NOT ARbConductivityBypass[4] AND ARbStnConductivityHighAlarm[4]; //	PROCESS 4 CONDUCTIVITY OVER 2ND LIMIT ALARM
+	ARdsEventCtrl[383].iDelayTimeSV							:=3;
+	ARdsEventCtrl[383].bHoldingDisable;
+	ARdsEventCtrl[383].bTest_InvertedInputEn;
+	ARdsEventCtrl[383].bEventOutput;
+	
+	ARdsEventCtrl[384].bSignalInput							:=	bAutoPreparationPb AND NOT ARbConductivityBypass[5] AND ARbStnConductivityHighAlarm[5]; //	PROCESS 5 CONDUCTIVITY OVER 2ND LIMIT ALARM;
+	ARdsEventCtrl[384].iDelayTimeSV							:=3;
+	ARdsEventCtrl[384].bHoldingDisable;
+	ARdsEventCtrl[384].bTest_InvertedInputEn;
+	ARdsEventCtrl[384].bEventOutput;
+	
+	ARdsEventCtrl[385].bSignalInput							:=	bAutoPreparationPb AND NOT ARbConductivityBypass[6] AND ARbStnConductivityHighAlarm[6]; //	PROCESS 6 CONDUCTIVITY OVER 2ND LIMIT ALARM;
+	ARdsEventCtrl[385].iDelayTimeSV							:=3;
+	ARdsEventCtrl[385].bHoldingDisable;
+	ARdsEventCtrl[385].bTest_InvertedInputEn;
+	ARdsEventCtrl[385].bEventOutput;
+	
+	ARdsEventCtrl[386].bSignalInput							:=	bAutoPreparationPb AND NOT ARbConductivityBypass[7] AND ARbStnConductivityHighAlarm[7]; //	PROCESS 7 CONDUCTIVITY OVER 2ND LIMIT ALARM;
+	ARdsEventCtrl[386].iDelayTimeSV							:=3;
+	ARdsEventCtrl[386].bHoldingDisable;
+	ARdsEventCtrl[386].bTest_InvertedInputEn;
+	ARdsEventCtrl[386].bEventOutput;
+	
+	ARdsEventCtrl[387].bSignalInput							:=	bAutoPreparationPb AND NOT ARbConductivityBypass[8] AND ARbStnConductivityHighAlarm[8]; //	PROCESS 8 CONDUCTIVITY OVER 2ND LIMIT ALARM;
+	ARdsEventCtrl[387].iDelayTimeSV							:=3;
+	ARdsEventCtrl[387].bHoldingDisable;
+	ARdsEventCtrl[387].bTest_InvertedInputEn;
+	ARdsEventCtrl[387].bEventOutput;
+	
+	ARdsEventCtrl[388].bSignalInput							:=	ARbDO[eY10107_Stn01ProcessTankPumpOn_Off] AND bAutoPreparationPb AND NOT ARbFilterPressureBypass[1] AND ARbStnFilterPressureHighAlarm[1]; // PROCESS TANK 1 PRESSURE SWITCH  A HIGH ALARM
+	ARdsEventCtrl[388].iDelayTimeSV							:=30;
+	ARdsEventCtrl[388].bHoldingDisable;
+	ARdsEventCtrl[388].bTest_InvertedInputEn;
+	ARdsEventCtrl[388].bEventOutput;
+	
+	ARdsEventCtrl[389].bSignalInput							:=	ARbDO[eY10108_Stn02ProcessTankPumpOn_Off] AND bAutoPreparationPb AND NOT ARbFilterPressureBypass[2] AND ARbStnFilterPressureHighAlarm[2]; // PROCESS TANK 2 PRESSURE SWITCH  A HIGH ALARM
+	ARdsEventCtrl[388].iDelayTimeSV							:=30;
+	ARdsEventCtrl[389].bHoldingDisable;
+	ARdsEventCtrl[389].bTest_InvertedInputEn;
+	ARdsEventCtrl[389].bEventOutput;
+	
+	
+	ARdsEventCtrl[390].bSignalInput							:=	ARbDO[eY10109_Stn03ProcessTankPumpOn_Off] AND bAutoPreparationPb AND NOT ARbFilterPressureBypass[3] AND ARbStnFilterPressureHighAlarm[3]; // PROCESS TANK 3 PRESSURE SWITCH  A HIGH ALARM
+	ARdsEventCtrl[390].iDelayTimeSV							:=30;
+	ARdsEventCtrl[390].bHoldingDisable;
+	ARdsEventCtrl[390].bTest_InvertedInputEn;
+	ARdsEventCtrl[390].bEventOutput;
+	
+	ARdsEventCtrl[391].bSignalInput							:= 	ARbDO[eY10110_Stn04ProcessTankPumpOn_Off] AND bAutoPreparationPb AND NOT ARbFilterPressureBypass[4] AND ARbStnFilterPressureHighAlarm[4]; // PROCESS TANK 4 PRESSURE SWITCH  A HIGH ALARM
+	ARdsEventCtrl[391].iDelayTimeSV							:=30;
+	ARdsEventCtrl[391].bHoldingDisable;
+	ARdsEventCtrl[391].bTest_InvertedInputEn;
+	ARdsEventCtrl[391].bEventOutput;
+		
+	ARdsEventCtrl[392].bSignalInput							:=	ARbDO[eY10111_Stn05ProcessTankPumpOn_Off] AND bAutoPreparationPb AND NOT ARbFilterPressureBypass[5] AND ARbStnFilterPressureHighAlarm[5]; // PROCESS TANK 5 PRESSURE SWITCH  A HIGH ALARM
+	ARdsEventCtrl[392].iDelayTimeSV							:=30;
+	ARdsEventCtrl[392].bHoldingDisable;
+	ARdsEventCtrl[392].bTest_InvertedInputEn;
+	ARdsEventCtrl[392].bEventOutput;
+		
+	ARdsEventCtrl[393].bSignalInput							:=	ARbDO[eY10112_Stn06ProcessTankPumpOn_Off] AND bAutoPreparationPb AND NOT ARbFilterPressureBypass[6] AND ARbStnFilterPressureHighAlarm[6]; // PROCESS TANK 6 PRESSURE SWITCH  A HIGH ALARM
+	ARdsEventCtrl[393].iDelayTimeSV							:=30;
+	ARdsEventCtrl[393].bHoldingDisable;
+	ARdsEventCtrl[393].bTest_InvertedInputEn;
+	ARdsEventCtrl[393].bEventOutput;
+		
+	ARdsEventCtrl[394].bSignalInput							:=	ARbDO[eY10113_Stn07ProcessTankPumpOn_Off] AND bAutoPreparationPb AND NOT ARbFilterPressureBypass[7] AND ARbStnFilterPressureHighAlarm[7]; // PROCESS TANK 7 PRESSURE SWITCH  A HIGH ALARM
+	ARdsEventCtrl[394].iDelayTimeSV							:=30;
+	ARdsEventCtrl[394].bHoldingDisable;
+	ARdsEventCtrl[394].bTest_InvertedInputEn;
+	ARdsEventCtrl[394].bEventOutput;
+	
+	ARdsEventCtrl[395].bSignalInput							:=	ARbDO[eY10114_Stn08ProcessTankPumpOn_Off] AND bAutoPreparationPb AND NOT ARbFilterPressureBypass[8] AND ARbStnFilterPressureHighAlarm[8]; // PROCESS TANK 8 PRESSURE SWITCH  A HIGH ALARM
+	ARdsEventCtrl[395].iDelayTimeSV							:=30;
+	ARdsEventCtrl[395].bHoldingDisable;
+	ARdsEventCtrl[395].bTest_InvertedInputEn;
+	ARdsEventCtrl[395].bEventOutput;
+	
+	ARdsEventCtrl[396].bSignalInput							:=	ARbDO[eY10211_Stn09ProcessTankPumpOn_Off] AND bAutoPreparationPb AND NOT ARbFilterPressureBypass[9] AND ARbStnFilterPressureHighAlarm[9]; // PROCESS TANK 9 PRESSURE SWITCH  A HIGH ALARM
+	ARdsEventCtrl[396].iDelayTimeSV							:=30;
+	ARdsEventCtrl[396].bHoldingDisable;
+	ARdsEventCtrl[396].bTest_InvertedInputEn;
+	ARdsEventCtrl[396].bEventOutput;
+		
+	ARdsEventCtrl[397].bSignalInput							:=	bAutoPreparationPb AND NOT ARbConductivityBypass[9] AND ARbStnConductivityHighAlarm[9]; //	PROCESS 9 CONDUCTIVITY OVER 2ND LIMIT ALARM;
+	ARdsEventCtrl[397].iDelayTimeSV							:=3;
+	ARdsEventCtrl[397].bHoldingDisable;
+	ARdsEventCtrl[397].bTest_InvertedInputEn;
+	ARdsEventCtrl[397].bEventOutput;
+		
+	ARdsEventCtrl[398].bSignalInput							:=FALSE;
+	ARdsEventCtrl[398].iDelayTimeSV							:=0;
+	ARdsEventCtrl[398].bHoldingDisable;
+	ARdsEventCtrl[398].bTest_InvertedInputEn;
+	ARdsEventCtrl[398].bEventOutput;
+	
+	ARdsEventCtrl[399].bSignalInput							:=FALSE;
+	ARdsEventCtrl[399].iDelayTimeSV							:=0;
+	ARdsEventCtrl[399].bHoldingDisable;
+	ARdsEventCtrl[399].bTest_InvertedInputEn;
+	ARdsEventCtrl[399].bEventOutput;
+	
+	ARdsEventCtrl[400].bSignalInput							:=	PowerOnDelay.Q AND ARbStnAssignBadBskBit[1]; //Process Tank 1 Bad Basket - Over Tolerance Time
+	ARdsEventCtrl[400].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[400].bHoldingDisable;
+	ARdsEventCtrl[400].bTest_InvertedInputEn;
+	ARdsEventCtrl[400].bEventOutput;						
+	
+	ARdsEventCtrl[401].bSignalInput							:=	 PowerOnDelay.Q AND ARbStnAssignBadBskBit[2]; //Process Tank 2 Bad Basket - Over Tolerance Time
+	ARdsEventCtrl[401].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[401].bHoldingDisable;
+	ARdsEventCtrl[401].bTest_InvertedInputEn;
+	ARdsEventCtrl[401].bEventOutput;						
+	
+	ARdsEventCtrl[402].bSignalInput							:=	 PowerOnDelay.Q AND ARbStnAssignBadBskBit[3]; //Process Tank 3 Bad Basket - Over Tolerance Time
+	ARdsEventCtrl[402].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[402].bHoldingDisable;
+	ARdsEventCtrl[402].bTest_InvertedInputEn;
+	ARdsEventCtrl[402].bEventOutput;						
+	
+	ARdsEventCtrl[403].bSignalInput							:=	 PowerOnDelay.Q AND ARbStnAssignBadBskBit[4]; //Process Tank 4 Bad Basket - Over Tolerance Time
+	ARdsEventCtrl[403].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[403].bHoldingDisable;
+	ARdsEventCtrl[403].bTest_InvertedInputEn;
+	ARdsEventCtrl[403].bEventOutput;						
+	
+	ARdsEventCtrl[404].bSignalInput							:=   PowerOnDelay.Q AND ARbStnAssignBadBskBit[5]; //Process Tank 5 Bad Basket - Over Tolerance Time
+	ARdsEventCtrl[404].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[404].bHoldingDisable;
+	ARdsEventCtrl[404].bTest_InvertedInputEn;
+	ARdsEventCtrl[404].bEventOutput;						
+	
+	ARdsEventCtrl[405].bSignalInput							:=  PowerOnDelay.Q AND ARbStnAssignBadBskBit[6]; //Process Tank 6 Bad Basket - Over Tolerance Time	
+	ARdsEventCtrl[405].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[405].bHoldingDisable;
+	ARdsEventCtrl[405].bTest_InvertedInputEn;
+	ARdsEventCtrl[405].bEventOutput;						
+	
+	ARdsEventCtrl[406].bSignalInput							:=  PowerOnDelay.Q AND ARbStnAssignBadBskBit[7]; //Process Tank 7 Bad Basket - Over Tolerance Time	
+	ARdsEventCtrl[406].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[406].bHoldingDisable;
+	ARdsEventCtrl[406].bTest_InvertedInputEn;
+	ARdsEventCtrl[406].bEventOutput;						
+	
+	ARdsEventCtrl[407].bSignalInput							:=PowerOnDelay.Q AND ARbStnAssignBadBskBit[8]; //Process Tank 8 Bad Basket - Over Tolerance Time;	
+	ARdsEventCtrl[407].iDelayTimeSV							:=	0;
+	ARdsEventCtrl[407].bHoldingDisable;
+	ARdsEventCtrl[407].bTest_InvertedInputEn;
+	ARdsEventCtrl[407].bEventOutput;						
+	
+	ARdsEventCtrl[408].bSignalInput							:=PowerOnDelay.Q AND ARbStnAssignBadBskBit[9]; //Process Tank 9 Bad Basket - Over Tolerance Time;
+	ARdsEventCtrl[408].iDelayTimeSV							:=0;
+	ARdsEventCtrl[408].bHoldingDisable;
+	ARdsEventCtrl[408].bTest_InvertedInputEn;
+	ARdsEventCtrl[408].bEventOutput;
+	
+	ARdsEventCtrl[409].bSignalInput							:=PowerOnDelay.Q AND ARbStnAssignBadBskBit[10]; //Process Tank 10 Bad Basket - Over Tolerance Time;
+	ARdsEventCtrl[409].iDelayTimeSV							:=0;
+	ARdsEventCtrl[409].bHoldingDisable;
+	ARdsEventCtrl[409].bTest_InvertedInputEn;
+	ARdsEventCtrl[409].bEventOutput;
+	
+	ARdsEventCtrl[410].bSignalInput							:= FALSE AND PowerOnDelay.Q AND ARbStnAssignBadBskBit[11]; //Process Tank 11 Bad Basket - Over Tolerance Time
+	ARdsEventCtrl[410].iDelayTimeSV							:=0;
+	ARdsEventCtrl[410].bHoldingDisable;
+	ARdsEventCtrl[410].bTest_InvertedInputEn;
+	ARdsEventCtrl[410].bEventOutput;
+	
+	ARdsEventCtrl[411].bSignalInput							:= FALSE AND PowerOnDelay.Q AND ARbStnAssignBadBskBit[12]; //Process Tank 12 Bad Basket - Over Tolerance Time
+	ARdsEventCtrl[411].iDelayTimeSV							:=0;
+	ARdsEventCtrl[411].bHoldingDisable;
+	ARdsEventCtrl[411].bTest_InvertedInputEn;
+	ARdsEventCtrl[411].bEventOutput;
+	
+	ARdsEventCtrl[412].bSignalInput							:= PowerOnDelay.Q AND ARbArmOvertimeError[1]; //Arm 1 Overtime Error
+	ARdsEventCtrl[412].iDelayTimeSV							:=0;
+	ARdsEventCtrl[412].bHoldingDisable;
+	ARdsEventCtrl[412].bTest_InvertedInputEn;
+	ARdsEventCtrl[412].bEventOutput;
+	
+	ARdsEventCtrl[413].bSignalInput							:= FALSE AND PowerOnDelay.Q AND ARbArmOvertimeError[2]; //Arm 2 Overtime Error
+	ARdsEventCtrl[413].iDelayTimeSV							:=0;
+	ARdsEventCtrl[413].bHoldingDisable;
+	ARdsEventCtrl[413].bTest_InvertedInputEn;
+	ARdsEventCtrl[413].bEventOutput;
+	
+	ARdsEventCtrl[414].bSignalInput							:= PowerOnDelay.Q AND ARbArmLifterError[1]; //SLOW PULL Lifter Error
+	ARdsEventCtrl[414].iDelayTimeSV							:=0;
+	ARdsEventCtrl[414].bHoldingDisable;
+	ARdsEventCtrl[414].bTest_InvertedInputEn;
+	ARdsEventCtrl[414].bEventOutput;
+// Dosing 
+	ARdsEventCtrl[415].bSignalInput							:= ARbStnPumpHealthCheckPulseError[1]; //Process Tank 1 Dosing Pump Health A Check Pulse Error
+	ARdsEventCtrl[415].iDelayTimeSV							:=0;
+	ARdsEventCtrl[415].bHoldingDisable;
+	ARdsEventCtrl[415].bTest_InvertedInputEn;
+	ARdsEventCtrl[415].bEventOutput;
+	
+	ARdsEventCtrl[416].bSignalInput							:= ARbStnPumpHealthCheckPulseError[3];//Process Tank 3 Dosing Pump Health A Check Pulse Error
+	ARdsEventCtrl[416].iDelayTimeSV							:=0;
+	ARdsEventCtrl[416].bHoldingDisable;
+	ARdsEventCtrl[416].bTest_InvertedInputEn;
+	ARdsEventCtrl[416].bEventOutput;
+	
+	ARdsEventCtrl[417].bSignalInput							:=ARbStnPumpHealthCheckPulseError[5];//Process Tank 5 Dosing Pump Health A Check Pulse Error
+	ARdsEventCtrl[417].iDelayTimeSV							:=0;
+	ARdsEventCtrl[417].bHoldingDisable;
+	ARdsEventCtrl[417].bTest_InvertedInputEn;
+	ARdsEventCtrl[417].bEventOutput;
+	
+	ARdsEventCtrl[418].bSignalInput							:=FALSE;
+	ARdsEventCtrl[418].iDelayTimeSV							:=0;
+	ARdsEventCtrl[418].bHoldingDisable;
+	ARdsEventCtrl[418].bTest_InvertedInputEn;
+	ARdsEventCtrl[418].bEventOutput;
+
+	ARdsEventCtrl[419].bSignalInput							:=FALSE;
+	ARdsEventCtrl[419].iDelayTimeSV							:=0;
+	ARdsEventCtrl[419].bHoldingDisable;
+	ARdsEventCtrl[419].bTest_InvertedInputEn;
+	ARdsEventCtrl[419].bEventOutput;
+	
+	ARdsEventCtrl[420].bSignalInput							:= FALSE;
+	ARdsEventCtrl[420].iDelayTimeSV							:=30;
+	ARdsEventCtrl[420].bHoldingDisable;
+	ARdsEventCtrl[420].bTest_InvertedInputEn;
+	ARdsEventCtrl[420].bEventOutput;
+	//Vert
+	ARdsEventCtrl[421].bSignalInput							:= NOT VertCoERead.bArm1VertUpOT; // Vert UP OT
+	ARdsEventCtrl[421].iDelayTimeSV							:=0;
+	ARdsEventCtrl[421].bHoldingDisable;
+	ARdsEventCtrl[421].bTest_InvertedInputEn;
+	ARdsEventCtrl[421].bEventOutput;
+	
+	ARdsEventCtrl[422].bSignalInput							:= NOT VertCoERead.bArm1VertDownOT; // Vert Down OT
+	ARdsEventCtrl[422].iDelayTimeSV							:=0;
+	ARdsEventCtrl[422].bHoldingDisable;
+	ARdsEventCtrl[422].bTest_InvertedInputEn;
+	ARdsEventCtrl[422].bEventOutput;
+	
+	ARdsEventCtrl[423].bSignalInput							:= NOT VertCoERead.bArm1ErrStop; // Error Stop
+	ARdsEventCtrl[423].iDelayTimeSV							:=0;
+	ARdsEventCtrl[423].bHoldingDisable;
+	ARdsEventCtrl[423].bTest_InvertedInputEn;
+	ARdsEventCtrl[423].bEventOutput;
+	//Horzt
+	ARdsEventCtrl[424].bSignalInput							:= NOT HorzCoERead.bArm1HorzLdOT; // Horz LD OT;
+	ARdsEventCtrl[424].iDelayTimeSV							:=0;
+	ARdsEventCtrl[424].bHoldingDisable;
+	ARdsEventCtrl[424].bTest_InvertedInputEn;
+	ARdsEventCtrl[424].bEventOutput;
+	
+	ARdsEventCtrl[425].bSignalInput							:= NOT HorzCoERead.bArm1HorzUldOT;// Horz Uld OT
+	ARdsEventCtrl[425].iDelayTimeSV							:=0;
+	ARdsEventCtrl[425].bHoldingDisable;
+	ARdsEventCtrl[425].bTest_InvertedInputEn;
+	ARdsEventCtrl[425].bEventOutput;
+	
+	ARdsEventCtrl[426].bSignalInput							:= NOT HorzCoERead.bArm1HorzErrStop;// Horz Error Stop;
+	ARdsEventCtrl[426].iDelayTimeSV							:=0;
+	ARdsEventCtrl[426].bHoldingDisable;
+	ARdsEventCtrl[426].bTest_InvertedInputEn;
+	ARdsEventCtrl[426].bEventOutput;
+	
+	//slowpull
+	ARdsEventCtrl[427].bSignalInput							:=NOT SlowpullCoERead.bSlowpullVertUpOT; // Slowpull Vert Up OT
+	ARdsEventCtrl[427].iDelayTimeSV							:=0;
+	ARdsEventCtrl[427].bHoldingDisable;
+	ARdsEventCtrl[427].bTest_InvertedInputEn;
+	ARdsEventCtrl[427].bEventOutput;
+	
+	ARdsEventCtrl[428].bSignalInput							:=NOT SlowpullCoERead.bSlowpullVertDownOT; // Slowpull Vert Down OT;
+	ARdsEventCtrl[428].iDelayTimeSV							:=0;
+	ARdsEventCtrl[428].bHoldingDisable;
+	ARdsEventCtrl[428].bTest_InvertedInputEn;
+	ARdsEventCtrl[428].bEventOutput;
+	
+	ARdsEventCtrl[429].bSignalInput							:=NOT SlowpullCoERead.bSlowpullErrStop; // Slowpull Error stop;
+	ARdsEventCtrl[429].iDelayTimeSV							:=0;
+	ARdsEventCtrl[429].bHoldingDisable;
+	ARdsEventCtrl[429].bTest_InvertedInputEn;
+	ARdsEventCtrl[429].bEventOutput;
+	
+	//UPS
+	ARdsEventCtrl[430].bSignalInput							:= FALSE AND bDCPowerUnknownStatusAlarm; //DC Power Unknown Status Alarm 	
+	ARdsEventCtrl[430].iDelayTimeSV							:=0;
+	ARdsEventCtrl[430].bHoldingDisable;
+	ARdsEventCtrl[430].bTest_InvertedInputEn;
+	ARdsEventCtrl[430].bEventOutput;
+	
+	ARdsEventCtrl[431].bSignalInput							:= FALSE AND bUpsCommUnknownStatusAlarm; //	Ups Comm Unknown Status Alarm
+	ARdsEventCtrl[431].iDelayTimeSV							:=0;
+	ARdsEventCtrl[431].bHoldingDisable;
+	ARdsEventCtrl[431].bTest_InvertedInputEn;
+	ARdsEventCtrl[431].bEventOutput;
+		
+	ARdsEventCtrl[432].bSignalInput							:=bBatteryReplacementRequestAlarm; //Battery Replacement Request Alarm 
+	ARdsEventCtrl[432].iDelayTimeSV							:=0;
+	ARdsEventCtrl[432].bHoldingDisable;
+	ARdsEventCtrl[432].bTest_InvertedInputEn;
+	ARdsEventCtrl[432].bEventOutput;
+		
+	ARdsEventCtrl[433].bSignalInput							:=bUpsCommErrorAlarm; //Ups Comm Error Alarm
+	ARdsEventCtrl[433].iDelayTimeSV							:=0;
+	ARdsEventCtrl[433].bHoldingDisable;
+	ARdsEventCtrl[433].bTest_InvertedInputEn;
+	ARdsEventCtrl[433].bEventOutput;
+		
+	ARdsEventCtrl[434].bSignalInput							:=DSArm1VertConfig.MC_ArmError; //Arm 1 Vertical Axis Error 
+	ARdsEventCtrl[434].iDelayTimeSV							:=0;
+	ARdsEventCtrl[434].bHoldingDisable;
+	ARdsEventCtrl[434].bTest_InvertedInputEn;
+	ARdsEventCtrl[434].bEventOutput;
+	
+	ARdsEventCtrl[435].bSignalInput							:=DSArm1HorzConfig.MC_ArmError; //Arm 1 Horizontal Axis Error
+	ARdsEventCtrl[435].iDelayTimeSV							:=0;
+	ARdsEventCtrl[435].bHoldingDisable;
+	ARdsEventCtrl[435].bTest_InvertedInputEn;
+	ARdsEventCtrl[435].bEventOutput;
+		
+	ARdsEventCtrl[436].bSignalInput							:=DSArm2VertConfig.MC_ArmError; //Arm 2 Vertical Axis Error 
+	ARdsEventCtrl[436].iDelayTimeSV							:=0;
+	ARdsEventCtrl[436].bHoldingDisable;
+	ARdsEventCtrl[436].bTest_InvertedInputEn;
+	ARdsEventCtrl[436].bEventOutput;
+		
+	ARdsEventCtrl[437].bSignalInput							:=DSArm2HorzConfig.MC_ArmError; //Arm 2 Horizontal Axis Error
+	ARdsEventCtrl[437].iDelayTimeSV							:=0;
+	ARdsEventCtrl[437].bHoldingDisable;
+	ARdsEventCtrl[437].bTest_InvertedInputEn;
+	ARdsEventCtrl[437].bEventOutput;
+		
+//	MasterTimeBlock 
+	ARdsEventCtrl[438].bSignalInput							:=bMTBWriteArmDataError; //Master Time Block Write Arm Data Error 
+	ARdsEventCtrl[438].iDelayTimeSV							:=0;
+	ARdsEventCtrl[438].bHoldingDisable;
+	ARdsEventCtrl[438].bTest_InvertedInputEn;
+	ARdsEventCtrl[438].bEventOutput;
+	
+	ARdsEventCtrl[439].bSignalInput							:=bMTBWriteStnDataError; //Master Time Block Write Stn Data Error
+	ARdsEventCtrl[439].iDelayTimeSV							:=0;
+	ARdsEventCtrl[439].bHoldingDisable;
+	ARdsEventCtrl[439].bTest_InvertedInputEn;
+	ARdsEventCtrl[439].bEventOutput;
+	
+	ARdsEventCtrl[440].bSignalInput							:= bMTBNoAvailableSlotError; //	Master Time Block No Available Slot Error
+	ARdsEventCtrl[440].iDelayTimeSV							:=0; 
+	ARdsEventCtrl[440].bHoldingDisable;
+	ARdsEventCtrl[440].bTest_InvertedInputEn;
+	ARdsEventCtrl[440].bEventOutput;
+	
+	ARdsEventCtrl[441].bSignalInput							:= FALSE; //	
+	ARdsEventCtrl[441].iDelayTimeSV							:=3;
+	ARdsEventCtrl[441].bHoldingDisable;
+	ARdsEventCtrl[441].bTest_InvertedInputEn;
+	ARdsEventCtrl[441].bEventOutput;
+	
+	ARdsEventCtrl[442].bSignalInput							:=FALSE; 
+	ARdsEventCtrl[442].iDelayTimeSV							:=0;
+	ARdsEventCtrl[442].bHoldingDisable;
+	ARdsEventCtrl[442].bTest_InvertedInputEn;
+	ARdsEventCtrl[442].bEventOutput;
+	
+	ARdsEventCtrl[443].bSignalInput							:=FALSE; 
+	ARdsEventCtrl[443].iDelayTimeSV							:=0;
+	ARdsEventCtrl[443].bHoldingDisable;
+	ARdsEventCtrl[443].bTest_InvertedInputEn;
+	ARdsEventCtrl[443].bEventOutput;
+	
+//ProductRecipe	
+	ARdsEventCtrl[444].bSignalInput							:=DSfbGnrProductRecipeMemoryOut.bCallArmSpeedProfileMemoryErr AND ARbProductRecipeCallEn[0]; //Loading Call Arm Speed Profile Memory Error
+	ARdsEventCtrl[444].iDelayTimeSV							:=0;
+	ARdsEventCtrl[444].bHoldingDisable;
+	ARdsEventCtrl[444].bTest_InvertedInputEn;
+	ARdsEventCtrl[444].bEventOutput;
+	
+	ARdsEventCtrl[445].bSignalInput							:=DSfbGnrProductRecipeMemoryOut.bCallPickStationNoErr AND ARbProductRecipeCallEn[0]; //Loading Call Pick Station No Error
+	ARdsEventCtrl[445].iDelayTimeSV							:=0;
+	ARdsEventCtrl[445].bHoldingDisable;
+	ARdsEventCtrl[445].bTest_InvertedInputEn;
+	ARdsEventCtrl[445].bEventOutput;
+	
+	ARdsEventCtrl[446].bSignalInput							:=DSfbGnrProductRecipeMemoryOut.bCallTransferStationNoErr AND ARbProductRecipeCallEn[0]; //Loading Call Transfer Station No Error
+	ARdsEventCtrl[446].iDelayTimeSV							:=0;
+	ARdsEventCtrl[446].bHoldingDisable;
+	ARdsEventCtrl[446].bTest_InvertedInputEn;
+	ARdsEventCtrl[446].bEventOutput;
+	
+	ARdsEventCtrl[447].bSignalInput							:=DSfbGnrProductRecipeMemoryOut.bCallUpDownPatternMemoryErr AND ARbProductRecipeCallEn[0]; //Loading Call Up Down Pattern Memory Error
+	ARdsEventCtrl[447].iDelayTimeSV							:=0;
+	ARdsEventCtrl[447].bHoldingDisable;
+	ARdsEventCtrl[447].bTest_InvertedInputEn;
+	ARdsEventCtrl[447].bEventOutput;
+	
+	ARdsEventCtrl[448].bSignalInput							:=DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeNoErrHold AND ARbProductRecipeCallEn[0]; //Loading Invalid Product Recipe No Error Hold
+	ARdsEventCtrl[448].iDelayTimeSV							:=0;
+	ARdsEventCtrl[448].bHoldingDisable;
+	ARdsEventCtrl[448].bTest_InvertedInputEn;
+	ARdsEventCtrl[448].bEventOutput;
+	
+	ARdsEventCtrl[449].bSignalInput							:=DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeStepErrHold AND ARbProductRecipeCallEn[0]; //Loading Invalid Product Recipe Step Error Hold
+	ARdsEventCtrl[449].iDelayTimeSV							:=0;
+	ARdsEventCtrl[449].bHoldingDisable;
+	ARdsEventCtrl[449].bTest_InvertedInputEn;
+	ARdsEventCtrl[449].bEventOutput;
+	
+	ARdsEventCtrl[450].bSignalInput							:= DSfbGnrProductRecipeMemoryOut.bCallArmSpeedProfileMemoryErr AND 
+											(ARbProductRecipeCallEn[1] OR
+											 ARbProductRecipeCallEn[2] OR
+											 ARbProductRecipeCallEn[3] OR
+											 ARbProductRecipeCallEn[4] OR
+											 ARbProductRecipeCallEn[5] OR
+											 ARbProductRecipeCallEn[6] OR
+											 ARbProductRecipeCallEn[7] OR
+											 ARbProductRecipeCallEn[8] OR
+											 ARbProductRecipeCallEn[9] OR
+											 ARbProductRecipeCallEn[10] OR
+											 ARbProductRecipeCallEn[11] OR
+											 ARbProductRecipeCallEn[12]) ; //Station Call Arm Speed Profile Memory Error
+	ARdsEventCtrl[450].iDelayTimeSV							:=3;
+	ARdsEventCtrl[450].bHoldingDisable;
+	ARdsEventCtrl[450].bTest_InvertedInputEn;
+	ARdsEventCtrl[450].bEventOutput;
+	
+	ARdsEventCtrl[451].bSignalInput							:= DSfbGnrProductRecipeMemoryOut.bCallPickStationNoErr AND
+											(ARbProductRecipeCallEn[1] OR
+											 ARbProductRecipeCallEn[2] OR
+											 ARbProductRecipeCallEn[3] OR
+											 ARbProductRecipeCallEn[4] OR
+											 ARbProductRecipeCallEn[5] OR
+											 ARbProductRecipeCallEn[6] OR
+ 											 ARbProductRecipeCallEn[7] OR
+											 ARbProductRecipeCallEn[8] OR
+											 ARbProductRecipeCallEn[9] OR
+											 ARbProductRecipeCallEn[10] OR
+											 ARbProductRecipeCallEn[11] OR
+											 ARbProductRecipeCallEn[12]) ; // Station Call Pick Station No Error
+	ARdsEventCtrl[451].iDelayTimeSV							:=3;
+	ARdsEventCtrl[451].bHoldingDisable;
+	ARdsEventCtrl[451].bTest_InvertedInputEn;
+	ARdsEventCtrl[451].bEventOutput;
+	
+	ARdsEventCtrl[452].bSignalInput							:=DSfbGnrProductRecipeMemoryOut.bCallTransferStationNoErr AND
+											(ARbProductRecipeCallEn[1] OR
+											 ARbProductRecipeCallEn[2] OR
+											 ARbProductRecipeCallEn[3] OR
+											 ARbProductRecipeCallEn[4] OR
+											 ARbProductRecipeCallEn[5] OR
+											 ARbProductRecipeCallEn[6] OR
+											 ARbProductRecipeCallEn[7] OR
+											 ARbProductRecipeCallEn[8] OR
+											 ARbProductRecipeCallEn[9] OR
+											 ARbProductRecipeCallEn[10] OR
+											 ARbProductRecipeCallEn[11] OR
+											 ARbProductRecipeCallEn[12]); //Station Call Transfer Station No Error								 											  
+	ARdsEventCtrl[452].iDelayTimeSV							:=0;
+	ARdsEventCtrl[452].bHoldingDisable;
+	ARdsEventCtrl[452].bTest_InvertedInputEn;
+	ARdsEventCtrl[452].bEventOutput;
+	
+	ARdsEventCtrl[453].bSignalInput							:= DSfbGnrProductRecipeMemoryOut.bCallUpDownPatternMemoryErr AND
+											(ARbProductRecipeCallEn[1] OR
+											 ARbProductRecipeCallEn[2] OR
+											 ARbProductRecipeCallEn[3] OR
+											 ARbProductRecipeCallEn[4] OR
+											 ARbProductRecipeCallEn[5] OR
+											 ARbProductRecipeCallEn[6] OR
+ 											 ARbProductRecipeCallEn[7] OR
+											 ARbProductRecipeCallEn[8] OR
+											 ARbProductRecipeCallEn[9] OR
+											 ARbProductRecipeCallEn[10] OR
+											 ARbProductRecipeCallEn[11] OR
+											 ARbProductRecipeCallEn[12]); //Station Call Up Down Pattern Memory Error
+	ARdsEventCtrl[453].iDelayTimeSV							:=0;
+	ARdsEventCtrl[453].bHoldingDisable;
+	ARdsEventCtrl[453].bTest_InvertedInputEn;
+	ARdsEventCtrl[453].bEventOutput;
+	
+	ARdsEventCtrl[454].bSignalInput							:= DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeNoErrHold AND
+											(ARbProductRecipeCallEn[1] OR
+											 ARbProductRecipeCallEn[2] OR
+											 ARbProductRecipeCallEn[3] OR
+											 ARbProductRecipeCallEn[4] OR
+											 ARbProductRecipeCallEn[5] OR
+											 ARbProductRecipeCallEn[6] OR
+ 											 ARbProductRecipeCallEn[7] OR
+											 ARbProductRecipeCallEn[8] OR
+											 ARbProductRecipeCallEn[9] OR
+											 ARbProductRecipeCallEn[10] OR
+											 ARbProductRecipeCallEn[11] OR
+											 ARbProductRecipeCallEn[12]); // Station Invalid Product Recipe No Error Hold
+	ARdsEventCtrl[454].iDelayTimeSV							:=0;
+	ARdsEventCtrl[454].bHoldingDisable;
+	ARdsEventCtrl[454].bTest_InvertedInputEn;
+	ARdsEventCtrl[454].bEventOutput;
+	
+	ARdsEventCtrl[455].bSignalInput							:=DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeStepErrHold AND
+											(ARbProductRecipeCallEn[1] OR
+											 ARbProductRecipeCallEn[2] OR
+											 ARbProductRecipeCallEn[3] OR
+											 ARbProductRecipeCallEn[4] OR
+											 ARbProductRecipeCallEn[5] OR
+											 ARbProductRecipeCallEn[6] OR
+ 											 ARbProductRecipeCallEn[7] OR
+											 ARbProductRecipeCallEn[8] OR
+											 ARbProductRecipeCallEn[9] OR
+											 ARbProductRecipeCallEn[10] OR
+											 ARbProductRecipeCallEn[11] OR
+											 ARbProductRecipeCallEn[12]); //Station Invalid Product Recipe Step Error Hold
+	ARdsEventCtrl[455].iDelayTimeSV							:=0;
+	ARdsEventCtrl[455].bHoldingDisable;
+	ARdsEventCtrl[455].bTest_InvertedInputEn;
+	ARdsEventCtrl[455].bEventOutput;
+	
+	ARdsEventCtrl[456].bSignalInput							:=FALSE;
+	ARdsEventCtrl[456].iDelayTimeSV							:=0;
+	ARdsEventCtrl[456].bHoldingDisable;
+	ARdsEventCtrl[456].bTest_InvertedInputEn;
+	ARdsEventCtrl[456].bEventOutput;
+	
+	ARdsEventCtrl[457].bSignalInput							:=FALSE;
+	ARdsEventCtrl[457].iDelayTimeSV							:=0;
+	ARdsEventCtrl[457].bHoldingDisable;
+	ARdsEventCtrl[457].bTest_InvertedInputEn;
+	ARdsEventCtrl[457].bEventOutput;
+	
+	ARdsEventCtrl[458].bSignalInput							:=FALSE;
+	ARdsEventCtrl[458].iDelayTimeSV							:=0;
+	ARdsEventCtrl[458].bHoldingDisable;
+	ARdsEventCtrl[458].bTest_InvertedInputEn;
+	ARdsEventCtrl[458].bEventOutput;
+	
+	ARdsEventCtrl[459].bSignalInput							:=FALSE;
+	ARdsEventCtrl[459].iDelayTimeSV							:=0;
+	ARdsEventCtrl[459].bHoldingDisable;
+	ARdsEventCtrl[459].bTest_InvertedInputEn;
+	ARdsEventCtrl[459].bEventOutput;
+	
+	ARdsEventCtrl[460].bSignalInput							:= FALSE; 
+	ARdsEventCtrl[460].iDelayTimeSV							:=3;
+	ARdsEventCtrl[460].bHoldingDisable;
+	ARdsEventCtrl[460].bTest_InvertedInputEn;
+	ARdsEventCtrl[460].bEventOutput;
+	
+	ARdsEventCtrl[461].bSignalInput							:= FALSE; 
+	ARdsEventCtrl[461].iDelayTimeSV							:=3;
+	ARdsEventCtrl[461].bHoldingDisable;
+	ARdsEventCtrl[461].bTest_InvertedInputEn;
+	ARdsEventCtrl[462].bSignalInput							:=FALSE; 
+	ARdsEventCtrl[461].bEventOutput;
+	
+	ARdsEventCtrl[462].iDelayTimeSV							:=0;
+	ARdsEventCtrl[462].bHoldingDisable;
+	ARdsEventCtrl[462].bTest_InvertedInputEn;
+	ARdsEventCtrl[462].bEventOutput;
+	
+	ARdsEventCtrl[463].bSignalInput							:=FALSE; 
+	ARdsEventCtrl[463].iDelayTimeSV							:=0;
+	ARdsEventCtrl[463].bHoldingDisable;
+	ARdsEventCtrl[463].bTest_InvertedInputEn;
+	ARdsEventCtrl[463].bEventOutput;
+	
+	ARdsEventCtrl[464].bSignalInput							:=FALSE; 
+	ARdsEventCtrl[464].iDelayTimeSV							:=0;
+	ARdsEventCtrl[464].bHoldingDisable;
+	ARdsEventCtrl[464].bTest_InvertedInputEn;
+	ARdsEventCtrl[464].bEventOutput;
+	
+	ARdsEventCtrl[465].bSignalInput							:=FALSE;
+	ARdsEventCtrl[465].iDelayTimeSV							:=0;
+	ARdsEventCtrl[465].bHoldingDisable;
+	ARdsEventCtrl[465].bTest_InvertedInputEn;
+	ARdsEventCtrl[465].bEventOutput;
+	
+	ARdsEventCtrl[466].bSignalInput							:=FALSE;
+	ARdsEventCtrl[466].iDelayTimeSV							:=0;
+	ARdsEventCtrl[466].bHoldingDisable;
+	ARdsEventCtrl[466].bTest_InvertedInputEn;
+	ARdsEventCtrl[466].bEventOutput;
+	
+	ARdsEventCtrl[467].bSignalInput							:=FALSE;
+	ARdsEventCtrl[467].iDelayTimeSV							:=0;
+	ARdsEventCtrl[467].bHoldingDisable;
+	ARdsEventCtrl[467].bTest_InvertedInputEn;
+	ARdsEventCtrl[467].bEventOutput;
+	
+	ARdsEventCtrl[468].bSignalInput							:=FALSE;
+	ARdsEventCtrl[468].iDelayTimeSV							:=0;
+	ARdsEventCtrl[468].bHoldingDisable;
+	ARdsEventCtrl[468].bTest_InvertedInputEn;
+	ARdsEventCtrl[468].bEventOutput;
+	
+	ARdsEventCtrl[469].bSignalInput							:=FALSE;
+	ARdsEventCtrl[469].iDelayTimeSV							:=0;
+	ARdsEventCtrl[469].bHoldingDisable;
+	ARdsEventCtrl[469].bTest_InvertedInputEn;
+	ARdsEventCtrl[469].bEventOutput;
+	
+	ARdsEventCtrl[470].bSignalInput							:=FALSE; 
+	ARdsEventCtrl[470].iDelayTimeSV							:=0;
+	ARdsEventCtrl[470].bHoldingDisable;
+	ARdsEventCtrl[470].bTest_InvertedInputEn;
+	ARdsEventCtrl[470].bEventOutput;
+	
+	ARdsEventCtrl[471].bSignalInput							:=FALSE;  
+	ARdsEventCtrl[471].iDelayTimeSV							:=0;
+	ARdsEventCtrl[471].bHoldingDisable;
+	ARdsEventCtrl[471].bTest_InvertedInputEn;
+	ARdsEventCtrl[471].bEventOutput;
+	
+	ARdsEventCtrl[472].bSignalInput							:=FALSE; 
+	ARdsEventCtrl[472].iDelayTimeSV							:=0;
+	ARdsEventCtrl[472].bHoldingDisable;
+	ARdsEventCtrl[472].bTest_InvertedInputEn;
+	ARdsEventCtrl[472].bEventOutput;
+	
+	ARdsEventCtrl[473].bSignalInput							:=FALSE; 
+	ARdsEventCtrl[473].iDelayTimeSV							:=0;
+	ARdsEventCtrl[473].bHoldingDisable;
+	ARdsEventCtrl[473].bTest_InvertedInputEn;
+	ARdsEventCtrl[473].bEventOutput;
+	
+	ARdsEventCtrl[474].bSignalInput							:=FALSE; 
+	ARdsEventCtrl[474].iDelayTimeSV							:=0;
+	ARdsEventCtrl[474].bHoldingDisable;
+	ARdsEventCtrl[474].bTest_InvertedInputEn;
+	ARdsEventCtrl[474].bEventOutput;
+	
+	ARdsEventCtrl[475].bSignalInput							:=FALSE; 
+	ARdsEventCtrl[475].iDelayTimeSV							:=0;
+	ARdsEventCtrl[475].bHoldingDisable;
+	ARdsEventCtrl[475].bTest_InvertedInputEn;
+	ARdsEventCtrl[475].bEventOutput;
+	
+	ARdsEventCtrl[476].bSignalInput							:=FALSE;
+	ARdsEventCtrl[476].iDelayTimeSV							:=0;
+	ARdsEventCtrl[476].bHoldingDisable;
+	ARdsEventCtrl[476].bTest_InvertedInputEn;
+	ARdsEventCtrl[476].bEventOutput;
+	
+	ARdsEventCtrl[477].bSignalInput							:=FALSE;
+	ARdsEventCtrl[477].iDelayTimeSV							:=0;
+	ARdsEventCtrl[477].bHoldingDisable;
+	ARdsEventCtrl[477].bTest_InvertedInputEn;
+	ARdsEventCtrl[477].bEventOutput;
+	
+	ARdsEventCtrl[478].bSignalInput							:=FALSE;
+	ARdsEventCtrl[478].iDelayTimeSV							:=0;
+	ARdsEventCtrl[478].bHoldingDisable;
+	ARdsEventCtrl[478].bTest_InvertedInputEn;
+	ARdsEventCtrl[478].bEventOutput;
+
+	ARdsEventCtrl[479].bSignalInput							:=FALSE;
+	ARdsEventCtrl[479].iDelayTimeSV							:=0;
+	ARdsEventCtrl[479].bHoldingDisable;
+	ARdsEventCtrl[479].bTest_InvertedInputEn;
+	ARdsEventCtrl[479].bEventOutput;
+
+	ARdsEventCtrl[480].bSignalInput							:=FALSE; 
+	ARdsEventCtrl[480].iDelayTimeSV							:=0;
+	ARdsEventCtrl[480].bHoldingDisable;
+	ARdsEventCtrl[480].bTest_InvertedInputEn;
+	ARdsEventCtrl[480].bEventOutput;
+	
+	ARdsEventCtrl[481].bSignalInput							:=FALSE;
+	ARdsEventCtrl[481].iDelayTimeSV							:=0;
+	ARdsEventCtrl[481].bHoldingDisable;
+	ARdsEventCtrl[481].bTest_InvertedInputEn;
+	ARdsEventCtrl[481].bEventOutput;
+	
+	ARdsEventCtrl[482].bSignalInput							:=FALSE; 
+	ARdsEventCtrl[482].iDelayTimeSV							:=0;
+	ARdsEventCtrl[482].bHoldingDisable;
+	ARdsEventCtrl[482].bTest_InvertedInputEn;
+	ARdsEventCtrl[482].bEventOutput;
+	
+	ARdsEventCtrl[483].bSignalInput							:=FALSE; 
+	ARdsEventCtrl[483].iDelayTimeSV							:=0;
+	ARdsEventCtrl[483].bHoldingDisable;
+	ARdsEventCtrl[483].bTest_InvertedInputEn;
+	ARdsEventCtrl[483].bEventOutput;
+	
+	ARdsEventCtrl[484].bSignalInput							:=FALSE;
+	ARdsEventCtrl[484].iDelayTimeSV							:=0;
+	ARdsEventCtrl[484].bHoldingDisable;
+	ARdsEventCtrl[484].bTest_InvertedInputEn;
+	ARdsEventCtrl[484].bEventOutput;
+	
+	ARdsEventCtrl[485].bSignalInput							:=FALSE;
+	ARdsEventCtrl[485].iDelayTimeSV							:=0;
+	ARdsEventCtrl[485].bHoldingDisable;
+	ARdsEventCtrl[485].bTest_InvertedInputEn;
+	ARdsEventCtrl[485].bEventOutput;
+	
+	ARdsEventCtrl[486].bSignalInput							:=FALSE;
+	ARdsEventCtrl[486].iDelayTimeSV							:=0;
+	ARdsEventCtrl[486].bHoldingDisable;
+	ARdsEventCtrl[486].bTest_InvertedInputEn;
+	ARdsEventCtrl[486].bEventOutput;
+	
+	ARdsEventCtrl[487].bSignalInput							:=FALSE;
+	ARdsEventCtrl[487].iDelayTimeSV							:=0;
+	ARdsEventCtrl[487].bHoldingDisable;
+	ARdsEventCtrl[487].bTest_InvertedInputEn;
+	ARdsEventCtrl[487].bEventOutput;
+	
+	ARdsEventCtrl[488].bSignalInput							:=FALSE;
+	ARdsEventCtrl[488].iDelayTimeSV							:=0;
+	ARdsEventCtrl[488].bHoldingDisable;
+	ARdsEventCtrl[488].bTest_InvertedInputEn;
+	ARdsEventCtrl[488].bEventOutput;
+	
+	ARdsEventCtrl[489].bSignalInput							:=FALSE;
+	ARdsEventCtrl[489].iDelayTimeSV							:=0;
+	ARdsEventCtrl[489].bHoldingDisable;
+	ARdsEventCtrl[489].bTest_InvertedInputEn;
+	ARdsEventCtrl[489].bEventOutput;
+	
+	ARdsEventCtrl[490].bSignalInput							:=FALSE; 
+	ARdsEventCtrl[490].iDelayTimeSV							:=0;
+	ARdsEventCtrl[490].bHoldingDisable;
+	ARdsEventCtrl[490].bTest_InvertedInputEn;
+	ARdsEventCtrl[490].bEventOutput;
+	
+	
+	ARdsEventCtrl[491].bSignalInput							:=FALSE; 
+	ARdsEventCtrl[491].iDelayTimeSV							:=0;
+	ARdsEventCtrl[491].bHoldingDisable;
+	ARdsEventCtrl[491].bTest_InvertedInputEn;
+	ARdsEventCtrl[491].bEventOutput;
+	
+		
+	ARdsEventCtrl[492].bSignalInput							:=FALSE; 
+	ARdsEventCtrl[492].iDelayTimeSV							:=0;
+	ARdsEventCtrl[492].bHoldingDisable;
+	ARdsEventCtrl[492].bTest_InvertedInputEn;
+	ARdsEventCtrl[492].bEventOutput;
+	
+		
+	ARdsEventCtrl[493].bSignalInput							:=FALSE; 
+	ARdsEventCtrl[493].iDelayTimeSV							:=0;
+	ARdsEventCtrl[493].bHoldingDisable;
+	ARdsEventCtrl[493].bTest_InvertedInputEn;
+	ARdsEventCtrl[493].bEventOutput;
+	
+	ARdsEventCtrl[494].bSignalInput							:=FALSE; 
+	ARdsEventCtrl[494].iDelayTimeSV							:=0;
+	ARdsEventCtrl[494].bHoldingDisable;
+	ARdsEventCtrl[494].bTest_InvertedInputEn;
+	ARdsEventCtrl[494].bEventOutput;
+	
+	
+	ARdsEventCtrl[495].bSignalInput							:=FALSE; 
+	ARdsEventCtrl[495].iDelayTimeSV							:=0;
+	ARdsEventCtrl[495].bHoldingDisable;
+	ARdsEventCtrl[495].bTest_InvertedInputEn;
+	ARdsEventCtrl[495].bEventOutput;
+	
+	
+	ARdsEventCtrl[496].bSignalInput							:=FALSE;
+	ARdsEventCtrl[496].iDelayTimeSV							:=0;
+	ARdsEventCtrl[496].bHoldingDisable;
+	ARdsEventCtrl[496].bTest_InvertedInputEn;
+	ARdsEventCtrl[496].bEventOutput;
+	
+		
+	ARdsEventCtrl[497].bSignalInput							:=FALSE;
+	ARdsEventCtrl[497].iDelayTimeSV							:=0;
+	ARdsEventCtrl[497].bHoldingDisable;
+	ARdsEventCtrl[497].bTest_InvertedInputEn;
+	ARdsEventCtrl[497].bEventOutput;
+	
+		
+	ARdsEventCtrl[498].bSignalInput							:= FALSE ;
+	ARdsEventCtrl[498].iDelayTimeSV							:=0;
+	ARdsEventCtrl[498].bHoldingDisable						:=TRUE;	
+	ARdsEventCtrl[498].bTest_InvertedInputEn;
+	ARdsEventCtrl[498].bEventOutput;
+	
+	
+	ARdsEventCtrl[499].bSignalInput							:=FALSE;
+	ARdsEventCtrl[499].iDelayTimeSV							:=0;
+	ARdsEventCtrl[499].bHoldingDisable						:=TRUE;
+	ARdsEventCtrl[499].bTest_InvertedInputEn;
+	ARdsEventCtrl[499].bEventOutput;
+	
+	
+	ARdsEventCtrl[500].bSignalInput							:=FALSE;
+	ARdsEventCtrl[500].iDelayTimeSV							:=0;
+	ARdsEventCtrl[500].bHoldingDisable						:=TRUE;
+	ARdsEventCtrl[500].bTest_InvertedInputEn;
+	ARdsEventCtrl[500].bEventOutput;
+	
+
+  
+
+	]]></ST>
+    </Implementation>
+    <LineIds Name="Alarm_Others">
+      <LineId Id="1423" Count="0" />
+      <LineId Id="1422" Count="0" />
+      <LineId Id="3" Count="31" />
+      <LineId Id="1225" Count="3" />
+      <LineId Id="1266" Count="0" />
+      <LineId Id="1230" Count="10" />
+      <LineId Id="51" Count="48" />
+      <LineId Id="1269" Count="0" />
+      <LineId Id="100" Count="5" />
+      <LineId Id="1271" Count="0" />
+      <LineId Id="106" Count="5" />
+      <LineId Id="1274" Count="0" />
+      <LineId Id="112" Count="47" />
+      <LineId Id="1276" Count="0" />
+      <LineId Id="160" Count="5" />
+      <LineId Id="1277" Count="0" />
+      <LineId Id="166" Count="5" />
+      <LineId Id="1280" Count="0" />
+      <LineId Id="172" Count="72" />
+      <LineId Id="246" Count="119" />
+      <LineId Id="1296" Count="0" />
+      <LineId Id="366" Count="175" />
+      <LineId Id="1297" Count="0" />
+      <LineId Id="543" Count="34" />
+      <LineId Id="1221" Count="0" />
+      <LineId Id="579" Count="189" />
+      <LineId Id="1414" Count="0" />
+      <LineId Id="769" Count="67" />
+      <LineId Id="1298" Count="0" />
+      <LineId Id="837" Count="34" />
+      <LineId Id="1299" Count="0" />
+      <LineId Id="872" Count="36" />
+      <LineId Id="1300" Count="11" />
+      <LineId Id="909" Count="5" />
+      <LineId Id="1312" Count="11" />
+      <LineId Id="915" Count="5" />
+      <LineId Id="1324" Count="11" />
+      <LineId Id="921" Count="5" />
+      <LineId Id="1375" Count="11" />
+      <LineId Id="927" Count="5" />
+      <LineId Id="1387" Count="11" />
+      <LineId Id="933" Count="5" />
+      <LineId Id="1399" Count="11" />
+      <LineId Id="939" Count="39" />
+      <LineId Id="1418" Count="0" />
+      <LineId Id="979" Count="1" />
+      <LineId Id="982" Count="171" />
+      <LineId Id="1292" Count="0" />
+      <LineId Id="1154" Count="5" />
+      <LineId Id="1291" Count="0" />
+      <LineId Id="1160" Count="5" />
+      <LineId Id="1290" Count="0" />
+      <LineId Id="1166" Count="5" />
+      <LineId Id="1262" Count="0" />
+      <LineId Id="1173" Count="4" />
+      <LineId Id="1261" Count="0" />
+      <LineId Id="1178" Count="5" />
+      <LineId Id="1260" Count="0" />
+      <LineId Id="1184" Count="5" />
+      <LineId Id="1259" Count="0" />
+      <LineId Id="1190" Count="5" />
+      <LineId Id="1255" Count="0" />
+      <LineId Id="1196" Count="6" />
+      <LineId Id="1251" Count="0" />
+      <LineId Id="1203" Count="4" />
+      <LineId Id="1246" Count="0" />
+      <LineId Id="1208" Count="6" />
+      <LineId Id="1245" Count="0" />
+      <LineId Id="1216" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

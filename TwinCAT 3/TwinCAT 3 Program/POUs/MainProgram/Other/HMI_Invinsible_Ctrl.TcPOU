@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="HMI_Invinsible_Ctrl" Id="{12912e6e-328e-45a2-91c7-84f71ec71d28}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM HMI_Invinsible_Ctrl
+VAR
+	x: BOOL;
+	y: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//1
+IF NOT Global_HMI.bManualOutToUserConfirmPageOn THEN 
+	Global_HMI.bManualOutToUserConfirmPageOff:=TRUE;
+ELSE
+	Global_HMI.bManualOutToUserConfirmPageOff:=FALSE;
+END_IF
+
+//2
+IF NOT Global_Variables_HMI_Function.bStationOnPage THEN
+	Global_Variables_HMI_Function.bStationOffPage :=TRUE;
+ELSE
+	Global_Variables_HMI_Function.bStationOffPage :=FALSE;
+END_IF
+
+//3
+IF NOT Global_Variables_HMI_Function.RecipeEditOn THEN
+	Global_Variables_HMI_Function.RecipeEditOff :=TRUE;
+ELSE
+	Global_Variables_HMI_Function.RecipeEditOff :=FALSE;
+END_IF
+
+//4
+IF NOT NOT Global_HMI.bManualOutToUserConfirmPageOn THEN
+	Global_HMI.bManualOutToUserConfirmPageOff :=TRUE;
+ELSE
+	Global_HMI.bManualOutToUserConfirmPageOff :=FALSE;
+END_IF
+
+//5
+IF NOT x THEN
+	y :=TRUE;
+ELSE
+	y :=FALSE;
+END_IF
+
+//6
+IF NOT x THEN
+	y :=TRUE;
+ELSE
+	y :=FALSE;
+END_IF
+
+//7
+IF NOT x THEN
+	y :=TRUE;
+ELSE
+	y :=FALSE;
+END_IF
+
+//8
+IF NOT x THEN
+	y :=TRUE;
+ELSE
+	y :=FALSE;
+END_IF
+
+//9
+IF NOT x THEN
+	y :=TRUE;
+ELSE
+	y :=FALSE;
+END_IF
+
+//10
+IF NOT x THEN
+	y :=TRUE;
+ELSE
+	y :=FALSE;
+END_IF
+
+//11
+IF NOT x THEN
+	y :=TRUE;
+ELSE
+	y :=FALSE;
+END_IF
+
+//12
+IF NOT x THEN
+	y :=TRUE;
+ELSE
+	y :=FALSE;
+END_IF
+
+//13
+IF NOT x THEN
+	y :=TRUE;
+ELSE
+	y :=FALSE;
+END_IF
+
+//14
+IF NOT x THEN
+	y :=TRUE;
+ELSE
+	y :=FALSE;
+END_IF
+
+//15
+IF NOT x THEN
+	y :=TRUE;
+ELSE
+	y :=FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="HMI_Invinsible_Ctrl">
+      <LineId Id="24" Count="0" />
+      <LineId Id="6" Count="1" />
+      <LineId Id="9" Count="1" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="11" Count="1" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="13" Count="2" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="17" Count="4" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="28" Count="4" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="35" Count="5" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="42" Count="5" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="49" Count="5" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="56" Count="5" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="63" Count="5" />
+      <LineId Id="62" Count="0" />
+      <LineId Id="70" Count="5" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="77" Count="5" />
+      <LineId Id="76" Count="0" />
+      <LineId Id="84" Count="5" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="91" Count="5" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="103" Count="0" />
+      <LineId Id="98" Count="4" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="105" Count="5" />
+      <LineId Id="104" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fb_V2BarcodeRegistration" Id="{4bf7682f-5e2f-455b-92c5-e7d8ef859534}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fb_V2BarcodeRegistration
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+	sStatus : STRING;
+END_VAR
+
+VAR_IN_OUT
+	sBarcodeInputFromScanner : STRING;
+END_VAR
+VAR
+	iScanFL : INT;
+	iFL : INT;
+	iSFL : INT;
+	ARbButtonRE : ARRAY [0..iBarcodeRegSecDisplayQty] OF R_TRIG;
+	ARbBarcodeRegistrationEnRE : ARRAY [0..iBarcodeRegSecDisplayQty] OF R_TRIG;
+	bBarcodeRegistrationEn : BOOL;
+	bBarcodeDuplicate : BOOL;
+	iRegNo: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*bBarcodeRegistrationEn button control - only one button ON at one time *)
+iFL := 1;
+	FOR iFL := 1 TO iBarcodeRegSecDisplayQty DO
+		IF iFL >= 1 AND iFL <= iBarcodeRegSecDisplayQty THEN
+
+			ARbButtonRE[iFL](CLK:=DsAr1sG_BarcodeRegSectionDisplayHMI[iFL].bBarcodeRegistrationEn , Q=> );
+
+			IF ARbButtonRE[iFL].Q THEN
+				iSFL := 1;
+					FOR iSFL := 1 TO iBarcodeRegSecDisplayQty DO
+						IF iSFL >= 1 AND iSFL <= iBarcodeRegSecDisplayQty THEN
+							DsAr1sG_BarcodeRegSectionDisplayHMI[iSFL].bBarcodeRegistrationEn := FALSE;
+						END_IF
+					END_FOR
+				DsAr1sG_BarcodeRegSectionDisplayHMI[iFL].bBarcodeRegistrationEn := TRUE;
+			END_IF
+		END_IF
+	END_FOR
+
+
+(*Reset sBarcodeRegistered when bBarcodeRegistrationEn enable*)
+iScanFL := 1;
+FOR iScanFL := 1 TO iBarcodeRegSecDisplayQty DO
+	IF iScanFL >= 1 AND iScanFL <= iBarcodeRegSecDisplayQty THEN
+		ARbBarcodeRegistrationEnRE[iScanFL](CLK:=DsAr1sG_BarcodeRegSectionDisplayHMI[iScanFL].bBarcodeRegistrationEn , Q=> );
+		IF ARbBarcodeRegistrationEnRE[iScanFL].Q THEN
+			DsAr1sG_BarcodeRegSectionDisplayHMI[iScanFL].sBarcodeRegistered := '';
+			iRegNo := iScanFL;
+			bBarcodeRegistrationEn := TRUE;
+		END_IF
+
+	END_IF
+END_FOR
+
+
+(*Reset bBarcodeRegistrationEn when iLinkProductRecipeNo and sBarcodeRegistered achieved*)
+iScanFL := 1;
+FOR iScanFL := 1 TO iBarcodeRegSecDisplayQty DO
+	IF iScanFL >= 1 AND iScanFL <= iBarcodeRegSecDisplayQty THEN
+
+		IF DsAr1sG_BarcodeRegSectionDisplayHMI[iScanFL].iLinkProductRecipeNo <> 0 AND DsAr1sG_BarcodeRegSectionDisplayHMI[iScanFL].sBarcodeRegistered <> '' AND DsAr1sG_BarcodeRegSectionDisplayHMI[iScanFL].bBarcodeRegistrationEn THEN
+			DsAr1sG_BarcodeRegSectionDisplayHMI[iScanFL].bBarcodeRegistrationEn := FALSE;
+			bBarcodeRegistrationEn := FALSE;
+			iRegNo := 0;
+		END_IF
+
+	END_IF
+END_FOR
+
+(*bBarcodeDuplicate function*)
+bBarcodeDuplicate := FALSE;
+IF bBarcodeRegistrationEn THEN
+		iScanFL := 1;
+		FOR iScanFL := 1 TO iBarcodeRegSecDisplayQty DO
+			IF iScanFL >= 1 AND iScanFL <= iBarcodeRegSecDisplayQty THEN
+				IF sBarcodeInputFromScanner <> '' THEN
+					IF DsAr1sG_BarcodeRegSectionDisplayHMI[iScanFL].sBarcodeRegistered = sBarcodeInputFromScanner THEN
+						bBarcodeDuplicate := TRUE;
+					END_IF
+				END_IF
+			END_IF
+		END_FOR
+END_IF
+
+
+(*Error Status shown when Barcode detected was ERROR*)
+iScanFL := 1;
+FOR iScanFL := 1 TO iBarcodeRegSecDisplayQty DO
+	IF iScanFL >= 1 AND iScanFL <= iBarcodeRegSecDisplayQty THEN
+
+		IF bBarcodeDuplicate AND DsAr1sG_BarcodeRegSectionDisplayHMI[iScanFL].bBarcodeRegistrationEn THEN
+		sStatus := 'Error - Barcode Duplicated Found. Make sure assign barcode correctly';
+		iScanFL := iBarcodeRegSecDisplayQty+1;
+		ELSE
+		sStatus := 'No Error Found';
+		END_IF
+
+	END_IF
+END_FOR
+
+
+(*
+IF bBarcodeDuplicate AND bBarcodeRegistrationEn THEN
+sStatus := 'Error - Barcode Duplicated Found. Make sure assign barcode correctly';
+ELSE
+sStatus := 'No Error Found';
+END_IF
+*)
+
+
+
+
+
+(*Move sBarcodeInputFromScanner data into sBarcodeRegistered*)
+iScanFL := 1;
+FOR iScanFL := 1 TO iBarcodeRegSecDisplayQty DO
+	IF iScanFL >= 1 AND iScanFL <= iBarcodeRegSecDisplayQty AND NOT bBarcodeDuplicate AND bBarcodeRegistrationEn THEN
+
+		IF DsAr1sG_BarcodeRegSectionDisplayHMI[iScanFL].bBarcodeRegistrationEn AND sBarcodeInputFromScanner <> '' THEN
+			DsAr1sG_BarcodeRegSectionDisplayHMI[iScanFL].sBarcodeRegistered := sBarcodeInputFromScanner;
+		END_IF
+
+	END_IF
+END_FOR
+
+
+(*Trace Product Recipe Description*)
+IF iRegNo > 0 AND bBarcodeRegistrationEn AND DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNo].iLinkProductRecipeNo > 0 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNo].sLinkProductRecipeDescription := arProgramDescrip1[DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNo].iLinkProductRecipeNo];
+ELSIF  iRegNo > 0 AND bBarcodeRegistrationEn AND DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNo].iLinkProductRecipeNo = 0 THEN
+	DsAr1sG_BarcodeRegSectionDisplayHMI[iRegNo].sLinkProductRecipeDescription := '';
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fb_V2BarcodeRegistration">
+      <LineId Id="20" Count="111" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

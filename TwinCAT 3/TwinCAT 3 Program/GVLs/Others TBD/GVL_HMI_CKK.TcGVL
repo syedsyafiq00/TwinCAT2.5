@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="GVL_HMI_CKK" Id="{5debc16f-d9f0-459a-b697-57661c618ea3}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+
+	
+	iBufferPage											: INT;
+	iSelectedPage										: INT;
+	iReturnPage											: INT;
+	bManualPageOn										: BOOL;
+	bManualExitConfirm									: BOOL;
+	bManualExitCancel									: BOOL;
+	bBlockBasketEnter									: BOOL;
+iCkkTest	: DINT;
+
+
+iDisplayTimeCycle : ARRAY [1..iStnQty] OF REAL; 
+bDisplayTimeCycleOn : ARRAY [1..iStnQty] OF BOOL;
+iDisplayTimeCycleEnd : ARRAY [1..iStnQty] OF INT;
+ARiStnProcessTimeCD : ARRAY [1..iStnQty] OF INT;
+ARsStnProcessName : ARRAY [1..iStnQty] OF STRING;
+iAutoStnInfoPageNo	: INT :=1;
+ARsHMIDisplaySSURDescription	: ARRAY [1..IStationSubRecipeArrayQty] OF STRING;
+iSettingStnNo	: INT :=1;
+iSettingStnNoBuffer	: INT :=1;
+iArmSettingStnNo : INT :=1;
+iArmSettingStnNoBuffer : INT :=1;
+sDisplayConductivity : ARRAY [1..2] OF STRING;
+bDosingPageEn		 : ARRAY [1..iStnQty] OF BOOL;
+iConfigSSER			 : ARRAY [1..20] OF INT;
+bSelectTempExternal	 : ARRAY [1..4] OF BOOL;
+bSelectTempExternalInd : ARRAY [1..4] OF BOOL;
+iSelectTempExternal	 : INT;
+bBarcodeRegPage		 : BOOL;
+iDisplayFreqUs		 : ARRAY [1..iStnQty] OF INT;
+iDisplayRecipeFreqUs : INT;
+
+sBasketNo			 : STRING;
+bBarcodeConfirm		 : BOOL;
+
+bParameterPopupPageOn : BOOL;
+
+bPopupPageRapidPBOn: BOOL;
+bPopupPageRapidConfirm: BOOL;
+bBarcodeCallPagePB		: BOOL;
+
+// Barcode
+sBarcodeScannerReceivedResult: STRING;
+	iBarcodeRegUserSelectRecipeNo			: INT;
+	iBarcodeRegUserSelectNoDataToSave		: INT;
+	bBarcodeRegSave							: BOOL;
+	bBarcodeRegClear						: BOOL;
+	//bBarcodeEmpty							: BOOL;
+	
+	bBufferClearPB_SSER 				: ARRAY [1..6] OF BOOL;
+	bBufferClearPB_SSUR 				: ARRAY [1..6] OF BOOL;
+	
+	tClearPB_SSER_Timer 				: ARRAY [1..6] OF TON;
+	tClearPB_SSUR_Timer 				: ARRAY [1..6] OF TON;
+	
+	
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

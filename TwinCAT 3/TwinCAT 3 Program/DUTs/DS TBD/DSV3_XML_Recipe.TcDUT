@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSV3_XML_Recipe" Id="{16acd6e8-a207-4f80-87c7-f73bdd786355}">
+    <Declaration><![CDATA[TYPE DSV3_XML_Recipe :
+STRUCT
+
+
+	DSProductRecipe			 								: DSV2_A1_PnpSequenceMemory;
+	AR2SiRecipeTimeBlockNoCallArmTime 						: ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+	AR2SiRecipeTimeBlockWithCallArmTime 					: ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+	bProductRecipeTimeBlockAvailable 							:  BOOL;
+	DSTempCtrlRecipe 										:  DSV3_TempCtrlRecipe;
+
+
+	(*
+
+		PRODUCT RECIPE MEMORY
+			Need to read/write to below (Location: B_JKS_NewFB_V2 -> FBP-Memory Sub -> fbV2_A1_PnpSequenceMemory )
+			- Declare single memory refer to this Declaration-> ARDsPnpSequenceMemory : ARRAY [1..iProductRecipeArrayQty] OF DSA1_PnpSequenceMemory;
+
+
+
+		TRACKER MEMORY (Info)
+			Need to declared as below
+			AR2SiCalledRecipeTimeBlockNoCallArmTime 			: ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+			AR2SiCalledRecipeTimeBlockWithCallArmTime 			: ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+				
+			Need to read/write to below (Location: B_JKS_NewFB_V2 -> FBP_ProcessOptimisation -> fbV2_FBPTimeTrackerG3 )
+			AR3SiRecipeTimeBlockMemoryNoCallArmTime						: ARRAY [1..iProductRecipeArrayQty, 1..iRecipeBlockQty, 1..9] OF INT;
+			AR3SiRecipeTimeBlockMemoryWithCallArmTime						: ARRAY [1..iProductRecipeArrayQty, 1..iRecipeBlockQty, 1..9] OF INT;
+
+
+		TRACKER Status (BOOL)
+			Need to read/write to below (Location: B_JKS_NewFB_V2 -> FBP_ProcessOptimisation -> fbV2_FBPTimeTrackerG3 )
+			ARbProductRecipeTimeBlockAvailable 					: ARRAY [0..iProductRecipeArrayQty] OF BOOL;
+
+
+		TEMPERATURE - Product Recipe Extension
+
+			DSTempCtrlRecipe 			: ARRAY [0..iProductRecipeArrayQty] OF DSV3_TempCtrlRecipe;  (* Make it Global so that future can read/write easily*)	
+
+	*)
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_PID_1" Id="{9902792a-d087-431f-b9b1-0dc80413f2f2}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL PERSISTENT
+
+
+	Stn1PumpHiFlowSV		:INT;
+	Stn2PumpHiFlowSV		:INT;
+	Stn3PumpHiFlowSV		:INT;
+	Stn4PumpHiFlowSV		:INT;
+	Stn5PumpHiFlowSV		:INT;
+	Stn6PumpHiFlowSV		:INT;
+	Stn7PumpHiFlowSV		:INT;
+	ARiStnPumpHiFlowSV	:ARRAY [1..iStnQty] OF INT;
+
+
+	Stn1PumpLowFlowSV	:INT;
+	Stn2PumpLowFlowSV	:INT;
+	Stn3PumpLowFlowSV	:INT;
+	Stn4PumpLowFlowSV	:INT;
+	Stn5PumpLowFlowSV	:INT;
+	Stn6PumpLowFlowSV	:INT;
+	Stn7PumpLowFlowSV	:INT;
+	ARiStnPumpLowFlowSV	: ARRAY [1..iStnQty] OF INT;
+
+	ARiStnManualPumpLowFlowSV :ARRAY [1..iStnQty] OF INT;
+	ARiStnManualPumpHighFlowSV :ARRAY [1..iStnQty] OF INT;
+
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

@@ -1,0 +1,236 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_Cv5zonewith5m5sCtrl" Id="{702f82fe-1980-4523-8171-e94a359cd4ec}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_Cv5zonewith5m5sCtrl
+VAR_INPUT
+
+	bEn : BOOL;
+	bResetPB : BOOL;
+	rConveyorPos1DelayTime_sec : REAL;
+	rConveyorPos2DelayTime_sec : REAL;
+	rConveyorPos3DelayTime_sec : REAL;
+	rConveyorPos4DelayTime_sec : REAL;
+	bCvSensor1 : BOOL;
+	bCvSensor2 : BOOL;
+	bCvSensor3 : BOOL;
+	bCvSensor4 : BOOL;
+	bCvSensor5 : BOOL;
+
+	bCvZone1BasketConfirm : BOOL;
+	bCvZone2BasketConfirm : BOOL;
+	bCvZone3BasketConfirm : BOOL;
+	bCvZone4BasketConfirm : BOOL;
+	bCvZone5BasketConfirm : BOOL;
+
+	bCvZone1BasketTransfer : BOOL;
+	bCvZone2BasketTransfer : BOOL;
+	bCvZone3BasketTransfer : BOOL;
+	bCvZone4BasketTransfer : BOOL;
+	bCvZone5BasketTransfer : BOOL;
+
+END_VAR
+VAR_OUTPUT
+
+	bUldEndReached : BOOL;
+	bCvFullSignal : BOOL;
+
+	bCvMotor1OnOff : BOOL;
+	bCvMotor2OnOff : BOOL;
+	bCvMotor3OnOff : BOOL;
+	bCvMotor4OnOff : BOOL;
+	bCvMotor5OnOff : BOOL;
+
+	bConveyorMotorOnOffAbnormal: BOOL;
+END_VAR
+VAR
+
+	bZone4Enable: BOOL;
+	bZone3Enable: BOOL;
+	bZone2Enable: BOOL;
+	bZone1Enable: BOOL;
+
+	bCvMotor5OnOff2: BOOL;
+	bCvMotor5OnOff1: BOOL;
+	bCvMotor4OnOff2: BOOL;
+	bCvMotor4OnOff1: BOOL;
+	bCvMotor3OnOff2: BOOL;
+	bCvMotor3OnOff1: BOOL;
+	bCvMotor2OnOff2: BOOL;
+	bCvMotor2OnOff1: BOOL;
+	bCvMotor1OnOff2: BOOL;
+	bCvMotor1OnOff1: BOOL;
+
+	bTimerCountdown: BOOL;
+	tCountDownDelayTimer: TON;
+
+	bResetPBRE: R_TRIG;
+
+	tConveyorPos1DelayTimer: TON;
+	tConveyorPos2DelayTimer: TON;
+	tConveyorPos3DelayTimer: TON;
+	tConveyorPos4DelayTimer: TON;
+
+END_VAR
+
+
+
+
+
+
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF bCvSensor1 AND bCvSensor2 AND bCvSensor3 AND bCvSensor4 AND bCvSensor5 THEN
+
+bCvFullSignal := TRUE;
+ELSE
+bCvFullSignal := FALSE;
+END_IF
+
+IF bCvSensor5 THEN
+bUldEndReached := TRUE;
+ELSE
+bUldEndReached := FALSE;
+END_IF
+
+
+tConveyorPos1DelayTimer(IN:=bZone1Enable AND bCvSensor2 , PT:= REAL_TO_TIME(rConveyorPos1DelayTime_sec*1000) , Q=> , ET=> );
+tConveyorPos2DelayTimer(IN:=bZone2Enable AND bCvSensor3 , PT:= REAL_TO_TIME(rConveyorPos2DelayTime_sec*1000) , Q=> , ET=> );
+tConveyorPos3DelayTimer(IN:=bZone3Enable AND bCvSensor4 , PT:= REAL_TO_TIME(rConveyorPos3DelayTime_sec*1000) , Q=> , ET=> );
+tConveyorPos4DelayTimer(IN:=bZone4Enable AND bCvSensor5 , PT:= REAL_TO_TIME(rConveyorPos4DelayTime_sec*1000) , Q=> , ET=> );
+
+
+IF bEn (*AND NOT tCountDownDelayTimer.Q*) THEN
+
+	(* Zone4 to Zone5 *)
+	IF bCvSensor4 AND NOT bCvSensor5 AND NOT bZone3Enable AND ( bCvZone4BasketConfirm OR bCvZone4BasketTransfer) AND NOT bCvZone5BasketConfirm THEN
+	bZone4Enable := TRUE;
+	bCvMotor4OnOff2 := TRUE;
+	bCvMotor5OnOff1 := TRUE;
+	END_IF
+
+	IF tConveyorPos4DelayTimer.Q (*bZone4Enable (*AND NOT bCvSensor4 *)AND bCvSensor5*) THEN
+	bZone4Enable := FALSE;
+	bCvMotor4OnOff2 := FALSE;
+	bCvMotor5OnOff1 := FALSE;
+	END_IF
+
+	(* Zone3 to Zone4 *)
+	IF bCvSensor3 AND NOT bCvSensor4 AND NOT bZone2Enable AND NOT bZone4Enable AND ( bCvZone3BasketConfirm OR bCvZone3BasketTransfer) AND NOT bCvZone4BasketConfirm THEN
+	bZone3Enable := TRUE;
+	bCvMotor3OnOff2 := TRUE;
+	bCvMotor4OnOff1 := TRUE;
+	END_IF
+
+	IF tConveyorPos3DelayTimer.Q (*bZone3Enable (*AND NOT bCvSensor3 *)AND bCvSensor4*) THEN
+	bZone3Enable := FALSE;
+	bCvMotor3OnOff2 := FALSE;
+	bCvMotor4OnOff1 := FALSE;
+	END_IF
+
+	(* Zone2 to Zone3 *)
+	IF bCvSensor2 AND NOT bCvSensor3 AND NOT bZone1Enable AND NOT bZone3Enable AND ( bCvZone2BasketConfirm OR bCvZone2BasketTransfer) AND NOT bCvZone3BasketConfirm THEN
+	bZone2Enable := TRUE;
+	bCvMotor2OnOff2 := TRUE;
+	bCvMotor3OnOff1 := TRUE;
+	END_IF
+
+	IF tConveyorPos2DelayTimer.Q (*bZone2Enable (*AND NOT bCvSensor2 *)AND bCvSensor3*) THEN
+	bZone2Enable := FALSE;
+	bCvMotor2OnOff2 := FALSE;
+	bCvMotor3OnOff1 := FALSE;
+	END_IF
+
+	(* Zone1 to Zone2 *)
+	IF bCvSensor1 AND NOT bCvSensor2 AND NOT bZone2Enable AND ( bCvZone1BasketConfirm OR bCvZone1BasketTransfer ) AND NOT bCvZone2BasketConfirm THEN
+	bZone1Enable := TRUE;
+	bCvMotor1OnOff1 := TRUE;
+	bCvMotor2OnOff1 := TRUE;
+	END_IF
+
+	IF tConveyorPos1DelayTimer.Q (*bZone1Enable (*AND NOT bCvSensor1 *)AND bCvSensor2*) THEN
+	bZone1Enable := FALSE;
+	bCvMotor1OnOff1 := FALSE;
+	bCvMotor2OnOff1 := FALSE;
+	END_IF
+
+ELSE
+	bCvMotor1OnOff1 := FALSE;
+	bCvMotor2OnOff1 := FALSE;
+	bCvMotor3OnOff1 := FALSE;
+	bCvMotor4OnOff1 := FALSE;
+	bCvMotor5OnOff1 := FALSE;
+
+	bCvMotor1OnOff2 := FALSE;
+	bCvMotor2OnOff2 := FALSE;
+	bCvMotor3OnOff2 := FALSE;
+	bCvMotor4OnOff2 := FALSE;
+	bCvMotor5OnOff2 := FALSE;
+
+	bZone1Enable := FALSE;
+	bZone2Enable := FALSE;
+	bZone3Enable := FALSE;
+	bZone4Enable := FALSE;
+
+END_IF
+
+
+IF bCvMotor1OnOff1 OR bCvMotor1OnOff2 THEN
+bCvMotor1OnOff := TRUE;
+ELSE
+bCvMotor1OnOff := FALSE;
+END_IF
+
+IF bCvMotor2OnOff1 OR bCvMotor2OnOff2 THEN
+bCvMotor2OnOff := TRUE;
+ELSE
+bCvMotor2OnOff := FALSE;
+END_IF
+
+IF bCvMotor3OnOff1 OR bCvMotor3OnOff2 THEN
+bCvMotor3OnOff := TRUE;
+ELSE
+bCvMotor3OnOff := FALSE;
+END_IF
+
+IF bCvMotor4OnOff1 OR bCvMotor4OnOff2 THEN
+bCvMotor4OnOff := TRUE;
+ELSE
+bCvMotor4OnOff := FALSE;
+END_IF
+
+IF bCvMotor5OnOff1 OR bCvMotor5OnOff2 THEN
+bCvMotor5OnOff := TRUE;
+ELSE
+bCvMotor5OnOff := FALSE;
+END_IF
+
+
+bResetPBRE(CLK:= bResetPB , Q=> );
+
+IF (bZone4Enable OR bZone3Enable OR bZone2Enable OR bZone1Enable) AND ( NOT bCvSensor1 OR NOT bCvSensor2 OR NOT  bCvSensor3 OR NOT  bCvSensor4 OR NOT bCvSensor5 ) AND NOT bResetPBRE.Q THEN
+bTimerCountdown := TRUE;
+ELSE
+bTimerCountdown := FALSE;
+END_IF
+
+
+tCountDownDelayTimer(IN:=bTimerCountdown , PT:=t#90s , Q=> , ET=> );
+
+IF tCountDownDelayTimer.Q THEN
+bConveyorMotorOnOffAbnormal := TRUE;
+END_IF
+
+IF bConveyorMotorOnOffAbnormal AND NOT bCvZone1BasketTransfer AND NOT bCvZone2BasketTransfer AND NOT bCvZone3BasketTransfer AND NOT bCvZone4BasketTransfer AND NOT bCvZone5BasketTransfer THEN
+bConveyorMotorOnOffAbnormal := FALSE;
+END_IF
+
+IF bResetPBRE.Q THEN
+bConveyorMotorOnOffAbnormal := FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_Cv5zonewith5m5sCtrl">
+      <LineId Id="78" Count="147" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

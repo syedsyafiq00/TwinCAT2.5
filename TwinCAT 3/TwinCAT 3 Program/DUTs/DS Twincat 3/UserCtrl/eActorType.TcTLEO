@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <EnumerationTextList Name="eActorType" Id="{7c315ced-fc40-402b-8895-601deeec7cfe}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE eActor :
+(
+	Human 			:= 0,
+	Robot			:= 1,
+	RemoteSystem	:= 2
+);
+END_TYPE
+]]></Declaration>
+    <XmlArchive>
+      <Data>
+        <o xml:space="preserve" t="TextListEnumerationTextListObject">
+          <l n="TextList" t="ArrayList" cet="TextListRow">
+            <o>
+              <v n="TextID">"Human"</v>
+              <v n="TextDefault">"0"</v>
+              <l n="LanguageTexts" t="ArrayList" cet="String">
+                <v></v>
+                <v></v>
+                <v></v>
+              </l>
+            </o>
+            <o>
+              <v n="TextID">"Robot"</v>
+              <v n="TextDefault">"1"</v>
+              <l n="LanguageTexts" t="ArrayList" cet="String">
+                <v></v>
+                <v></v>
+                <v></v>
+              </l>
+            </o>
+            <o>
+              <v n="TextID">"RemoteSystem"</v>
+              <v n="TextDefault">"2"</v>
+              <l n="LanguageTexts" t="ArrayList" cet="String">
+                <v></v>
+                <v></v>
+                <v></v>
+              </l>
+            </o>
+            <o>
+              <v n="TextID">""</v>
+              <v n="TextDefault">""</v>
+              <l n="LanguageTexts" t="ArrayList" cet="String">
+                <v></v>
+                <v></v>
+                <v></v>
+              </l>
+            </o>
+          </l>
+          <l n="Languages" t="ArrayList" cet="String">
+            <v>German</v>
+            <v>France</v>
+            <v>English</v>
+          </l>
+          <v n="GuidInit">{d4776da7-ebad-4dca-b042-f4cc3ff272e9}</v>
+          <v n="GuidReInit">{bc506fab-9ec7-41e2-a5e3-65575a3bed82}</v>
+          <v n="GuidExitX">{3a736087-4749-49bc-b6b6-5b61c0591e0b}</v>
+        </o>
+      </Data>
+      <TypeList>
+        <Type n="ArrayList">System.Collections.ArrayList</Type>
+        <Type n="Guid">System.Guid</Type>
+        <Type n="String">System.String</Type>
+        <Type n="TextListEnumerationTextListObject">{4b60233c-f940-4beb-b331-82133b520151}</Type>
+        <Type n="TextListRow">{53da1be7-ad25-47c3-b0e8-e26286dad2e0}</Type>
+      </TypeList>
+    </XmlArchive>
+  </EnumerationTextList>
+</TcPlcObject>

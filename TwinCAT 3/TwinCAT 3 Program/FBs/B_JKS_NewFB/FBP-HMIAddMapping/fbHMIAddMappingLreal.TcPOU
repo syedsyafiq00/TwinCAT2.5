@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbHMIAddMappingLreal" Id="{264406d9-75fd-44b2-9c8e-f18e3f592a67}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbHMIAddMappingLreal
+
+
+VAR_INPUT
+	bEN : BOOL;
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+	ARrLrealAddress_Pro 					: LREAL;
+	ARrLrealAddress_Hmi 				: LREAL;
+END_VAR
+
+
+VAR_OUTPUT
+END_VAR
+
+
+VAR
+	ARBufferrLrealAddress_Pro 				:  LREAL;
+	ARBufferrLrealAddress_Hmi 				:  LREAL;
+
+	ARUpdate_bLrealAddress_Pro 				:  BOOL;
+	ARUpdate_bLrealAddress_Hmi 				:  BOOL;
+
+END_VAR
+VAR
+	bENRE : R_TRIG;
+
+	ProSideFL: LREAL;
+	HmiSideFL: LREAL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Initialized*)
+bENRE(CLK:=bEN , Q=> );
+IF bENRE.Q THEN
+			(*Int*)
+			ARBufferrLrealAddress_Pro := ARrLrealAddress_Pro;
+			ARBufferrLrealAddress_Hmi := ARrLrealAddress_Pro;
+			ARrLrealAddress_Hmi := ARrLrealAddress_Pro;
+END_IF
+
+(*Program*)
+
+
+ARUpdate_bLrealAddress_Pro := FALSE;
+
+	IF ARBufferrLrealAddress_Pro <> ARrLrealAddress_Pro THEN
+		ARUpdate_bLrealAddress_Pro := TRUE;
+	END_IF
+
+	IF ARUpdate_bLrealAddress_Pro THEN
+		ARBufferrLrealAddress_Pro := ARrLrealAddress_Pro;
+		ARBufferrLrealAddress_Hmi := ARrLrealAddress_Pro;
+		ARrLrealAddress_Hmi := ARrLrealAddress_Pro;
+	END_IF
+
+
+
+			(**********HMI Side Value Change**********)
+
+ARUpdate_bLrealAddress_Hmi := FALSE;
+
+	(**********Int**********)
+	IF ARBufferrLrealAddress_Hmi <> ARrLrealAddress_Hmi THEN
+		ARUpdate_bLrealAddress_Hmi := TRUE;
+	END_IF
+
+	IF ARUpdate_bLrealAddress_Hmi THEN
+		ARBufferrLrealAddress_Pro := ARrLrealAddress_Hmi;
+		ARBufferrLrealAddress_Hmi := ARrLrealAddress_Hmi;
+		ARrLrealAddress_Pro := ARrLrealAddress_Hmi;
+	END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbHMIAddMappingLreal">
+      <LineId Id="31" Count="39" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

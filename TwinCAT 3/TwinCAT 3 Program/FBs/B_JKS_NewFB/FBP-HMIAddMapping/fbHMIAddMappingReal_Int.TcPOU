@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbHMIAddMappingReal_Int" Id="{9eb2655a-ce01-4ef3-9f0f-2924d5579322}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbHMIAddMappingReal_Int
+
+
+VAR_INPUT
+	bEN : BOOL;
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+	ARrRealAddress_Pro 					: REAL;
+	ARiIntAddress_Hmi 				: INT;
+END_VAR
+
+
+VAR_OUTPUT
+END_VAR
+
+
+VAR
+	ARBufferrRealAddress_Pro 				:  REAL;
+	ARBufferiIntAddress_Hmi 					:  INT;
+
+	ARUpdate_bRealAddress_Pro 				:  BOOL;
+	ARUpdate_bIntAddress_Hmi 				:  BOOL;
+
+END_VAR
+VAR
+	bENRE : R_TRIG;
+
+	ProSideFL: REAL;
+	HmiSideFL: REAL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Initialized*)
+bENRE(CLK:=bEN , Q=> );
+IF bENRE.Q THEN
+			(*Int*)
+			ARBufferrRealAddress_Pro := ARrRealAddress_Pro;
+			ARBufferiIntAddress_Hmi := REAL_TO_INT(ARrRealAddress_Pro);
+			ARiIntAddress_Hmi := REAL_TO_INT(ARrRealAddress_Pro);
+END_IF
+
+(*Program*)
+
+
+ARUpdate_bRealAddress_Pro := FALSE;
+
+	IF ARBufferrRealAddress_Pro <> ARrRealAddress_Pro THEN
+		ARUpdate_bRealAddress_Pro := TRUE;
+	END_IF
+
+	IF ARUpdate_bRealAddress_Pro THEN
+		ARBufferrRealAddress_Pro := ARrRealAddress_Pro;
+		ARBufferiIntAddress_Hmi := REAL_TO_INT(ARrRealAddress_Pro);
+		ARiIntAddress_Hmi := REAL_TO_INT(ARrRealAddress_Pro);
+	END_IF
+
+
+
+			(**********HMI Side Value Change**********)
+
+ARUpdate_bIntAddress_Hmi := FALSE;
+
+	(**********Int**********)
+	IF ARBufferiIntAddress_Hmi <> ARiIntAddress_Hmi THEN
+		ARUpdate_bIntAddress_Hmi := TRUE;
+	END_IF
+
+	IF ARUpdate_bIntAddress_Hmi THEN
+		ARBufferrRealAddress_Pro := INT_TO_REAL(ARiIntAddress_Hmi);
+		ARBufferiIntAddress_Hmi := ARiIntAddress_Hmi;
+		ARrRealAddress_Pro := INT_TO_REAL(ARiIntAddress_Hmi);
+	END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbHMIAddMappingReal_Int">
+      <LineId Id="31" Count="39" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

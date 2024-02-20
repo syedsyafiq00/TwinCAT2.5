@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbHoldingTimer" Id="{167921c3-5ab5-4b3d-8b18-e1fa464ac803}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbHoldingTimer
+VAR_INPUT
+	bST : BOOL;
+	iDelayTime : INT;
+	bReset : BOOL;
+
+END_VAR
+VAR_OUTPUT
+	bOutput : BOOL;
+	iElapseTime : INT;
+
+END_VAR
+
+VAR PERSISTENT
+	SecClockPls: TON;
+	SecClockPlsRE: R_TRIG;
+	iClockPVTime: INT;
+	bOutputTime: TON;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[SecClockPls(IN:=NOT SecClockPls.Q , PT:=t#1s , Q=> , ET=> );
+SecClockPlsRE(CLK:=SecClockPls.Q , Q=> );
+IF bST THEN
+	IF SecClockPlsRE.Q THEN
+	iClockPVTime := iClockPVTime +1;
+	END_IF
+
+	IF iDelayTime <= iClockPVTime THEN
+	bOutput := TRUE;
+	END_IF
+
+END_IF
+
+IF bReset THEN
+
+iClockPVTime := 0;
+END_IF
+
+bOutputTime(IN:=bOutput , PT:=t#0.5s , Q=> , ET=> );
+
+IF bOutputTime.Q THEN
+iClockPVTime := 0;
+bOutput := FALSE;
+END_IF
+
+iElapseTime := iDelayTime - iClockPVTime;]]></ST>
+    </Implementation>
+    <LineIds Name="fbHoldingTimer">
+      <LineId Id="19" Count="25" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

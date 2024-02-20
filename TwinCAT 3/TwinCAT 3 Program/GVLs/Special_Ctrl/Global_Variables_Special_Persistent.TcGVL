@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_Special_Persistent" Id="{049ef3ea-d6e3-4a95-ab93-1339bcf060ed}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL PERSISTENT
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Temperature Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARfbStnWaterJacketTempControl								: ARRAY [1..iStnQty] OF fbV2_TempControl;
+	ARfbStnSubTankTempControl									: ARRAY [1..iStnQty] OF fbV2_TempControl;
+	fbJRSInlineHeaterTempControl								: fbV2_TempControl;
+	fbIncTempControl											: fbV2_TempControl;
+	fbOilSeparatorTempControl									: fbV2_TempControl;
+
+
+	ARfbStnIncVaporPurgeTempControl								: ARRAY [1..iStnQty] OF fbRawRatioConversionReal;
+
+	ARrStnWaterJacketAnalogInputFineTuneRatio					: ARRAY [1..iStnQty] OF REAL;
+
+	ARrStnWaterJacketTempHYSsv									: ARRAY [1..iStnQty] OF REAL;
+	ARrStnWaterJacketTempHALsv									: ARRAY [1..iStnQty] OF REAL;
+	ARrStnWaterJacketTempSV										: ARRAY [1..iStnQty] OF REAL;
+	ARrStnWaterJacketTempRDYsv									: ARRAY [1..iStnQty] OF REAL;
+	ARrStnWaterJacketTemp1stLimitSv								: ARRAY [1..iStnQty] OF REAL;
+	ARrStnWaterJacketTemp2ndLimitSv								: ARRAY [1..iStnQty] OF REAL;
+	ARiStnWaterJacketPreparationTempSv							: ARRAY [1..iStnQty] OF INT;
+
+	ARrStnSubTankAnalogInputFineTuneRatio						: ARRAY [1..iStnQty] OF REAL;
+
+	ARrStnSubTankTempHYSsv									: ARRAY [1..iStnQty] OF REAL;
+	ARrStnSubTankTempHALsv									: ARRAY [1..iStnQty] OF REAL;
+	ARrStnSubTankTempSV										: ARRAY [1..iStnQty] OF REAL;
+	ARrStnSubTankTempRDYsv									: ARRAY [1..iStnQty] OF REAL;
+	ARrStnSubTankTemp1stLimitSv									: ARRAY [1..iStnQty] OF REAL;
+	ARrStnSubTankTemp2ndLimitSv								: ARRAY [1..iStnQty] OF REAL;
+	ARiStnSubTankPreparationTempSv								: ARRAY [1..iStnQty] OF INT;
+
+	rJRSInlineHeaterAnalogInputFineTuneRatio						: REAL;
+
+	rJRSInlineHeaterTempHYSsv									: REAL;
+	rJRSInlineHeaterTempHALsv									: REAL;
+	rJRSInlineHeaterTempSV										: REAL;
+	rJRSInlineHeaterTempRDYsv									: REAL;
+	rJRSInlineHeaterTemp1stLimitSv								: REAL;
+	rJRSInlineHeaterTemp2ndLimitSv								: REAL;
+	iJRSInlineHeaterPreparationTempSv								: INT;
+
+	rIncAnalogInputFineTuneRatio									: REAL;
+
+	rIncTempHYSsv												: REAL;
+	rIncTempHALsv												: REAL;
+	rIncTempSV													: REAL;
+	rIncTempRDYsv												: REAL;
+	rIncTemp1stLimitSv											: REAL;
+	rIncTemp2ndLimitSv											: REAL;
+	iIncPreparationTempSv										: INT;
+
+	rOilSeparatorTempHYSsv										: REAL;
+	rOilSeparatorTempHALsv										: REAL;
+	rOilSeparatorTempSV											: REAL;
+	rOilSeparatorTempRDYsv										: REAL;
+	rOilSeparatorTemp1stLimitSv									: REAL;
+	rOilSeparatorTemp2ndLimitSv									: REAL;
+	iOilSeparatorPreparationTempSv								: INT;
+
+// 1= Left Top, 2 = Left Bottom, 3= Right Top, 4= Right bottom	
+	ARfbStnExternalTempControl									: ARRAY [1..4] OF  fbV2_TempControl;
+	ARrStnExternalTempHYSsv										: ARRAY [1..4] OF REAL;
+	ARrStnExternalTempHALsv										: ARRAY [1..4] OF REAL;
+	ARrStnExternalTempSV										: ARRAY [1..4] OF REAL;
+	ARrStnExternalTempRDYsv										: ARRAY [1..4] OF REAL;
+	ARrStnExternalTemp1stLimitSv								: ARRAY [1..4] OF REAL;
+	ARrStnExternalTemp2ndLimitSv								: ARRAY [1..4] OF REAL;
+	ARiStnExternalPreparationTempSv								: ARRAY [1..4] OF INT;
+
+	ARrStnExternalTempHYSMINsv									: ARRAY [1..4] OF REAL;
+	ARrStnExternalTempHYSMAXsv									: ARRAY [1..4] OF REAL;
+	
+	ARrStnExternalTempHALMINsv									: ARRAY [1..4] OF REAL;
+	ARrStnExternalTempHALMAXsv									: ARRAY [1..4] OF REAL;
+	
+	ARrStnExternalTempMINsv										: ARRAY [1..4] OF REAL;
+	ARrStnExternalTempMAXsv										: ARRAY [1..4] OF REAL;
+	
+	ARrStnExternalTempRDYMINsv									: ARRAY [1..4] OF REAL;
+	ARrStnExternalTempRDYMAXsv									: ARRAY [1..4] OF REAL;
+	
+	ARrStnExternalTemp1stLimitMINsv								: ARRAY [1..4] OF REAL;
+	ARrStnExternalTemp1stLimitMAXsv								: ARRAY [1..4] OF REAL;
+	
+	ARiStnExternalPreparationTempMINsv							: ARRAY [1..4] OF INT;
+	ARiStnExternalPreparationTempMAXsv							: ARRAY [1..4] OF INT;
+(*Agitation Control*)
+	DSAgitationParameterStore										: DSPnpAgitationParameter;
+	DSAgitationParameter_Pick										: DSPnpAgitationParameter;
+	DSAgitationParameter_Transfer									: DSPnpAgitationParameter;
+	DSArm2AgitationParameterStore								: DSPnpAgitationParameter;
+	DSArm2AgitationParameter_Pick								: DSPnpAgitationParameter;
+	DSArm2AgitationParameter_Transfer								: DSPnpAgitationParameter;
+(* xxxxxxxxxxxxxxxxxxxxx Multiple Arm Actuator Valve Holding Cltr xxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	bMultiArm1CylinderUpHolding									: BOOL;
+	bMultiArm1CylinderDownHolding								: BOOL;
+
+	bMultiArm2CylinderUpHolding									: BOOL;
+	bMultiArm2CylinderDownHolding								: BOOL;
+
+	bMultiArm3CylinderUpHolding									: BOOL;
+	bMultiArm3CylinderDownHolding								: BOOL;
+
+	bMultiArm4CylinderUpHolding									: BOOL;
+	bMultiArm4CylinderDownHolding								: BOOL;
+
+	bLoadingCylinderUpHolding									: BOOL;
+	bLoadingCylinderDownHolding									: BOOL;
+
+	bMultiArmCylinderLeftHolding									: BOOL;
+	bMultiArmCylinderRightHolding									: BOOL;
+
+	bMultiArmCylinderClampHolding									: BOOL;
+	bMultiArmCylinderUnclampHolding								: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxx Multiple Arm Basket Memory Cltr xxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	bLoadingConvBasketCFM										: BOOL;
+	bLoadingConvBasketTRF										: BOOL;
+
+	bLoadingBasketCFM											: BOOL;
+	bLoadingBasketTRF											: BOOL;
+
+	bStn1BasketCFM												: BOOL;
+	bStn1BasketTRF												: BOOL;
+
+	bStn2BasketCFM												: BOOL;
+	bStn2BasketTRF												: BOOL;
+
+	bStn3BasketCFM												: BOOL;
+	bStn3BasketTRF												: BOOL;
+
+	bStnbefore4BasketCFM										: BOOL;
+	bStnbefore4BasketTRF										: BOOL;
+
+	ARbMultiArmPnpStepHR										: ARRAY[1..10] OF BOOL;
+	ARbMultiAutoOriStepHR										: ARRAY[1..10] OF BOOL;
+
+	iLoadingDelayOnSv											: INT;
+	iUldStopper2DownTimeDelay									: INT;
+	diLdConvDelayTimer											: DINT;
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

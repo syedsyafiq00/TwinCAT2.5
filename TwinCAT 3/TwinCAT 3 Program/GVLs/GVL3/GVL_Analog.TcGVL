@@ -1,0 +1,203 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="GVL_Analog" Id="{4395c9ac-f32a-4c19-ae56-6337eb2a450e}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL CONSTANT
+	
+iTempCtrlQty 			: INT := 9; // Quantity of Temperature Control
+iPressureCtrlQty		: INT := 8; // Quantity of Pressure Control
+//iPHQty				: INT := 1; // Quantity of PH
+//iFlowQty				: INT := 7; // Quantity of Flow Control
+iConductivity			: INT := 8; // Quantity of Conductivity Control
+//iVacuum				: INT := 1; // Quantity of Vacuum Control
+
+END_VAR
+
+VAR_GLOBAL
+	
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Analog Mapping xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ANI1_1	AT %I*	: INT; // STN 01 ULTRASONIC GENERATOR (LEFT &RIGHT) POWER SIGNAL
+	ANI1_2	AT %I*	: INT; // STN 01 ULTRASONIC GENERATOR (BOTTOM) POWER SIGNAL
+	ANI1_3	AT %I*	: INT; // STN 02 ULTRASONIC GENERATOR (LEFT &RIGHT) POWER SIGNAL
+	ANI1_4	AT %I*	: INT; // STN 02 ULTRASONIC GENERATOR (BOTTOM) POWER SIGNAL
+  
+	ANI2_1	AT %I*	: INT; // STN 03 ULTRASONIC GENERATOR (LEFT &RIGHT) POWER SIGNAL
+	ANI2_2	AT %I*	: INT; // STN 03 ULTRASONIC GENERATOR (BOTTOM) POWER SIGNAL
+	ANI2_3	AT %I*	: INT; // STN 04 ULTRASONIC GENERATOR (LEFT &RIGHT) POWER SIGNAL
+	ANI2_4	AT %I*	: INT; // STN 04 ULTRASONIC GENERATOR (BOTTOM) POWER SIGNAL
+
+	ANI3_1	AT %I*	: INT; // STN 05 ULTRASONIC GENERATOR (BOTTOM) POWER SIGNAL
+	ANI3_2	AT %I*	: INT; // STN 06 PROCESS TANK VACUUM SIGNAL
+	ANI3_3	AT %I*	: INT; // RESERVED
+	ANI3_4	AT %I*	: INT; // RESERVED
+	
+	ANI4_1	AT %I*	: INT; // STN 01 PROCESS TANK PRESSURE SWITCH SIGNAL
+	ANI4_2	AT %I*	: INT; // STN 02 PROCESS TANK PRESSURE SWITCH SIGNAL
+	ANI4_3	AT %I*	: INT; // RESERVED  
+	ANI4_4	AT %I*	: INT; // RESERVED  
+	
+	ANI5_1	AT %I*	: INT; // STN 03 PROCESS TANK PRESSURE SWITCH SIGNAL
+	ANI5_2	AT %I*	: INT; // STN 04 PROCESS TANK PRESSURE SWITCH SIGNAL
+	ANI5_3	AT %I*	: INT; // RESERVED
+	ANI5_4	AT %I*	: INT; // RESERVED
+	
+	ANI6_1	AT %I*	: INT; // STN 05 PROCESS TANK PRESSURE SWITCH SIGNAL
+	ANI6_2	AT %I*	: INT; // STN 05 PROCESS TANK CONDUCTIVITY SIGNAL 
+	ANI6_3	AT %I*	: INT; // RESERVED 
+	ANI6_4	AT %I*	: INT; // RESERVED 
+	
+	RTD1_1  AT %I* 	: INT; // STN 01 PROCESS TANK PT100 RTD
+	RTD1_2  AT %I* 	: INT; // STN 02 PROCESS TANK PT100 RTD
+	RTD1_3  AT %I* 	: INT; // RESERVED                     
+	RTD1_4  AT %I* 	: INT; // RESERVED                     
+	
+	RTD2_1  AT %I* 	: INT; // STN 03 PROCESS TANK PT100 RTD
+	RTD2_2  AT %I* 	: INT; // STN 04 PROCESS TANK PT100 RTD
+	RTD2_3  AT %I* 	: INT; // RESERVED
+	RTD2_4  AT %I* 	: INT; // RESERVED
+	
+	RTD3_1  AT %I*	: INT; // STN 05 PROCESS TANK PT100 RTD
+	RTD3_2  AT %I*	: INT; // RESERVED                   
+	
+	TYK1_1	AT %I*	: INT; // STN 06 PROCESS TANK TYPE-K THERMOCOUPLE
+	TYK1_2	AT %I*	: INT; // RESERVED                               
+	
+//	TYK2_1	AT %I*	: INT; // STN 09 LEFT TOP HEATER TYPE-K THERMOCOUPLE    
+//	TYK2_2	AT %I*	: INT; // STN 09 LEFT BOTTOM HEATER TYPE-K THERMOCOUPLE 
+//	TYK2_3	AT %I*	: INT; // STN 09 RIGHT TOP HEATER TYPE-K THERMOCOUPLE   
+//	TYK2_4	AT %I*	: INT; // STN 09 RIGHT BOTTOM HEATER TYPE-K THERMOCOUPLE
+	
+//	COM1_1	AT %I*	: INT; // STN 01 ULTRASONIC GENERATOR MODBUS SIGNAL
+//	COM1_2	AT %I*	: INT; // STN 02 ULTRASONIC GENERATOR MODBUS SIGNAL
+//	COM1_3	AT %I*	: INT; // STN 03 ULTRASONIC GENERATOR MODBUS SIGNAL
+//	COM1_4	AT %I*	: INT; // STN 04 ULTRASONIC GENERATOR MODBUS SIGNAL
+//	COM1_5	AT %I*	: INT; // STN 05 ULTRASONIC GENERATOR MODBUS SIGNAL
+//	COM1_6	AT %I*	: INT; // STN 06 ULTRASONIC GENERATOR MODBUS SIGNAL
+	
+//	COM2_1	AT %I*	: INT; // STN 03 MEGASONIC GENERATOR 01 MODBUS SIGNAL (-16U1)
+//	COM2_2	AT %I*	: INT; // STN 03 MEGASONIC GENERATOR 02 MODBUS SIGNAL (-17U1)
+//	COM2_3	AT %I*	: INT; // STN 06 MEGASONIC GENERATOR 01 MODBUS SIGNAL (-18U1)
+//	COM2_4	AT %I*	: INT; // STN 06 MEGASONIC GENERATOR 02 MODBUS SIGNAL (-19U1)
+//	COM2_5	AT %I*	: INT; // STN 06 MEGASONIC GENERATOR 03 MODBUS SIGNAL (-20U1)
+	
+	(*ANALOG OUTPUT*)
+
+	ANO1_1   		AT %Q* : INT; // STN 01 ULTRASONIC GENERATOR (LEFT & RIGHT) POWER SIGNAL
+	ANO1_2   		AT %Q* : INT; // STN 01 ULTRASONIC GENERATOR (BOTTOM) POWER SIGNAL
+	ANO1_3   		AT %Q* : INT; // STN 02 ULTRASONIC GENERATOR (LEFT & RIGHT) POWER SIGNAL
+	ANO1_4   		AT %Q* : INT; // STN 02 ULTRASONIC GENERATOR (BOTTOM) POWER SIGNAL
+	
+	ANO2_1   		AT %Q* : INT; // STN 03 ULTRASONIC GENERATOR (LEFT & RIGHT) POWER SIGNAL
+	ANO2_2   		AT %Q* : INT; // STN 03 ULTRASONIC GENERATOR (BOTTOM) POWER SIGNAL
+	ANO2_3   		AT %Q* : INT; // STN 04 ULTRASONIC GENERATOR (LEFT & RIGHT) POWER SIGNAL
+	ANO2_4   		AT %Q* : INT; // STN 04 ULTRASONIC GENERATOR (BOTTOM) POWER SIGNAL
+                                 
+    ANO3_1   		AT %Q* : INT; // STN 05 ULTRASONIC GENERATOR (BOTTOM) POWER SIGNAL
+	ANO3_2   		AT %Q* : INT; // RESERVED                                           
+	
+//	BAC1_1	AT %I*	: INT; // LOADING BARCODE READER
+
+//(* ENCODER MAPPING*)
+
+//	bIN_VertSetCounterDone 		AT %I* 	: ARRAY [1..iArmQty] OF BOOL;
+//	udIN_VertCounterValue 		AT %I* 	: ARRAY [1..iArmQty] OF UDINT;
+
+//	bOUT_VertSetCounterEn 		AT %Q* 	: ARRAY [1..iArmQty] OF BOOL;
+//	udOUT_VertSetCounterValue 	AT %Q* 	: ARRAY [1..iArmQty] OF UDINT;
+
+//	bIN_HorzSetCounterDone 		AT %I* 	: ARRAY [1..iArmQty] OF BOOL;
+//	udIN_HorzCounterValue 		AT %I* 	: ARRAY [1..iArmQty] OF UDINT;
+
+//	bOUT_HorzSetCounterEn 		AT %Q* 	: ARRAY [1..iArmQty] OF BOOL;
+//	udOUT_HorzSetCounterValue 	AT %Q* 	: ARRAY [1..iArmQty] OF UDINT;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Temperature Ctrl xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+//	ARfb3TempControl								: ARRAY [0..iTempCtrlQty] OF FB3_TempControl;
+//	ARrTempPresentValue_PV							: ARRAY [0..iTempCtrlQty] OF REAL;
+//	ARbTempOnOff									: ARRAY [0..iTempCtrlQty] OF BOOL;
+//	ARbTempReady									: ARRAY [0..iTempCtrlQty] OF BOOL;
+//	ARbTempHighAlarm								: ARRAY [0..iTempCtrlQty] OF BOOL;
+//	ARbTemp1stLimitAlarm							: ARRAY [0..iTempCtrlQty] OF BOOL;
+//	ARbTempPreparationNoRdyAlarm					: ARRAY [0..iTempCtrlQty] OF BOOL;
+//	ARrDefaultStationTemperatureSV					: ARRAY [0..C_iProcessStnQty] OF REAL;
+//	ARbTempWarningLowAlarm							: ARRAY [0..iTempCtrlQty] OF BOOL;
+//	ARbTempWarningHighAlarm							: ARRAY [0..iTempCtrlQty] OF BOOL;
+//	ARbTempAlarmLowAlarm							: ARRAY [0..iTempCtrlQty] OF BOOL;
+//	ARbTempAlarmHighAlarm							: ARRAY [0..iTempCtrlQty] OF BOOL;
+	
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Pressure Ctrl xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+//	ARfb3PressureControl							: ARRAY [0..iPressureCtrlQty] OF FB3_RawRatioConversionReal;
+//	ARrPressurePresentValue_PV						: ARRAY [0..iPressureCtrlQty] OF REAL;
+//	ARbPressureLowAlarm								: ARRAY [0..iPressureCtrlQty] OF BOOL;
+//	ARbPressureHighAlarm							: ARRAY [0..iPressureCtrlQty] OF BOOL;	
+//	ARbPressureWarningLowAlarm						: ARRAY [0..iPressureCtrlQty] OF BOOL;
+//	ARbPressureWarningHighAlarm						: ARRAY [0..iPressureCtrlQty] OF BOOL;
+//	ARbPressureAlarmLowAlarm						: ARRAY [0..iPressureCtrlQty] OF BOOL;
+//	ARbPressureAlarmHighAlarm						: ARRAY [0..iPressureCtrlQty] OF BOOL;
+	
+//	bStn5HeaterOff									: BOOL;
+
+	
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx PH Ctrl xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+//	ARfb3PHControl									: ARRAY [0..iPHQty] OF FB3_RawRatioConversionReal;
+//	ARrPHPresentValue_PV							: ARRAY [0..iPHQty] OF REAL;
+//	ARbPHLowAlarm									: ARRAY [0..iPHQty] OF BOOL;
+//	ARbPHHighAlarm									: ARRAY [0..iPHQty] OF BOOL;	
+//	ARbPHWarningLowAlarm							: ARRAY [0..iPHQty] OF BOOL;
+//	ARbPHWarningHighAlarm							: ARRAY [0..iPHQty] OF BOOL;
+//	ARbPHAlarmLowAlarm								: ARRAY [0..iPHQty] OF BOOL;
+//	ARbPHAlarmHighAlarm								: ARRAY [0..iPHQty] OF BOOL;
+	
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Flow Ctrl xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+//	ARfb3FlowControl								: ARRAY [0..iFlowQty] OF FB3_RawRatioConversionReal;
+//	ARfb3FlowControl1								: ARRAY [0..iFlowQty] OF FB2_KeyenceVacSensorTuningkPa;
+	
+//	ARbFlowLowSave									: ARRAY [0..iFlowQty] OF BOOL;
+//	ARbFlowHighSave									: ARRAY [0..iFlowQty] OF BOOL;
+//	ARrFlowPresentValue_PV							: ARRAY [0..iFlowQty] OF REAL;
+//	ARbFlowLowAlarm									: ARRAY [0..iFlowQty] OF BOOL;
+//	ARbFlowHighAlarm								: ARRAY [0..iFlowQty] OF BOOL;	
+//	ARbFlowWarningLowAlarm							: ARRAY [0..iFlowQty] OF BOOL;
+//	ARbFlowWarningHighAlarm							: ARRAY [0..iFlowQty] OF BOOL;
+//	ARbFlowAlarmLowAlarm							: ARRAY [0..iFlowQty] OF BOOL;
+//	ARbFlowAlarmHighAlarm							: ARRAY [0..iFlowQty] OF BOOL;
+	
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Conductivity Ctrl xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+//	ARfb3ConductivityControl						: ARRAY [0..iConductivity] OF FB3_RawRatioConversionReal;
+//	ARrConductivityPresentValue_PV					: ARRAY [0..iConductivity] OF REAL;
+//	ARbConductivityLowAlarm							: ARRAY [0..iConductivity] OF BOOL;
+//	ARbConductivityHighAlarm						: ARRAY [0..iConductivity] OF BOOL;	
+//	ARbConductivityWarningLowAlarm					: ARRAY [0..iConductivity] OF BOOL;
+//	ARbConductivityWarningHighAlarm					: ARRAY [0..iConductivity] OF BOOL;
+//	ARbConductivityAlarmLowAlarm					: ARRAY [0..iConductivity] OF BOOL;
+//	ARbConductivityAlarmHighAlarm					: ARRAY [0..iConductivity] OF BOOL;
+	
+	
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Vacuum Ctrl xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+//	ARfbVacuumPump_Routine							: ARRAY [0..iStnQty] OF fbV2_EquipmentServiceCounter_Day;
+//	ARfbVacuumPump_Major							: ARRAY [0..iStnQty] OF fbV2_EquipmentServiceCounter_Day;
+//	fbVacuumCalibration								: ARRAY [0..iVacuum] OF FB2_KeyenceVacSensorTuningkPa;
+//	ARrVacuumPresentValue_PV						: ARRAY [0..iVacuum] OF REAL;
+//	ARbVacuumLowSignal								: ARRAY [0..iVacuum] OF BOOL;
+//	ARbVacuumHighSignal								: ARRAY [0..iVacuum] OF BOOL;
+//	ARbVacuumLowSave								: ARRAY [0..iVacuum] OF BOOL;
+//	ARbVacuumHighSave								: ARRAY [0..iVacuum] OF BOOL;	
+	
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

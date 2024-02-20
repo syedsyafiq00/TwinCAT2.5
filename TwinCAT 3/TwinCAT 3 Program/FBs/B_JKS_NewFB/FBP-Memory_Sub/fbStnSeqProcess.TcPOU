@@ -1,0 +1,1443 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbStnSeqProcess" Id="{3d29ee8b-25af-4541-8771-cd76ef0b7a56}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbStnSeqProcess
+
+VAR_INPUT
+	bSavePB 							: BOOL; 									(* Input - HMI - Save Push Button on Touchscreen*)
+	bLoadPB 							: BOOL;									(* Input - HMI - Load Push Button on Touchscreen*)
+	bProcessStart 					: BOOL;									(* Input - To Trigger process start - Pulse Signal*)
+	bProcessHalt						: BOOL;									(* Input - To Trigger Process Halt/Pause*)
+	bProcessReset 					: BOOL;									(* Input - To Process Reset/Initialization*)
+	AR5iCallTotalTimeRecipeNo 	: ARRAY [1..5] OF INT;						(* Input - It can accept concurrently 5 different Recipe No, with the reference of Recipe No, it will trace out the total time of that particular recipe by output to AR5iCalledTotalProcessTimeSV*)
+	DsStnSeqProInput 				: DS_StnSeqProInput;						(* Input - PV of Instrument (Temperature, pressure, vacuum and etc), Signal of Sensor to allowed program under the current station status.*)
+
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+	DsStnSeqRepStore 				: DS_fbStationSequenceRecipeStore; 	(* InOut - HMI - The full set of DataStructure-StationSequenceRecipe should selectively display on HMI so that user can customise the recipe by choosing/configure the parameters.*)
+	DsStnSubRepStore 				: DS_fbStationSubRecipeStore; 			(* InOut - HMI - The full set of DataStructure-StationSubRecipe should selectively display on HMI so that user can customise the recipe by choosing/configure the parameters.*)
+
+	DsStnSeqRepCall 				: DS_fbStationSequenceRecipeCall;		(* InOut - Used to call StationSequenceRecipe Detail from fbStationSequenceRecipe*)
+	DsStnSubRepCall 				: DS_fbStationSubRecipeCall;			(* InOut - Used to call StationSubRecipe Detail from fbStationSubRecipe*)
+	DsBasketInfo 						: DS_BasketInfo;							(* InOut - Basket Information that comes into current station*)
+END_VAR
+
+VAR_OUTPUT PERSISTENT
+	bSaveInd 							: BOOL; 												(* Output - HMI - Save Indicator on Touchscreen*)
+	bLoadInd 							: BOOL; 												(* Output - HMI - Load Indicator on Touchscreen*)
+	bProcessCompleted 				: BOOL;												(* Output - Bool will turn on once the full process completed*)
+	bProcessInProgressFlag 		: BOOL;												(* Output - Bool will turn on once the process Start, will off when process completed*)
+	bProcessHaltFlag					: BOOL;												(* Output - Bool will turn on during Process Halt/Paused*)
+
+	bCallStnSeqRecipeErr			: BOOL;												(* Output - Error - Bool will turn on when it face problem during StnSeqRecipe Called process*)
+	bInvalidProcessStepErr			: BOOL;												(* Output - Error - Bool will turn on when it found the given step number is Invalid*)
+	iCurrentProcessStep 				: INT;													(* Internal used, to monitor the current Step so that you can indentify the error of this function block if stucked*)
+	iComConProcessTimeEV		: INT;													(* Output - HMI - Timer Elapse Value (DownCounting) of current process steps*)
+	ARiCurrentCycle 					: ARRAY [1..iProductRecipeStepArrayQty] OF INT;	(* Output - HMI - Array based on Steps No, Current Cycle No on that particular Steps*)
+	iCurrentProcessTime 			: INT; 													(* Output - Current Process Time (Current Steps) Since Start (UpCounting)*)
+	iPreviousProcessTime 			: INT; 													(* Output - Previous Total Process Time*)
+	iStnSeqProcessCaseNo			: INT;		 											(* Internal used, to monitor the current Step so that you can indentify the error of this function block if stucked*)
+	iTotalProcessTimeSV: 			INT;
+
+	iTotalProcessTimeEV				: INT; 													(* Output - Total Process Elapse Time (DownCounting) (Based Total Time) *)
+	AR5iCalledTotalProcessTimeSV	: ARRAY [1..5] OF INT;									(* Output -  It can accept concurrently 5 different Recipe Total Time based on the Recipe Number defined in AR5iCallTotalTimeRecipeNo*)
+	DSStnSeqProOutput 				:DS_StnSeqProOutput;								(* Output - To Control Output - When process running, instrument should control by the output in this Data structure*)
+
+END_VAR
+VAR
+
+	rebProcessStart: R_TRIG;
+
+
+	bCallStnSeqSubProEn: BOOL;
+
+	bStCon11BelowTargetVacuumLevel : BOOL;
+	bStCon12AboveTargetVacuumLevel : BOOL;
+	bStCon13BelowTargetPressureLevel : BOOL;
+	bStCon14AboveTargetPressureLevel : BOOL;
+	bStCon15BelowTargetProTankTempLevel : BOOL;
+	bStCon16AboveTargetProTankTempLevel : BOOL;
+	bStCon17BelowTargetSubTankTempLevel : BOOL;
+	bStCon18AboveTargetSubTankTempLevel : BOOL;
+
+	bComCon11BelowTargetVacuumLevel : BOOL;
+	bComCon12AboveTargetVacuumLevel : BOOL;
+	bComCon13BelowTargetPressureLevel : BOOL;
+	bComCon14AboveTargetPressureLevel : BOOL;
+	bComCon15BelowTargetProTankTempLevel : BOOL;
+	bComCon16AboveTargetProTankTempLevel : BOOL;
+	bComCon17BelowTargetSubTankTempLevel : BOOL;
+	bComCon18AboveTargetSubTankTempLevel : BOOL;
+
+	tProcess1secClockPulse: TON;
+	retProcess1secClockPulse: R_TRIG;
+	rebProcessCompleted: R_TRIG;
+	ClearFL: INT;
+	iCurrentProcessStepBuffer: INT;
+	rebInvalidProcessStepErr: R_TRIG;
+	rebStnSeqSubCallCompleted: R_TRIG;
+	rebCallStnSeqRecipeErr: R_TRIG;
+	rebCallStnSubRecipeErr: R_TRIG;
+	tStartProcess1secClockPulse: TON;
+	retStartProcess1secClockPulse: R_TRIG;
+	bTempCallCompleted: BOOL;
+	bTempInvalidProcessStepErr: BOOL;
+	bTempCallStnSeqRecipeErr: BOOL;
+	bTempCallStnSubRecipeErr: BOOL;
+	sTempsSubDescription: STRING(50);
+	DsTempSubRecipeMemory: DS_SubRecipeMemory;
+	iTempSeqStep: INT;
+	bTempInvalidProcessStepErrPls: BOOL;
+	rebProcessHalt: R_TRIG;
+	febProcessHalt: F_TRIG;
+	iTPTFL: INT;
+	iEndStep: INT;
+	iCTPTFL: INT;
+	bEndStep: BOOL;
+
+	iCallTotalTimeMFL: INT;
+	iCallTotalTimeSFL: INT;
+	bCallTotalTimeEndStep: BOOL;
+	iCalculateMFL: INT;
+	iCalculateSFL: INT;
+
+END_VAR
+
+VAR PERSISTENT
+	fbStationSequenceRecipefb: fbStationSequenceRecipe;
+	fbStationSubRecipefb: fbStationSubRecipe;
+	StationfbCallStnSeqSubPro: fbCallStnSeqSubPro;
+	bStartConditionPassed: BOOL;
+	bCompleteConditionPassed: BOOL;
+	bStationProcessTimerComplete: BOOL;
+	iComConProcessTime: INT;
+	ARiTotalTimeSV: ARRAY [1..IStationSubRecipeArrayQty] OF INT;
+	AR2SiTimeOptimiseTotalTimeSV: ARRAY [1..5, 1..IStationSubRecipeArrayQty] OF INT;
+	iTotalProcessTimeEVInt: INT;
+
+END_VAR
+
+VAR_OUTPUT
+END_VAR
+
+
+
+
+
+
+(*
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]-Original for FB StnSeqProcess Backup-[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+VAR_INPUT
+	bProcessStart : BOOL;
+	bProcessHalt: BOOL;
+	bProcessReset : BOOL;
+	DsStnSeqProInput :DS_StnSeqProInput;
+
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+	DsStnSeqRepCall : DS_fbStationSequenceRecipeCall;
+	DsStnSubRepCall : DS_fbStationSubRecipeCall;
+	DsBasketInfo : DS_BasketInfo;
+END_VAR
+
+VAR_OUTPUT PERSISTENT
+	bProcessCompleted : BOOL;
+	bProcessInProgressFlag : BOOL;
+	bProcessHaltFlag: BOOL;
+	bCallStnSeqRecipeErr: BOOL;
+	bInvalidProcessStepErr: BOOL;
+	DSStnSeqProOutput :DS_StnSeqProOutput;
+	iCurrentProcessStep : INT;
+	iComConProcessTimeEV: INT;
+	ARiCurrentCycle : ARRAY [1..10] OF INT;
+	iCurrentProcessTime : INT; (*Total Process Time Since Start*)
+	iPreviousProcessTime : INT; (*Total Process Time - Previous process*)
+	iStnSeqProcessCase: INT; (* Temporary - Will transfer to Var_Persistent later*)
+
+END_VAR
+VAR
+(*	DsBufferSubRecipeMemory : Ds_SubRecipeMemory;
+	bCallStnSeqSubProCompleted : BOOL;
+	bCallStnSeqRepErr : BOOL;
+	bCallStnSubRepErr : BOOL;
+*)	rebProcessStart: R_TRIG;
+
+
+	bCallStnSeqSubProEn: BOOL;
+
+	bStCon7BelowTargetVacuumLevel : BOOL;
+	bStCon8AboveTargetVacuumLevel : BOOL;
+	bStCon9BelowTargetPressureLevel : BOOL;
+	bStCon10AboveTargetPressureLevel : BOOL;
+	bStCon11BelowTargetProTankTempLevel : BOOL;
+	bStCon12AboveTargetProTankTempLevel : BOOL;
+	bStCon13BelowTargetSubTankTempLevel : BOOL;
+	bStCon14AboveTargetSubTankTempLevel : BOOL;
+
+	bComCon7BelowTargetVacuumLevel : BOOL;
+	bComCon8AboveTargetVacuumLevel : BOOL;
+	bComCon9BelowTargetPressureLevel : BOOL;
+	bComCon10AboveTargetPressureLevel : BOOL;
+	bComCon11BelowTargetProTankTempLevel : BOOL;
+	bComCon12AboveTargetProTankTempLevel : BOOL;
+	bComCon13BelowTargetSubTankTempLevel : BOOL;
+	bComCon14AboveTargetSubTankTempLevel : BOOL;
+
+	tProcess1secClockPulse: TON;
+	retProcess1secClockPulse: R_TRIG;
+	rebProcessCompleted: R_TRIG;
+	ClearFL: INT;
+	iCurrentProcessStepBuffer: INT;
+	rebInvalidProcessStepErr: R_TRIG;
+	rebStnSeqSubCallCompleted: R_TRIG;
+	rebCallStnSeqRecipeErr: R_TRIG;
+	rebCallStnSubRecipeErr: R_TRIG;
+	tStartProcess1secClockPulse: TON;
+	retStartProcess1secClockPulse: R_TRIG;
+	bTempCallCompleted: BOOL;
+	bTempInvalidProcessStepErr: BOOL;
+	bTempCallStnSeqRecipeErr: BOOL;
+	bTempCallStnSubRecipeErr: BOOL;
+	sTempsSubDescription: STRING(50);
+	DsTempSubRecipeMemory: DS_SubRecipeMemory;
+	iTempSeqStep: INT;
+	bTempInvalidProcessStepErrPls: BOOL;
+	rebProcessHalt: R_TRIG;
+	febProcessHalt: F_TRIG;
+END_VAR
+
+VAR PERSISTENT
+	StationfbCallStnSeqSubPro: fbCallStnSeqSubPro;
+	bStartConditionPassed: BOOL;
+	bCompleteConditionPassed: BOOL;
+	bStationProcessTimerComplete: BOOL;
+	iComConProcessTime: INT;
+
+END_VAR
+
+VAR_OUTPUT
+END_VAR
+*)]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Temporary - Create Total Process Time SV *)
+iTPTFL := 1;
+bEndStep:= FALSE;
+
+	FOR iTPTFL := 1 TO IStationSubRecipeArrayQty DO
+		IF
+		fbStationSequenceRecipefb.ARDsStorageStationSequenceRecipeMemory[DsBasketInfo.iStationSeqenceRecipeNo].AR10iStationSubProNo[iTPTFL] > 0
+		AND
+		fbStationSequenceRecipefb.ARDsStorageStationSequenceRecipeMemory[DsBasketInfo.iStationSeqenceRecipeNo].AR10iStationSubProNo[iTPTFL] <= IStationSubRecipeArrayQty
+		AND NOT
+		bEndStep
+		THEN
+		ARiTotalTimeSV[iTPTFL] := fbStationSubRecipefb.ARDsStorageSubRecipeMemory[(**)fbStationSequenceRecipefb.ARDsStorageStationSequenceRecipeMemory[DsBasketInfo.iStationSeqenceRecipeNo].AR10iStationSubProNo[iTPTFL](**)].iComCon5ProcessTimer;
+		ELSE
+		bEndStep := TRUE;
+		ARiTotalTimeSV[iTPTFL] := 0;
+		END_IF
+	END_FOR
+
+
+iTotalProcessTimeSV :=
+ARiTotalTimeSV[1] +
+ARiTotalTimeSV[2] +
+ARiTotalTimeSV[3] +
+ARiTotalTimeSV[4] +
+ARiTotalTimeSV[5] +
+ARiTotalTimeSV[6] +
+ARiTotalTimeSV[7] +
+ARiTotalTimeSV[8] +
+ARiTotalTimeSV[9] +
+ARiTotalTimeSV[10];
+
+
+IF bProcessInProgressFlag AND NOT bProcessHalt AND retStartProcess1secClockPulse.Q  THEN
+iTotalProcessTimeEVInt := iTotalProcessTimeEVInt+1;
+END_IF
+
+IF (bProcessInProgressFlag OR bProcessHalt OR bProcessCompleted) AND NOT bProcessHalt AND iTotalProcessTimeSV - iTotalProcessTimeEVInt > 0 THEN
+iTotalProcessTimeEV := iTotalProcessTimeSV - iTotalProcessTimeEVInt;
+END_IF
+
+IF (bProcessInProgressFlag OR bProcessHalt OR bProcessCompleted) AND NOT bProcessHalt AND iTotalProcessTimeSV - iTotalProcessTimeEVInt <= 0 THEN
+iTotalProcessTimeEV := 0;
+END_IF
+
+IF NOT bProcessInProgressFlag AND NOT  bProcessHalt AND NOT bProcessCompleted THEN
+iTotalProcessTimeEV := iTotalProcessTimeSV;
+END_IF
+
+
+
+
+
+
+(*Temp Create to generate total time for Loaded In Basket. Used in Time Optimisation*)
+iCallTotalTimeMFL := 1;
+iCallTotalTimeSFL := 1;
+
+IF iCallTotalTimeMFL >0 AND iCallTotalTimeMFL < 5+1 THEN
+
+	FOR iCallTotalTimeMFL := 1 TO 5 DO
+
+		iCallTotalTimeSFL := 1;
+		bCallTotalTimeEndStep:= FALSE;
+
+		IF iCallTotalTimeSFL >0 AND iCallTotalTimeSFL < IStationSubRecipeArrayQty+1 THEN
+			FOR iCallTotalTimeSFL := 1 TO IStationSubRecipeArrayQty DO
+				IF
+				fbStationSequenceRecipefb.ARDsStorageStationSequenceRecipeMemory[AR5iCallTotalTimeRecipeNo[iCallTotalTimeMFL]].AR10iStationSubProNo[iCallTotalTimeSFL] > 0
+				AND
+				fbStationSequenceRecipefb.ARDsStorageStationSequenceRecipeMemory[AR5iCallTotalTimeRecipeNo[iCallTotalTimeMFL]].AR10iStationSubProNo[iCallTotalTimeSFL] <= IStationSubRecipeArrayQty
+				AND NOT
+				bCallTotalTimeEndStep
+				THEN
+				AR2SiTimeOptimiseTotalTimeSV[iCallTotalTimeMFL,iCallTotalTimeSFL] := fbStationSubRecipefb.ARDsStorageSubRecipeMemory[(**)fbStationSequenceRecipefb.ARDsStorageStationSequenceRecipeMemory[AR5iCallTotalTimeRecipeNo[iCallTotalTimeMFL]].AR10iStationSubProNo[iCallTotalTimeSFL](**)].iComCon5ProcessTimer;
+				ELSE
+				bCallTotalTimeEndStep := TRUE;
+				AR2SiTimeOptimiseTotalTimeSV[iCallTotalTimeMFL,iCallTotalTimeSFL] := 0;
+				END_IF
+			END_FOR
+		END_IF
+	END_FOR
+END_IF
+
+iCalculateMFL := 1;
+
+
+IF iCalculateMFL >0 AND iCalculateMFL < 5+1 THEN
+
+	FOR iCalculateMFL := 1 TO 5 DO
+
+		AR5iCalledTotalProcessTimeSV[iCalculateMFL] :=
+		AR2SiTimeOptimiseTotalTimeSV[iCalculateMFL,1] +
+		AR2SiTimeOptimiseTotalTimeSV[iCalculateMFL,2] +
+		AR2SiTimeOptimiseTotalTimeSV[iCalculateMFL,3] +
+		AR2SiTimeOptimiseTotalTimeSV[iCalculateMFL,4] +
+		AR2SiTimeOptimiseTotalTimeSV[iCalculateMFL,5] +
+		AR2SiTimeOptimiseTotalTimeSV[iCalculateMFL,6] +
+		AR2SiTimeOptimiseTotalTimeSV[iCalculateMFL,7] +
+		AR2SiTimeOptimiseTotalTimeSV[iCalculateMFL,8] +
+		AR2SiTimeOptimiseTotalTimeSV[iCalculateMFL,9] +
+		AR2SiTimeOptimiseTotalTimeSV[iCalculateMFL,10];
+		
+	END_FOR
+END_IF
+
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]-Group in StationSequnceRecipe and StationSubRecipe-[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+fbStationSequenceRecipefb(
+	bSavePB:=bSavePB ,
+	bLoadPB:=bLoadPB ,
+	bCopyPB:=DsStnSeqRepStore.bCopyPB ,
+	iCopyToSubRecipeNo:= DsStnSeqRepStore.iCopyToSubRecipeNo,
+	iStationSequenceRecipeNo:=DsStnSeqRepStore.iStationSequenceRecipeNo ,
+	sStationSequenceRecipeDescription:=DsStnSeqRepStore.sStationSequenceRecipeDescription ,
+	DsInStationSequenceRecipeMemory:=DsStnSeqRepStore.DsStationSequenceRecipeMemory ,
+	Call_iStationSequenceRecipe:= DsStnSeqRepCall.Call_iStationSequenceRecipe,
+	bCallPB:=DsStnSeqRepCall.bCallPB ,
+	bSaveInd=>bSaveInd ,
+	bLoadInd=>bLoadInd ,
+	bCallCompleted=>DsStnSeqRepCall.bCallCompleted ,
+	bInvalidCallStationSequenceNoHold=>DsStnSeqRepCall.bInvalidCallStationSequenceNoHold ,
+	bInvalidCallStationSequenceNoPulse=>DsStnSeqRepCall.bInvalidCallStationSequenceNoPulse ,
+	Call_sSequenceRecipeDescription=>DsStnSeqRepCall.Call_sSequenceRecipeDescription ,
+	Call_DsStationSequenceRecipeMemory=>DsStnSeqRepCall.Call_DsStationSequenceRecipeMemory );
+
+fbStationSubRecipefb(
+	bSavePB:= bSavePB,
+	bLoadPB := bLoadPB,
+	bCopyPB:=DsStnSubRepStore.bCopyPB ,
+	iCopyToSubRecipeNo:= DsStnSubRepStore.iCopyToSubRecipeNo,
+	DsStnSeqProInput:= DsStnSeqProInput,
+	iSubRecipeNo:= DsStnSubRepStore.iSubRecipeNo,
+	sSubRecipeDescription:= DsStnSubRepStore.sSubRecipeDescription,
+	DsInSubRecipeMemory:= DsStnSubRepStore.DsSubRecipeMemory,
+	Call_iSubRecipe:= DsStnSubRepCall.Call_iSubRecipe,
+	bCallPB:= DsStnSubRepCall.bCallPB,
+	bSaveInd=>bSaveInd ,
+	bLoadInd=>bLoadInd ,
+	bCallCompleted=> DsStnSubRepCall.bCallCompleted,
+	bInvalidCallSubRecipeNoHold=> DsStnSubRepCall.bInvalidCallSubRecipeNoHold,
+	bInvalidCallSubRecipeNoPulse=> DsStnSubRepCall.bInvalidCallSubRecipeNoPulse,
+	Call_sSubDescription=> DsStnSubRepCall.Call_sSubDescription,
+	Call_DsSubRecipeMemory=> DsStnSubRepCall.Call_DsSubRecipeMemory);
+
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]-Only FB StnSeqProcess-[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+(*[][][][][][][][][][][][][][][][][][]-Generate Current Process Time-[][][][][][][][][][][][][][][][][][]*)
+tProcess1secClockPulse(IN:=bProcessInProgressFlag AND NOT tProcess1secClockPulse.Q , PT:= T#1s, Q=> , ET=> );
+retProcess1secClockPulse(CLK:=tProcess1secClockPulse.Q , Q=> );
+
+IF bProcessInProgressFlag AND NOT bProcessHalt AND retProcess1secClockPulse.Q THEN
+iCurrentProcessTime := iCurrentProcessTime+1;
+END_IF
+
+
+(*[][][][][][][][][][][][][][][][][][]-Complete Condition Process Time Handling-[][][][][][][][][][][][][][][][][][]*)
+
+(*Generate CompleteCondition Process Time Elapse Value (Reverse Counting)*)
+IF bProcessInProgressFlag AND NOT bProcessHalt AND StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon20EnProcessTimer AND iStnSeqProcessCaseNo = 3 THEN
+iComConProcessTimeEV := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iComCon5ProcessTimer - iComConProcessTime;
+END_IF
+
+IF (NOT bProcessInProgressFlag AND NOT bProcessHalt) OR NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon20EnProcessTimer OR iStnSeqProcessCaseNo <> 3 THEN
+iComConProcessTimeEV := 0;
+END_IF
+
+
+
+(*Start Complete Condition Timer If Available*)
+tStartProcess1secClockPulse(IN:=StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon20EnProcessTimer AND NOT tStartProcess1secClockPulse.Q AND iStnSeqProcessCaseNo = 3 , PT:=T#1s , Q=> , ET=> );
+retStartProcess1secClockPulse(CLK:=tStartProcess1secClockPulse.Q , Q=> );
+
+IF bProcessInProgressFlag AND NOT bProcessHalt AND retStartProcess1secClockPulse.Q  THEN
+iComConProcessTime := iComConProcessTime+1;
+END_IF
+
+IF bProcessInProgressFlag AND NOT bProcessHalt AND iComConProcessTime >= StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iComCon5ProcessTimer THEN
+bStationProcessTimerComplete := TRUE;
+ELSE
+bStationProcessTimerComplete := FALSE;
+END_IF
+
+
+(*[][][][][][][][][][][][][][][][][][]-Generate Above/Below-Start Condition-[][][][][][][][][][][][][][][][][][]*)
+
+IF DsStnSeqProInput.iVacuumLevelPV < StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iStCon1TargetVacuumLevel THEN
+bStCon11BelowTargetVacuumLevel := TRUE;
+ELSE
+bStCon11BelowTargetVacuumLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iVacuumLevelPV >= StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iStCon1TargetVacuumLevel THEN
+bStCon12AboveTargetVacuumLevel := TRUE;
+ELSE
+bStCon12AboveTargetVacuumLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iPressureLevelPV < StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iStCon2TargetPressureLevel THEN
+bStCon13BelowTargetPressureLevel := TRUE;
+ELSE
+bStCon13BelowTargetPressureLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iPressureLevelPV >= StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iStCon2TargetPressureLevel THEN
+bStCon14AboveTargetPressureLevel := TRUE;
+ELSE
+bStCon14AboveTargetPressureLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iProTankTempLevelPV < StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iStCon3TargetProTankTempLevel THEN
+bStCon15BelowTargetProTankTempLevel := TRUE;
+ELSE
+bStCon15BelowTargetProTankTempLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iProTankTempLevelPV >= StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iStCon3TargetProTankTempLevel THEN
+bStCon16AboveTargetProTankTempLevel := TRUE;
+ELSE
+bStCon16AboveTargetProTankTempLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iSubTankTempLevelPV < StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iStCon4TargetSubTankTempLevel THEN
+bStCon17BelowTargetSubTankTempLevel := TRUE;
+ELSE
+bStCon17BelowTargetSubTankTempLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iSubTankTempLevelPV >= StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iStCon4TargetSubTankTempLevel THEN
+bStCon18AboveTargetSubTankTempLevel := TRUE;
+ELSE
+bStCon18AboveTargetSubTankTempLevel := FALSE;
+END_IF
+
+
+(*[][][][][][][][][][][][][][][][][][]-Generate Above/Below-Complete Condition-[][][][][][][][][][][][][][][][][][]*)
+
+IF DsStnSeqProInput.iVacuumLevelPV < StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iComCon1TargetVacuumLevel THEN
+bComCon11BelowTargetVacuumLevel := TRUE;
+ELSE
+bComCon11BelowTargetVacuumLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iVacuumLevelPV >= StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iComCon1TargetVacuumLevel THEN
+bComCon12AboveTargetVacuumLevel := TRUE;
+ELSE
+bComCon12AboveTargetVacuumLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iPressureLevelPV < StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iComCon2TargetPressureLevel THEN
+bComCon13BelowTargetPressureLevel := TRUE;
+ELSE
+bComCon13BelowTargetPressureLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iPressureLevelPV >= StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iComCon2TargetPressureLevel THEN
+bComCon14AboveTargetPressureLevel := TRUE;
+ELSE
+bComCon14AboveTargetPressureLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iProTankTempLevelPV < StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iComCon3TargetProTankTempLevel THEN
+bComCon15BelowTargetProTankTempLevel := TRUE;
+ELSE
+bComCon15BelowTargetProTankTempLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iProTankTempLevelPV >= StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iComCon3TargetProTankTempLevel THEN
+bComCon16AboveTargetProTankTempLevel := TRUE;
+ELSE
+bComCon16AboveTargetProTankTempLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iSubTankTempLevelPV < StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iComCon4TargetSubTankTempLevel THEN
+bComCon17BelowTargetSubTankTempLevel := TRUE;
+ELSE
+bComCon17BelowTargetSubTankTempLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iSubTankTempLevelPV >= StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iComCon4TargetSubTankTempLevel THEN
+bComCon18AboveTargetSubTankTempLevel := TRUE;
+ELSE
+bComCon18AboveTargetSubTankTempLevel := FALSE;
+END_IF
+
+(*[][][][][][][][][][][][][][][][][][]-General-[][][][][][][][][][][][][][][][][][]*)
+rebProcessHalt(CLK:=bProcessHalt , Q=> );
+
+febProcessHalt(CLK:=bProcessHalt , Q=> );
+
+IF rebProcessHalt.Q AND bProcessInProgressFlag THEN
+bProcessInProgressFlag := FALSE;
+bProcessHaltFlag := TRUE;
+END_IF
+
+IF febProcessHalt.Q AND bProcessHaltFlag THEN
+bProcessInProgressFlag := TRUE;
+bProcessHaltFlag := FALSE;
+END_IF
+
+
+
+IF bProcessReset OR NOT DsBasketInfo.bAvailibility THEN
+bProcessInProgressFlag := FALSE;
+bCallStnSeqRecipeErr := FALSE;
+bInvalidProcessStepErr := FALSE;
+bCallStnSeqSubProEn := FALSE;
+bProcessCompleted := FALSE;
+bProcessHaltFlag := FALSE;
+
+iStnSeqProcessCaseNo := 0;
+iCurrentProcessStep := 0;
+iCurrentProcessTime := 0;
+(*iTotalProcessTimeEV:=0;*)
+iTotalProcessTimeEVInt := 0;
+iComConProcessTime := 0;
+ClearFL := 1;
+
+	FOR ClearFL := 1 TO IStationSubRecipeArrayQty(*10*) DO
+		ARiCurrentCycle[ClearFL] := 0;
+	END_FOR
+
+END_IF
+
+
+
+
+rebProcessStart(CLK:=bProcessStart  , Q=> );
+
+IF rebProcessStart.Q AND NOT bProcessHaltFlag AND NOT bProcessInProgressFlag AND NOT bProcessCompleted THEN
+iStnSeqProcessCaseNo := 1;
+iCurrentProcessStep := 1;
+ARiCurrentCycle[iCurrentProcessStep] := 1;
+bProcessInProgressFlag := TRUE;
+END_IF
+
+
+(*[][][][][][][][][][][][][][][][][][]-FB Declaration-[][][][][][][][][][][][][][][][][][]*)
+
+StationfbCallStnSeqSubPro(
+	bCallSt:= bCallStnSeqSubProEn ,
+	iCurrentProcessStep:=iCurrentProcessStep ,
+	DSStnSeqRepCall:=DsStnSeqRepCall ,
+	DSStnSeqSubCall:=DsStnSubRepCall ,
+	DSBasketInfo:=DsBasketInfo ,
+	bCallCompleted=>bTempCallCompleted ,
+	bInvalidProcessStepErrHold=>bTempInvalidProcessStepErr ,
+	bInvalidProcessStepErrPulse=>bTempInvalidProcessStepErrPls,
+	bCallStnSeqRecipeErr=> bTempCallStnSeqRecipeErr,
+	bCallStnSubRecipeErr=> bTempCallStnSubRecipeErr,
+	BuffersSubDescription=> sTempsSubDescription,
+	BufferDsSubRecipeMemory=> DsTempSubRecipeMemory,
+	iSeqStep=> iTempSeqStep);
+
+
+(*[][][][][][][][][][][][][][][][][][]-Stop Output when Process is Stop/Complete/Halt-[][][][][][][][][][][][][][][][][][]*)
+
+IF NOT bProcessInProgressFlag THEN
+DSStnSeqProOutput.b1ProTankPump := FALSE;
+DSStnSeqProOutput.b2ProTankHeater := FALSE;
+DSStnSeqProOutput.b3ProTankBottomUltrasonicA := FALSE;
+DSStnSeqProOutput.b4ProTankBottomUltrasonicB := FALSE;
+DSStnSeqProOutput.b5ProTankBottomUltrasonicC := FALSE;
+DSStnSeqProOutput.b6ProTankSideUltrasonicA := FALSE;
+DSStnSeqProOutput.b7ProTankSideUltrasonicB := FALSE;
+DSStnSeqProOutput.b8SubTankPump := FALSE;
+DSStnSeqProOutput.b9SubTankHeater := FALSE;
+DSStnSeqProOutput.b10Blower := FALSE;
+DSStnSeqProOutput.b11VacuumPump := FALSE;
+DSStnSeqProOutput.b12SlowPull := FALSE;
+DSStnSeqProOutput.b13Instrument2 := FALSE;
+DSStnSeqProOutput.b14Instrument3 := FALSE;
+DSStnSeqProOutput.b15Instrument4 := FALSE;
+
+DSStnSeqProOutput.b16EnProTankChangeTemp := FALSE;
+DSStnSeqProOutput.b17EnSubTankChangeTemp := FALSE;
+
+
+
+DSStnSeqProOutput.b1ActValve1 := FALSE;
+DSStnSeqProOutput.b2ActValve2 := FALSE;
+DSStnSeqProOutput.b3ActValve3 := FALSE;
+DSStnSeqProOutput.b4ActValve4 := FALSE;
+DSStnSeqProOutput.b5ActValve5 := FALSE;
+DSStnSeqProOutput.b6ActValve6 := FALSE;
+DSStnSeqProOutput.b7ActValve7 := FALSE;
+DSStnSeqProOutput.b8ActValve8 := FALSE;
+DSStnSeqProOutput.b9ActValve9 := FALSE;
+DSStnSeqProOutput.b10ActValve10 := FALSE;
+DSStnSeqProOutput.b11ActValve11 := FALSE;
+DSStnSeqProOutput.b12ActValve12 := FALSE;
+DSStnSeqProOutput.b13ActValve13 := FALSE;
+DSStnSeqProOutput.b14ActValve14 := FALSE;
+DSStnSeqProOutput.b15ActValve15 := FALSE;
+DSStnSeqProOutput.b16ActValve16 := FALSE;
+DSStnSeqProOutput.b17ActValve17 := FALSE;
+DSStnSeqProOutput.b18ActValve18 := FALSE;
+DSStnSeqProOutput.b19ActValve19 := FALSE;
+DSStnSeqProOutput.b20ActValve20 := FALSE;
+
+DSStnSeqProOutput.i1ProTankPumpLPM := 0;
+DSStnSeqProOutput.i2ProTankPumpHz := 0;
+DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent := 0;
+DSStnSeqProOutput.i4ProTankBtmUsBPwrPercent := 0;
+DSStnSeqProOutput.i5ProTankBtmUsCPwrPercent := 0;
+DSStnSeqProOutput.i6ProTankSideUsAPwrPercent := 0;
+DSStnSeqProOutput.i7ProTankSideUsBPwrPercent := 0;
+DSStnSeqProOutput.i8ProTankBtmUsAkHz := 0;
+DSStnSeqProOutput.i9ProTankBtmUsBkHz := 0;
+DSStnSeqProOutput.i10ProTankBtmUsCkHz := 0;
+DSStnSeqProOutput.i11ProTankSideUsAkHz := 0;
+DSStnSeqProOutput.i12ProTankSideUsBkHz := 0;
+DSStnSeqProOutput.i13ProTankBlowerHz := 0;
+
+DSStnSeqProOutput.r14ProTankChangeTempDegC := 0;
+DSStnSeqProOutput.r15SubTankChangeTempDegC := 0;
+DSStnSeqProOutput.i16SubTankPumpLPM := 0;
+DSStnSeqProOutput.i17SubTankPumpHz := 0;
+
+DSStnSeqProOutput.i18SlowPullVelocity := 0;
+DSStnSeqProOutput.i19SlowPullDelayTime := 0;
+
+
+
+END_IF
+
+(*[][][][][][][][][][][][][][][][][][]-Main-Case/Step Programming-[][][][][][][][][][][][][][][][][][]*)
+
+rebStnSeqSubCallCompleted(CLK:=StationfbCallStnSeqSubPro.bCallCompleted , Q=> );
+rebCallStnSeqRecipeErr(CLK:=StationfbCallStnSeqSubPro.bCallStnSeqRecipeErr , Q=> );
+rebInvalidProcessStepErr(CLK:=StationfbCallStnSeqSubPro.bInvalidProcessStepErrPulse , Q=> );
+rebCallStnSubRecipeErr(CLK:=StationfbCallStnSeqSubPro.bCallStnSubRecipeErr , Q=> );
+
+
+CASE iStnSeqProcessCaseNo OF
+
+0:;
+
+1: (*Pull Data from fbCallStnSeqSubPro*)
+bCallStnSeqSubProEn:= TRUE;
+
+IF rebStnSeqSubCallCompleted.Q THEN
+bCallStnSeqSubProEn := FALSE;
+bStartConditionPassed := FALSE;
+bCompleteConditionPassed := FALSE;
+iStnSeqProcessCaseNo := 2;
+END_IF
+
+IF rebCallStnSeqRecipeErr.Q THEN
+bCallStnSeqSubProEn := FALSE;
+bStartConditionPassed := FALSE;
+bCompleteConditionPassed := FALSE;
+iStnSeqProcessCaseNo := 90;
+END_IF
+
+IF rebInvalidProcessStepErr.Q THEN
+bCallStnSeqSubProEn := FALSE;
+bStartConditionPassed := FALSE;
+bCompleteConditionPassed := FALSE;
+iStnSeqProcessCaseNo := 91;
+END_IF
+
+IF rebCallStnSubRecipeErr.Q THEN
+bCallStnSeqSubProEn := FALSE;
+bStartConditionPassed := FALSE;
+bCompleteConditionPassed := FALSE;
+iStnSeqProcessCaseNo := 92;
+END_IF
+
+2: (*Start Condition Validation*)
+IF bProcessInProgressFlag AND (
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon1EnProLowLiquidLevel AND NOT DsStnSeqProInput.bProLowLiquidLevel_NC) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon2EnProRegLiquidLevel AND DsStnSeqProInput.bProRegLiquidLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon3EnProHighLiquidLevel AND DsStnSeqProInput.bProHighLiquidLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon4EnSubLowLiquidLevel AND NOT DsStnSeqProInput.bSubLowLiquidLevel_NC) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon5EnSubRegLiquidLevel AND DsStnSeqProInput.bSubRegLiquidLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon6EnSubHighLiquidLevel AND DsStnSeqProInput.bSubHighLiquidLevel_NO) OR
+
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon7EnLowVacuumLevel AND DsStnSeqProInput.bLowVacuumLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon8EnRegVacuumLevel AND DsStnSeqProInput.bRegVacuumLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon9EnLowPressureLevel AND DsStnSeqProInput.bLowPressureLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon10EnRegPressureLevel AND DsStnSeqProInput.bRegPressureLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon11EnBelowTargetVacuumLevel AND bStCon11BelowTargetVacuumLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon12EnAboveTargetVacuumLevel AND bStCon12AboveTargetVacuumLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon13EnBelowTargetPressureLevel AND bStCon13BelowTargetPressureLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon14EnAboveTargetPressureLevel AND bStCon14AboveTargetPressureLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon15EnBelowTargetProTankTempLevel AND bStCon15BelowTargetProTankTempLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon16EnAboveTargetProTankTempLevel AND bStCon16AboveTargetProTankTempLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon17EnBelowTargetSubTankTempLevel AND bStCon17BelowTargetSubTankTempLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon18EnAboveTargetSubTankTempLevel AND bStCon18AboveTargetSubTankTempLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon19ExternalActivation AND DsStnSeqProInput.bExternalActivation_NO) OR
+
+(NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon1EnProLowLiquidLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon2EnProRegLiquidLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon3EnProHighLiquidLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon4EnSubLowLiquidLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon5EnSubRegLiquidLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon6EnSubHighLiquidLevel
+
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon7EnLowVacuumLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon8EnRegVacuumLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon9EnLowPressureLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon10EnRegPressureLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon11EnBelowTargetVacuumLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon12EnAboveTargetVacuumLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon13EnBelowTargetPressureLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon14EnAboveTargetPressureLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon15EnBelowTargetProTankTempLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon16EnAboveTargetProTankTempLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon17EnBelowTargetSubTankTempLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon18EnAboveTargetSubTankTempLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon19ExternalActivation) )THEN
+
+bStartConditionPassed := TRUE;
+iStnSeqProcessCaseNo := 3;
+END_IF
+
+3: (* Process Start Progress and Waiting Validate Complete Condition*)
+
+
+
+(*Complete Condition Validation*)
+IF bProcessInProgressFlag AND (
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon1EnProLowLiquidLevel AND NOT DsStnSeqProInput.bProLowLiquidLevel_NC) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon2EnProRegLiquidLevel AND DsStnSeqProInput.bProRegLiquidLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon3EnProHighLiquidLevel AND DsStnSeqProInput.bProHighLiquidLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon4EnSubLowLiquidLevel AND NOT DsStnSeqProInput.bSubLowLiquidLevel_NC) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon5EnSubRegLiquidLevel AND DsStnSeqProInput.bSubRegLiquidLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon6EnSubHighLiquidLevel AND DsStnSeqProInput.bSubHighLiquidLevel_NO) OR
+
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon7EnLowVacuumLevel AND DsStnSeqProInput.bLowVacuumLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon8EnRegVacuumLevel AND DsStnSeqProInput.bRegVacuumLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon9EnLowPressureLevel AND DsStnSeqProInput.bLowPressureLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon10EnRegPressureLevel AND DsStnSeqProInput.bRegPressureLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon11EnBelowTargetVacuumLevel AND bComCon11BelowTargetVacuumLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon12EnAboveTargetVacuumLevel AND bComCon12AboveTargetVacuumLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon13EnBelowTargetPressureLevel AND bComCon13BelowTargetPressureLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon14EnAboveTargetPressureLevel AND bComCon14AboveTargetPressureLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon15EnBelowTargetProTankTempLevel AND bComCon15BelowTargetProTankTempLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon16EnAboveTargetProTankTempLevel AND bComCon16AboveTargetProTankTempLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon17EnBelowTargetSubTankTempLevel AND bComCon17BelowTargetSubTankTempLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon18EnAboveTargetSubTankTempLevel AND bComCon18AboveTargetSubTankTempLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon19EnExternalActivation AND DsStnSeqProInput.bExternalActivation_NO) OR
+
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon20EnProcessTimer AND bStationProcessTimerComplete) OR
+
+(NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon1EnProLowLiquidLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon2EnProRegLiquidLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon3EnProHighLiquidLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon4EnSubLowLiquidLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon5EnSubRegLiquidLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon6EnSubHighLiquidLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon7EnLowVacuumLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon8EnRegVacuumLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon9EnLowPressureLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon10EnRegPressureLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon11EnBelowTargetVacuumLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon12EnAboveTargetVacuumLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon13EnBelowTargetPressureLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon14EnAboveTargetPressureLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon15EnBelowTargetProTankTempLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon16EnAboveTargetProTankTempLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon17EnBelowTargetSubTankTempLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon18EnAboveTargetSubTankTempLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon19EnExternalActivation
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon20EnProcessTimer) )THEN
+
+bCompleteConditionPassed := TRUE;
+iStnSeqProcessCaseNo := 4;
+END_IF
+
+
+(*Trigger Output*)
+
+IF bProcessInProgressFlag THEN
+DSStnSeqProOutput.b1ProTankPump := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut1EnProTankPump;
+DSStnSeqProOutput.b2ProTankHeater := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut2EnProTankHeater;
+DSStnSeqProOutput.b3ProTankBottomUltrasonicA := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut3EnProTankBottomUltrasonicA;
+DSStnSeqProOutput.b4ProTankBottomUltrasonicB := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut4EnProTankBottomUltrasonicB;
+DSStnSeqProOutput.b5ProTankBottomUltrasonicC := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut5EnProTankBottomUltrasonicC;
+DSStnSeqProOutput.b6ProTankSideUltrasonicA := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut6EnProTankSideUltrasonicA;
+DSStnSeqProOutput.b7ProTankSideUltrasonicB := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut7EnProTankSideUltrasonicB;
+DSStnSeqProOutput.b8SubTankPump := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut8EnSubTankPump;
+DSStnSeqProOutput.b9SubTankHeater := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut9EnSubTankHeater;
+DSStnSeqProOutput.b10Blower := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut10EnBlower;
+DSStnSeqProOutput.b11VacuumPump := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut11EnVacuumPump;
+DSStnSeqProOutput.b12SlowPull := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut12EnSlowPull;
+DSStnSeqProOutput.b13Instrument2 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut13EnInstrument2;
+DSStnSeqProOutput.b14Instrument3 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut14EnInstrument3;
+DSStnSeqProOutput.b15Instrument4 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut15EnInstrument4;
+
+DSStnSeqProOutput.b16EnProTankChangeTemp := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut16EnProTankChangeTemperature;
+DSStnSeqProOutput.b17EnSubTankChangeTemp := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut17EnSubTankChangeTemperature;
+
+DSStnSeqProOutput.b1ActValve1 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut1ActValve1;
+DSStnSeqProOutput.b2ActValve2 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut2ActValve2;
+DSStnSeqProOutput.b3ActValve3 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut3ActValve3;
+DSStnSeqProOutput.b4ActValve4 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut4ActValve4;
+DSStnSeqProOutput.b5ActValve5 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut5ActValve5;
+DSStnSeqProOutput.b6ActValve6 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut6ActValve6;
+DSStnSeqProOutput.b7ActValve7 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut7ActValve7;
+DSStnSeqProOutput.b8ActValve8 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut8ActValve8;
+DSStnSeqProOutput.b9ActValve9 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut9ActValve9;
+DSStnSeqProOutput.b10ActValve10 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut10ActValve10;
+DSStnSeqProOutput.b11ActValve11 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut11ActValve11;
+DSStnSeqProOutput.b12ActValve12 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut12ActValve12;
+DSStnSeqProOutput.b13ActValve13 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut13ActValve13;
+DSStnSeqProOutput.b14ActValve14 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut14ActValve14;
+DSStnSeqProOutput.b15ActValve15 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut15ActValve15;
+DSStnSeqProOutput.b16ActValve16 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut16ActValve16;
+DSStnSeqProOutput.b17ActValve17 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut17ActValve17;
+DSStnSeqProOutput.b18ActValve18 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut18ActValve18;
+DSStnSeqProOutput.b19ActValve19 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut19ActValve19;
+DSStnSeqProOutput.b20ActValve20 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut20ActValve20;
+
+DSStnSeqProOutput.i1ProTankPumpLPM := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut1ProTankPumpLPM;
+DSStnSeqProOutput.i2ProTankPumpHz := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut2ProTankPumpHz;
+DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut3ProTankBtmUsAPwrPercent;
+DSStnSeqProOutput.i4ProTankBtmUsBPwrPercent := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut4ProTankBtmUsBPwrPercent;
+DSStnSeqProOutput.i5ProTankBtmUsCPwrPercent := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut5ProTankBtmUsCPwrPercent;
+DSStnSeqProOutput.i6ProTankSideUsAPwrPercent := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut6ProTankSideUsAPwrPercent;
+DSStnSeqProOutput.i7ProTankSideUsBPwrPercent := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut7ProTankSideUsBPwrPercent;
+DSStnSeqProOutput.i8ProTankBtmUsAkHz := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut8ProTankBtmUsAkHz;
+DSStnSeqProOutput.i9ProTankBtmUsBkHz := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut9ProTankBtmUsBkHz;
+DSStnSeqProOutput.i10ProTankBtmUsCkHz := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut10ProTankBtmUsCkHz;
+DSStnSeqProOutput.i11ProTankSideUsAkHz := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut11ProTankSideUsAkHz;
+DSStnSeqProOutput.i12ProTankSideUsBkHz := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut12ProTankSideUsBkHz;
+DSStnSeqProOutput.i13ProTankBlowerHz := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut13ProTankBlowerHz;
+DSStnSeqProOutput.i16SubTankPumpLPM := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut16SubTankPumpLPM;
+DSStnSeqProOutput.i17SubTankPumpHz := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut17SubTankPumpHz;
+
+DSStnSeqProOutput.i18SlowPullVelocity := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut18SlowPullVelocity;
+
+IF StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut19SlowPullDelayTime - iComConProcessTime > 0 THEN
+DSStnSeqProOutput.i19SlowPullDelayTime := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut19SlowPullDelayTime - iComConProcessTime;
+ELSE
+DSStnSeqProOutput.i19SlowPullDelayTime := 0;
+END_IF
+
+
+
+
+IF DSStnSeqProOutput.b16EnProTankChangeTemp THEN
+	DSStnSeqProOutput.r14ProTankChangeTempDegC := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.rOut14ProTankChangeTemperatureDegC;
+ELSE
+	DSStnSeqProOutput.r14ProTankChangeTempDegC := 0;
+END_IF
+
+
+IF DSStnSeqProOutput.b17EnSubTankChangeTemp THEN
+	DSStnSeqProOutput.r15SubTankChangeTempDegC := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.rOut15SubTankChangeTemperatureDegC;
+ELSE
+	DSStnSeqProOutput.r15SubTankChangeTempDegC := 0;
+END_IF
+
+
+
+
+
+
+END_IF
+
+
+4: (* Repeat Sequence *)
+
+IF ARiCurrentCycle[iCurrentProcessStep] >= DsStnSeqRepCall.Call_DsStationSequenceRecipeMemory.AR10iCycle[iCurrentProcessStep] THEN
+
+ARiCurrentCycle[iCurrentProcessStep] := 0;
+iCurrentProcessStep := iCurrentProcessStep+1;
+ARiCurrentCycle[iCurrentProcessStep] := ARiCurrentCycle[iCurrentProcessStep]  +1;
+iStnSeqProcessCaseNo := 6;
+
+ELSE
+iCurrentProcessStepBuffer :=DsStnSeqRepCall.Call_DsStationSequenceRecipeMemory.AR10iRepeatFromStepNo[iCurrentProcessStep];
+iStnSeqProcessCaseNo := 5;
+END_IF
+
+5: (*Move CurrentProcessStepBuffer to CurrentProcessStep*)
+iCurrentProcessStep := iCurrentProcessStepBuffer;
+ARiCurrentCycle[iCurrentProcessStep] := ARiCurrentCycle[iCurrentProcessStep]  +1;
+iStnSeqProcessCaseNo := 6;
+
+6: (* Trigger Repeat Process*)
+bStartConditionPassed := FALSE;
+bCompleteConditionPassed := FALSE;
+iComConProcessTime := 0;
+iStnSeqProcessCaseNo := 1;
+
+90:(*Trigger Call Station Sequence Recipe Error*);
+bCallStnSeqRecipeErr := TRUE;
+bProcessInProgressFlag := FALSE;
+iStnSeqProcessCaseNo := 97;
+
+91:(*Trigger Invalid Process Step Error*)
+bInvalidProcessStepErr := TRUE;
+bProcessInProgressFlag := FALSE;
+iStnSeqProcessCaseNo := 98;
+
+92: (*Trigger Process Complete Flag*)
+bProcessCompleted := TRUE;
+bProcessInProgressFlag := FALSE;
+iPreviousProcessTime := iCurrentProcessTime;
+iCurrentProcessTime := 0;
+iStnSeqProcessCaseNo := 99;
+
+
+97:(*Stay if Call Station Sequence Recipe Error*)
+;
+98:(*Stay if Invalid Process Step Error*)
+;
+99:(*Stay if Process Completed*)
+;
+
+END_CASE
+
+
+(*
+
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]-Original FB StnSeqProcess Backup-[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+(*[][][][][][][][][][][][][][][][][][]-Generate Current Process Time-[][][][][][][][][][][][][][][][][][]*)
+tProcess1secClockPulse(IN:=bProcessInProgressFlag AND NOT tProcess1secClockPulse.Q , PT:= T#1s, Q=> , ET=> );
+retProcess1secClockPulse(CLK:=tProcess1secClockPulse.Q , Q=> );
+
+IF bProcessInProgressFlag AND retProcess1secClockPulse.Q THEN
+iCurrentProcessTime := iCurrentProcessTime+1;
+END_IF
+
+
+(*[][][][][][][][][][][][][][][][][][]-Complete Condition Process Time Handling-[][][][][][][][][][][][][][][][][][]*)
+
+(*Generate CompleteCondition Process Time Elapse Value (Reverse Counting)*)
+IF bProcessInProgressFlag AND StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon20EnProcessTimer AND iStnSeqProcessCaseNo = 3 THEN
+iComConProcessTimeEV := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iComCon5ProcessTimer - iComConProcessTime;
+ELSE
+iComConProcessTimeEV := 0;
+END_IF
+
+
+(*Start Complete Condition Timer If Available*)
+tStartProcess1secClockPulse(IN:=StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon20EnProcessTimer AND NOT tProcess1secClockPulse.Q AND iStnSeqProcessCaseNo = 3 , PT:=T#1s , Q=> , ET=> );
+retStartProcess1secClockPulse(CLK:=tStartProcess1secClockPulse.Q , Q=> );
+
+IF bProcessInProgressFlag AND tStartProcess1secClockPulse.Q THEN
+iComConProcessTime := iComConProcessTime+1;
+END_IF
+
+IF iComConProcessTime >= StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iComCon5ProcessTimer THEN
+bStationProcessTimerComplete := TRUE;
+ELSE
+bStationProcessTimerComplete := FALSE;
+END_IF
+
+
+(*[][][][][][][][][][][][][][][][][][]-Generate Above/Below-Start Condition-[][][][][][][][][][][][][][][][][][]*)
+
+IF DsStnSeqProInput.iVacuumLevelPV < StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iStCon1TargetVacuumLevel THEN
+bStCon11BelowTargetVacuumLevel := TRUE;
+ELSE
+bStCon11BelowTargetVacuumLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iVacuumLevelPV >= StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iStCon1TargetVacuumLevel THEN
+bStCon12AboveTargetVacuumLevel := TRUE;
+ELSE
+bStCon12AboveTargetVacuumLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iPressureLevelPV < StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iStCon2TargetPressureLevel THEN
+bStCon13BelowTargetPressureLevel := TRUE;
+ELSE
+bStCon13BelowTargetPressureLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iPressureLevelPV >= StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iStCon2TargetPressureLevel THEN
+bStCon14AboveTargetPressureLevel := TRUE;
+ELSE
+bStCon14AboveTargetPressureLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iProTankTempLevelPV < StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iStCon3TargetProTankTempLevel THEN
+bStCon15BelowTargetProTankTempLevel := TRUE;
+ELSE
+bStCon15BelowTargetProTankTempLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iProTankTempLevelPV >= StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iStCon3TargetProTankTempLevel THEN
+bStCon16AboveTargetProTankTempLevel := TRUE;
+ELSE
+bStCon16AboveTargetProTankTempLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iSubTankTempLevelPV < StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iStCon4TargetSubTankTempLevel THEN
+bStCon15BelowTargetProTankTempLevel := TRUE;
+ELSE
+bStCon15BelowTargetProTankTempLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iSubTankTempLevelPV >= StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iStCon4TargetSubTankTempLevel THEN
+bStCon16AboveTargetProTankTempLevel := TRUE;
+ELSE
+bStCon16AboveTargetProTankTempLevel := FALSE;
+END_IF
+
+
+(*[][][][][][][][][][][][][][][][][][]-Generate Above/Below-Complete Condition-[][][][][][][][][][][][][][][][][][]*)
+
+IF DsStnSeqProInput.iVacuumLevelPV < StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iComCon1TargetVacuumLevel THEN
+bComCon11BelowTargetVacuumLevel := TRUE;
+ELSE
+bComCon11BelowTargetVacuumLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iVacuumLevelPV >= StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iComCon1TargetVacuumLevel THEN
+bComCon12AboveTargetVacuumLevel := TRUE;
+ELSE
+bComCon12AboveTargetVacuumLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iPressureLevelPV < StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iComCon2TargetPressureLevel THEN
+bComCon13BelowTargetPressureLevel := TRUE;
+ELSE
+bComCon13BelowTargetPressureLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iPressureLevelPV >= StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iComCon2TargetPressureLevel THEN
+bComCon14AboveTargetPressureLevel := TRUE;
+ELSE
+bComCon14AboveTargetPressureLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iProTankTempLevelPV < StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iComCon3TargetProTankTempLevel THEN
+bComCon15BelowTargetProTankTempLevel := TRUE;
+ELSE
+bComCon15BelowTargetProTankTempLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iProTankTempLevelPV >= StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iComCon3TargetProTankTempLevel THEN
+bComCon16AboveTargetProTankTempLevel := TRUE;
+ELSE
+bComCon16AboveTargetProTankTempLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iSubTankTempLevelPV < StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iComCon4TargetSubTankTempLevel THEN
+bComCon17BelowTargetSubTankTempLevel := TRUE;
+ELSE
+bComCon17BelowTargetSubTankTempLevel := FALSE;
+END_IF
+
+IF DsStnSeqProInput.iSubTankTempLevelPV >= StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iComCon4TargetSubTankTempLevel THEN
+bComCon18AboveTargetSubTankTempLevel := TRUE;
+ELSE
+bComCon18AboveTargetSubTankTempLevel := FALSE;
+END_IF
+
+(*[][][][][][][][][][][][][][][][][][]-General-[][][][][][][][][][][][][][][][][][]*)
+rebProcessHalt(CLK:=bProcessHalt , Q=> );
+
+febProcessHalt(CLK:=bProcessHalt , Q=> );
+
+IF rebProcessHalt.Q AND bProcessInProgressFlag THEN
+bProcessInProgressFlag := FALSE;
+bProcessHaltFlag := TRUE;
+END_IF
+
+IF febProcessHalt.Q AND bProcessHaltFlag THEN
+bProcessInProgressFlag := TRUE;
+bProcessHaltFlag := FALSE;
+END_IF
+
+
+
+IF bProcessReset OR NOT DsBasketInfo.bAvailibility THEN
+bProcessInProgressFlag := FALSE;
+bCallStnSeqRecipeErr := FALSE;
+bInvalidProcessStepErr := FALSE;
+bCallStnSeqSubProEn := FALSE;
+bProcessCompleted := FALSE;
+bProcessHaltFlag := FALSE;
+
+iStnSeqProcessCaseNo := 0;
+iCurrentProcessStep := 0;
+iCurrentProcessTime := 0;
+iComConProcessTime := 0;
+ClearFL := 1;
+
+	FOR ClearFL := 1 TO 10 DO
+		ARiCurrentCycle[ClearFL] := 0;
+	END_FOR
+
+END_IF
+
+
+
+
+rebProcessStart(CLK:=bProcessStart , Q=> );
+
+IF rebProcessStart.Q THEN
+iStnSeqProcessCaseNo := 1;
+iCurrentProcessStep := 1;
+ARiCurrentCycle[iCurrentProcessStep] := 1;
+bProcessInProgressFlag := TRUE;
+END_IF
+
+
+(*[][][][][][][][][][][][][][][][][][]-FB Declaration-[][][][][][][][][][][][][][][][][][]*)
+
+StationfbCallStnSeqSubPro(
+	bCallSt:= bCallStnSeqSubProEn ,
+	iCurrentProcessStep:=iCurrentProcessStep ,
+	DSStnSeqRepCall:=DsStnSeqRepCall ,
+	DSStnSeqSubCall:=DsStnSubRepCall ,
+	DSBasketInfo:=DsBasketInfo ,
+	bCallCompleted=>bTempCallCompleted ,
+	bInvalidProcessStepErrHold=>bTempInvalidProcessStepErr ,
+	bInvalidProcessStepErrPulse=>bTempInvalidProcessStepErrPls,
+	bCallStnSeqRecipeErr=> bTempCallStnSeqRecipeErr,
+	bCallStnSubRecipeErr=> bTempCallStnSubRecipeErr,
+	BuffersSubDescription=> sTempsSubDescription,
+	BufferDsSubRecipeMemory=> DsTempSubRecipeMemory,
+	iSeqStep=> iTempSeqStep);
+
+
+(*[][][][][][][][][][][][][][][][][][]-Stop Output when Process is Stop/Complete/Halt-[][][][][][][][][][][][][][][][][][]*)
+
+IF NOT bProcessInProgressFlag THEN
+DSStnSeqProOutput.b1ProTankPump := FALSE;
+DSStnSeqProOutput.b2ProTankHeater := FALSE;
+DSStnSeqProOutput.b3ProTankBottomUltrasonicA := FALSE;
+DSStnSeqProOutput.b4ProTankBottomUltrasonicB := FALSE;
+DSStnSeqProOutput.b5ProTankBottomUltrasonicC := FALSE;
+DSStnSeqProOutput.b6ProTankSideUltrasonicA := FALSE;
+DSStnSeqProOutput.b7ProTankSideUltrasonicB := FALSE;
+DSStnSeqProOutput.b8SubTankPump := FALSE;
+DSStnSeqProOutput.b9SubTankHeater := FALSE;
+DSStnSeqProOutput.b10Blower := FALSE;
+DSStnSeqProOutput.b11VacuumPump := FALSE;
+DSStnSeqProOutput.b12Instrument1 := FALSE;
+DSStnSeqProOutput.b13Instrument2 := FALSE;
+DSStnSeqProOutput.b14Instrument3 := FALSE;
+DSStnSeqProOutput.b15Instrument4 := FALSE;
+
+DSStnSeqProOutput.b1ActValve1 := FALSE;
+DSStnSeqProOutput.b2ActValve2 := FALSE;
+DSStnSeqProOutput.b3ActValve3 := FALSE;
+DSStnSeqProOutput.b4ActValve4 := FALSE;
+DSStnSeqProOutput.b5ActValve5 := FALSE;
+DSStnSeqProOutput.b6ActValve6 := FALSE;
+DSStnSeqProOutput.b7ActValve7 := FALSE;
+DSStnSeqProOutput.b8ActValve8 := FALSE;
+DSStnSeqProOutput.b9ActValve9 := FALSE;
+DSStnSeqProOutput.b10ActValve10 := FALSE;
+DSStnSeqProOutput.b11ActValve11 := FALSE;
+DSStnSeqProOutput.b12ActValve12 := FALSE;
+DSStnSeqProOutput.b13ActValve13 := FALSE;
+DSStnSeqProOutput.b14ActValve14 := FALSE;
+DSStnSeqProOutput.b15ActValve15 := FALSE;
+
+DSStnSeqProOutput.i1ProTankPumpLPM := 0;
+DSStnSeqProOutput.i2ProTankPumpHz := 0;
+DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent := 0;
+DSStnSeqProOutput.i4ProTankBtmUsBPwrPercent := 0;
+DSStnSeqProOutput.i5ProTankBtmUsCPwrPercent := 0;
+DSStnSeqProOutput.i6ProTankSideUsAPwrPercent := 0;
+DSStnSeqProOutput.i7ProTankSideUsBPwrPercent := 0;
+DSStnSeqProOutput.i8ProTankBtmUsAkHz := 0;
+DSStnSeqProOutput.i9ProTankBtmUsBkHz := 0;
+DSStnSeqProOutput.i10ProTankBtmUsCkHz := 0;
+DSStnSeqProOutput.i11ProTankSideUsAkHz := 0;
+DSStnSeqProOutput.i12ProTankSideUsBkHz := 0;
+DSStnSeqProOutput.i13ProTankBlowerHz := 0;
+END_IF
+
+(*[][][][][][][][][][][][][][][][][][]-Main-Case/Step Programming-[][][][][][][][][][][][][][][][][][]*)
+
+rebStnSeqSubCallCompleted(CLK:=StationfbCallStnSeqSubPro.bCallCompleted , Q=> );
+rebCallStnSeqRecipeErr(CLK:=StationfbCallStnSeqSubPro.bCallStnSeqRecipeErr , Q=> );
+rebInvalidProcessStepErr(CLK:=StationfbCallStnSeqSubPro.bInvalidProcessStepErrPulse , Q=> );
+rebCallStnSubRecipeErr(CLK:=StationfbCallStnSeqSubPro.bCallStnSubRecipeErr , Q=> );
+
+
+CASE iStnSeqProcessCaseNo OF
+
+0:;
+
+1: (*Pull Data from fbCallStnSeqSubPro*)
+bCallStnSeqSubProEn:= TRUE;
+
+IF rebStnSeqSubCallCompleted.Q THEN
+bCallStnSeqSubProEn := FALSE;
+bStartConditionPassed := FALSE;
+bCompleteConditionPassed := FALSE;
+iStnSeqProcessCaseNo := 2;
+END_IF
+
+IF rebCallStnSeqRecipeErr.Q THEN
+bCallStnSeqSubProEn := FALSE;
+bStartConditionPassed := FALSE;
+bCompleteConditionPassed := FALSE;
+iStnSeqProcessCaseNo := 90;
+END_IF
+
+IF rebInvalidProcessStepErr.Q THEN
+bCallStnSeqSubProEn := FALSE;
+bStartConditionPassed := FALSE;
+bCompleteConditionPassed := FALSE;
+iStnSeqProcessCaseNo := 91;
+END_IF
+
+IF rebCallStnSubRecipeErr.Q THEN
+bCallStnSeqSubProEn := FALSE;
+bStartConditionPassed := FALSE;
+bCompleteConditionPassed := FALSE;
+iStnSeqProcessCaseNo := 92;
+END_IF
+
+2: (*Start Condition Validation*)
+IF bProcessInProgressFlag AND (
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon1EnLowLiquidLevel AND NOT DsStnSeqProInput.bLowLiquidLevel_NC) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon2EnRegLiquidLevel AND DsStnSeqProInput.bRegLiquidLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon3EnLowVacuumLevel AND DsStnSeqProInput.bLowVacuumLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon4EnRegVacuumLevel AND DsStnSeqProInput.bRegVacuumLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon5EnLowPressureLevel AND DsStnSeqProInput.bLowPressureLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon6EnRegPressureLevel AND DsStnSeqProInput.bRegPressureLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon7EnBelowTargetVacuumLevel AND bStCon11BelowTargetVacuumLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon8EnAboveTargetVacuumLevel AND bStCon12AboveTargetVacuumLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon9EnBelowTargetPressureLevel AND bStCon13BelowTargetPressureLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon10EnAboveTargetPressureLevel AND bStCon14AboveTargetPressureLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon11EnBelowTargetProTankTempLevel AND bStCon15BelowTargetProTankTempLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon12EnAboveTargetProTankTempLevel AND bStCon16AboveTargetProTankTempLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon13EnBelowTargetSubTankTempLevel AND bStCon17BelowTargetSubTankTempLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon14EnAboveTargetSubTankTempLevel AND bStCon18AboveTargetSubTankTempLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon15ExternalActivation AND DsStnSeqProInput.bExternalActivation_NO) OR
+
+(NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon1EnLowLiquidLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon2EnRegLiquidLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon3EnLowVacuumLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon4EnRegVacuumLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon5EnLowPressureLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon6EnRegPressureLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon7EnBelowTargetVacuumLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon8EnAboveTargetVacuumLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon9EnBelowTargetPressureLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon10EnAboveTargetPressureLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon11EnBelowTargetProTankTempLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon12EnAboveTargetProTankTempLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon13EnBelowTargetSubTankTempLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon14EnAboveTargetSubTankTempLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bStCon15ExternalActivation) )THEN
+
+bStartConditionPassed := TRUE;
+iStnSeqProcessCaseNo := 3;
+END_IF
+
+3: (* Process Start Progress and Waiting Validate Complete Condition*)
+
+
+
+(*Complete Condition Validation*)s
+IF bProcessInProgressFlag AND (
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon1EnProLowLiquidLevel AND NOT DsStnSeqProInput.bProLowLiquidLevel_NC) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon2EnProRegLiquidLevel AND DsStnSeqProInput.bProRegLiquidLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon3EnProHighLiquidLevel AND DsStnSeqProInput.bProHighLiquidLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon4EnSubLowLiquidLevel AND DsStnSeqProInput.bSubLowLiquidLevel_NC) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon5EnSubRegLiquidLevel AND DsStnSeqProInput.bSubRegLiquidLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon6EnSubHighLiquidLevel AND DsStnSeqProInput.bSubHighLiquidLevel_NO) OR
+
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon7EnLowVacuumLevel AND DsStnSeqProInput.bLowVacuumLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon8EnRegVacuumLevel AND DsStnSeqProInput.bRegVacuumLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon9EnLowPressureLevel AND DsStnSeqProInput.bLowPressureLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon10EnRegPressureLevel AND DsStnSeqProInput.bRegPressureLevel_NO) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon11EnBelowTargetVacuumLevel AND bComCon11BelowTargetVacuumLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon12EnAboveTargetVacuumLevel AND bComCon12AboveTargetVacuumLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon13EnBelowTargetPressureLevel AND bComCon13BelowTargetPressureLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon14EnAboveTargetPressureLevel AND bComCon14AboveTargetPressureLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon15EnBelowTargetProTankTempLevel AND bComCon15BelowTargetProTankTempLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon16EnAboveTargetProTankTempLevel AND bComCon16AboveTargetProTankTempLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon17EnBelowTargetSubTankTempLevel AND bComCon17BelowTargetSubTankTempLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon18EnAboveTargetSubTankTempLevel AND bComCon18AboveTargetSubTankTempLevel) OR
+(StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon20EnProcessTimer AND bStationProcessTimerComplete) OR
+
+(NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon1EnProLowLiquidLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon2EnProRegLiquidLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon3EnProHighLiquidLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon4EnSubLowLiquidLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon5EnSubRegLiquidLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon6EnSubHighLiquidLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon7EnLowVacuumLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon8EnRegVacuumLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon9EnLowPressureLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon10EnRegPressureLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon11EnBelowTargetVacuumLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon12EnAboveTargetVacuumLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon13EnBelowTargetPressureLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon14EnAboveTargetPressureLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon15EnBelowTargetProTankTempLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon16EnAboveTargetProTankTempLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon17EnBelowTargetSubTankTempLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon18EnAboveTargetSubTankTempLevel
+AND NOT StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bComCon20EnProcessTimer) )THEN
+
+bCompleteConditionPassed := TRUE;
+iStnSeqProcessCaseNo := 4;
+END_IF
+
+
+(*Trigger Output*)
+
+IF bProcessInProgressFlag THEN
+DSStnSeqProOutput.b1ProTankPump := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut1EnProTankPump;
+DSStnSeqProOutput.b2ProTankHeater := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut2EnProTankHeater;
+DSStnSeqProOutput.b3ProTankBottomUltrasonicA := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut3EnProTankBottomUltrasonicA;
+DSStnSeqProOutput.b4ProTankBottomUltrasonicB := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut4EnProTankBottomUltrasonicB;
+DSStnSeqProOutput.b5ProTankBottomUltrasonicC := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut5EnProTankBottomUltrasonicC;
+DSStnSeqProOutput.b6ProTankSideUltrasonicA := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut6EnProTankSideUltrasonicA;
+DSStnSeqProOutput.b7ProTankSideUltrasonicB := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut7EnProTankSideUltrasonicB;
+DSStnSeqProOutput.b8SubTankPump := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut8EnSubTankPump;
+DSStnSeqProOutput.b9SubTankHeater := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut9EnSubTankHeater;
+DSStnSeqProOutput.b10Blower := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut10EnBlower;
+DSStnSeqProOutput.b11VacuumPump := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut11EnVacuumPump;
+DSStnSeqProOutput.b12Instrument1 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut12EnInstrument1;
+DSStnSeqProOutput.b13Instrument2 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut13EnInstrument2;
+DSStnSeqProOutput.b14Instrument3 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut14EnInstrument3;
+DSStnSeqProOutput.b15Instrument4 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut15EnInstrument4;
+
+DSStnSeqProOutput.b1ActValve1 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut1ActValve1;
+DSStnSeqProOutput.b2ActValve2 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut2ActValve2;
+DSStnSeqProOutput.b3ActValve3 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut3ActValve3;
+DSStnSeqProOutput.b4ActValve4 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut4ActValve4;
+DSStnSeqProOutput.b5ActValve5 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut5ActValve5;
+DSStnSeqProOutput.b6ActValve6 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut6ActValve6;
+DSStnSeqProOutput.b7ActValve7 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut7ActValve7;
+DSStnSeqProOutput.b8ActValve8 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut8ActValve8;
+DSStnSeqProOutput.b9ActValve9 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut9ActValve9;
+DSStnSeqProOutput.b10ActValve10 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut10ActValve10;
+DSStnSeqProOutput.b11ActValve11 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut11ActValve11;
+DSStnSeqProOutput.b12ActValve12 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut12ActValve12;
+DSStnSeqProOutput.b13ActValve13 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut13ActValve13;
+DSStnSeqProOutput.b14ActValve14 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut14ActValve14;
+DSStnSeqProOutput.b15ActValve15 := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.bOut15ActValve15;
+
+DSStnSeqProOutput.i1ProTankPumpLPM := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut1ProTankPumpLPM;
+DSStnSeqProOutput.i2ProTankPumpHz := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut2ProTankPumpHz;
+DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut3ProTankBtmUsAPwrPercent;
+DSStnSeqProOutput.i4ProTankBtmUsBPwrPercent := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut4ProTankBtmUsBPwrPercent;
+DSStnSeqProOutput.i5ProTankBtmUsCPwrPercent := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut5ProTankBtmUsCPwrPercent;
+DSStnSeqProOutput.i6ProTankSideUsAPwrPercent := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut6ProTankSideUsAPwrPercent;
+DSStnSeqProOutput.i7ProTankSideUsBPwrPercent := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut7ProTankSideUsBPwrPercent;
+DSStnSeqProOutput.i8ProTankBtmUsAkHz := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut8ProTankBtmUsAkHz;
+DSStnSeqProOutput.i9ProTankBtmUsBkHz := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut9ProTankBtmUsBkHz;
+DSStnSeqProOutput.i10ProTankBtmUsCkHz := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut10ProTankBtmUsCkHz;
+DSStnSeqProOutput.i11ProTankSideUsAkHz := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut11ProTankSideUsAkHz;
+DSStnSeqProOutput.i12ProTankSideUsBkHz := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut12ProTankSideUsBkHz;
+DSStnSeqProOutput.i13ProTankBlowerHz := StationfbCallStnSeqSubPro.BufferDsSubRecipeMemory.iOut13ProTankBlowerHz;
+END_IF
+
+
+4: (* Repeat Sequence *)
+
+IF ARiCurrentCycle[iCurrentProcessStep] >= DsStnSeqRepCall.Call_DsStationSequenceRecipeMemory.AR10iCycle[iCurrentProcessStep] THEN
+
+ARiCurrentCycle[iCurrentProcessStep] := 0;
+iCurrentProcessStep := iCurrentProcessStep+1;
+ARiCurrentCycle[iCurrentProcessStep] := ARiCurrentCycle[iCurrentProcessStep]  +1;
+iStnSeqProcessCaseNo := 6;
+
+ELSE
+iCurrentProcessStepBuffer :=DsStnSeqRepCall.Call_DsStationSequenceRecipeMemory.AR10iRepeatFromStepNo[iCurrentProcessStep];
+iStnSeqProcessCaseNo := 5;
+END_IF
+
+5: (*Move CurrentProcessStepBuffer to CurrentProcessStep*)
+iCurrentProcessStep := iCurrentProcessStepBuffer;
+ARiCurrentCycle[iCurrentProcessStep] := ARiCurrentCycle[iCurrentProcessStep]  +1;
+iStnSeqProcessCaseNo := 6;
+
+6: (* Trigger Repeat Process*)
+bStartConditionPassed := FALSE;
+bCompleteConditionPassed := FALSE;
+iComConProcessTime := 0;
+iStnSeqProcessCaseNo := 1;
+
+90:(*Trigger Call Station Sequence Recipe Error*);
+bCallStnSeqRecipeErr := TRUE;
+bProcessInProgressFlag := FALSE;
+iStnSeqProcessCaseNo := 97;
+
+91:(*Trigger Invalid Process Step Error*)
+bInvalidProcessStepErr := TRUE;
+bProcessInProgressFlag := FALSE;
+iStnSeqProcessCaseNo := 98;
+
+92: (*Trigger Process Complete Flag*)
+bProcessCompleted := TRUE;
+bProcessInProgressFlag := FALSE;
+iPreviousProcessTime := iCurrentProcessTime;
+iCurrentProcessTime := 0;
+iStnSeqProcessCaseNo := 99;
+
+
+97:(*Stay if Call Station Sequence Recipe Error*)
+;
+98:(*Stay if Invalid Process Step Error*)
+;
+99:(*Stay if Process Completed*)
+;
+
+END_CASE
+
+*)]]></ST>
+    </Implementation>
+    <LineIds Name="fbStnSeqProcess">
+      <LineId Id="220" Count="1212" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

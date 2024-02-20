@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSA32_StationZoneHeight" Id="{2d9fe202-73d1-4a17-83fb-7a4f158795ef}">
+    <Declaration><![CDATA[TYPE DSA32_StationZoneHeight : (*Full Occupied Byte = 200*)
+STRUCT
+
+	sReservedBool : STRING(50); (* Byte "n+0 ~ n+99" *)
+
+(*	sReservedInt : STRING(49); (* Byte "n+100~n+149" *)*)
+
+	lrTopPos : LREAL; (* Byte "n+100~n+107" *)
+	lrZone1Range : LREAL; (* Byte "n+108~n+115" *)
+	lrZone2Range : LREAL; (* Byte "n+116~n+123" *)
+	lrZone3Range : LREAL; (* Byte "n+124~n+131" *)
+	lrZone4Range : LREAL; (* Byte "n+132~n+139" *)
+	lrBottomPos : LREAL; (* Byte "n+140~n+147" *)
+
+	lrMidPos : LREAL; (*Byte "n+148~n+155*)
+
+	sReservedLreal : STRING(43); (* Byte "n+156~n+199" *)
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

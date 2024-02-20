@@ -1,0 +1,1100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="XML_PersistentCtrl" Id="{71e7c481-f958-464c-a10b-01ffda258b20}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM XML_PersistentCtrl
+VAR
+
+	
+dsXMLPersistentAnalog					: DS_XML_Persistent_Analog;
+dsXMLPersistentArm						: DS_XML_Persistent_Arm;
+dsXMLPersistentBarcode					: DS_XML_Persistent_Barcode;
+dsXMLPersistentDeactivate				: DS_XML_Persistent_Deactivate;
+dsXMLPersistentDigital					: DS_XML_Persistent_Digital;
+dsXMLPersistentMemory					: DS_XML_Persistent_Memory;
+dsXMLPersistentProcess					: DS_XML_Persistent_Process;
+dsXMLPersistentSevenDay					: DS_XML_Persistent_SevenDay;
+dsXMLPersistentTimeOptimize				: DS_XML_Persistent_TimeOptimize;
+//dsXMLAR2dsEventDescriptionCausedRemedy :DS_XML_AR2dsEventDescriptionCausedRemedy;
+
+//	bWriteXmlEn: BOOL;
+//	bReadXmlEn: BOOL;
+	bWriteXmlEnd: BOOL;
+	bReadXmlEnd: BOOL;
+	fb3XmlSvrRWMultipleGVL		:FB3_XmlSvrRW_MultipleGVL;
+	
+	bWriteXMlSt: BOOL;
+	bReadXmlSt: BOOL;
+	sDefaultFilePath: STRING := 'C:\SW\XML Management\Persistent Data\';
+
+	bWrite_Busy: BOOL;
+	bWrite_Error: BOOL;
+	udWrite_ErrId: UDINT;
+
+	bRead_Busy: BOOL;
+	bRead_Error: BOOL;
+	udRead_ErrId: UDINT;
+	iErrorArrayId: INT;
+	iTotalTime_100ms: INT;
+	ARp_SymAddr : ARRAY [1..C_iXMLSrvMultiGVLQty] OF PVOID;
+	ARp_SymSize	: ARRAY [1..C_iXMLSrvMultiGVLQty] OF UDINT;
+	ARs_FolderName: ARRAY [1..C_iXMLSrvMultiGVLQty] OF T_MaxString;
+	ARs_VariableName :ARRAY [1..C_iXMLSrvMultiGVLQty] OF T_MaxString; 
+	
+	bXMLTest: BOOL;
+	bsfq: BOOL;
+	
+	sftEsst: BOOL;
+	
+	
+	bManualWriteXmlByProgrammer: BOOL;
+	bManualReadXmlByProgrammer: BOOL;
+	
+	bRead_Done: BOOL;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+
+//Persistent Variable push into data structure
+IF bWriteXmlEn THEN
+	
+//Analog
+dsXMLPersistentAnalog.ARfbStnTempControl						:=ARfbStnTempControl						;
+dsXMLPersistentAnalog.ARrAnalogInputFineTuneRatio				:=ARrAnalogInputFineTuneRatio				;
+dsXMLPersistentAnalog.ARrStnTempHYSsv							:=ARrStnTempHYSsv							;
+dsXMLPersistentAnalog.ARrStnTempHALsv							:=ARrStnTempHALsv							;
+dsXMLPersistentAnalog.ARrStnTempSV								:=ARrStnTempSV							    ;
+dsXMLPersistentAnalog.ARrStnTempRDYsv							:=ARrStnTempRDYsv							;
+dsXMLPersistentAnalog.ARrStnTemp1stLimitSv						:=ARrStnTemp1stLimitSv					    ;
+dsXMLPersistentAnalog.ARrStnTemp2ndLimitSv						:=ARrStnTemp2ndLimitSv					    ;
+dsXMLPersistentAnalog.ARiStnPreparationTempSv					:=ARiStnPreparationTempSv					;
+dsXMLPersistentAnalog.fbChillerSystemTempControl				:=fbChillerSystemTempControl				;
+dsXMLPersistentAnalog.rChillerSystemAnalogInputFineTuneRatio	:=rChillerSystemAnalogInputFineTuneRatio	;
+dsXMLPersistentAnalog.rChillerSystemTempHYSsv					:=rChillerSystemTempHYSsv					;
+dsXMLPersistentAnalog.rChillerSystemTempHALsv					:=rChillerSystemTempHALsv					;
+dsXMLPersistentAnalog.rChillerSystemTempSV						:=rChillerSystemTempSV					    ;
+dsXMLPersistentAnalog.rChillerSystemTempRDYsv					:=rChillerSystemTempRDYsv					;
+dsXMLPersistentAnalog.rChillerSystemTemp1stLimitSv				:=rChillerSystemTemp1stLimitSv			    ;
+dsXMLPersistentAnalog.rChillerSystemTemp2ndLimitSv				:=rChillerSystemTemp2ndLimitSv			    ;
+dsXMLPersistentAnalog.iChillerSystemPreparationTempSv			:=iChillerSystemPreparationTempSv			;
+dsXMLPersistentAnalog.ARrStnChillerValueTempSetpoint			:=ARrStnChillerValueTempSetpoint			;
+dsXMLPersistentAnalog.fbTemperatureParaRecipe					:=fbTemperatureParaRecipe					;
+dsXMLPersistentAnalog.DSTempCtrlParameter_Min 					:=DSTempCtrlParameter_Min 				    ;
+dsXMLPersistentAnalog.DSTempCtrlParameter_Max 					:=DSTempCtrlParameter_Max 				    ;
+dsXMLPersistentAnalog.HMI_DSTempCtrlParameter_Input 			:=HMI_DSTempCtrlParameter_Input 			;
+dsXMLPersistentAnalog.ARfbStnConductivity 						:=ARfbStnConductivity 					    ;
+dsXMLPersistentAnalog.ARrStnLowConductivitySv					:=ARrStnLowConductivitySv					;
+dsXMLPersistentAnalog.ARrStnHighConductivitySv					:=ARrStnHighConductivitySv				    ;
+dsXMLPersistentAnalog.ARrStnConductivity1stLimitSv				:=ARrStnConductivity1stLimitSv			    ;
+dsXMLPersistentAnalog.ARrStnConductivity2ndLimitSv				:=ARrStnConductivity2ndLimitSv			    ;
+dsXMLPersistentAnalog.bStnConductivityMaxLimitReach				:=bStnConductivityMaxLimitReach			    ;
+dsXMLPersistentAnalog.ARsConductivityMsgStatus					:=ARsConductivityMsgStatus				    ;
+dsXMLPersistentAnalog.ARfbStnFilterPressure 					:=ARfbStnFilterPressure 					;                                              
+dsXMLPersistentAnalog.ARrStnLowFilterPressureSv					:=ARrStnLowFilterPressureSv				    ;
+dsXMLPersistentAnalog.ARrStnHighFilterPressureSv				:=ARrStnHighFilterPressureSv				;
+dsXMLPersistentAnalog.ARrStnFilterPressure1stLimitSv			:=ARrStnFilterPressure1stLimitSv			;
+dsXMLPersistentAnalog.ARrStnFilterPressure2ndLimitSv			:=ARrStnFilterPressure2ndLimitSv			;                                                  
+dsXMLPersistentAnalog.ARfbIncFilterPressure						:=ARfbIncFilterPressure					    ;
+dsXMLPersistentAnalog.ARrIncLowFilterPressureSv					:=ARrIncLowFilterPressureSv				    ;
+dsXMLPersistentAnalog.ARrIncHighFilterPressureSv				:=ARrIncHighFilterPressureSv				;
+dsXMLPersistentAnalog.ARrIncFilterPressure1stLimitSv			:=ARrIncFilterPressure1stLimitSv			;
+dsXMLPersistentAnalog.ARrIncFilterPressure2ndLimitSv		    :=ARrIncFilterPressure2ndLimitSv		    ;
+dsXMLPersistentAnalog.DSClangGenerator 							:=DSClangGenerator 						    ;
+dsXMLPersistentAnalog.DSClangGenerator2 						:=DSClangGenerator2 						;
+dsXMLPersistentAnalog.iClangStepDelaySVns						:=iClangStepDelaySVns						;
+dsXMLPersistentAnalog.iClangStepDelaySVns2						:=iClangStepDelaySVns2					    ;
+dsXMLPersistentAnalog.iClangTolerance							:=iClangTolerance							;
+dsXMLPersistentAnalog.iUSTolerance								:=iUSTolerance							    ;
+dsXMLPersistentAnalog.ARlrUsMaxData_Watt						:=ARlrUsMaxData_Watt						;
+dsXMLPersistentAnalog.DSClangsonicGenerator 					:=DSClangsonicGenerator 					;
+dsXMLPersistentAnalog.DSClangsonicGenerator2 					:=DSClangsonicGenerator2 					;
+dsXMLPersistentAnalog.DSV2ModbusControl							:=DSV2ModbusControl						    ;
+dsXMLPersistentAnalog.DSV2ModbusControl2 						:=DSV2ModbusControl2 						;
+dsXMLPersistentAnalog.IStepDelaySVns							:=IStepDelaySVns							;
+dsXMLPersistentAnalog.IStepDelaySVns2							:=IStepDelaySVns2							;
+
+//Arm
+dsXMLPersistentArm.bEnableCallArmNo 				:=bEnableCallArmNo					;
+dsXMLPersistentArm.iCallArmNo 						:=iCallArmNo                        ;
+dsXMLPersistentArm.ARiVertArmPosOffset 				:=ARiVertArmPosOffset               ;
+dsXMLPersistentArm.bAgitationEn						:=bAgitationEn                      ;
+dsXMLPersistentArm.bArm2AgitationEn					:=bArm2AgitationEn                  ;
+dsXMLPersistentArm.ARsProductRecipeDescription		:=ARsProductRecipeDescription       ;
+dsXMLPersistentArm.DSHmiStationDisplayInfo 			:=DSHmiStationDisplayInfo           ;
+dsXMLPersistentArm.ARbStnSeqRepNoVisible			:=ARbStnSeqRepNoVisible             ;
+dsXMLPersistentArm.ARsStnProcessStatus 				:=ARsStnProcessStatus               ;
+dsXMLPersistentArm.DSA1fbPnpSequenceMemoryCall 		:=DSA1fbPnpSequenceMemoryCall       ;
+dsXMLPersistentArm.DSA1fbPnpSequenceMemoryStore 	:=DSA1fbPnpSequenceMemoryStore      ;
+dsXMLPersistentArm.DSA21UpDownPatternCall 			:=DSA21UpDownPatternCall            ;
+dsXMLPersistentArm.DSA21UpDownPatternStore 			:=DSA21UpDownPatternStore           ;
+dsXMLPersistentArm.DSA31ArmSpeedProfileCall 		:=DSA31ArmSpeedProfileCall          ;
+dsXMLPersistentArm.DSA31ArmSpeedProfileStore 		:=DSA31ArmSpeedProfileStore         ;
+dsXMLPersistentArm.DSHomingSetting 					:=DSHomingSetting                   ;
+dsXMLPersistentArm.ARDSArmCtrl 						:=ARDSArmCtrl                       ;
+dsXMLPersistentArm.DS4StepsMovement 				:=DS4StepsMovement                  ;
+dsXMLPersistentArm.DSManual4StepsMovement			:=DSManual4StepsMovement            ;
+dsXMLPersistentArm.ARlrArmVertFix_PosCfmTolerance	:=ARlrArmVertFix_PosCfmTolerance    ;     
+dsXMLPersistentArm.ARlrArmVertFix_2ndSpdRange		:=ARlrArmVertFix_2ndSpdRange        ; 
+dsXMLPersistentArm.ARlrArmHorzFix_PosCfmTolerance	:=ARlrArmHorzFix_PosCfmTolerance    ;     
+dsXMLPersistentArm.ARlrArmHorzFix_2ndSpdRange		:=ARlrArmHorzFix_2ndSpdRange        ; 
+dsXMLPersistentArm.ARrArmVertJogPercent				:=ARrArmVertJogPercent              ;
+dsXMLPersistentArm.ARrArmVertJogAcc					:=ARrArmVertJogAcc                  ;
+dsXMLPersistentArm.ARrArmVertJogDcc					:=ARrArmVertJogDcc				    ;     
+dsXMLPersistentArm.ARrArmHorzJogPercent				:=ARrArmHorzJogPercent			    ;     
+dsXMLPersistentArm.ARrArmHorzJogAcc					:=ARrArmHorzJogAcc				    ;     
+dsXMLPersistentArm.ARrArmHorzJogDcc					:=ARrArmHorzJogDcc				    ;     
+dsXMLPersistentArm.ARlrArmSlowPullJogVelo			:=ARlrArmSlowPullJogVelo		    ;     
+dsXMLPersistentArm.ARlrArmSlowPullJogAcc			:=ARlrArmSlowPullJogAcc		        ; 
+dsXMLPersistentArm.ARlrArmSlowPullJogDcc			:=ARlrArmSlowPullJogDcc		        ; 
+dsXMLPersistentArm.ARrVertHomeDccDelayTimeSec		:=ARrVertHomeDccDelayTimeSec	    ;     
+dsXMLPersistentArm.ARrHorzHomeDccDelayTimeSec		:=ARrHorzHomeDccDelayTimeSec	    ;     
+dsXMLPersistentArm.ARrArmVertHome1stPercent			:=ARrArmVertHome1stPercent		    ;     
+dsXMLPersistentArm.ARrArmVertHome1stPercentAcc		:=ARrArmVertHome1stPercentAcc	    ;     
+dsXMLPersistentArm.ARrArmVertHome1stPercentDcc		:=ARrArmVertHome1stPercentDcc	    ;     
+dsXMLPersistentArm.ARrArmVertHome2ndPercent			:=ARrArmVertHome2ndPercent		    ;     
+dsXMLPersistentArm.ARrArmVertHome2ndPercentAcc		:=ARrArmVertHome2ndPercentAcc	    ;     
+dsXMLPersistentArm.ARrArmVertHome2ndPercentDcc		:=ARrArmVertHome2ndPercentDcc	    ;     
+dsXMLPersistentArm.ARrArmHorzHome1stPercent			:=ARrArmHorzHome1stPercent		    ;     
+dsXMLPersistentArm.ARrArmHorzHome1stPercentAcc		:=ARrArmHorzHome1stPercentAcc	    ;     
+dsXMLPersistentArm.ARrArmHorzHome1stPercentDcc		:=ARrArmHorzHome1stPercentDcc	    ;     
+dsXMLPersistentArm.ARrArmHorzHome2ndPercent			:=ARrArmHorzHome2ndPercent		    ;     
+dsXMLPersistentArm.ARrArmHorzHome2ndPercentAcc		:=ARrArmHorzHome2ndPercentAcc	    ;     
+dsXMLPersistentArm.ARrArmHorzHome2ndPercentDcc		:=ARrArmHorzHome2ndPercentDcc	    ;     
+dsXMLPersistentArm.ARlrArmHorzStartPoint 			:=ARlrArmHorzStartPoint 		    ;     
+dsXMLPersistentArm.ARlrArmHorzEndPoint 				:=ARlrArmHorzEndPoint 			    ;     
+dsXMLPersistentArm.ARiArmCurrentHorzZoneNo 			:=ARiArmCurrentHorzZoneNo 		    ;     
+dsXMLPersistentArm.ARbArmInvalidListingErr			:=ARbArmInvalidListingErr		    ;     
+dsXMLPersistentArm.ARlrLdHorzCentrePoint 			:=ARlrLdHorzCentrePoint 		    ;     
+dsXMLPersistentArm.ARlrStnHorzCentrePoint 			:=ARlrStnHorzCentrePoint 		    ;     
+dsXMLPersistentArm.ARlrUldHorzCentrePoint 			:=ARlrUldHorzCentrePoint 		    ;     
+dsXMLPersistentArm.ARbLdHorzZoneConfirm 			:=ARbLdHorzZoneConfirm 		        ; 
+dsXMLPersistentArm.ARbArm1HorzStnZoneConfirm 		:=ARbArm1HorzStnZoneConfirm 	    ;     
+dsXMLPersistentArm.ARbUldHorzZoneConfirm 			:=ARbUldHorzZoneConfirm 		    ;     
+dsXMLPersistentArm.ARiArm1HorzListing 				:=ARiArm1HorzListing 			    ;     
+dsXMLPersistentArm.ARrVertPos_In_TargetSpdHz		:=ARrVertPos_In_TargetSpdHz	        ; 
+dsXMLPersistentArm.ARrVertPos_In_2ndSpdHz			:=ARrVertPos_In_2ndSpdHz		    ;     
+dsXMLPersistentArm.ARrHorzPos_In_TargetSpdHz		:=ARrHorzPos_In_TargetSpdHz	        ; 
+dsXMLPersistentArm.ARrHorzPos_In_2ndSpdHz			:=ARrHorzPos_In_2ndSpdHz		    ;     
+dsXMLPersistentArm.ARlrVertPos_In_HighSpeed 		:=ARlrVertPos_In_HighSpeed 	        ; 
+dsXMLPersistentArm.ARlrVertPos_In_Acc				:=ARlrVertPos_In_Acc			    ;     
+dsXMLPersistentArm.ARlrVertPos_In_Dcc				:=ARlrVertPos_In_Dcc			    ;     
+dsXMLPersistentArm.ARlrHorzPos_In_HighSpeed 		:=ARlrHorzPos_In_HighSpeed 	        ; 
+dsXMLPersistentArm.ARlrHorzPos_In_Acc				:=ARlrHorzPos_In_Acc			    ;     
+dsXMLPersistentArm.ARlrHorzPos_In_Dcc				:=ARlrHorzPos_In_Dcc			    ;     
+dsXMLPersistentArm.DS_ArmLifterPosition				:=DS_ArmLifterPosition			    ;     
+dsXMLPersistentArm.DSArm1VertConfig					:=DSArm1VertConfig				    ;     
+dsXMLPersistentArm.DSArm1HorzConfig					:=DSArm1HorzConfig				    ;     
+dsXMLPersistentArm.DSArm2VertConfig					:=DSArm2VertConfig				    ;     
+dsXMLPersistentArm.DSArm2HorzConfig					:=DSArm2HorzConfig				    ;     
+dsXMLPersistentArm.bArmPickLd 						:=bArmPickLd 					    ;     
+dsXMLPersistentArm.bArmPickUld 						:=bArmPickUld 					    ;     
+dsXMLPersistentArm.ARbArmPickStn 					:=ARbArmPickStn 				    ;     
+dsXMLPersistentArm.bArmTransferLd 					:=bArmTransferLd 				    ;     
+dsXMLPersistentArm.bArmTransferUld 					:=bArmTransferUld 				    ;     
+dsXMLPersistentArm.ARbArmTransferStn 				:=ARbArmTransferStn 			    ;     
+dsXMLPersistentArm.lrAngleRatio 					:=lrAngleRatio 				        ; 
+dsXMLPersistentArm.bHMIArmSimulateEN 				:=bHMIArmSimulateEN 			    ;     
+dsXMLPersistentArm.iInterval_ms 					:=iInterval_ms 				        ; 
+dsXMLPersistentArm.lrMaxSimulateNo 					:=lrMaxSimulateNo 				    ;     
+dsXMLPersistentArm.lrSimulateHorzXPos				:=lrSimulateHorzXPos			    ;     
+dsXMLPersistentArm.lrSimulateVertYPos				:=lrSimulateVertYPos			    ;     
+dsXMLPersistentArm.ARbPnPStart						:=ARbPnPStart					    ;     
+dsXMLPersistentArm.ARiPickStnNo						:=ARiPickStnNo					    ;     
+dsXMLPersistentArm.ARiTransferStnNo					:=ARiTransferStnNo				    ;     
+dsXMLPersistentArm.ARbArmReset						:=ARbArmReset					    ;     
+dsXMLPersistentArm.ARbDownPickCondition				:=ARbDownPickCondition			    ;     
+dsXMLPersistentArm.ARbDownTransferCondition			:=ARbDownTransferCondition		    ;     
+dsXMLPersistentArm.ARbPickMidDownStnEn				:=ARbPickMidDownStnEn			    ;     
+dsXMLPersistentArm.ARbTransferMidDownStnEn			:=ARbTransferMidDownStnEn		    ;     
+dsXMLPersistentArm.ARiStationDippingTime			:=ARiStationDippingTime		        ; 
+dsXMLPersistentArm.ARiStepDelayTime					:=ARiStepDelayTime				    ;     
+dsXMLPersistentArm.ARbArmPnPCompleted				:=ARbArmPnPCompleted			    ;     
+dsXMLPersistentArm.ARbPnPbusy						:=ARbPnPbusy					    ;     
+dsXMLPersistentArm.bMoveTop							:=bMoveTop						    ;     
+dsXMLPersistentArm.ARbMoveLdDown					:=ARbMoveLdDown				        ; 
+dsXMLPersistentArm.ARbMoveUldDown					:=ARbMoveUldDown				    ;     
+dsXMLPersistentArm.ARbMoveStnMidDown 				:=ARbMoveStnMidDown 			    ;     
+dsXMLPersistentArm.ARbMoveStnDown					:=ARbMoveStnDown				    ;     
+dsXMLPersistentArm.ARbMoveLdHook					:=ARbMoveLdHook				        ; 
+dsXMLPersistentArm.ARbMoveLdUnhook					:=ARbMoveLdUnhook				    ;     
+dsXMLPersistentArm.ARbMoveStnHook					:=ARbMoveStnHook				    ;     
+dsXMLPersistentArm.ARbMoveStnUnhook					:=ARbMoveStnUnhook				    ;     
+dsXMLPersistentArm.ARbMoveUldHook					:=ARbMoveUldHook				    ;     
+dsXMLPersistentArm.ARbMoveUldUnhook					:=ARbMoveUldUnhook				    ;     
+dsXMLPersistentArm.iArm1PnpStep						:=iArm1PnpStep					    ;     
+dsXMLPersistentArm.tStepDelayTimeEV					:=tStepDelayTimeEV				    ;     
+dsXMLPersistentArm.iStationDrippingTimeEV			:=iStationDrippingTimeEV		    ;     
+dsXMLPersistentArm.sStatusMessage					:=sStatusMessage				    ;     
+
+
+//Barcode
+dsXMLPersistentBarcode.ARsProgramDescrip						:=ARsProgramDescrip						;
+dsXMLPersistentBarcode.ARsBarcodeOutput						    :=ARsBarcodeOutput						    ;                                      
+dsXMLPersistentBarcode.ARsBarcodeBatch							:=ARsBarcodeBatch							;
+dsXMLPersistentBarcode.ARsBarcodeJob							:=ARsBarcodeJob							;
+dsXMLPersistentBarcode.ilengthElimater							:=ilengthElimater							;
+dsXMLPersistentBarcode.bBarcodeBypass							:=bBarcodeBypass							;
+dsXMLPersistentBarcode.bBarcodeEnable 							:=bBarcodeEnable 							;
+dsXMLPersistentBarcode.DsAr1sG_BarcodeRegistration 			    :=DsAr1sG_BarcodeRegistration 			    ;
+dsXMLPersistentBarcode.bBarcodeReceiveStringRst				    :=bBarcodeReceiveStringRst				    ;
+dsXMLPersistentBarcode.sBarcodeScannerReceivedCmdForReg		    :=sBarcodeScannerReceivedCmdForReg		    ;
+dsXMLPersistentBarcode.fbG_BarcodeScanner						:=fbG_BarcodeScanner						;
+dsXMLPersistentBarcode.arProgramDescrip1						:=arProgramDescrip1						;
+dsXMLPersistentBarcode.fbG_V3StringEliminator 					:=fbG_V3StringEliminator 					;
+dsXMLPersistentBarcode.bStringEliminatorEn						:=bStringEliminatorEn						;
+dsXMLPersistentBarcode.iCharEliminateQty 						:=iCharEliminateQty 						;
+dsXMLPersistentBarcode.iCharNeededQty							:=iCharNeededQty							;
+dsXMLPersistentBarcode.fbG_V1BarcodeRegistration 				:=fbG_V1BarcodeRegistration 				;
+//dsXMLPersistentBarcode.fbG_V3BarcodeTracer 					    :=fbG_V3BarcodeTracer 					    ;
+dsXMLPersistentBarcode.bTracerEn								:=bTracerEn								;
+dsXMLPersistentBarcode.fbG_V3BarcodeRegSectionDisplayController :=fbG_V3BarcodeRegSectionDisplayController ;
+dsXMLPersistentBarcode.DsAr1sG_BarcodeRegSectionDisplayHMI 	    :=DsAr1sG_BarcodeRegSectionDisplayHMI 	    ;
+dsXMLPersistentBarcode.iAr1sG_BarcodeRegNoSectionDisplayHMI 	:=iAr1sG_BarcodeRegNoSectionDisplayHMI 	;
+dsXMLPersistentBarcode.bBarcodeRegEn 							:=bBarcodeRegEn 							;
+
+
+//Deactivate
+dsXMLPersistentDeactivate.DE10100:=DE10100;
+dsXMLPersistentDeactivate.DE10101:=DE10101;
+dsXMLPersistentDeactivate.DE10102:=DE10102;
+dsXMLPersistentDeactivate.DE10103:=DE10103;
+dsXMLPersistentDeactivate.DE10104:=DE10104;
+dsXMLPersistentDeactivate.DE10105:=DE10105;
+dsXMLPersistentDeactivate.DE10106:=DE10106;
+dsXMLPersistentDeactivate.DE10107:=DE10107;
+dsXMLPersistentDeactivate.DE10108:=DE10108;
+dsXMLPersistentDeactivate.DE10109:=DE10109;
+dsXMLPersistentDeactivate.DE10110:=DE10110;
+dsXMLPersistentDeactivate.DE10111:=DE10111;
+dsXMLPersistentDeactivate.DE10112:=DE10112;
+dsXMLPersistentDeactivate.DE10113:=DE10113;
+dsXMLPersistentDeactivate.DE10114:=DE10114;
+dsXMLPersistentDeactivate.DE10115:=DE10115;
+dsXMLPersistentDeactivate.DE10200:=DE10200;
+dsXMLPersistentDeactivate.DE10201:=DE10201;
+dsXMLPersistentDeactivate.DE10202:=DE10202;
+dsXMLPersistentDeactivate.DE10203:=DE10203;
+dsXMLPersistentDeactivate.DE10204:=DE10204;
+dsXMLPersistentDeactivate.DE10205:=DE10205;
+dsXMLPersistentDeactivate.DE10206:=DE10206;
+dsXMLPersistentDeactivate.DE10207:=DE10207;
+dsXMLPersistentDeactivate.DE10208:=DE10208;
+dsXMLPersistentDeactivate.DE10209:=DE10209;
+dsXMLPersistentDeactivate.DE10210:=DE10210;
+dsXMLPersistentDeactivate.DE10211:=DE10211;
+dsXMLPersistentDeactivate.DE10300:=DE10300;
+dsXMLPersistentDeactivate.DE11100:=DE11100;
+dsXMLPersistentDeactivate.DE11101:=DE11101;
+dsXMLPersistentDeactivate.DE11102:=DE11102;
+dsXMLPersistentDeactivate.DE11103:=DE11103;
+dsXMLPersistentDeactivate.DE12000:=DE12000;
+dsXMLPersistentDeactivate.DE12001:=DE12001;
+dsXMLPersistentDeactivate.DE12002:=DE12002;
+dsXMLPersistentDeactivate.DE12003:=DE12003;
+
+//Digital
+dsXMLPersistentDigital.ARbArmMissHookByPass1:=ARbArmMissHookByPass1;
+dsXMLPersistentDigital.ARbArmMissHookByPass2:=ARbArmMissHookByPass2;
+dsXMLPersistentDigital.ARbConductivityBypass:=ARbConductivityBypass;
+dsXMLPersistentDigital.ARbFilterPressureBypass:=ARbFilterPressureBypass;
+dsXMLPersistentDigital.bSafetyDoorSensorBypass:=bSafetyDoorSensorBypass;
+dsXMLPersistentDigital.ARlrArmDetectZoneRange:=ARlrArmDetectZoneRange;
+dsXMLPersistentDigital.ARlrArmStnDetectZoneRange:=ARlrArmStnDetectZoneRange;
+dsXMLPersistentDigital.ARiArmDeactDetectZoneRange:=ARiArmDeactDetectZoneRange;
+dsXMLPersistentDigital.ARbArmMisshook1Alarm:=ARbArmMisshook1Alarm;
+dsXMLPersistentDigital.ARbArmMisshook2Alarm:=ARbArmMisshook2Alarm;
+dsXMLPersistentDigital.ARbStationFunctionBypass:=ARbStationFunctionBypass;
+dsXMLPersistentDigital.bStnLiftoutMechanismBypass:=bStnLiftoutMechanismBypass;
+dsXMLPersistentDigital.bBuzzerDisable:=bBuzzerDisable;
+dsXMLPersistentDigital.bUnloadingBuzzerDisable:=bUnloadingBuzzerDisable;
+
+
+//Memory
+
+dsXMLPersistentMemory.fbLdBasketMemory				:=fbLdBasketMemory				;
+dsXMLPersistentMemory.fbA1StationBasketMemory		:=fbA1StationBasketMemory		;
+dsXMLPersistentMemory.fbA2StationBasketMemory		:=fbA2StationBasketMemory		;
+dsXMLPersistentMemory.fbUldBasketMemory				:=fbUldBasketMemory				;
+dsXMLPersistentMemory.DSLdBasketInfoConfirm 		:=DSLdBasketInfoConfirm 		;
+dsXMLPersistentMemory.DSLdBasketInfoTransfer 		:=DSLdBasketInfoTransfer 		;
+dsXMLPersistentMemory.DSUldBasketInfoConfirm 		:=DSUldBasketInfoConfirm 		;
+dsXMLPersistentMemory.DSUldBasketInfoTransfer 		:=DSUldBasketInfoTransfer 		;
+dsXMLPersistentMemory.DSStnBasketInfo				:=DSStnBasketInfo				;
+dsXMLPersistentMemory.DSArmBasketInfo 				:=DSArmBasketInfo 				;
+dsXMLPersistentMemory.AR2sDSCv_LdConfirmBasketInfo 	:=AR2sDSCv_LdConfirmBasketInfo 	;
+dsXMLPersistentMemory.AR2sDSCv_LdTransferBasketInfo :=AR2sDSCv_LdTransferBasketInfo ;
+dsXMLPersistentMemory.AR2sDSCv_UldConfirmBasketInfo :=AR2sDSCv_UldConfirmBasketInfo ;
+dsXMLPersistentMemory.AR2sDSCv_UldTransferBasketInfo:=AR2sDSCv_UldTransferBasketInfo;
+dsXMLPersistentMemory.LdDSStationSSERStore			:=LdDSStationSSERStore			;
+dsXMLPersistentMemory.LdDSStationSSURStore 			:=LdDSStationSSURStore 			;
+dsXMLPersistentMemory.LdDSStationSSERCall			:=LdDSStationSSERCall			;
+dsXMLPersistentMemory.LdDSStationSSURCall 			:=LdDSStationSSURCall 			;
+dsXMLPersistentMemory.ARDsStnSeqProInput 			:=ARDsStnSeqProInput 			;
+dsXMLPersistentMemory.ARDSStnSeqProOutput 			:=ARDSStnSeqProOutput 			;
+dsXMLPersistentMemory.AR10DSStationSSERStore		:=AR10DSStationSSERStore		;
+dsXMLPersistentMemory.AR10DSStationSSERCall			:=AR10DSStationSSERCall			;
+dsXMLPersistentMemory.AR10DSStationSSURStore 		:=AR10DSStationSSURStore 		;
+dsXMLPersistentMemory.AR10DSStationSSURCall 		:=AR10DSStationSSURCall 		;
+dsXMLPersistentMemory.fbMainStationProcess_Stn		:=fbMainStationProcess_Stn		;
+dsXMLPersistentMemory.ARDsStnSeqProcessCtrl 		:=ARDsStnSeqProcessCtrl 		;
+dsXMLPersistentMemory.ARbProductRecipeCallEn 		:=ARbProductRecipeCallEn 		;
+dsXMLPersistentMemory.ARiProductRecipeNoCall 		:=ARiProductRecipeNoCall 		;
+dsXMLPersistentMemory.ARiProductRecipeStepCall 		:=ARiProductRecipeStepCall 		;
+dsXMLPersistentMemory.DSfbGnrProductRecipeMemoryOut :=DSfbGnrProductRecipeMemoryOut ;
+dsXMLPersistentMemory.ARiStnNoToCalledArm			:=ARiStnNoToCalledArm			;
+dsXMLPersistentMemory.ARDSGnrFeedArmPnpParameter	:=ARDSGnrFeedArmPnpParameter	;
+dsXMLPersistentMemory.ARbArmReady					:=ARbArmReady					;
+dsXMLPersistentMemory.ARbStationProcessCompletedFlag:=ARbStationProcessCompletedFlag;
+dsXMLPersistentMemory.ARiCurrentHorzStnNo			:=ARiCurrentHorzStnNo			;
+dsXMLPersistentMemory.ARi1StepPatternNo				:=ARi1StepPatternNo				;
+dsXMLPersistentMemory.ARDs1StepUpDownMovement		:=ARDs1StepUpDownMovement		;
+dsXMLPersistentMemory.ARi4StepPatternNo				:=ARi4StepPatternNo				;
+dsXMLPersistentMemory.ARDs4StepUpDownMovement		:=ARDs4StepUpDownMovement		;
+dsXMLPersistentMemory.ARDSLdZoneHeight 				:=ARDSLdZoneHeight 				;
+dsXMLPersistentMemory.ARDSStationZoneHeight 		:=ARDSStationZoneHeight 		;
+dsXMLPersistentMemory.ARDSUldZoneHeight 			:=ARDSUldZoneHeight 			;
+dsXMLPersistentMemory.ARDSLdZonePosOut				:=ARDSLdZonePosOut				;
+dsXMLPersistentMemory.ARDSStationZonePosOut 		:=ARDSStationZonePosOut 		;
+dsXMLPersistentMemory.ARDSUldZonePosOut 			:=ARDSUldZonePosOut 			;
+dsXMLPersistentMemory.ARDsSSERSourceMinMaxTime_Uni	:=ARDsSSERSourceMinMaxTime_Uni	;
+dsXMLPersistentMemory.ARDsStnMinMaxEffTimeDisplay	:=ARDsStnMinMaxEffTimeDisplay	;
+dsXMLPersistentMemory.DSV2MTBMinMaxEffTime 			:=DSV2MTBMinMaxEffTime 			;
+
+//Process
+dsXMLPersistentProcess.ARDSProminentDosingHMI 					:=ARDSProminentDosingHMI 					;
+dsXMLPersistentProcess.ARfbProminentDosingCtrl					:=ARfbProminentDosingCtrl					;
+dsXMLPersistentProcess.ARiStnPulseOnTime_ms						:=ARiStnPulseOnTime_ms						;
+dsXMLPersistentProcess.ARiStnPulseOffTime_ms 					:=ARiStnPulseOffTime_ms 					;
+dsXMLPersistentProcess.ARiStnPumpFeedbackPulseInputFilter_ms 	:=ARiStnPumpFeedbackPulseInputFilter_ms 	;
+dsXMLPersistentProcess.ARiStnPumpHealthCheckPulseSV 			:=ARiStnPumpHealthCheckPulseSV 			    ;
+dsXMLPersistentProcess.ARrLdIndexPBDelayTimeSV_Sec 				:=ARrLdIndexPBDelayTimeSV_Sec 				;
+dsXMLPersistentProcess.ARrLdRapidPBDelayTimeSV_Sec 				:=ARrLdRapidPBDelayTimeSV_Sec 				;
+dsXMLPersistentProcess.ARrLdIndexConfirmDelayTimeSV_Sec 		:=ARrLdIndexConfirmDelayTimeSV_Sec 		    ;
+dsXMLPersistentProcess.ARrLdEndZoneDelayTimeSV_Sec 				:=ARrLdEndZoneDelayTimeSV_Sec 				;
+dsXMLPersistentProcess.ARrUldIndexPBDelayTimeSV_Sec 			:=ARrUldIndexPBDelayTimeSV_Sec 			    ;
+dsXMLPersistentProcess.ARrUldRapidPBDelayTimeSV_Sec 			:=ARrUldRapidPBDelayTimeSV_Sec 			    ;
+dsXMLPersistentProcess.ARrUldIndexConfirmDelayTimeSV_Sec 		:=ARrUldIndexConfirmDelayTimeSV_Sec 		;
+dsXMLPersistentProcess.ARrUldEndZoneDelayTimeSV_Sec 			:=ARrUldEndZoneDelayTimeSV_Sec 			    ;
+dsXMLPersistentProcess.diUnloadingTimer							:=diUnloadingTimer							;
+dsXMLPersistentProcess.iUldBasketDelayPushTimerSV_sec			:=iUldBasketDelayPushTimerSV_sec			;
+dsXMLPersistentProcess.iUldBasketDelayPushTimeCountDown			:=iUldBasketDelayPushTimeCountDown			;
+dsXMLPersistentProcess.diLdReturnConvMotorDelayOffTimer			:=diLdReturnConvMotorDelayOffTimer			;
+dsXMLPersistentProcess.diUldReturnConvMotorDelayOffTimer		:=diUldReturnConvMotorDelayOffTimer		    ;
+dsXMLPersistentProcess.rLdConveyorPos1ConfirmDelayTimeSV_Sec 	:=rLdConveyorPos1ConfirmDelayTimeSV_Sec 	;
+dsXMLPersistentProcess.rLdConveyorPos2ConfirmDelayTimeSV_Sec 	:=rLdConveyorPos2ConfirmDelayTimeSV_Sec 	;
+dsXMLPersistentProcess.rLdConveyorPos3ConfirmDelayTimeSV_Sec 	:=rLdConveyorPos3ConfirmDelayTimeSV_Sec 	;
+dsXMLPersistentProcess.rLdConveyorPos4ConfirmDelayTimeSV_Sec 	:=rLdConveyorPos4ConfirmDelayTimeSV_Sec 	;
+dsXMLPersistentProcess.rLdConveyorPos1ConfirmDelayOnTimeSV_Sec 	:=rLdConveyorPos1ConfirmDelayOnTimeSV_Sec 	;
+dsXMLPersistentProcess.rLdConveyorPos2ConfirmDelayOnTimeSV_Sec 	:=rLdConveyorPos2ConfirmDelayOnTimeSV_Sec 	;
+dsXMLPersistentProcess.rLdConveyorPos3ConfirmDelayOnTimeSV_Sec 	:=rLdConveyorPos3ConfirmDelayOnTimeSV_Sec 	;
+dsXMLPersistentProcess.rLdConveyorPos4ConfirmDelayOnTimeSV_Sec 	:=rLdConveyorPos4ConfirmDelayOnTimeSV_Sec 	;
+dsXMLPersistentProcess.rUldConveyorPos1ConfirmDelayTimeSV_Sec 	:=rUldConveyorPos1ConfirmDelayTimeSV_Sec 	;
+dsXMLPersistentProcess.rUldConveyorPos2ConfirmDelayTimeSV_Sec 	:=rUldConveyorPos2ConfirmDelayTimeSV_Sec 	;
+dsXMLPersistentProcess.rUldConveyorPos3ConfirmDelayTimeSV_Sec 	:=rUldConveyorPos3ConfirmDelayTimeSV_Sec 	;
+dsXMLPersistentProcess.rUldConveyorPos4ConfirmDelayTimeSV_Sec 	:=rUldConveyorPos4ConfirmDelayTimeSV_Sec 	;
+dsXMLPersistentProcess.rUldConveyorPos1ConfirmDelayOnTimeSV_Sec :=rUldConveyorPos1ConfirmDelayOnTimeSV_Sec  ;
+dsXMLPersistentProcess.rUldConveyorPos2ConfirmDelayOnTimeSV_Sec :=rUldConveyorPos2ConfirmDelayOnTimeSV_Sec  ;
+dsXMLPersistentProcess.rUldConveyorPos3ConfirmDelayOnTimeSV_Sec :=rUldConveyorPos3ConfirmDelayOnTimeSV_Sec  ;
+dsXMLPersistentProcess.rUldConveyorPos4ConfirmDelayOnTimeSV_Sec :=rUldConveyorPos4ConfirmDelayOnTimeSV_Sec  ;
+dsXMLPersistentProcess.ARiStnToleranceTimeSV					:=ARiStnToleranceTimeSV					    ;
+dsXMLPersistentProcess.ARiArmToleranceTimeSV					:=ARiArmToleranceTimeSV					    ;
+dsXMLPersistentProcess.ARbRecipeSelectedFlag					:=ARbRecipeSelectedFlag					    ;
+dsXMLPersistentProcess.ARbOptionSelectedAutoTopupFlag			:=ARbOptionSelectedAutoTopupFlag			;
+dsXMLPersistentProcess.ARbOptionSelectedRecipeFlag				:=ARbOptionSelectedRecipeFlag				;
+dsXMLPersistentProcess.tAllStnArmTake							:=tAllStnArmTake							;
+dsXMLPersistentProcess.ARiStnDippingTimeSV						:=ARiStnDippingTimeSV						;
+dsXMLPersistentProcess.iFFUDelayOffTimerSV_min					:=iFFUDelayOffTimerSV_min					;
+dsXMLPersistentProcess.iStnAgitation1DelayOffTimerSV_min		:=iStnAgitation1DelayOffTimerSV_min		    ;
+dsXMLPersistentProcess.iStnAgitation2DelayOffTimerSV_min		:=iStnAgitation2DelayOffTimerSV_min		    ;
+dsXMLPersistentProcess.iAllTankLowLevelDelayTimeSV 				:=iAllTankLowLevelDelayTimeSV 				;
+dsXMLPersistentProcess.ARiStnTopUpDelayOffTimeSV				:=ARiStnTopUpDelayOffTimeSV				    ;
+dsXMLPersistentProcess.ARiStnSubTankTopUpDelayOffTimeSV			:=ARiStnSubTankTopUpDelayOffTimeSV			;
+dsXMLPersistentProcess.ARiStnTopUpMaxTimeCutOffSV				:=ARiStnTopUpMaxTimeCutOffSV				;
+dsXMLPersistentProcess.iVacuumDrainSV							:=iVacuumDrainSV							;
+dsXMLPersistentProcess.bBasketPushBasedTimer					:=bBasketPushBasedTimer					    ;
+dsXMLPersistentProcess.ARbIncomingDIValveBasedDetergent			:=ARbIncomingDIValveBasedDetergent			;
+dsXMLPersistentProcess.iCylinderBasketBackDelayTimeSV			:=iCylinderBasketBackDelayTimeSV			;
+dsXMLPersistentProcess.iCylinderBasketFrontDelayTimeSV			:=iCylinderBasketFrontDelayTimeSV			;
+dsXMLPersistentProcess.iStn3PumpHzSV							:=iStn3PumpHzSV							    ;
+
+//Seven day
+dsXMLPersistentSevenDay.TodayDay 		  	:=TodayDay 		  	;
+dsXMLPersistentSevenDay.ArbDayOnEn_IN		:=ArbDayOnEn_IN		;
+dsXMLPersistentSevenDay.ArbDayOffEn_IN		:=ArbDayOffEn_IN	;
+dsXMLPersistentSevenDay.ArwDayOnHour_IN		:=ArwDayOnHour_IN	;
+dsXMLPersistentSevenDay.ArwDayOnMinute_IN	:=ArwDayOnMinute_IN	;
+dsXMLPersistentSevenDay.ArwDayOffHour_IN	:=ArwDayOffHour_IN	;
+dsXMLPersistentSevenDay.ArwDayOffMinute_IN	:=ArwDayOffMinute_IN;
+dsXMLPersistentSevenDay.ArbDaySysOn_OUT		:=ArbDaySysOn_OUT	;
+dsXMLPersistentSevenDay.ArbDaySysOff_OUT	:=ArbDaySysOff_OUT	;
+
+//Time Optimize
+dsXMLPersistentTimeOptimize.bTimeOptimizeDisable					 :=bTimeOptimizeDisable					      ;
+dsXMLPersistentTimeOptimize.ARiCalledTotalProcessTimeStn1			 :=ARiCalledTotalProcessTimeStn1			  ;
+dsXMLPersistentTimeOptimize.ARiCalledTotalProcessTimeStn2			 :=ARiCalledTotalProcessTimeStn2			  ;
+dsXMLPersistentTimeOptimize.ARiCalledTotalProcessTimeStn3			 :=ARiCalledTotalProcessTimeStn3			  ;
+dsXMLPersistentTimeOptimize.ARiCalledTotalProcessTimeStn4			 :=ARiCalledTotalProcessTimeStn4			  ;
+dsXMLPersistentTimeOptimize.ARiCalledTotalProcessTimeStn5			 :=ARiCalledTotalProcessTimeStn5			  ;
+dsXMLPersistentTimeOptimize.ARiCalledTotalProcessTimeStn6			 :=ARiCalledTotalProcessTimeStn6			  ;
+dsXMLPersistentTimeOptimize.ARiCalledTotalProcessTimeStn7			 :=ARiCalledTotalProcessTimeStn7			  ;
+dsXMLPersistentTimeOptimize.ARiCalledTotalProcessTimeStn8			 :=ARiCalledTotalProcessTimeStn8			  ;
+dsXMLPersistentTimeOptimize.ARiCalledTotalProcessTimeStn9			 :=ARiCalledTotalProcessTimeStn9			  ;
+dsXMLPersistentTimeOptimize.ARiCalledTotalProcessTimeStn10			 :=ARiCalledTotalProcessTimeStn10			  ;
+dsXMLPersistentTimeOptimize.bMTBStartEN 							 :=bMTBStartEN 							      ;
+dsXMLPersistentTimeOptimize.bMTBScanEN								 :=bMTBScanEN								  ;
+dsXMLPersistentTimeOptimize.bMTBWriteEN 							 :=bMTBWriteEN 							      ;
+dsXMLPersistentTimeOptimize.bMTBResetEN 							 :=bMTBResetEN 							      ;
+dsXMLPersistentTimeOptimize.bMTBScanCompletedFlag					 :=bMTBScanCompletedFlag					  ;
+dsXMLPersistentTimeOptimize.bMTBWriteDoneFlag 						 :=bMTBWriteDoneFlag 						  ;
+dsXMLPersistentTimeOptimize.bMTBResetDoneFlag 						 :=bMTBResetDoneFlag 						  ;
+dsXMLPersistentTimeOptimize.bMTBWriteArmDataError 					 :=bMTBWriteArmDataError 					  ;
+dsXMLPersistentTimeOptimize.bMTBWriteStnDataError					 :=bMTBWriteStnDataError					  ;
+dsXMLPersistentTimeOptimize.bMTBWriteUldDataError					 :=bMTBWriteUldDataError					  ;
+dsXMLPersistentTimeOptimize.bMTBNoAvailableSlotError 				 :=bMTBNoAvailableSlotError 				  ;
+dsXMLPersistentTimeOptimize.bMTBArmIDAndStnIDAndUldIDNotFound		 :=bMTBArmIDAndStnIDAndUldIDNotFound		  ;
+dsXMLPersistentTimeOptimize.bMTBWriteDisable						 :=bMTBWriteDisable						      ;
+dsXMLPersistentTimeOptimize.bMTBWriteRetry							 :=bMTBWriteRetry							  ;
+dsXMLPersistentTimeOptimize.bMTBWriteExecuteError					 :=bMTBWriteExecuteError					  ;
+dsXMLPersistentTimeOptimize.iMTBNextTransferScanCounter				 :=iMTBNextTransferScanCounter				  ;
+dsXMLPersistentTimeOptimize.iMTBNextNotAvailableScanCounter			 :=iMTBNextNotAvailableScanCounter			  ;
+dsXMLPersistentTimeOptimize.iMTBNextTransferTime					 :=iMTBNextTransferTime					      ;
+dsXMLPersistentTimeOptimize.iMTBNextNotAvailableTime				 :=iMTBNextNotAvailableTime				      ;
+dsXMLPersistentTimeOptimize.fbV2TimeBlockSimulatorG2_Main			 :=fbV2TimeBlockSimulatorG2_Main			  ;
+dsXMLPersistentTimeOptimize.bSimulateTSEN							 :=bSimulateTSEN							  ;
+dsXMLPersistentTimeOptimize.bSimulateCompletedFlag					 :=bSimulateCompletedFlag					  ;
+dsXMLPersistentTimeOptimize.iSimulatePercentage						 :=iSimulatePercentage						  ;
+dsXMLPersistentTimeOptimize.bSimNoSpaceForArmDataToFill				 :=bSimNoSpaceForArmDataToFill				  ;
+dsXMLPersistentTimeOptimize.bSimNoSpaceForStnDataToFill				 :=bSimNoSpaceForStnDataToFill				  ;
+dsXMLPersistentTimeOptimize.bSimArmIDAndStnIDNotFound				 :=bSimArmIDAndStnIDNotFound				  ;
+dsXMLPersistentTimeOptimize.iSimulatedBasketQty						 :=iSimulatedBasketQty						  ;
+dsXMLPersistentTimeOptimize.iSimMasterTotalTime						 :=iSimMasterTotalTime						  ;
+dsXMLPersistentTimeOptimize.iSimAvarageTimeSec						 :=iSimAvarageTimeSec						  ;
+dsXMLPersistentTimeOptimize.rSimBasketQtyPerHour					 :=rSimBasketQtyPerHour					      ;
+dsXMLPersistentTimeOptimize.DSTimeTrackerInput						 :=DSTimeTrackerInput						  ;
+dsXMLPersistentTimeOptimize.bTrackerStartEN							 :=bTrackerStartEN							  ;
+dsXMLPersistentTimeOptimize.iCallRecipeTimeBlock_ProductRecipeNo 	 :=iCallRecipeTimeBlock_ProductRecipeNo 	  ;
+dsXMLPersistentTimeOptimize.iSimulatorProductRecipeNo				 :=iSimulatorProductRecipeNo				  ;
+dsXMLPersistentTimeOptimize.iUserDefineProductRecipeNo				 :=iUserDefineProductRecipeNo				  ;
+dsXMLPersistentTimeOptimize.iTrackerProductRecipeNo 				 :=iTrackerProductRecipeNo 				      ;
+dsXMLPersistentTimeOptimize.iDisplayUserDefineProductRecipeNo		 :=iDisplayUserDefineProductRecipeNo		  ;
+dsXMLPersistentTimeOptimize.bTrackerCompleted 						 :=bTrackerCompleted 						  ;
+dsXMLPersistentTimeOptimize.bNoUldStnIDErr							 :=bNoUldStnIDErr							  ;
+dsXMLPersistentTimeOptimize.bInvalidCallRecipeTimeBlockNo			 :=bInvalidCallRecipeTimeBlockNo			  ;
+dsXMLPersistentTimeOptimize.bCallRTB_NoTrackerInfo					 :=bCallRTB_NoTrackerInfo					  ;
+dsXMLPersistentTimeOptimize.bCallRTB_CallOK 						 :=bCallRTB_CallOK 						      ;
+dsXMLPersistentTimeOptimize.bCallModeError							 :=bCallModeError							  ;
+dsXMLPersistentTimeOptimize.iMTBScanCompleteDelayOnTime_ms			 :=iMTBScanCompleteDelayOnTime_ms			  ;
+dsXMLPersistentTimeOptimize.iMTBWriteRetryQty						 :=iMTBWriteRetryQty						  ;
+dsXMLPersistentTimeOptimize.iMTBWriteRetryDelayTimeSec				 :=iMTBWriteRetryDelayTimeSec				  ;
+dsXMLPersistentTimeOptimize.AR3SiMasterTimeBlockArm_MTB		 		 :=AR3SiMasterTimeBlockArm_MTB		 		  ;
+dsXMLPersistentTimeOptimize.AR3SiMasterTimeBlockStn_MTB				 :=AR3SiMasterTimeBlockStn_MTB				  ;
+dsXMLPersistentTimeOptimize.AR3SiMasterTimeBlockUld_MTB				 :=AR3SiMasterTimeBlockUld_MTB				  ;
+dsXMLPersistentTimeOptimize.ARbMTBArmProgress						 :=ARbMTBArmProgress						  ;
+dsXMLPersistentTimeOptimize.AR3SiMasterTimeBlockArm_Simulator 		 :=AR3SiMasterTimeBlockArm_Simulator 		  ;
+dsXMLPersistentTimeOptimize.AR3SiMasterTimeBlockStn_Simulator		 :=AR3SiMasterTimeBlockStn_Simulator		  ;
+dsXMLPersistentTimeOptimize.ARiSimBasketTimeStamp 					 :=ARiSimBasketTimeStamp 					  ;
+dsXMLPersistentTimeOptimize.fbV2FBPTimeTrackerG3_Main				 :=fbV2FBPTimeTrackerG3_Main				  ;
+dsXMLPersistentTimeOptimize.bTrackerReset 							 :=bTrackerReset 							  ;
+dsXMLPersistentTimeOptimize.ARbReset 								 :=ARbReset 								  ;
+dsXMLPersistentTimeOptimize.ARbArmSt 								 :=ARbArmSt 								  ;
+dsXMLPersistentTimeOptimize.iCountFilterTime_Sec 					 :=iCountFilterTime_Sec 					  ;
+dsXMLPersistentTimeOptimize.AR2SiBufferRecipeTimeBlock 				 :=AR2SiBufferRecipeTimeBlock 				  ;
+dsXMLPersistentTimeOptimize.ARbBusyLinkUpStnEn 						 :=ARbBusyLinkUpStnEn 						  ;
+dsXMLPersistentTimeOptimize.AR2siStnBusyLinkUpStn 					 :=AR2siStnBusyLinkUpStn 					  ;
+dsXMLPersistentTimeOptimize.AR2SiCalledRecipeTimeBlockNoCallArmTime  :=AR2SiCalledRecipeTimeBlockNoCallArmTime    ;
+dsXMLPersistentTimeOptimize.AR2SiCalledRecipeTimeBlockWithCallArmTime:=AR2SiCalledRecipeTimeBlockWithCallArmTime  ;
+dsXMLPersistentTimeOptimize.ARbProductRecipeTimeBlockAvailable		 :=ARbProductRecipeTimeBlockAvailable		  ;
+dsXMLPersistentTimeOptimize.AR2SiArmRunningTime						 :=AR2SiArmRunningTime						  ;
+dsXMLPersistentTimeOptimize.ARiStnRunningTime					   	 :=ARiStnRunningTime					   	  ;
+dsXMLPersistentTimeOptimize.ARiArmID								 :=ARiArmID								      ;
+dsXMLPersistentTimeOptimize.ARbAlternateStnEn 						 :=ARbAlternateStnEn 						  ;
+dsXMLPersistentTimeOptimize.AR2siAlternateStn 						 :=AR2siAlternateStn 						  ;
+
+
+bWriteXmlEnd:=TRUE;
+
+END_IF
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//Data structure push into persistent variable
+
+IF (bRead_Done AND NOT bReadXmlComplete )OR bsfq THEN
+// Insert DS mapping here
+//Analog
+ARfbStnTempControl						:=dsXMLPersistentAnalog.ARfbStnTempControl							;
+ARrAnalogInputFineTuneRatio				:=dsXMLPersistentAnalog.ARrAnalogInputFineTuneRatio			        ;
+ARrStnTempHYSsv							:=dsXMLPersistentAnalog.ARrStnTempHYSsv						        ;
+ARrStnTempHALsv							:=dsXMLPersistentAnalog.ARrStnTempHALsv						        ;
+ARrStnTempSV							:=dsXMLPersistentAnalog.ARrStnTempSV							    ;
+ARrStnTempRDYsv							:=dsXMLPersistentAnalog.ARrStnTempRDYsv						        ;
+ARrStnTemp1stLimitSv					:=dsXMLPersistentAnalog.ARrStnTemp1stLimitSv					    ;
+ARrStnTemp2ndLimitSv					:=dsXMLPersistentAnalog.ARrStnTemp2ndLimitSv					    ;
+ARiStnPreparationTempSv					:=dsXMLPersistentAnalog.ARiStnPreparationTempSv				        ;
+fbChillerSystemTempControl				:=dsXMLPersistentAnalog.fbChillerSystemTempControl			        ;
+rChillerSystemAnalogInputFineTuneRatio	:=dsXMLPersistentAnalog.rChillerSystemAnalogInputFineTuneRatio      ;
+rChillerSystemTempHYSsv					:=dsXMLPersistentAnalog.rChillerSystemTempHYSsv				        ;
+rChillerSystemTempHALsv					:=dsXMLPersistentAnalog.rChillerSystemTempHALsv				        ;
+rChillerSystemTempSV					:=dsXMLPersistentAnalog.rChillerSystemTempSV					    ;
+rChillerSystemTempRDYsv					:=dsXMLPersistentAnalog.rChillerSystemTempRDYsv				        ;
+rChillerSystemTemp1stLimitSv			:=dsXMLPersistentAnalog.rChillerSystemTemp1stLimitSv			    ;
+rChillerSystemTemp2ndLimitSv			:=dsXMLPersistentAnalog.rChillerSystemTemp2ndLimitSv			    ;
+iChillerSystemPreparationTempSv			:=dsXMLPersistentAnalog.iChillerSystemPreparationTempSv		        ;
+ARrStnChillerValueTempSetpoint			:=dsXMLPersistentAnalog.ARrStnChillerValueTempSetpoint		        ;
+fbTemperatureParaRecipe					:=dsXMLPersistentAnalog.fbTemperatureParaRecipe				        ;
+DSTempCtrlParameter_Min 				:=dsXMLPersistentAnalog.DSTempCtrlParameter_Min 				    ;
+DSTempCtrlParameter_Max 				:=dsXMLPersistentAnalog.DSTempCtrlParameter_Max 				    ;
+HMI_DSTempCtrlParameter_Input 			:=dsXMLPersistentAnalog.HMI_DSTempCtrlParameter_Input 		        ;
+ARfbStnConductivity 					:=dsXMLPersistentAnalog.ARfbStnConductivity 					    ;
+ARrStnLowConductivitySv					:=dsXMLPersistentAnalog.ARrStnLowConductivitySv				        ;
+ARrStnHighConductivitySv				:=dsXMLPersistentAnalog.ARrStnHighConductivitySv				    ;
+ARrStnConductivity1stLimitSv			:=dsXMLPersistentAnalog.ARrStnConductivity1stLimitSv			    ;
+ARrStnConductivity2ndLimitSv			:=dsXMLPersistentAnalog.ARrStnConductivity2ndLimitSv			    ;
+bStnConductivityMaxLimitReach			:=dsXMLPersistentAnalog.bStnConductivityMaxLimitReach			    ;
+ARsConductivityMsgStatus				:=dsXMLPersistentAnalog.ARsConductivityMsgStatus				    ;
+ARfbStnFilterPressure 					:=dsXMLPersistentAnalog.ARfbStnFilterPressure 				        ;
+ARrStnLowFilterPressureSv				:=dsXMLPersistentAnalog.ARrStnLowFilterPressureSv				    ;
+ARrStnHighFilterPressureSv				:=dsXMLPersistentAnalog.ARrStnHighFilterPressureSv			        ;
+ARrStnFilterPressure1stLimitSv			:=dsXMLPersistentAnalog.ARrStnFilterPressure1stLimitSv		        ;
+ARrStnFilterPressure2ndLimitSv			:=dsXMLPersistentAnalog.ARrStnFilterPressure2ndLimitSv		        ;
+ARfbIncFilterPressure					:=dsXMLPersistentAnalog.ARfbIncFilterPressure					    ;
+ARrIncLowFilterPressureSv				:=dsXMLPersistentAnalog.ARrIncLowFilterPressureSv				    ;
+ARrIncHighFilterPressureSv				:=dsXMLPersistentAnalog.ARrIncHighFilterPressureSv			        ;
+ARrIncFilterPressure1stLimitSv			:=dsXMLPersistentAnalog.ARrIncFilterPressure1stLimitSv		        ;
+ARrIncFilterPressure2ndLimitSv		    :=dsXMLPersistentAnalog.ARrIncFilterPressure2ndLimitSv		        ;
+DSClangGenerator 						:=dsXMLPersistentAnalog.DSClangGenerator 						    ;
+DSClangGenerator2 						:=dsXMLPersistentAnalog.DSClangGenerator2 					        ;
+iClangStepDelaySVns						:=dsXMLPersistentAnalog.iClangStepDelaySVns					        ;
+iClangStepDelaySVns2					:=dsXMLPersistentAnalog.iClangStepDelaySVns2					    ;
+iClangTolerance							:=dsXMLPersistentAnalog.iClangTolerance						        ;
+iUSTolerance							:=dsXMLPersistentAnalog.iUSTolerance							    ;
+ARlrUsMaxData_Watt						:=dsXMLPersistentAnalog.ARlrUsMaxData_Watt					        ;
+DSClangsonicGenerator 					:=dsXMLPersistentAnalog.DSClangsonicGenerator 				        ;
+DSClangsonicGenerator2 					:=dsXMLPersistentAnalog.DSClangsonicGenerator2 				        ;
+DSV2ModbusControl						:=dsXMLPersistentAnalog.DSV2ModbusControl						    ;
+DSV2ModbusControl2 						:=dsXMLPersistentAnalog.DSV2ModbusControl2 					        ;
+IStepDelaySVns							:=dsXMLPersistentAnalog.IStepDelaySVns						        ;
+IStepDelaySVns2							:=dsXMLPersistentAnalog.IStepDelaySVns2						        ;	
+
+//Arm
+bEnableCallArmNo					:=dsXMLPersistentArm.bEnableCallArmNo 					;
+iCallArmNo                          :=dsXMLPersistentArm.iCallArmNo 						;
+ARiVertArmPosOffset                 :=dsXMLPersistentArm.ARiVertArmPosOffset 				;
+bAgitationEn                        :=dsXMLPersistentArm.bAgitationEn						;
+bArm2AgitationEn                    :=dsXMLPersistentArm.bArm2AgitationEn					;
+ARsProductRecipeDescription         :=dsXMLPersistentArm.ARsProductRecipeDescription		;
+DSHmiStationDisplayInfo             :=dsXMLPersistentArm.DSHmiStationDisplayInfo 			;
+ARbStnSeqRepNoVisible               :=dsXMLPersistentArm.ARbStnSeqRepNoVisible			    ;
+ARsStnProcessStatus                 :=dsXMLPersistentArm.ARsStnProcessStatus 				;
+DSA1fbPnpSequenceMemoryCall         :=dsXMLPersistentArm.DSA1fbPnpSequenceMemoryCall 		;
+DSA1fbPnpSequenceMemoryStore        :=dsXMLPersistentArm.DSA1fbPnpSequenceMemoryStore 	    ;
+DSA21UpDownPatternCall              :=dsXMLPersistentArm.DSA21UpDownPatternCall 			;
+DSA21UpDownPatternStore             :=dsXMLPersistentArm.DSA21UpDownPatternStore 			;
+DSA31ArmSpeedProfileCall            :=dsXMLPersistentArm.DSA31ArmSpeedProfileCall 		    ;
+DSA31ArmSpeedProfileStore           :=dsXMLPersistentArm.DSA31ArmSpeedProfileStore 		    ;
+DSHomingSetting                     :=dsXMLPersistentArm.DSHomingSetting 					;
+ARDSArmCtrl                         :=dsXMLPersistentArm.ARDSArmCtrl 						;
+DS4StepsMovement                    :=dsXMLPersistentArm.DS4StepsMovement 				    ;
+DSManual4StepsMovement              :=dsXMLPersistentArm.DSManual4StepsMovement			    ;
+ARlrArmVertFix_PosCfmTolerance      :=dsXMLPersistentArm.ARlrArmVertFix_PosCfmTolerance	    ;
+ARlrArmVertFix_2ndSpdRange          :=dsXMLPersistentArm.ARlrArmVertFix_2ndSpdRange		    ;
+ARlrArmHorzFix_PosCfmTolerance      :=dsXMLPersistentArm.ARlrArmHorzFix_PosCfmTolerance	    ;
+ARlrArmHorzFix_2ndSpdRange          :=dsXMLPersistentArm.ARlrArmHorzFix_2ndSpdRange		    ;
+ARrArmVertJogPercent                :=dsXMLPersistentArm.ARrArmVertJogPercent				;
+ARrArmVertJogAcc                    :=dsXMLPersistentArm.ARrArmVertJogAcc					;
+ARrArmVertJogDcc				    :=dsXMLPersistentArm.ARrArmVertJogDcc					; 
+ARrArmHorzJogPercent			    :=dsXMLPersistentArm.ARrArmHorzJogPercent				; 
+ARrArmHorzJogAcc				    :=dsXMLPersistentArm.ARrArmHorzJogAcc					; 
+ARrArmHorzJogDcc				    :=dsXMLPersistentArm.ARrArmHorzJogDcc					; 
+ARlrArmSlowPullJogVelo		        :=dsXMLPersistentArm.ARlrArmSlowPullJogVelo			    ;
+ARlrArmSlowPullJogAcc		        :=dsXMLPersistentArm.ARlrArmSlowPullJogAcc			    ;
+ARlrArmSlowPullJogDcc		        :=dsXMLPersistentArm.ARlrArmSlowPullJogDcc			    ;
+ARrVertHomeDccDelayTimeSec	        :=dsXMLPersistentArm.ARrVertHomeDccDelayTimeSec		    ;
+ARrHorzHomeDccDelayTimeSec	        :=dsXMLPersistentArm.ARrHorzHomeDccDelayTimeSec		    ;
+ARrArmVertHome1stPercent		    :=dsXMLPersistentArm.ARrArmVertHome1stPercent			; 
+ARrArmVertHome1stPercentAcc	        :=dsXMLPersistentArm.ARrArmVertHome1stPercentAcc		;
+ARrArmVertHome1stPercentDcc	        :=dsXMLPersistentArm.ARrArmVertHome1stPercentDcc		;
+ARrArmVertHome2ndPercent		    :=dsXMLPersistentArm.ARrArmVertHome2ndPercent			; 
+ARrArmVertHome2ndPercentAcc	        :=dsXMLPersistentArm.ARrArmVertHome2ndPercentAcc		;
+ARrArmVertHome2ndPercentDcc	        :=dsXMLPersistentArm.ARrArmVertHome2ndPercentDcc		;
+ARrArmHorzHome1stPercent		    :=dsXMLPersistentArm.ARrArmHorzHome1stPercent			; 
+ARrArmHorzHome1stPercentAcc	        :=dsXMLPersistentArm.ARrArmHorzHome1stPercentAcc		;
+ARrArmHorzHome1stPercentDcc	        :=dsXMLPersistentArm.ARrArmHorzHome1stPercentDcc		;
+ARrArmHorzHome2ndPercent		    :=dsXMLPersistentArm.ARrArmHorzHome2ndPercent			; 
+ARrArmHorzHome2ndPercentAcc	        :=dsXMLPersistentArm.ARrArmHorzHome2ndPercentAcc		;
+ARrArmHorzHome2ndPercentDcc	        :=dsXMLPersistentArm.ARrArmHorzHome2ndPercentDcc		;
+ARlrArmHorzStartPoint 		        :=dsXMLPersistentArm.ARlrArmHorzStartPoint 			    ;
+ARlrArmHorzEndPoint 			    :=dsXMLPersistentArm.ARlrArmHorzEndPoint 				; 
+ARiArmCurrentHorzZoneNo 		    :=dsXMLPersistentArm.ARiArmCurrentHorzZoneNo 			; 
+ARbArmInvalidListingErr		        :=dsXMLPersistentArm.ARbArmInvalidListingErr			;
+ARlrLdHorzCentrePoint 		        :=dsXMLPersistentArm.ARlrLdHorzCentrePoint 			    ;
+ARlrStnHorzCentrePoint 		        :=dsXMLPersistentArm.ARlrStnHorzCentrePoint 			;
+ARlrUldHorzCentrePoint 		        :=dsXMLPersistentArm.ARlrUldHorzCentrePoint 			;
+ARbLdHorzZoneConfirm 		        :=dsXMLPersistentArm.ARbLdHorzZoneConfirm 			    ;
+ARbArm1HorzStnZoneConfirm 	        :=dsXMLPersistentArm.ARbArm1HorzStnZoneConfirm 		    ;
+ARbUldHorzZoneConfirm 		        :=dsXMLPersistentArm.ARbUldHorzZoneConfirm 			    ;
+ARiArm1HorzListing 			        :=dsXMLPersistentArm.ARiArm1HorzListing 				;
+ARrVertPos_In_TargetSpdHz	        :=dsXMLPersistentArm.ARrVertPos_In_TargetSpdHz		    ;
+ARrVertPos_In_2ndSpdHz		        :=dsXMLPersistentArm.ARrVertPos_In_2ndSpdHz			    ;
+ARrHorzPos_In_TargetSpdHz	        :=dsXMLPersistentArm.ARrHorzPos_In_TargetSpdHz		    ;
+ARrHorzPos_In_2ndSpdHz		        :=dsXMLPersistentArm.ARrHorzPos_In_2ndSpdHz			    ;
+ARlrVertPos_In_HighSpeed 	        :=dsXMLPersistentArm.ARlrVertPos_In_HighSpeed 		    ;
+ARlrVertPos_In_Acc			        :=dsXMLPersistentArm.ARlrVertPos_In_Acc				    ;
+ARlrVertPos_In_Dcc			        :=dsXMLPersistentArm.ARlrVertPos_In_Dcc				    ;
+ARlrHorzPos_In_HighSpeed 	        :=dsXMLPersistentArm.ARlrHorzPos_In_HighSpeed 		    ;
+ARlrHorzPos_In_Acc			        :=dsXMLPersistentArm.ARlrHorzPos_In_Acc				    ;
+ARlrHorzPos_In_Dcc			        :=dsXMLPersistentArm.ARlrHorzPos_In_Dcc				    ;
+DS_ArmLifterPosition			    :=dsXMLPersistentArm.DS_ArmLifterPosition				; 
+DSArm1VertConfig				    :=dsXMLPersistentArm.DSArm1VertConfig					; 
+DSArm1HorzConfig				    :=dsXMLPersistentArm.DSArm1HorzConfig					; 
+DSArm2VertConfig				    :=dsXMLPersistentArm.DSArm2VertConfig					; 
+DSArm2HorzConfig				    :=dsXMLPersistentArm.DSArm2HorzConfig					; 
+bArmPickLd 					        :=dsXMLPersistentArm.bArmPickLd 						;
+bArmPickUld 					    :=dsXMLPersistentArm.bArmPickUld 						; 
+ARbArmPickStn 				        :=dsXMLPersistentArm.ARbArmPickStn 					    ;
+bArmTransferLd 				        :=dsXMLPersistentArm.bArmTransferLd 					;
+bArmTransferUld 				    :=dsXMLPersistentArm.bArmTransferUld 					; 
+ARbArmTransferStn 			        :=dsXMLPersistentArm.ARbArmTransferStn 				    ;
+lrAngleRatio 				        :=dsXMLPersistentArm.lrAngleRatio 					    ;
+bHMIArmSimulateEN 			        :=dsXMLPersistentArm.bHMIArmSimulateEN 				    ;
+iInterval_ms 				        :=dsXMLPersistentArm.iInterval_ms 					    ;
+lrMaxSimulateNo 				    :=dsXMLPersistentArm.lrMaxSimulateNo 					; 
+lrSimulateHorzXPos			        :=dsXMLPersistentArm.lrSimulateHorzXPos				    ;
+lrSimulateVertYPos			        :=dsXMLPersistentArm.lrSimulateVertYPos				    ;
+ARbPnPStart					        :=dsXMLPersistentArm.ARbPnPStart						;
+ARiPickStnNo					    :=dsXMLPersistentArm.ARiPickStnNo						; 
+ARiTransferStnNo				    :=dsXMLPersistentArm.ARiTransferStnNo					; 
+ARbArmReset					        :=dsXMLPersistentArm.ARbArmReset						;
+ARbDownPickCondition			    :=dsXMLPersistentArm.ARbDownPickCondition				; 
+ARbDownTransferCondition		    :=dsXMLPersistentArm.ARbDownTransferCondition			; 
+ARbPickMidDownStnEn			        :=dsXMLPersistentArm.ARbPickMidDownStnEn				;
+ARbTransferMidDownStnEn		        :=dsXMLPersistentArm.ARbTransferMidDownStnEn			;
+ARiStationDippingTime		        :=dsXMLPersistentArm.ARiStationDippingTime			    ;
+ARiStepDelayTime				    :=dsXMLPersistentArm.ARiStepDelayTime					; 
+ARbArmPnPCompleted			        :=dsXMLPersistentArm.ARbArmPnPCompleted				    ;
+ARbPnPbusy					        :=dsXMLPersistentArm.ARbPnPbusy						    ;
+bMoveTop						    :=dsXMLPersistentArm.bMoveTop							; 
+ARbMoveLdDown				        :=dsXMLPersistentArm.ARbMoveLdDown					    ;
+ARbMoveUldDown				        :=dsXMLPersistentArm.ARbMoveUldDown					    ;
+ARbMoveStnMidDown 			        :=dsXMLPersistentArm.ARbMoveStnMidDown 				    ;
+ARbMoveStnDown				        :=dsXMLPersistentArm.ARbMoveStnDown					    ;
+ARbMoveLdHook				        :=dsXMLPersistentArm.ARbMoveLdHook					    ;
+ARbMoveLdUnhook				        :=dsXMLPersistentArm.ARbMoveLdUnhook					;
+ARbMoveStnHook				        :=dsXMLPersistentArm.ARbMoveStnHook					    ;
+ARbMoveStnUnhook				    :=dsXMLPersistentArm.ARbMoveStnUnhook					; 
+ARbMoveUldHook				        :=dsXMLPersistentArm.ARbMoveUldHook					    ;
+ARbMoveUldUnhook				    :=dsXMLPersistentArm.ARbMoveUldUnhook					; 
+iArm1PnpStep					    :=dsXMLPersistentArm.iArm1PnpStep						; 
+tStepDelayTimeEV				    :=dsXMLPersistentArm.tStepDelayTimeEV					; 
+iStationDrippingTimeEV		        :=dsXMLPersistentArm.iStationDrippingTimeEV			    ;
+sStatusMessage				        :=dsXMLPersistentArm.sStatusMessage					    ;
+
+
+//Barcode
+ARsProgramDescrip							:=dsXMLPersistentBarcode.ARsProgramDescrip								;
+ARsBarcodeOutput						    :=dsXMLPersistentBarcode.ARsBarcodeOutput						        ;                        
+ARsBarcodeBatch						        :=dsXMLPersistentBarcode.ARsBarcodeBatch							    ;
+ARsBarcodeJob							    :=dsXMLPersistentBarcode.ARsBarcodeJob							        ;
+ilengthElimater						        :=dsXMLPersistentBarcode.ilengthElimater							    ;
+bBarcodeBypass						        :=dsXMLPersistentBarcode.bBarcodeBypass							        ;
+bBarcodeEnable 						        :=dsXMLPersistentBarcode.bBarcodeEnable 							    ;
+DsAr1sG_BarcodeRegistration 			    :=dsXMLPersistentBarcode.DsAr1sG_BarcodeRegistration 			        ;
+bBarcodeReceiveStringRst				    :=dsXMLPersistentBarcode.bBarcodeReceiveStringRst				        ;
+sBarcodeScannerReceivedCmdForReg		    :=dsXMLPersistentBarcode.sBarcodeScannerReceivedCmdForReg		        ;
+fbG_BarcodeScanner					        :=dsXMLPersistentBarcode.fbG_BarcodeScanner						        ;
+arProgramDescrip1						    :=dsXMLPersistentBarcode.arProgramDescrip1						        ;
+fbG_V3StringEliminator 				        :=dsXMLPersistentBarcode.fbG_V3StringEliminator 					    ;
+bStringEliminatorEn					        :=dsXMLPersistentBarcode.bStringEliminatorEn						    ;
+iCharEliminateQty 					        :=dsXMLPersistentBarcode.iCharEliminateQty 						        ;
+iCharNeededQty						        :=dsXMLPersistentBarcode.iCharNeededQty							        ;
+fbG_V1BarcodeRegistration 			        :=dsXMLPersistentBarcode.fbG_V1BarcodeRegistration 					    ;
+bTracerEn								    :=dsXMLPersistentBarcode.bTracerEn								        ;
+fbG_V3BarcodeRegSectionDisplayController    :=dsXMLPersistentBarcode.fbG_V3BarcodeRegSectionDisplayController       ;
+DsAr1sG_BarcodeRegSectionDisplayHMI 	    :=dsXMLPersistentBarcode.DsAr1sG_BarcodeRegSectionDisplayHMI 	        ;
+iAr1sG_BarcodeRegNoSectionDisplayHMI 	    :=dsXMLPersistentBarcode.iAr1sG_BarcodeRegNoSectionDisplayHMI 	        ;
+bBarcodeRegEn 							    :=dsXMLPersistentBarcode.bBarcodeRegEn 							        ;
+
+
+//Deactivate
+DE10100:=dsXMLPersistentDeactivate.DE10100;
+DE10101:=dsXMLPersistentDeactivate.DE10101;
+DE10102:=dsXMLPersistentDeactivate.DE10102;
+DE10103:=dsXMLPersistentDeactivate.DE10103;
+DE10104:=dsXMLPersistentDeactivate.DE10104;
+DE10105:=dsXMLPersistentDeactivate.DE10105;
+DE10106:=dsXMLPersistentDeactivate.DE10106;
+DE10107:=dsXMLPersistentDeactivate.DE10107;
+DE10108:=dsXMLPersistentDeactivate.DE10108;
+DE10109:=dsXMLPersistentDeactivate.DE10109;
+DE10110:=dsXMLPersistentDeactivate.DE10110;
+DE10111:=dsXMLPersistentDeactivate.DE10111;
+DE10112:=dsXMLPersistentDeactivate.DE10112;
+DE10113:=dsXMLPersistentDeactivate.DE10113;
+DE10114:=dsXMLPersistentDeactivate.DE10114;
+DE10115:=dsXMLPersistentDeactivate.DE10115;
+DE10200:=dsXMLPersistentDeactivate.DE10200;
+DE10201:=dsXMLPersistentDeactivate.DE10201;
+DE10202:=dsXMLPersistentDeactivate.DE10202;
+DE10203:=dsXMLPersistentDeactivate.DE10203;
+DE10204:=dsXMLPersistentDeactivate.DE10204;
+DE10205:=dsXMLPersistentDeactivate.DE10205;
+DE10206:=dsXMLPersistentDeactivate.DE10206;
+DE10207:=dsXMLPersistentDeactivate.DE10207;
+DE10208:=dsXMLPersistentDeactivate.DE10208;
+DE10209:=dsXMLPersistentDeactivate.DE10209;
+DE10210:=dsXMLPersistentDeactivate.DE10210;
+DE10211:=dsXMLPersistentDeactivate.DE10211;
+DE10300:=dsXMLPersistentDeactivate.DE10300;
+DE11100:=dsXMLPersistentDeactivate.DE11100;
+DE11101:=dsXMLPersistentDeactivate.DE11101;
+DE11102:=dsXMLPersistentDeactivate.DE11102;
+DE11103:=dsXMLPersistentDeactivate.DE11103;
+DE12000:=dsXMLPersistentDeactivate.DE12000;
+DE12001:=dsXMLPersistentDeactivate.DE12001;
+DE12002:=dsXMLPersistentDeactivate.DE12002;
+DE12003:=dsXMLPersistentDeactivate.DE12003;
+
+//Digital
+ARbArmMissHookByPass1		:=dsXMLPersistentDigital.ARbArmMissHookByPass1		;
+ARbArmMissHookByPass2       :=dsXMLPersistentDigital.ARbArmMissHookByPass2      ;
+ARbConductivityBypass       :=dsXMLPersistentDigital.ARbConductivityBypass      ;
+ARbFilterPressureBypass     :=dsXMLPersistentDigital.ARbFilterPressureBypass    ;
+bSafetyDoorSensorBypass     :=dsXMLPersistentDigital.bSafetyDoorSensorBypass    ;
+ARlrArmDetectZoneRange      :=dsXMLPersistentDigital.ARlrArmDetectZoneRange     ;
+ARlrArmStnDetectZoneRange   :=dsXMLPersistentDigital.ARlrArmStnDetectZoneRange  ;
+ARiArmDeactDetectZoneRange  :=dsXMLPersistentDigital.ARiArmDeactDetectZoneRange ;
+ARbArmMisshook1Alarm        :=dsXMLPersistentDigital.ARbArmMisshook1Alarm       ;
+ARbArmMisshook2Alarm        :=dsXMLPersistentDigital.ARbArmMisshook2Alarm       ;
+ARbStationFunctionBypass    :=dsXMLPersistentDigital.ARbStationFunctionBypass   ;
+bStnLiftoutMechanismBypass  :=dsXMLPersistentDigital.bStnLiftoutMechanismBypass ;
+bBuzzerDisable              :=dsXMLPersistentDigital.bBuzzerDisable             ;
+bUnloadingBuzzerDisable     :=dsXMLPersistentDigital.bUnloadingBuzzerDisable    ;
+
+
+//Memory
+
+fbLdBasketMemory				:=dsXMLPersistentMemory.fbLdBasketMemory				;
+fbA1StationBasketMemory		    :=dsXMLPersistentMemory.fbA1StationBasketMemory		    ;
+fbA2StationBasketMemory		    :=dsXMLPersistentMemory.fbA2StationBasketMemory		    ;
+fbUldBasketMemory				:=dsXMLPersistentMemory.fbUldBasketMemory				;
+DSLdBasketInfoConfirm 		    :=dsXMLPersistentMemory.DSLdBasketInfoConfirm 		    ;
+DSLdBasketInfoTransfer 		    :=dsXMLPersistentMemory.DSLdBasketInfoTransfer 		    ;
+DSUldBasketInfoConfirm 		    :=dsXMLPersistentMemory.DSUldBasketInfoConfirm 		    ;
+DSUldBasketInfoTransfer 		:=dsXMLPersistentMemory.DSUldBasketInfoTransfer 		;
+DSStnBasketInfo				    :=dsXMLPersistentMemory.DSStnBasketInfo				    ;
+DSArmBasketInfo 				:=dsXMLPersistentMemory.DSArmBasketInfo 				;
+AR2sDSCv_LdConfirmBasketInfo 	:=dsXMLPersistentMemory.AR2sDSCv_LdConfirmBasketInfo 	;
+AR2sDSCv_LdTransferBasketInfo   :=dsXMLPersistentMemory.AR2sDSCv_LdTransferBasketInfo   ;
+AR2sDSCv_UldConfirmBasketInfo   :=dsXMLPersistentMemory.AR2sDSCv_UldConfirmBasketInfo   ;
+AR2sDSCv_UldTransferBasketInfo  :=dsXMLPersistentMemory.AR2sDSCv_UldTransferBasketInfo  ;
+LdDSStationSSERStore			:=dsXMLPersistentMemory.LdDSStationSSERStore			;
+LdDSStationSSURStore 			:=dsXMLPersistentMemory.LdDSStationSSURStore 			;
+LdDSStationSSERCall			    :=dsXMLPersistentMemory.LdDSStationSSERCall			    ;
+LdDSStationSSURCall 			:=dsXMLPersistentMemory.LdDSStationSSURCall 			;
+ARDsStnSeqProInput 			    :=dsXMLPersistentMemory.ARDsStnSeqProInput 			    ;
+ARDSStnSeqProOutput 			:=dsXMLPersistentMemory.ARDSStnSeqProOutput 			;
+AR10DSStationSSERStore		    :=dsXMLPersistentMemory.AR10DSStationSSERStore		    ;
+AR10DSStationSSERCall			:=dsXMLPersistentMemory.AR10DSStationSSERCall			;
+AR10DSStationSSURStore 		    :=dsXMLPersistentMemory.AR10DSStationSSURStore 		    ;
+AR10DSStationSSURCall 		    :=dsXMLPersistentMemory.AR10DSStationSSURCall 		    ;
+fbMainStationProcess_Stn		:=dsXMLPersistentMemory.fbMainStationProcess_Stn		;
+ARDsStnSeqProcessCtrl 		    :=dsXMLPersistentMemory.ARDsStnSeqProcessCtrl 		    ;
+ARbProductRecipeCallEn 		    :=dsXMLPersistentMemory.ARbProductRecipeCallEn 		    ;
+ARiProductRecipeNoCall 		    :=dsXMLPersistentMemory.ARiProductRecipeNoCall 		    ;
+ARiProductRecipeStepCall 		:=dsXMLPersistentMemory.ARiProductRecipeStepCall 		;
+DSfbGnrProductRecipeMemoryOut   :=dsXMLPersistentMemory.DSfbGnrProductRecipeMemoryOut   ;
+ARiStnNoToCalledArm			    :=dsXMLPersistentMemory.ARiStnNoToCalledArm			    ;
+ARDSGnrFeedArmPnpParameter	    :=dsXMLPersistentMemory.ARDSGnrFeedArmPnpParameter	    ;
+ARbArmReady					    :=dsXMLPersistentMemory.ARbArmReady					    ;
+ARbStationProcessCompletedFlag  :=dsXMLPersistentMemory.ARbStationProcessCompletedFlag  ;
+ARiCurrentHorzStnNo			    :=dsXMLPersistentMemory.ARiCurrentHorzStnNo			    ;
+ARi1StepPatternNo				:=dsXMLPersistentMemory.ARi1StepPatternNo				;
+ARDs1StepUpDownMovement		    :=dsXMLPersistentMemory.ARDs1StepUpDownMovement		    ;
+ARi4StepPatternNo				:=dsXMLPersistentMemory.ARi4StepPatternNo				;
+ARDs4StepUpDownMovement		    :=dsXMLPersistentMemory.ARDs4StepUpDownMovement		    ;
+ARDSLdZoneHeight 				:=dsXMLPersistentMemory.ARDSLdZoneHeight 				;
+ARDSStationZoneHeight 		    :=dsXMLPersistentMemory.ARDSStationZoneHeight 		    ;
+ARDSUldZoneHeight 			    :=dsXMLPersistentMemory.ARDSUldZoneHeight 			    ;
+ARDSLdZonePosOut				:=dsXMLPersistentMemory.ARDSLdZonePosOut				;
+ARDSStationZonePosOut 		    :=dsXMLPersistentMemory.ARDSStationZonePosOut 		    ;
+ARDSUldZonePosOut 			    :=dsXMLPersistentMemory.ARDSUldZonePosOut 			    ;
+ARDsSSERSourceMinMaxTime_Uni	:=dsXMLPersistentMemory.ARDsSSERSourceMinMaxTime_Uni	;
+ARDsStnMinMaxEffTimeDisplay	    :=dsXMLPersistentMemory.ARDsStnMinMaxEffTimeDisplay	    ;
+DSV2MTBMinMaxEffTime 			:=dsXMLPersistentMemory.DSV2MTBMinMaxEffTime 			;
+
+//Process
+ARDSProminentDosingHMI 					:=dsXMLPersistentProcess.ARDSProminentDosingHMI 					;
+ARfbProminentDosingCtrl					:=dsXMLPersistentProcess.ARfbProminentDosingCtrl					;
+ARiStnPulseOnTime_ms					:=dsXMLPersistentProcess.ARiStnPulseOnTime_ms						;
+ARiStnPulseOffTime_ms 					:=dsXMLPersistentProcess.ARiStnPulseOffTime_ms 					    ;
+ARiStnPumpFeedbackPulseInputFilter_ms 	:=dsXMLPersistentProcess.ARiStnPumpFeedbackPulseInputFilter_ms 	    ;
+ARiStnPumpHealthCheckPulseSV 			:=dsXMLPersistentProcess.ARiStnPumpHealthCheckPulseSV 			    ;
+ARrLdIndexPBDelayTimeSV_Sec 			:=dsXMLPersistentProcess.ARrLdIndexPBDelayTimeSV_Sec 				;
+ARrLdRapidPBDelayTimeSV_Sec 			:=dsXMLPersistentProcess.ARrLdRapidPBDelayTimeSV_Sec 				;
+ARrLdIndexConfirmDelayTimeSV_Sec 		:=dsXMLPersistentProcess.ARrLdIndexConfirmDelayTimeSV_Sec 		    ;
+ARrLdEndZoneDelayTimeSV_Sec 			:=dsXMLPersistentProcess.ARrLdEndZoneDelayTimeSV_Sec 				;
+ARrUldIndexPBDelayTimeSV_Sec 			:=dsXMLPersistentProcess.ARrUldIndexPBDelayTimeSV_Sec 			    ;
+ARrUldRapidPBDelayTimeSV_Sec 			:=dsXMLPersistentProcess.ARrUldRapidPBDelayTimeSV_Sec 			    ;
+ARrUldIndexConfirmDelayTimeSV_Sec 		:=dsXMLPersistentProcess.ARrUldIndexConfirmDelayTimeSV_Sec 		    ;
+ARrUldEndZoneDelayTimeSV_Sec 			:=dsXMLPersistentProcess.ARrUldEndZoneDelayTimeSV_Sec 			    ;
+diUnloadingTimer						:=dsXMLPersistentProcess.diUnloadingTimer							;
+iUldBasketDelayPushTimerSV_sec			:=dsXMLPersistentProcess.iUldBasketDelayPushTimerSV_sec			    ;
+iUldBasketDelayPushTimeCountDown		:=dsXMLPersistentProcess.iUldBasketDelayPushTimeCountDown			;
+diLdReturnConvMotorDelayOffTimer		:=dsXMLPersistentProcess.diLdReturnConvMotorDelayOffTimer			;
+diUldReturnConvMotorDelayOffTimer		:=dsXMLPersistentProcess.diUldReturnConvMotorDelayOffTimer		    ;
+rLdConveyorPos1ConfirmDelayTimeSV_Sec 	:=dsXMLPersistentProcess.rLdConveyorPos1ConfirmDelayTimeSV_Sec 	    ;
+rLdConveyorPos2ConfirmDelayTimeSV_Sec 	:=dsXMLPersistentProcess.rLdConveyorPos2ConfirmDelayTimeSV_Sec 	    ;
+rLdConveyorPos3ConfirmDelayTimeSV_Sec 	:=dsXMLPersistentProcess.rLdConveyorPos3ConfirmDelayTimeSV_Sec 	    ;
+rLdConveyorPos4ConfirmDelayTimeSV_Sec 	:=dsXMLPersistentProcess.rLdConveyorPos4ConfirmDelayTimeSV_Sec 	    ;
+rLdConveyorPos1ConfirmDelayOnTimeSV_Sec :=dsXMLPersistentProcess.rLdConveyorPos1ConfirmDelayOnTimeSV_Sec 	;
+rLdConveyorPos2ConfirmDelayOnTimeSV_Sec :=dsXMLPersistentProcess.rLdConveyorPos2ConfirmDelayOnTimeSV_Sec 	;
+rLdConveyorPos3ConfirmDelayOnTimeSV_Sec :=dsXMLPersistentProcess.rLdConveyorPos3ConfirmDelayOnTimeSV_Sec 	;
+rLdConveyorPos4ConfirmDelayOnTimeSV_Sec :=dsXMLPersistentProcess.rLdConveyorPos4ConfirmDelayOnTimeSV_Sec 	;
+rUldConveyorPos1ConfirmDelayTimeSV_Sec 	:=dsXMLPersistentProcess.rUldConveyorPos1ConfirmDelayTimeSV_Sec 	;
+rUldConveyorPos2ConfirmDelayTimeSV_Sec 	:=dsXMLPersistentProcess.rUldConveyorPos2ConfirmDelayTimeSV_Sec 	;
+rUldConveyorPos3ConfirmDelayTimeSV_Sec 	:=dsXMLPersistentProcess.rUldConveyorPos3ConfirmDelayTimeSV_Sec 	;
+rUldConveyorPos4ConfirmDelayTimeSV_Sec 	:=dsXMLPersistentProcess.rUldConveyorPos4ConfirmDelayTimeSV_Sec 	;
+rUldConveyorPos1ConfirmDelayOnTimeSV_Sec:=dsXMLPersistentProcess.rUldConveyorPos1ConfirmDelayOnTimeSV_Sec   ;
+rUldConveyorPos2ConfirmDelayOnTimeSV_Sec:=dsXMLPersistentProcess.rUldConveyorPos2ConfirmDelayOnTimeSV_Sec   ;
+rUldConveyorPos3ConfirmDelayOnTimeSV_Sec:=dsXMLPersistentProcess.rUldConveyorPos3ConfirmDelayOnTimeSV_Sec   ;
+rUldConveyorPos4ConfirmDelayOnTimeSV_Sec:=dsXMLPersistentProcess.rUldConveyorPos4ConfirmDelayOnTimeSV_Sec   ;
+ARiStnToleranceTimeSV					:=dsXMLPersistentProcess.ARiStnToleranceTimeSV					    ;
+ARiArmToleranceTimeSV					:=dsXMLPersistentProcess.ARiArmToleranceTimeSV					    ;
+ARbRecipeSelectedFlag					:=dsXMLPersistentProcess.ARbRecipeSelectedFlag					    ;
+ARbOptionSelectedAutoTopupFlag			:=dsXMLPersistentProcess.ARbOptionSelectedAutoTopupFlag			    ;
+ARbOptionSelectedRecipeFlag				:=dsXMLPersistentProcess.ARbOptionSelectedRecipeFlag				;
+tAllStnArmTake							:=dsXMLPersistentProcess.tAllStnArmTake							    ;
+ARiStnDippingTimeSV						:=dsXMLPersistentProcess.ARiStnDippingTimeSV						;
+iFFUDelayOffTimerSV_min					:=dsXMLPersistentProcess.iFFUDelayOffTimerSV_min					;
+iStnAgitation1DelayOffTimerSV_min		:=dsXMLPersistentProcess.iStnAgitation1DelayOffTimerSV_min		    ;
+iStnAgitation2DelayOffTimerSV_min		:=dsXMLPersistentProcess.iStnAgitation2DelayOffTimerSV_min		    ;
+iAllTankLowLevelDelayTimeSV 			:=dsXMLPersistentProcess.iAllTankLowLevelDelayTimeSV 				;
+ARiStnTopUpDelayOffTimeSV				:=dsXMLPersistentProcess.ARiStnTopUpDelayOffTimeSV				    ;
+ARiStnSubTankTopUpDelayOffTimeSV		:=dsXMLPersistentProcess.ARiStnSubTankTopUpDelayOffTimeSV			;
+ARiStnTopUpMaxTimeCutOffSV				:=dsXMLPersistentProcess.ARiStnTopUpMaxTimeCutOffSV				    ;
+iVacuumDrainSV							:=dsXMLPersistentProcess.iVacuumDrainSV							    ;
+bBasketPushBasedTimer					:=dsXMLPersistentProcess.bBasketPushBasedTimer					    ;
+ARbIncomingDIValveBasedDetergent		:=dsXMLPersistentProcess.ARbIncomingDIValveBasedDetergent			;
+iCylinderBasketBackDelayTimeSV			:=dsXMLPersistentProcess.iCylinderBasketBackDelayTimeSV			    ;
+iCylinderBasketFrontDelayTimeSV			:=dsXMLPersistentProcess.iCylinderBasketFrontDelayTimeSV			;
+iStn3PumpHzSV							:=dsXMLPersistentProcess.iStn3PumpHzSV							    ;
+
+//Seven day
+TodayDay 		    :=dsXMLPersistentSevenDay.TodayDay 		  	;
+ArbDayOnEn_IN		:=dsXMLPersistentSevenDay.ArbDayOnEn_IN		;
+ArbDayOffEn_IN	    :=dsXMLPersistentSevenDay.ArbDayOffEn_IN	;
+ArwDayOnHour_IN	    :=dsXMLPersistentSevenDay.ArwDayOnHour_IN	;
+ArwDayOnMinute_IN	:=dsXMLPersistentSevenDay.ArwDayOnMinute_IN	;
+ArwDayOffHour_IN	:=dsXMLPersistentSevenDay.ArwDayOffHour_IN	;
+ArwDayOffMinute_IN  :=dsXMLPersistentSevenDay.ArwDayOffMinute_IN;
+ArbDaySysOn_OUT	    :=dsXMLPersistentSevenDay.ArbDaySysOn_OUT	;
+ArbDaySysOff_OUT	:=dsXMLPersistentSevenDay.ArbDaySysOff_OUT	;
+
+//Time Optimize
+bTimeOptimizeDisable					  := dsXMLPersistentTimeOptimize.bTimeOptimizeDisable					 		;
+ARiCalledTotalProcessTimeStn1			  := dsXMLPersistentTimeOptimize.ARiCalledTotalProcessTimeStn1			        ;
+ARiCalledTotalProcessTimeStn2			  := dsXMLPersistentTimeOptimize.ARiCalledTotalProcessTimeStn2			        ;
+ARiCalledTotalProcessTimeStn3			  := dsXMLPersistentTimeOptimize.ARiCalledTotalProcessTimeStn3			        ;
+ARiCalledTotalProcessTimeStn4			  := dsXMLPersistentTimeOptimize.ARiCalledTotalProcessTimeStn4			        ;
+ARiCalledTotalProcessTimeStn5			  := dsXMLPersistentTimeOptimize.ARiCalledTotalProcessTimeStn5			        ;
+ARiCalledTotalProcessTimeStn6			  := dsXMLPersistentTimeOptimize.ARiCalledTotalProcessTimeStn6			        ;
+ARiCalledTotalProcessTimeStn7			  := dsXMLPersistentTimeOptimize.ARiCalledTotalProcessTimeStn7			        ;
+ARiCalledTotalProcessTimeStn8			  := dsXMLPersistentTimeOptimize.ARiCalledTotalProcessTimeStn8			        ;
+ARiCalledTotalProcessTimeStn9			  := dsXMLPersistentTimeOptimize.ARiCalledTotalProcessTimeStn9			        ;
+ARiCalledTotalProcessTimeStn10			  := dsXMLPersistentTimeOptimize.ARiCalledTotalProcessTimeStn10			        ;
+bMTBStartEN 							  := dsXMLPersistentTimeOptimize.bMTBStartEN 							        ;
+bMTBScanEN								  := dsXMLPersistentTimeOptimize.bMTBScanEN								        ;
+bMTBWriteEN 							  := dsXMLPersistentTimeOptimize.bMTBWriteEN 							        ;
+bMTBResetEN 							  := dsXMLPersistentTimeOptimize.bMTBResetEN 							        ;
+bMTBScanCompletedFlag					  := dsXMLPersistentTimeOptimize.bMTBScanCompletedFlag					        ;
+bMTBWriteDoneFlag 						  := dsXMLPersistentTimeOptimize.bMTBWriteDoneFlag 						        ;
+bMTBResetDoneFlag 						  := dsXMLPersistentTimeOptimize.bMTBResetDoneFlag 						        ;
+bMTBWriteArmDataError 					  := dsXMLPersistentTimeOptimize.bMTBWriteArmDataError 					        ;
+bMTBWriteStnDataError					  := dsXMLPersistentTimeOptimize.bMTBWriteStnDataError					        ;
+bMTBWriteUldDataError					  := dsXMLPersistentTimeOptimize.bMTBWriteUldDataError					        ;
+bMTBNoAvailableSlotError 				  := dsXMLPersistentTimeOptimize.bMTBNoAvailableSlotError 				        ;
+bMTBArmIDAndStnIDAndUldIDNotFound		  := dsXMLPersistentTimeOptimize.bMTBArmIDAndStnIDAndUldIDNotFound		        ;
+bMTBWriteDisable						  := dsXMLPersistentTimeOptimize.bMTBWriteDisable						        ;
+bMTBWriteRetry							  := dsXMLPersistentTimeOptimize.bMTBWriteRetry							        ;
+bMTBWriteExecuteError					  := dsXMLPersistentTimeOptimize.bMTBWriteExecuteError					        ;
+iMTBNextTransferScanCounter				  := dsXMLPersistentTimeOptimize.iMTBNextTransferScanCounter				    ;
+iMTBNextNotAvailableScanCounter			  := dsXMLPersistentTimeOptimize.iMTBNextNotAvailableScanCounter			    ;
+iMTBNextTransferTime					  := dsXMLPersistentTimeOptimize.iMTBNextTransferTime					        ;
+iMTBNextNotAvailableTime				  := dsXMLPersistentTimeOptimize.iMTBNextNotAvailableTime				        ;
+fbV2TimeBlockSimulatorG2_Main			  := dsXMLPersistentTimeOptimize.fbV2TimeBlockSimulatorG2_Main			        ;
+bSimulateTSEN							  := dsXMLPersistentTimeOptimize.bSimulateTSEN							        ;
+bSimulateCompletedFlag					  := dsXMLPersistentTimeOptimize.bSimulateCompletedFlag					        ;
+iSimulatePercentage						  := dsXMLPersistentTimeOptimize.iSimulatePercentage						    ;
+bSimNoSpaceForArmDataToFill				  := dsXMLPersistentTimeOptimize.bSimNoSpaceForArmDataToFill				    ;
+bSimNoSpaceForStnDataToFill				  := dsXMLPersistentTimeOptimize.bSimNoSpaceForStnDataToFill				    ;
+bSimArmIDAndStnIDNotFound				  := dsXMLPersistentTimeOptimize.bSimArmIDAndStnIDNotFound				        ;
+iSimulatedBasketQty						  := dsXMLPersistentTimeOptimize.iSimulatedBasketQty						    ;
+iSimMasterTotalTime						  := dsXMLPersistentTimeOptimize.iSimMasterTotalTime						    ;
+iSimAvarageTimeSec						  := dsXMLPersistentTimeOptimize.iSimAvarageTimeSec						        ;
+rSimBasketQtyPerHour					  := dsXMLPersistentTimeOptimize.rSimBasketQtyPerHour					        ;
+DSTimeTrackerInput						  := dsXMLPersistentTimeOptimize.DSTimeTrackerInput						        ;
+bTrackerStartEN							  := dsXMLPersistentTimeOptimize.bTrackerStartEN							    ;
+iCallRecipeTimeBlock_ProductRecipeNo 	  := dsXMLPersistentTimeOptimize.iCallRecipeTimeBlock_ProductRecipeNo 	        ;
+iSimulatorProductRecipeNo				  := dsXMLPersistentTimeOptimize.iSimulatorProductRecipeNo				        ;
+iUserDefineProductRecipeNo				  := dsXMLPersistentTimeOptimize.iUserDefineProductRecipeNo				        ;
+iTrackerProductRecipeNo 				  := dsXMLPersistentTimeOptimize.iTrackerProductRecipeNo 				        ;
+iDisplayUserDefineProductRecipeNo		  := dsXMLPersistentTimeOptimize.iDisplayUserDefineProductRecipeNo		        ;
+bTrackerCompleted 						  := dsXMLPersistentTimeOptimize.bTrackerCompleted 						        ;
+bNoUldStnIDErr							  := dsXMLPersistentTimeOptimize.bNoUldStnIDErr							        ;
+bInvalidCallRecipeTimeBlockNo			  := dsXMLPersistentTimeOptimize.bInvalidCallRecipeTimeBlockNo			        ;
+bCallRTB_NoTrackerInfo					  := dsXMLPersistentTimeOptimize.bCallRTB_NoTrackerInfo					        ;
+bCallRTB_CallOK 						  := dsXMLPersistentTimeOptimize.bCallRTB_CallOK 						        ;
+bCallModeError							  := dsXMLPersistentTimeOptimize.bCallModeError							        ;
+iMTBScanCompleteDelayOnTime_ms			  := dsXMLPersistentTimeOptimize.iMTBScanCompleteDelayOnTime_ms			        ;
+iMTBWriteRetryQty						  := dsXMLPersistentTimeOptimize.iMTBWriteRetryQty						        ;
+iMTBWriteRetryDelayTimeSec				  := dsXMLPersistentTimeOptimize.iMTBWriteRetryDelayTimeSec				        ;
+AR3SiMasterTimeBlockArm_MTB		 		  := dsXMLPersistentTimeOptimize.AR3SiMasterTimeBlockArm_MTB		 		    ;
+AR3SiMasterTimeBlockStn_MTB				  := dsXMLPersistentTimeOptimize.AR3SiMasterTimeBlockStn_MTB				    ;
+AR3SiMasterTimeBlockUld_MTB				  := dsXMLPersistentTimeOptimize.AR3SiMasterTimeBlockUld_MTB				    ;
+ARbMTBArmProgress						  := dsXMLPersistentTimeOptimize.ARbMTBArmProgress						        ;
+AR3SiMasterTimeBlockArm_Simulator 		  := dsXMLPersistentTimeOptimize.AR3SiMasterTimeBlockArm_Simulator 		        ;
+AR3SiMasterTimeBlockStn_Simulator		  := dsXMLPersistentTimeOptimize.AR3SiMasterTimeBlockStn_Simulator		        ;
+ARiSimBasketTimeStamp 					  := dsXMLPersistentTimeOptimize.ARiSimBasketTimeStamp 					        ;
+fbV2FBPTimeTrackerG3_Main				  := dsXMLPersistentTimeOptimize.fbV2FBPTimeTrackerG3_Main				        ;
+bTrackerReset 							  := dsXMLPersistentTimeOptimize.bTrackerReset 							        ;
+ARbReset 								  := dsXMLPersistentTimeOptimize.ARbReset 								        ;
+ARbArmSt 								  := dsXMLPersistentTimeOptimize.ARbArmSt 								        ;
+iCountFilterTime_Sec 					  := dsXMLPersistentTimeOptimize.iCountFilterTime_Sec 					        ;
+AR2SiBufferRecipeTimeBlock 				  := dsXMLPersistentTimeOptimize.AR2SiBufferRecipeTimeBlock 				    ;
+ARbBusyLinkUpStnEn 						  := dsXMLPersistentTimeOptimize.ARbBusyLinkUpStnEn 						    ;
+AR2siStnBusyLinkUpStn 					  := dsXMLPersistentTimeOptimize.AR2siStnBusyLinkUpStn 					        ;
+AR2SiCalledRecipeTimeBlockNoCallArmTime   := dsXMLPersistentTimeOptimize.AR2SiCalledRecipeTimeBlockNoCallArmTime        ;
+AR2SiCalledRecipeTimeBlockWithCallArmTime := dsXMLPersistentTimeOptimize.AR2SiCalledRecipeTimeBlockWithCallArmTime      ;
+ARbProductRecipeTimeBlockAvailable		  := dsXMLPersistentTimeOptimize.ARbProductRecipeTimeBlockAvailable		        ;
+AR2SiArmRunningTime						  := dsXMLPersistentTimeOptimize.AR2SiArmRunningTime						    ;
+ARiStnRunningTime					   	  := dsXMLPersistentTimeOptimize.ARiStnRunningTime					   	        ;
+ARiArmID								  := dsXMLPersistentTimeOptimize.ARiArmID								        ;
+ARbAlternateStnEn 						  := dsXMLPersistentTimeOptimize.ARbAlternateStnEn 						        ;
+AR2siAlternateStn 						  := dsXMLPersistentTimeOptimize.AR2siAlternateStn 						        ;
+
+	bReadXmlEnd:= TRUE;
+
+END_IF
+
+// Write Control
+	IF bWriteXmlEnd AND bWriteXmlEn  THEN
+		bWriteXMlSt:= TRUE;
+	END_IF
+	
+	IF bWriteXMlSt AND bWrite_Done THEN
+		bWriteXMlSt:=FALSE;
+		bWriteXmlEn:= FALSE;
+		bWriteXmlEnd:= FALSE;
+	END_IF
+	
+//Read Control
+	IF bReadXmlEnd   THEN
+		bReadXmlComplete:=TRUE;
+		bReadXmlEn:=FALSE;
+	END_IF
+
+// FB XML INITIALIZED
+	ARp_SymAddr[1]:=ADR(dsXMLPersistentAnalog);
+	ARp_SymAddr[2]:=ADR(dsXMLPersistentArm);
+	ARp_SymAddr[3]:=ADR(dsXMLPersistentBarcode);
+	ARp_SymAddr[4]:=ADR(dsXMLPersistentDeactivate);
+	ARp_SymAddr[5]:=ADR(dsXMLPersistentDigital);
+	ARp_SymAddr[6]:=ADR(dsXMLPersistentMemory);
+	ARp_SymAddr[7]:=ADR(dsXMLPersistentProcess);
+	ARp_SymAddr[8]:=ADR(dsXMLPersistentSevenDay);
+	ARp_SymAddr[9]:=ADR(dsXMLPersistentTimeOptimize);
+	
+	ARp_SymSize[1]:=SIZEOF(dsXMLPersistentAnalog);      
+	ARp_SymSize[2]:=SIZEOF(dsXMLPersistentArm);         
+	ARp_SymSize[3]:=SIZEOF(dsXMLPersistentBarcode);     
+	ARp_SymSize[4]:=SIZEOF(dsXMLPersistentDeactivate);  
+	ARp_SymSize[5]:=SIZEOF(dsXMLPersistentDigital);     
+	ARp_SymSize[6]:=SIZEOF(dsXMLPersistentMemory);      
+	ARp_SymSize[7]:=SIZEOF(dsXMLPersistentProcess);     
+	ARp_SymSize[8]:=SIZEOF(dsXMLPersistentSevenDay);    
+	ARp_SymSize[9]:=SIZEOF(dsXMLPersistentTimeOptimize);
+	
+	ARs_FolderName[1]:= 'ANALOG';
+	ARs_FolderName[2]:= 'ARM';
+	ARs_FolderName[3]:= 'BARCODE';
+	ARs_FolderName[4]:= 'DEACTIVATE';
+	ARs_FolderName[5]:= 'DIGITAL';
+	ARs_FolderName[6]:= 'MEMORY';
+	ARs_FolderName[7]:= 'PROCESS';
+	ARs_FolderName[8]:= 'SEVENDAY';
+	ARs_FolderName[9]:= 'TIME_OPTIMIZE';	
+	
+	ARs_VariableName[1]:='dsXMLPersistentAnalog';      
+	ARs_VariableName[2]:='dsXMLPersistentArm';         
+	ARs_VariableName[3]:='dsXMLPersistentBarcode';     
+	ARs_VariableName[4]:='dsXMLPersistentDeactivate';  
+	ARs_VariableName[5]:='dsXMLPersistentDigital';     
+	ARs_VariableName[6]:='dsXMLPersistentMemory';      
+	ARs_VariableName[7]:='dsXMLPersistentProcess';     
+	ARs_VariableName[8]:='dsXMLPersistentSevenDay';    
+	ARs_VariableName[9]:='dsXMLPersistentTimeOptimize';
+
+
+
+fb3XmlSvrRWMultipleGVL(
+	bWriteSt:= bWriteXMlSt OR bManualWriteXmlByProgrammer , 
+	bReadSt:= bReadXmlEn OR bManualReadXmlByProgrammer, 
+	ARp_SymAddr:=ARp_SymAddr , 
+	ARp_SymSize:=ARp_SymSize , 
+	ARs_FolderName:=ARs_FolderName , 
+	ARs_VariableName:=ARs_VariableName , 
+	sDefaultFilePath:= sDefaultFilePath , 
+	sFileExtension:= 'xml', 
+	bWrite_Done=>bWrite_Done , 
+	bWrite_Busy=>bWrite_Busy , 
+	bWrite_Error=>bWrite_Error , 
+	udWrite_ErrId=>udWrite_ErrId , 
+	bRead_Done=>bRead_Done , 
+	bRead_Busy=>bRead_Busy , 
+	bRead_Error=>bRead_Error , 
+	udRead_ErrId=>udRead_ErrId , 
+	iErrorArrayId=>iErrorArrayId , 
+	iTotalTime_100ms=>iTotalTime_100ms );
+]]></ST>
+    </Implementation>
+    <LineIds Name="XML_PersistentCtrl">
+      <LineId Id="863" Count="0" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="397" Count="0" />
+      <LineId Id="1714" Count="0" />
+      <LineId Id="1660" Count="53" />
+      <LineId Id="343" Count="0" />
+      <LineId Id="1169" Count="395" />
+      <LineId Id="975" Count="0" />
+      <LineId Id="414" Count="1" />
+      <LineId Id="408" Count="0" />
+      <LineId Id="400" Count="0" />
+      <LineId Id="266" Count="0" />
+      <LineId Id="264" Count="0" />
+      <LineId Id="648" Count="0" />
+      <LineId Id="402" Count="0" />
+      <LineId Id="649" Count="0" />
+      <LineId Id="344" Count="0" />
+      <LineId Id="411" Count="0" />
+      <LineId Id="1716" Count="449" />
+      <LineId Id="1715" Count="0" />
+      <LineId Id="413" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="268" Count="0" />
+      <LineId Id="702" Count="14" />
+      <LineId Id="763" Count="0" />
+      <LineId Id="717" Count="0" />
+      <LineId Id="646" Count="0" />
+      <LineId Id="456" Count="0" />
+      <LineId Id="1573" Count="38" />
+      <LineId Id="464" Count="0" />
+      <LineId Id="514" Count="0" />
+      <LineId Id="461" Count="0" />
+      <LineId Id="423" Count="17" />
+      <LineId Id="420" Count="0" />
+      <LineId Id="517" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

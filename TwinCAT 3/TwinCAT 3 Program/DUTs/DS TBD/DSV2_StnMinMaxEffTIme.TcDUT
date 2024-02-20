@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSV2_StnMinMaxEffTIme" Id="{2ad81bf0-4d2f-4d6b-b474-674ff2c3e704}">
+    <Declaration><![CDATA[TYPE DSV2_StnMinMaxEffTIme :
+STRUCT
+	iMinTime 				: INT;
+	iMaxTime 				: INT;
+	iEffTime 					: INT;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

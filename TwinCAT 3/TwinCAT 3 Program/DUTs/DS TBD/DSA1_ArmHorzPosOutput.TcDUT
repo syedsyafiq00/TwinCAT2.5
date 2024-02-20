@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSA1_ArmHorzPosOutput" Id="{dab23755-560d-4baa-9146-a6bb665eb9e9}">
+    <Declaration><![CDATA[TYPE DSA1_ArmHorzPosOutput : (*Full Occupied Byte = 100*)
+STRUCT
+
+	bLdHookPosConfirm : BOOL; (* Byte "n" *)
+	bLdUnhookPosConfirm : BOOL; (* Byte "n+1" *)
+	bUldHookPosConfirm : BOOL; (* Byte "n+2" *)
+	bUldUnhookPosConfirm : BOOL; (* Byte "n+3" *)
+	ARbStnHookPosConfirm : ARRAY [0..iHorzArmPosArrayQty] OF BOOL; (* Byte "n+4 ~ Byte "n+24" *)
+	ARbStnUnhookPosConfirm : ARRAY [0..iHorzArmPosArrayQty] OF BOOL; (* Byte "n+25 ~ Byte "n+45" *)
+
+	bLdHook2ndSpeedEn : BOOL; (* Byte "n+46" *)
+	bLdUnhook2ndSpeedEn : BOOL; (* Byte "n+47" *)
+	bUldHook2ndSpeedEn : BOOL; (* Byte "n+48" *)
+	bUldUnhook2ndSpeedEn : BOOL; (* Byte "n+49" *)
+	ARbStnHook2ndSpeedEn : ARRAY [0..iHorzArmPosArrayQty] OF BOOL; (* Byte "n+50 ~ Byte "n+70" *)
+	ARbStnUnhook2ndSpeedEn : ARRAY [0..iHorzArmPosArrayQty] OF BOOL; (* Byte "n+71 ~ Byte "n+91" *)
+	sReservedBool : STRING(50); (* Byte "n+92~n+99" *)
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

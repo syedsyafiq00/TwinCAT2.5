@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSA21_UpDownPatternStore" Id="{d124e878-35a0-4a36-8220-8bdbaabfca0f}">
+    <Declaration><![CDATA[TYPE DSA21_UpDownPatternStore : (*Full Occupied Byte = 500*)
+STRUCT
+
+	bCopyPB : BOOL; (* Byte "n" *)
+	sReservedBool : STRING(98); (* Byte "n+1~n+99" *)
+
+
+	iUpDownPatternNo: INT; (* Byte "n+100, n+101" *)	(* 10 sets of Station Sequence Recipe *)
+	iCopyToUpDownPatternNo : INT; (* Byte "n+102, n+103" *)
+	sReservedInt : STRING(95); (* Byte "n+104~n+199" *)
+
+
+(*	sStationSequenceRecipeDescription : STRING(50); (* Byte "n+200~n+299" *)  (* Description of Station Sequence Recipe - Naming*)*)
+
+
+	DsInUpDownPatternMemory : DSA21_UpDownPatternMemory; (* Byte "n+200 onward" *)
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

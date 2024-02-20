@@ -1,0 +1,461 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_LdUldCvCtrl" Id="{5dfbf3bd-ef0d-4601-b0d4-471084906349}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_LdUldCvCtrl
+VAR_INPUT
+	bEN : BOOL;
+	bIndexPB : BOOL;
+	bRapidPB : BOOL;
+	bLdCvEnable : BOOL;
+	bUldCvEnable : BOOL;
+	iLdConveyorNo : INT;
+	iUldConveyorNo : INT;
+	bTimerBasedRapidIndexEn : BOOL;
+	iTimerBasedRapidDelaySV_Mins : INT;
+
+	b1stSensor : BOOL;
+	bIndexConfirmSensor : BOOL;
+	bEndZoneSensor : BOOL;
+	rIndexPBDelayTimeSV_Sec : REAL;
+	rRapidPBDelayTimeSV_Sec : REAL;
+	rIndexConfirmDelayTimeSV_Sec : REAL;
+	rEndZoneDelayTimeSV_Sec : REAL;
+
+
+END_VAR
+VAR_IN_OUT
+
+
+	AR2sDSLdConfirmBasketInfo : ARRAY [1..iLdStnQty, 1..iCvLdQty] OF DSV2_BasketInfo;
+	AR2sDSLdTransferBasketInfo : ARRAY [1..iLdStnQty, 1..iCvLdQty] OF DSV2_BasketInfo;
+	AR2sDSUldConfirmBasketInfo : ARRAY [1..iUldStnQty, 1..iCvUldQty] OF DSV2_BasketInfo;
+	AR2sDSUldTransferBasketInfo : ARRAY [1..iUldStnQty, 1..iCvUldQty] OF DSV2_BasketInfo;
+
+END_VAR
+
+VAR_OUTPUT
+	bConveyorStart : BOOL;
+	bLdConveyorIdErrorFlag : BOOL;
+	bUldConveyorIdErrorFlag: BOOL;
+	tIndexPBDelayTimePV : TIME;
+	tRapidPBDelayTimePV : TIME;
+	tTimerBasedRapidDelayTimePV : TIME;
+	tIndexConfirmDelayTimePV : TIME;
+	tEndZoneDelayTimePV : TIME;
+	sStatus : STRING;
+
+
+
+END_VAR
+VAR
+	DSEmptyBasketInfo :  DSV2_BasketInfo;
+
+	iStep: INT;
+
+	bENRE: R_TRIG;
+	bIndexPBDelayTimerRE: R_TRIG;
+	bRapidPBDelayTimerRE: R_TRIG;
+
+	iFL: INT;
+	iFL1: INT;
+
+
+	bIndexPBDelayTimer: TON;
+	bRapidPBDelayTimer: TON;
+	bIndexConfirmDelayTimer: TON;
+	bEndZoneDelayTimer: TON;
+	bIndexConfirmDelayTimerRE: R_TRIG;
+	bEndZoneDelayTimerRE: R_TRIG;
+	iLastTransferBasketAddress: INT;
+	bMoveEnable: BOOL;
+	bRapidEnable: BOOL;
+	b1stBasketConfirmEnable: BOOL;
+	bTimerBasedRapidDelayTimer: TON;
+	diTimerBasedRapidDelaySV_mSec: DINT;
+	bTimerBasedRapidSt: BOOL;
+	bTimerBasedRapidDelayTimerRE: R_TRIG;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Others*)
+IF bLdCvEnable THEN
+	IF iLdConveyorNo <= 0 OR iLdConveyorNo > iCvLdQty THEN
+		bLdConveyorIdErrorFlag := TRUE;
+	ELSE
+		bLdConveyorIdErrorFlag := FALSE;
+	END_IF
+ELSE
+		bLdConveyorIdErrorFlag := FALSE;
+END_IF
+
+
+IF bUldCvEnable THEN
+	IF iUldConveyorNo <= 0 OR iUldConveyorNo > iCvUldQty THEN
+		bUldConveyorIdErrorFlag := TRUE;
+	ELSE
+		bUldConveyorIdErrorFlag := FALSE;
+	END_IF
+ELSE
+		bUldConveyorIdErrorFlag := FALSE;
+END_IF
+
+
+
+IF NOT bldConveyorIdErrorFlag AND NOT bUldConveyorIdErrorFlag THEN
+
+AR2sDSLdTransferBasketInfo[iLdConveyorNo, iCvLdQty] := DSEmptyBasketInfo;
+AR2sDSUldTransferBasketInfo[iUldConveyorNo, iCvUldQty] := DSEmptyBasketInfo;
+
+END_IF
+
+
+
+
+IF (bLdCvEnable AND NOT bUldCvEnable) AND (sStatus = 'Basket Indexing In Progress...' OR NOT AR2sDSLdConfirmBasketInfo[iLdConveyorNo, iCvLdQty].bAvailibility) AND NOT bLdConveyorIdErrorFlag THEN
+bMoveEnable := TRUE;
+ELSIF (NOT bLdCvEnable AND bUldCvEnable) AND (sStatus = 'Basket Indexing In Progress...' OR NOT AR2sDSUldConfirmBasketInfo[iUldConveyorNo, iCvUldQty].bAvailibility) AND NOT bUldConveyorIdErrorFlag THEN
+bMoveEnable := TRUE;
+ELSE
+bMoveEnable := FALSE;
+END_IF
+
+(*Check if thats a basket for Rapid Function*)
+IF bLdCvEnable THEN
+	bRapidEnable := FALSE;
+	iFL1 := 1;
+	FOR iFL1 := 1 TO iCVLdQty DO
+		IF iFL1 >= 1 AND iFL1 <= iCVLdQty THEN
+			IF iFL1 > 1 AND AR2sDSLdConfirmBasketInfo[iLdConveyorNo, iFL1].bAvailibility THEN
+			bRapidEnable := TRUE;
+			END_IF
+
+			IF iFL1 >= 1 AND AR2sDSLdTransferBasketInfo[iLdConveyorNo, iFL1].bAvailibility THEN
+			bRapidEnable := TRUE;
+			END_IF
+
+		END_IF
+	END_FOR
+
+ELSIF  bUldCvEnable THEN
+	bRapidEnable := FALSE;
+	iFL1 := 1;
+	FOR iFL1 := 1 TO iCVUldQty DO
+		IF iFL1 >= 1 AND iFL1 <= iCVUldQty THEN
+			IF iFL1 > 1 AND AR2sDSUldConfirmBasketInfo[iUldConveyorNo, iFL1].bAvailibility THEN
+			bRapidEnable := TRUE;
+			END_IF
+
+			IF iFL1 >= 1 AND AR2sDSUldTransferBasketInfo[iUldConveyorNo, iFL1].bAvailibility THEN
+			bRapidEnable := TRUE;
+			END_IF
+
+		END_IF
+	END_FOR
+
+END_IF
+
+(*Status*)
+IF NOT bLdCvEnable AND NOT bUldCvEnable THEN
+sStatus := 'Please Enable either "bLdCvEnable" or "bUldCvEnable"';
+ELSIF bLdCvEnable AND bUldCvEnable THEN
+sStatus := 'Error - Only "bLdCvEnable" or "bUldCvEnable" can be Enable, NOT BOTH';
+ELSIF NOT bEN THEN
+sStatus := 'Please Enable "bEN" to Continue';
+ELSIF NOT bMoveEnable THEN
+sStatus := '"End Basket" detected, please clear the basket to continue';
+(*ELSIF (NOT b1stSensor AND NOT bRapidEnable) AND (b1stSensor AND NOT AR2sDSLdConfirmBasketInfo[iLdConveyorNo, 1].bAvailibility)  THEN
+sStatus := 'Idling';*)
+ELSIF iStep >= 11 AND iStep <= 19 THEN
+sStatus := 'Basket Indexing In Progress...';
+ELSIF iStep >= 21 AND iStep <= 29 THEN
+sStatus := 'Basket Rapid Mode In Progress...';
+ELSIF b1stSensor AND AR2sDSLdConfirmBasketInfo[iLdConveyorNo, 1].bAvailibility THEN
+sStatus := 'Ready - Press "bIndexPB" to start Basket Indexing';
+ELSIF NOT b1stSensor AND bRapidEnable THEN
+sStatus := 'Ready - Press "bRapidPB" to start Basket Shift into End Station';
+ELSIF iStep = 1 THEN
+sStatus := 'Idling...';
+ELSE
+sStatus := 'Status - Unknown';
+END_IF
+
+IF (bLdCvEnable AND AR2sDSLdConfirmBasketInfo[iLdConveyorNo, 1].bAvailibility) OR (bUldCvEnable AND AR2sDSUldConfirmBasketInfo[iUldConveyorNo, 1].bAvailibility) THEN
+b1stBasketConfirmEnable := TRUE;
+ELSE
+b1stBasketConfirmEnable := FALSE;
+END_IF
+
+(*Timer Based Rapid Programming*)
+diTimerBasedRapidDelaySV_mSec := (iTimerBasedRapidDelaySV_Mins*60*1000);
+bTimerBasedRapidSt := bTimerBasedRapidIndexEn AND NOT bConveyorStart AND NOT b1stSensor ;
+
+
+(*Timer, R_TRIG and F_TRIG*)
+bIndexPBDelayTimer					(IN:=bIndexPB AND b1stSensor AND b1stBasketConfirmEnable AND bMoveEnable  , 				PT:=REAL_TO_TIME(rIndexPBDelayTimeSV_Sec*1000) , 		Q=> , ET=>tIndexPBDelayTimePV );
+bRapidPBDelayTimer					(IN:=bRapidPB AND NOT b1stSensor AND bRapidEnable AND bMoveEnable , 					PT:=REAL_TO_TIME(rRapidPBDelayTimeSV_Sec*1000) , 		Q=> , ET=>tRapidPBDelayTimePV );
+bTimerBasedRapidDelayTimer			(IN:=bTimerBasedRapidSt AND bRapidEnable AND bMoveEnable , 								PT:=DINT_TO_TIME(diTimerBasedRapidDelaySV_mSec) , 		Q=> , ET=>tTimerBasedRapidDelayTimePV );
+bIndexConfirmDelayTimer				(IN:=bIndexConfirmSensor , 																	PT:=REAL_TO_TIME(rIndexConfirmDelayTimeSV_Sec*1000) , 	Q=> , ET=>tIndexConfirmDelayTimePV );
+bEndZoneDelayTimer					(IN:=bEndZoneSensor , 																	PT:=REAL_TO_TIME(rEndZoneDelayTimeSV_Sec*1000) , 		Q=> , ET=>tEndZoneDelayTimePV );
+
+
+bENRE								(CLK:=bEN , 								Q=> );
+bIndexPBDelayTimerRE				(CLK:=bIndexPBDelayTimer.Q , 				Q=> );
+bRapidPBDelayTimerRE				(CLK:=bRapidPBDelayTimer.Q , 				Q=> );
+bTimerBasedRapidDelayTimerRE		(CLK:=bTimerBasedRapidDelayTimer.Q , 		Q=> );
+bIndexConfirmDelayTimerRE			(CLK:=bIndexConfirmDelayTimer.Q ,		 	Q=> );
+bEndZoneDelayTimerRE				(CLK:=bEndZoneDelayTimer.Q , 				Q=> );
+
+(*Generate Availability Signal*)
+IF bLdCvEnable THEN
+	iFL1 := 1;
+	FOR iFL1 := 1 TO iCVLdQty DO
+		IF iFL1 >= 1 AND iFL1 <= iCVLdQty THEN
+			IF AR2sDSLdConfirmBasketInfo[iLdConveyorNo, iFL1].iProductRecipeNo > 0 AND AR2sDSLdConfirmBasketInfo[iLdConveyorNo, iFL1].iProductRecipeNo <= iProductRecipeArrayQty THEN
+			AR2sDSLdConfirmBasketInfo[iLdConveyorNo, iFL1].bAvailibility := TRUE;
+			ELSE
+			AR2sDSLdConfirmBasketInfo[iLdConveyorNo, iFL1].bAvailibility := FALSE;
+			END_IF
+
+			IF AR2sDSLdTransferBasketInfo[iLdConveyorNo, iFL1].iProductRecipeNo > 0 AND AR2sDSLdTransferBasketInfo[iLdConveyorNo, iFL1].iProductRecipeNo <= iProductRecipeArrayQty THEN
+			AR2sDSLdTransferBasketInfo[iLdConveyorNo, iFL1].bAvailibility := TRUE;
+			ELSE
+			AR2sDSLdTransferBasketInfo[iLdConveyorNo, iFL1].bAvailibility := FALSE;
+			END_IF
+
+		END_IF
+	END_FOR
+
+ELSIF bUldCvEnable THEN
+	iFL1 := 1;
+	FOR iFL1 := 1 TO iCVUldQty DO
+		IF iFL1 >= 1 AND iFL1 <= iCVUldQty THEN
+			IF AR2sDSUldConfirmBasketInfo[iUldConveyorNo, iFL1].iProductRecipeNo > 0 AND AR2sDSUldConfirmBasketInfo[iUldConveyorNo, iFL1].iProductRecipeNo <= iProductRecipeArrayQty THEN
+			AR2sDSUldConfirmBasketInfo[iUldConveyorNo, iFL1].bAvailibility := TRUE;
+			ELSE
+			AR2sDSUldConfirmBasketInfo[iUldConveyorNo, iFL1].bAvailibility := FALSE;
+			END_IF
+
+			IF AR2sDSUldTransferBasketInfo[iUldConveyorNo, iFL1].iProductRecipeNo > 0 AND AR2sDSUldTransferBasketInfo[iUldConveyorNo, iFL1].iProductRecipeNo <= iProductRecipeArrayQty THEN
+			AR2sDSUldTransferBasketInfo[iUldConveyorNo, iFL1].bAvailibility := TRUE;
+			ELSE
+			AR2sDSUldTransferBasketInfo[iUldConveyorNo, iFL1].bAvailibility := FALSE;
+			END_IF
+
+		END_IF
+	END_FOR
+
+
+END_IF
+
+
+
+
+(*Enable Control*)
+IF NOT bEN OR( (bLdCvEnable AND bUldCvEnable) OR (NOT bLdCvEnable AND NOT bUldCvEnable) )THEN
+iStep := 0;
+END_IF
+
+IF bENRE.Q AND( (bLdCvEnable AND NOT bUldCvEnable) OR  (NOT bLdCvEnable AND bUldCvEnable))THEN
+iStep := 1;
+END_IF
+
+
+
+
+
+IF iStep = 1 THEN
+
+	IF bIndexPBDelayTimerRE.Q THEN
+	iStep := 11;
+	END_IF
+
+	IF bRapidPBDelayTimerRE.Q OR bTimerBasedRapidDelayTimerRE.Q THEN
+	iStep := 21;
+	END_IF
+
+END_IF
+
+CASE iStep OF
+0: (*RESET*)
+bConveyorStart := FALSE;
+
+
+1: (*StandBy*)
+bConveyorStart := FALSE;
+
+11: (*Index - Shift Confirm to Transfer*)
+
+IF bLdCvEnable THEN
+	iFL1 := 1;
+	FOR iFL1 := 1 TO iCVLdQty-1 DO
+		IF iFL1 >= 1 AND iFL1 <= iCVLdQty-1 THEN
+			IF AR2sDSLdConfirmBasketInfo[iLdConveyorNo, iFL1].bAvailibility THEN
+				AR2sDSLdTransferBasketInfo[iLdConveyorNo, iFL1]		:= AR2sDSLdConfirmBasketInfo[iLdConveyorNo, iFL1];
+				AR2sDSLdConfirmBasketInfo[iLdConveyorNo, iFL1] 		:= DSEmptyBasketInfo;
+			END_IF
+		END_IF
+	END_FOR
+
+ELSIF bUldCvEnable THEN
+	iFL1 := 1;
+	FOR iFL1 := 1 TO iCVUldQty-1 DO
+		IF iFL1 >= 1 AND iFL1 <= iCVUldQty-1 THEN
+			IF AR2sDSUldConfirmBasketInfo[iUldConveyorNo, iFL1].bAvailibility THEN
+				AR2sDSUldTransferBasketInfo[iUldConveyorNo, iFL1]		:= AR2sDSUldConfirmBasketInfo[iUldConveyorNo, iFL1];
+				AR2sDSUldConfirmBasketInfo[iUldConveyorNo, iFL1] 		:= DSEmptyBasketInfo;
+			END_IF
+		END_IF
+	END_FOR
+
+END_IF
+
+iStep := 12;
+
+12: (*Index - Index Start*)
+bConveyorStart := TRUE;
+
+IF bIndexConfirmDelayTimerRE.Q THEN
+iStep := 13;
+END_IF
+
+13: (*Index - Index Completed -> Shift Transfer to Confirm *)
+bConveyorStart := FALSE;
+
+
+IF bLdCvEnable THEN
+	iFL1 := 1;
+	FOR iFL1 := 1 TO iCVLdQty-1 DO
+		IF iFL1 >= 1 AND iFL1 <= iCVLdQty-1 THEN
+			IF AR2sDSLdTransferBasketInfo[iLdConveyorNo, iFL1].bAvailibility THEN
+				AR2sDSLdConfirmBasketInfo[iLdConveyorNo, iFL1+1]		:= AR2sDSLdTransferBasketInfo[iLdConveyorNo, iFL1];
+				AR2sDSLdTransferBasketInfo[iLdConveyorNo, iFL1] 		:= DSEmptyBasketInfo;
+			END_IF
+		END_IF
+	END_FOR
+
+ELSIF bUldCvEnable THEN
+	iFL1 := 1;
+	FOR iFL1 := 1 TO iCVUldQty-1 DO
+		IF iFL1 >= 1 AND iFL1 <= iCVUldQty-1 THEN
+			IF AR2sDSUldTransferBasketInfo[iUldConveyorNo, iFL1].bAvailibility THEN
+				AR2sDSUldConfirmBasketInfo[iUldConveyorNo, iFL1+1]		:= AR2sDSUldTransferBasketInfo[iUldConveyorNo, iFL1];
+				AR2sDSUldTransferBasketInfo[iUldConveyorNo, iFL1] 		:= DSEmptyBasketInfo;
+			END_IF
+		END_IF
+	END_FOR
+
+END_IF
+
+iStep := 1; (*Index - DONE*)
+
+
+
+
+21: (*Rapid - Shift Confirm to Transfer*)
+
+IF bLdCvEnable THEN
+	iFL1 := 1;
+	FOR iFL1 := 1 TO iCVLdQty-1 DO
+		IF iFL1 >= 1 AND iFL1 <= iCVLdQty-1 THEN
+			IF AR2sDSLdConfirmBasketInfo[iLdConveyorNo, iFL1].bAvailibility THEN
+				AR2sDSLdTransferBasketInfo[iLdConveyorNo, iFL1]		:= AR2sDSLdConfirmBasketInfo[iLdConveyorNo, iFL1];
+				AR2sDSLdConfirmBasketInfo[iLdConveyorNo, iFL1] 		:= DSEmptyBasketInfo;
+			END_IF
+		END_IF
+	END_FOR
+
+ELSIF bUldCvEnable THEN
+	iFL1 := 1;
+	FOR iFL1 := 1 TO iCVUldQty-1 DO
+		IF iFL1 >= 1 AND iFL1 <= iCVUldQty-1 THEN
+			IF AR2sDSUldConfirmBasketInfo[iUldConveyorNo, iFL1].bAvailibility THEN
+				AR2sDSUldTransferBasketInfo[iUldConveyorNo, iFL1]		:= AR2sDSUldConfirmBasketInfo[iUldConveyorNo, iFL1];
+				AR2sDSUldConfirmBasketInfo[iUldConveyorNo, iFL1] 		:= DSEmptyBasketInfo;
+			END_IF
+		END_IF
+	END_FOR
+
+END_IF
+
+iStep := 22;
+
+22: (*Rapid - Index Start*)
+bConveyorStart := TRUE;
+
+IF bEndZoneDelayTimerRE.Q THEN
+iStep := 23;
+END_IF
+
+23: (*Rapid - Movement Completed -> Shift Transfer to Confirm *)
+bConveyorStart := FALSE;
+
+
+IF bLdCvEnable THEN
+	iLastTransferBasketAddress := 0;
+	iFL1 := 1;
+	FOR iFL1 := 1 TO iCVLdQty-1 DO
+		IF iFL1 >= 1 AND iFL1 <= iCVLdQty-1 THEN
+			IF AR2sDSLdTransferBasketInfo[iLdConveyorNo, iFL1].bAvailibility THEN
+				iLastTransferBasketAddress:= iFL1;
+			END_IF
+		END_IF
+	END_FOR
+
+	iFL1 :=1;
+	FOR iFL1 := 1 TO iLastTransferBasketAddress DO
+		IF iFL1 >= 1 AND iFL1 <= iLastTransferBasketAddress THEN
+
+			AR2sDSLdConfirmBasketInfo[iLdConveyorNo, iFL1+(iCVLdQty-iLastTransferBasketAddress)]:= AR2sDSLdTransferBasketInfo[iLdConveyorNo, iFL1];
+			AR2sDSLdTransferBasketInfo[iLdConveyorNo, iFL1] := DSEmptyBasketInfo;
+
+		END_IF
+	END_FOR
+
+
+ELSIF bUldCvEnable THEN
+	iLastTransferBasketAddress := 0;
+	iFL1 := 1;
+	FOR iFL1 := 1 TO iCVUldQty-1 DO
+		IF iFL1 >= 1 AND iFL1 <= iCVUldQty-1 THEN
+			IF AR2sDSUldTransferBasketInfo[iUldConveyorNo, iFL1].bAvailibility THEN
+				iLastTransferBasketAddress:= iFL1;
+			END_IF
+		END_IF
+	END_FOR
+
+	iFL1 :=1;
+	FOR iFL1 := 1 TO iLastTransferBasketAddress DO
+		IF iFL1 >= 1 AND iFL1 <= iLastTransferBasketAddress THEN
+
+			AR2sDSUldConfirmBasketInfo[iUldConveyorNo, iFL1+(iCVUldQty-iLastTransferBasketAddress)]:= AR2sDSUldTransferBasketInfo[iUldConveyorNo, iFL1];
+			AR2sDSUldTransferBasketInfo[iUldConveyorNo, iFL1] := DSEmptyBasketInfo;
+
+		END_IF
+	END_FOR
+
+
+
+(*	iFL1 := 1;
+	FOR iFL1 := 1 TO iCVUldQty-1 DO
+		IF iFL1 >= 1 AND iFL1 <= iCVUldQty-1 THEN
+			IF AR2sDSUldTransferBasketInfo[iUldConveyorNo, iFL1].bAvailibility THEN
+				AR2sDSUldConfirmBasketInfo[iUldConveyorNo, iFL1+1]		:= AR2sDSUldTransferBasketInfo[iUldConveyorNo, iFL1];
+				AR2sDSUldTransferBasketInfo[iUldConveyorNo, iFL1] 		:= DSEmptyBasketInfo;
+			END_IF
+		END_IF
+	END_FOR
+*)
+END_IF
+
+iStep := 1; (*Index - DONE*)
+
+
+
+
+
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_LdUldCvCtrl">
+      <LineId Id="74" Count="376" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

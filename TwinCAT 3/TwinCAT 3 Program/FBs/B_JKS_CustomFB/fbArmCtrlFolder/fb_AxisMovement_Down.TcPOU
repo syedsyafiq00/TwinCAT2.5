@@ -1,0 +1,282 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fb_AxisMovement_Down" Id="{4aace70f-71b2-4111-828b-0e9f1a70336b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fb_AxisMovement_Down
+VAR_INPUT
+	bEstop			: BOOL;
+	bHomingReady	: BOOL;
+	bMove_Activate	: BOOL;
+	DS_Variable		: DS_SA_Movement;
+	lrCurrentAxPos	: LREAL;
+	wTargerPosNum	: DWORD;
+	lrPos1			: LREAL;
+	lrPos2			: LREAL;
+	lrPos3			: LREAL;
+	lrPos4			: LREAL;
+	lrPos5			: LREAL;
+	lrPos6			: LREAL;
+	lrPos7			: LREAL;
+	lrPos8			: LREAL;
+	lrPos9			: LREAL;
+	lrPos10			: LREAL;
+	lrPos11			: LREAL;
+	lrPos12			: LREAL;
+	lrPos13			: LREAL;
+	lrPos14			: LREAL;
+	lrPos15			: LREAL;
+	lrPos16			: LREAL;
+	lrPos17			: LREAL;
+	lrPos18			: LREAL;
+	lrPos19			: LREAL;
+	lrPos20			: LREAL;
+	iTimeDelay		: TIME;
+
+END_VAR
+VAR_IN_OUT
+	Ax_1	: Axis_Ref;
+	lrPosTolerance	: LREAL;
+END_VAR
+VAR_OUTPUT
+	Ax_MoveComplete	: BOOL;
+	Step	: INT;
+END_VAR
+VAR
+	Timer1: BOOL;
+	MC_MoveContinuousAbsolute: ARRAY [1..4] OF MC_MoveContinuousAbsolute;
+	lrTargetPos: LREAL;
+	MC_MoveAbsolute1: MC_MoveAbsolute;
+	Timer2: BOOL;
+
+	MC_MoveAbsolute2: MC_MoveAbsolute;
+	Timer3: BOOL;
+
+	MC_MoveAbsolute3: MC_MoveAbsolute;
+	Timer4: BOOL;
+
+	MC_MoveAbsolute4: MC_MoveAbsolute;
+	bHalt: BOOL;
+	MC_Stop1: MC_Stop;
+	R_TRIG1: R_TRIG;
+	R_TRIG2: R_TRIG;
+	R_TRIG3: R_TRIG;
+	R_TRIG4: R_TRIG;
+	bZoneChange : ARRAY [1..4] OF BOOL;
+
+
+
+	TON1: TON;
+	TON2: TON;
+	TON3: TON;
+	TON4: TON;
+	R_TRIG11: R_TRIG;
+	Start: BOOL;
+	TON11: TON;
+	StartRE: R_TRIG;
+	StartFE: F_TRIG;
+	bNotHomingReadyRE: R_TRIG;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[MC_Stop1(
+	Execute:=bHalt ,
+	Deceleration:=0 ,
+	Jerk:= ,
+	Options:= ,
+	Axis:=Ax_1 ,
+	Done=> ,
+	Busy=> ,
+	Active=>  );
+
+IF wTargerPosNum = 1 THEN
+	lrTargetPos	:= lrPos1;
+ELSIF wTargerPosNum = 2 THEN
+	lrTargetPos	:= lrPos2;
+ELSIF wTargerPosNum = 3 THEN
+	lrTargetPos	:= lrPos3;
+ELSIF wTargerPosNum = 4 THEN
+	lrTargetPos	:= lrPos4;
+ELSIF wTargerPosNum = 5 THEN
+	lrTargetPos	:= lrPos5;
+ELSIF wTargerPosNum = 6 THEN
+	lrTargetPos	:= lrPos6;
+ELSIF wTargerPosNum = 7 THEN
+	lrTargetPos	:= lrPos7;
+ELSIF wTargerPosNum = 8 THEN
+	lrTargetPos	:= lrPos8;
+ELSIF wTargerPosNum = 9 THEN
+	lrTargetPos	:= lrPos9;
+ELSIF wTargerPosNum = 10 THEN
+	lrTargetPos	:= lrPos10;
+ELSIF wTargerPosNum = 11 THEN
+	lrTargetPos	:= lrPos11;
+ELSIF wTargerPosNum = 12 THEN
+	lrTargetPos	:= lrPos12;
+ELSIF wTargerPosNum = 13 THEN
+	lrTargetPos	:= lrPos13;
+ELSIF wTargerPosNum = 14 THEN
+	lrTargetPos	:= lrPos14;
+ELSIF wTargerPosNum = 15 THEN
+	lrTargetPos	:= lrPos15;
+ELSIF wTargerPosNum = 16 THEN
+	lrTargetPos	:= lrPos16;
+ELSIF wTargerPosNum = 17 THEN
+	lrTargetPos	:= lrPos17;
+ELSIF wTargerPosNum = 18 THEN
+	lrTargetPos	:= lrPos18;
+ELSIF wTargerPosNum = 19 THEN
+	lrTargetPos	:= lrPos19;
+ELSIF wTargerPosNum = 20 THEN
+	lrTargetPos	:= lrPos20;
+ELSE
+	lrTargetPos	:=0;
+END_IF
+
+
+StartRE(CLK:=Start , Q=> );
+StartFE(CLK:=Start , Q=> );
+bNotHomingReadyRE(CLK:= NOT bHomingReady , Q=> );
+
+IF bEstop OR bNotHomingReadyRE.Q OR StartFE.Q THEN
+	wTargerPosNum	:= 0;
+	Step	:= 0;
+	bHalt	:= TRUE;
+	bZoneChange[1]:=FALSE;
+	bZoneChange[2]:=FALSE;
+	bZoneChange[3]:=FALSE;
+	bZoneChange[4]:=FALSE;
+	Ax_MoveComplete	:= FALSE;
+ELSE
+	bHalt	:= FALSE;
+END_IF
+
+IF StartRE.Q THEN
+(*Step	:= 0;*)
+bZoneChange[1]:=FALSE;
+bZoneChange[2]:=FALSE;
+bZoneChange[3]:=FALSE;
+bZoneChange[4]:=FALSE;
+END_IF
+
+
+IF bHomingReady AND bMove_Activate AND lrTargetPos <> 0  THEN
+	Start					:= TRUE;
+ELSE
+	Start					:= FALSE;
+END_IF
+
+
+
+R_TRIG1(CLK:=Step=11 , Q=> );
+R_TRIG2(CLK:=Step=12 , Q=> );
+R_TRIG3(CLK:=Step=13 , Q=> );
+R_TRIG4(CLK:=Step=14 , Q=> );
+
+IF lrPosTolerance < 0.1 THEN
+lrPosTolerance := 0.1;
+ELSIF lrPosTolerance > 5 THEN
+lrPosTolerance := 5;
+END_IF
+
+IF Start AND NOT bHalt AND NOT  Ax_MoveComplete AND lrCurrentAxPos + lrPosTolerance >=  DS_Variable.lrZone1startPos AND lrCurrentAxPos <  DS_Variable.lrZone2startPos THEN
+Step:= 11;
+bZoneChange[1]		:=TRUE;
+END_IF
+
+IF Start AND NOT bHalt AND NOT Ax_MoveComplete AND lrCurrentAxPos >=  DS_Variable.lrZone2startPos AND lrCurrentAxPos <  DS_Variable.lrZone3startPos THEN
+Step:= 12;
+bZoneChange[2]		:=TRUE;
+END_IF
+
+IF Start AND NOT bHalt AND NOT Ax_MoveComplete AND lrCurrentAxPos >=  DS_Variable.lrZone3startPos AND lrCurrentAxPos <  DS_Variable.lrZone4startPos THEN
+Step:= 13;
+bZoneChange[3]		:=TRUE;
+END_IF
+
+IF Start AND NOT bHalt AND NOT Ax_MoveComplete AND lrCurrentAxPos >=  DS_Variable.lrZone4startPos (*AND lrCurrentAxPos < lrTargetPos*) THEN
+Step:= 14;
+bZoneChange[4]		:=TRUE;
+END_IF
+
+IF Start AND NOT bHalt AND lrCurrentAxPos =  lrTargetPos THEN
+Ax_MoveComplete	:= TRUE;
+bZoneChange[1]		:=FALSE;
+bZoneChange[2]		:=FALSE;
+bZoneChange[3]		:=FALSE;
+bZoneChange[4]		:=FALSE;
+END_IF
+
+CASE Step OF
+0:;
+
+
+
+11:
+
+
+		MC_MoveContinuousAbsolute[1](
+			Execute:=R_TRIG1.Q(* OR bZoneChange[1] *) ,
+			Position:=DS_Variable.lrZone2StartPos ,
+			Velocity:=DS_Variable.lrZone1Speed ,
+			EndVelocity:=DS_Variable.lrZone2Speed ,
+			Acceleration:=DS_Variable.lrZone1Acc ,
+			Deceleration:=DS_Variable.lrZone1Dcc ,
+			BufferMode:=MC_ABORTING ,
+			Axis:=Ax_1 ,
+			InEndVelocity=> ,
+			Busy=>  );
+
+
+
+12:
+
+		MC_MoveContinuousAbsolute[2](
+			Execute:=R_TRIG2.Q (*OR bZoneChange[2]*)  ,
+			Position:=DS_Variable.lrZone3StartPos ,
+			Velocity:=DS_Variable.lrZone2Speed ,
+			EndVelocity:=DS_Variable.lrZone3Speed ,
+			Acceleration:=DS_Variable.lrZone2Acc ,
+			Deceleration:=DS_Variable.lrZone2Dcc ,
+			BufferMode:=MC_ABORTING ,
+			Axis:=Ax_1 ,
+			InEndVelocity=> ,
+			Busy=>  );
+
+
+
+13:
+
+		MC_MoveContinuousAbsolute[3](
+			Execute:=R_TRIG3.Q (*OR bZoneChange[3]*) ,
+			Position:=DS_Variable.lrZone4StartPos ,
+			Velocity:=DS_Variable.lrZone3Speed ,
+			EndVelocity:=DS_Variable.lrZone4Speed ,
+			Acceleration:=DS_Variable.lrZone3Acc ,
+			Deceleration:=DS_Variable.lrZone3Dcc ,
+			BufferMode:=MC_ABORTING ,
+			Axis:=Ax_1 ,
+			InEndVelocity=> ,
+			Busy=>  );
+
+14:
+
+		MC_MoveAbsolute4(
+			Execute:=R_TRIG4.Q (*OR bZoneChange[4]*) ,
+			Position:=lrTargetPos ,
+			Velocity:=DS_Variable.lrZone4Speed ,
+			Acceleration:=DS_Variable.lrZone4Acc ,
+			Deceleration:=DS_Variable.lrZone4Dcc ,
+			BufferMode:=MC_ABORTING ,
+			Axis:=Ax_1 ,
+			Done=> ,
+			Busy=> ,
+			Active=>  );
+		
+
+
+
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="fb_AxisMovement_Down">
+      <LineId Id="74" Count="197" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

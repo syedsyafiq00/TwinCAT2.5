@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="ManualDosingSTreset" Id="{b5b79887-a37a-42cb-b728-35745c8d3e88}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM ManualDosingSTreset
+VAR
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Function to reset the manual button in Recipe Mode*)(*Changes On 12/12/17-Andy*)
+(*Additional Input For Dosing enable function-Add bStn1ManualDosingST*)(*Changes On 12/12/17-Andy*)
+
+IF NOT ManualPageEnable THEN
+
+	IF ARbStnManualDosingDone[1] THEN
+
+		ARbStnManualDosingST[1] :=FALSE;
+
+	ELSIF ARbStnManualDosingDone[3] THEN
+
+		ARbStnManualDosingST[3] :=FALSE;
+		
+	ELSIF ARbStnManualDosingDone[5] THEN
+
+		ARbStnManualDosingST[5] :=FALSE;
+	END_IF
+
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="ManualDosingSTreset">
+      <LineId Id="4" Count="11" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="23" Count="1" />
+      <LineId Id="16" Count="3" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

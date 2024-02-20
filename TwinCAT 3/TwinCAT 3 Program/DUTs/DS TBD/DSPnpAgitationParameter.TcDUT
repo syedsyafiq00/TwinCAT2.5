@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSPnpAgitationParameter" Id="{8fac69c9-62b0-4148-813f-f11a6f0ddf2e}">
+    <Declaration><![CDATA[TYPE DSPnpAgitationParameter :
+STRUCT
+
+	bAgitationInProgress					: BOOL;
+	bAgitationComplete					: BOOL;
+
+	lrAgitationTopPosition					: LREAL;
+	lrAgitationBtmPosition					: LREAL;
+
+	bTopPositionCFM						: BOOL;
+	bBtmPositionCFM						: BOOL;
+
+	lrAgitationSpeed						: LREAL;
+	lrAgitationSpeedAcc					: LREAL;
+	lrAgitationSpeedDcc					: LREAL;
+
+	iRepeatUpDownCycle					: INT;
+	bPickRepeatStnEnable				: BOOL;
+	bTransferRepeatStnEnable				: BOOL;
+
+(*Output*)
+(*
+	iRepeatUpDownCycle					: INT;
+
+	bPickRepeatStnEnable				: BOOL;
+	bTransferRepeatStnEnable				: BOOL;
+*)
+	bSearchFinish						: BOOL;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

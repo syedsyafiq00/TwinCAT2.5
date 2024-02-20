@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Batch_Number_counter" Id="{3113d4f4-f3e1-4d54-8861-694ba852e4d5}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Batch_Number_counter
+VAR
+	R_TRIG1	: R_TRIG;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Time Log to create an unique file number for the Report file name*)
+
+(*Time_log := F_jx_TS_TO_TIME_STRING;*)
+
+R_TRIG1(CLK:=AR2sDSCv_LdConfirmBasketInfo[1,4].bAvailibility  , Q=> );
+
+(*DSArmBasketInfo[1].bAvailibility*)
+IF R_TRIG1.Q  THEN
+	iProgBatchTotal:=iProgBatchTotal+1;
+	AR2sDSCv_LdConfirmBasketInfo[1,4].sReservedInt:=INT_TO_STRING(iProgBatchTotal);
+
+END_IF
+IF iProgBatchTotal > 30000 THEN
+iProgBatchTotal:=0;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="Batch_Number_counter">
+      <LineId Id="4" Count="14" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbHMIAddMappingArrayInt" Id="{5b691549-93d5-4003-af5b-5c55c08bffc3}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbHMIAddMappingArrayInt
+
+
+VAR_INPUT
+	bEN : BOOL;
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+	ARiIntAddress_Pro 					: ARRAY [0..iAddMapArrayInt] OF INT;
+	ARiIntAddress_Hmi 				: ARRAY [0..iAddMapArrayInt] OF INT;
+END_VAR
+
+
+VAR_OUTPUT
+END_VAR
+
+
+VAR
+	ARBufferiIntAddress_Pro 				:  ARRAY [1..iAddMapArrayInt] OF INT;
+	ARBufferiIntAddress_Hmi 				:  ARRAY [1..iAddMapArrayInt] OF INT;
+
+	ARUpdate_bIntAddress_Pro 				:  ARRAY [1..iAddMapArrayInt] OF BOOL;
+	ARUpdate_bIntAddress_Hmi 				:  ARRAY [1..iAddMapArrayInt] OF BOOL;
+
+	iInitialFL: INT;
+	iProgramFL: INT;
+	bENRE : R_TRIG;
+
+
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Initialized*)
+bENRE(CLK:=bEN , Q=> );
+IF bENRE.Q THEN
+			(*Int*)
+iInitialFL := 1;
+
+	FOR iInitialFL := 1 TO iAddMapArrayInt DO
+			ARBufferiIntAddress_Pro[iInitialFL] := ARiIntAddress_Pro[iInitialFL];
+			ARBufferiIntAddress_Hmi[iInitialFL] := ARiIntAddress_Pro[iInitialFL];
+			ARiIntAddress_Hmi[iInitialFL] := ARiIntAddress_Pro[iInitialFL];
+	END_FOR
+
+END_IF
+
+(*Program*)
+
+			(**********PRO Side Value Change**********)
+
+iProgramFL:= 1;
+
+	FOR iProgramFL := 1 TO iAddMapArrayInt DO
+
+		ARUpdate_bIntAddress_Pro[iProgramFL] := FALSE;
+		
+			IF ARBufferiIntAddress_Pro[iProgramFL] <> ARiIntAddress_Pro[iProgramFL] THEN
+				ARUpdate_bIntAddress_Pro[iProgramFL] := TRUE;
+			END_IF
+
+			IF ARUpdate_bIntAddress_Pro[iProgramFL] THEN
+				ARBufferiIntAddress_Pro[iProgramFL] := ARiIntAddress_Pro[iProgramFL];
+				ARBufferiIntAddress_Hmi[iProgramFL] := ARiIntAddress_Pro[iProgramFL];
+				ARiIntAddress_Hmi[iProgramFL] := ARiIntAddress_Pro[iProgramFL];
+			END_IF
+		
+
+
+					(**********HMI Side Value Change**********)
+		
+		ARUpdate_bIntAddress_Hmi[iProgramFL] := FALSE;
+
+			IF ARBufferiIntAddress_Hmi[iProgramFL] <> ARiIntAddress_Hmi[iProgramFL] THEN
+				ARUpdate_bIntAddress_Hmi[iProgramFL] := TRUE;
+			END_IF
+		
+			IF ARUpdate_bIntAddress_Hmi[iProgramFL] THEN
+				ARBufferiIntAddress_Pro[iProgramFL] := ARiIntAddress_Hmi[iProgramFL];
+				ARBufferiIntAddress_Hmi[iProgramFL] := ARiIntAddress_Hmi[iProgramFL];
+				ARiIntAddress_Pro[iProgramFL] := ARiIntAddress_Hmi[iProgramFL];
+			END_IF
+
+	END_FOR
+(*
+(*Int 001*)
+IF NOT ARUpdate_bIntAddress_Hmi THEN ARiIntAddress_Pro := Pro_iInt_001; ELSE Pro_iInt_001 := ARiIntAddress_Pro; END_IF
+IF NOT ARUpdate_bIntAddress_Pro THEN ARiIntAddress_Hmi := Hmi_iInt_001; ELSE Hmi_iInt_001 := ARiIntAddress_Hmi; END_IF
+*)]]></ST>
+    </Implementation>
+    <LineIds Name="fbHMIAddMappingArrayInt">
+      <LineId Id="32" Count="55" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

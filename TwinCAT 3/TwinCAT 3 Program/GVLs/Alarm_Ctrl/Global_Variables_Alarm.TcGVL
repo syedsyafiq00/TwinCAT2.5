@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_Alarm" Id="{b844c27d-8bec-466d-bd6a-4f80bc1f2e97}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL PERSISTENT
+
+	fbAlarmModule_Main									: fbAlarmModule;
+
+(*Input*)
+
+	ARbSignalInput 										: ARRAY [1..iAlarmQty] OF BOOL;
+	ARiDelayTimeSV 										: ARRAY [1..iAlarmQty] OF INT;
+
+	ARsAlarmDescription 									: ARRAY [0..iAlarmQty] OF STRING(99);
+	ARbHoldingDisable 									: ARRAY [1..iAlarmQty] OF BOOL;
+	ARsDeactivateDescription							 	: ARRAY [0..iDeactivateQty] OF STRING(99);
+
+	ARbTestAlarmEn	 									: ARRAY [1..iAlarmQty] OF BOOL;
+	ARbTestSignal	 									: ARRAY [1..iAlarmQty] OF BOOL;
+
+	bAlarmDeactivated									: BOOL ;
+
+(*Output*)
+
+	ARiDelayTimeEV	 									: ARRAY [1..iAlarmQty] OF INT;
+	ARbAlarmOutput 										: ARRAY [1..iAlarmQty] OF BOOL;
+	ARbDeactivateOutput 									: ARRAY [1..iDeactivateQty] OF BOOL;
+
+	ARsAlarmDisplay										: ARRAY [0..iActAlarmDisplayQty] OF STRING(99);
+(*	ARsAlarmDisplayStorage								: ARRAY [0..iActAlarmDisplayStorageQty] OF STRING(99);*)
+	ARsAlarmAddressStore								: ARRAY [0..iActAlarmDisplayStorageQty] OF INT;
+
+	ARsLoggingAlarmDisplay								: ARRAY [0..iLogAlarmDisplayQty] OF STRING(99);
+	ARsLoggingOcrTimeDisplay							: ARRAY [0..iLogAlarmDisplayQty] OF STRING(99);
+	ARsLoggingRcvTimeDisplay							: ARRAY [0..iLogAlarmDisplayQty] OF STRING(99);
+
+	ARbArmOvertimeError									: ARRAY [1..iArmQty] OF BOOL;
+
+	bAlarmOccurFlag										: BOOL;
+	bBuzzerOccur											: BOOL ;
+
+	ARbArmLifterError										: ARRAY [1..iArmSlowPullQty] OF BOOL;
+	ARbArmLifterDriveErr									: ARRAY [1..iArmSlowPullQty] OF BOOL;
+	ARbArmLifterAlarm									: ARRAY [1..iArmSlowPullQty] OF BOOL;
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

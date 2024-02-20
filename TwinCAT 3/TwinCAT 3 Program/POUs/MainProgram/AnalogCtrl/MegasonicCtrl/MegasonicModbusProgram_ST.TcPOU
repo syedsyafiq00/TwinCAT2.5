@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MegasonicModbusProgram_ST" Id="{5dcee13c-48a5-4302-8941-255556b705a5}" SpecialFunc="None">
+    <Declaration><![CDATA[ PROGRAM MegasonicModbusProgram_ST
+VAR
+	
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+// POWER PV STN 03 GENERATOR 01
+
+IF    ARbDO[eY11104_Stn03MegasonicGenerator01Power01] THEN ARiMegaPowerPV_percent[1]:=1; 
+ELSIF ARbDO[eY11105_Stn03MegasonicGenerator01Power02] THEN ARiMegaPowerPV_percent[1]:=2;
+ELSIF ARbDO[eY11106_Stn03MegasonicGenerator01Power03] THEN ARiMegaPowerPV_percent[1]:=3;
+ELSIF ARbDO[eY11107_Stn03MegasonicGenerator01Power04] THEN ARiMegaPowerPV_percent[1]:=4;
+ELSIF ARbDO[eY11108_Stn03MegasonicGenerator01Power05] THEN ARiMegaPowerPV_percent[1]:=5;
+ELSE  ARiMegaPowerPV_percent[1]:=0;	
+END_IF
+
+// POWER PV STN 03 GENERATOR 02
+
+IF    ARbDO[eY11110_Stn03MegasonicGenerator02Power01] THEN ARiMegaPowerPV_percent[2]:=1; 
+ELSIF ARbDO[eY11111_Stn03MegasonicGenerator02Power02] THEN ARiMegaPowerPV_percent[2]:=2;
+ELSIF ARbDO[eY11112_Stn03MegasonicGenerator02Power03] THEN ARiMegaPowerPV_percent[2]:=3;
+ELSIF ARbDO[eY11113_Stn03MegasonicGenerator02Power04] THEN ARiMegaPowerPV_percent[2]:=4;
+ELSIF ARbDO[eY11114_Stn03MegasonicGenerator02Power05] THEN ARiMegaPowerPV_percent[2]:=5;
+ELSE  ARiMegaPowerPV_percent[2]:=0;	
+END_IF
+
+// POWER PV STN 06 GENERATOR 01
+
+IF    ARbDO[eY12003_Stn06MegasonicGenerator01Power01] THEN ARiMegaPowerPV_percent[3]:=1; 
+ELSIF ARbDO[eY12004_Stn06MegasonicGenerator01Power02] THEN ARiMegaPowerPV_percent[3]:=2;
+ELSIF ARbDO[eY12005_Stn06MegasonicGenerator01Power03] THEN ARiMegaPowerPV_percent[3]:=3;
+ELSIF ARbDO[eY12006_Stn06MegasonicGenerator01Power04] THEN ARiMegaPowerPV_percent[3]:=4;
+ELSIF ARbDO[eY12007_Stn06MegasonicGenerator01Power05] THEN ARiMegaPowerPV_percent[3]:=5;
+ELSE  ARiMegaPowerPV_percent[3]:=0;	
+END_IF
+
+// POWER PV STN 06 GENERATOR 02
+
+IF    ARbDO[eY12009_Stn06MegasonicGenerator02Power01] THEN ARiMegaPowerPV_percent[4]:=1; 
+ELSIF ARbDO[eY12010_Stn06MegasonicGenerator02Power02] THEN ARiMegaPowerPV_percent[4]:=2;
+ELSIF ARbDO[eY12011_Stn06MegasonicGenerator02Power03] THEN ARiMegaPowerPV_percent[4]:=3;
+ELSIF ARbDO[eY12012_Stn06MegasonicGenerator02Power04] THEN ARiMegaPowerPV_percent[4]:=4;
+ELSIF ARbDO[eY12013_Stn06MegasonicGenerator02Power05] THEN ARiMegaPowerPV_percent[4]:=5;
+ELSE  ARiMegaPowerPV_percent[4]:=0;	
+END_IF
+
+
+// FREQ PV
+
+ARiMegaFreqPV_kHz[1] :=  500; // STATION 03 GENERATOR 01
+ARiMegaFreqPV_kHz[2] :=  500; // STATION 03 GENERATOR 02
+
+ARiMegaFreqPV_kHz[3] :=  1000; // STATION 06 GENERATOR 01
+ARiMegaFreqPV_kHz[4] :=  1000; // STATION 06 GENERATOR 02
+]]></ST>
+    </Implementation>
+    <LineIds Name="MegasonicModbusProgram_ST">
+      <LineId Id="363" Count="0" />
+      <LineId Id="426" Count="0" />
+      <LineId Id="429" Count="0" />
+      <LineId Id="432" Count="0" />
+      <LineId Id="435" Count="4" />
+      <LineId Id="442" Count="0" />
+      <LineId Id="455" Count="0" />
+      <LineId Id="448" Count="0" />
+      <LineId Id="456" Count="0" />
+      <LineId Id="449" Count="5" />
+      <LineId Id="440" Count="0" />
+      <LineId Id="457" Count="0" />
+      <LineId Id="460" Count="7" />
+      <LineId Id="458" Count="1" />
+      <LineId Id="468" Count="7" />
+      <LineId Id="430" Count="0" />
+      <LineId Id="477" Count="0" />
+      <LineId Id="374" Count="1" />
+      <LineId Id="377" Count="0" />
+      <LineId Id="367" Count="0" />
+      <LineId Id="384" Count="0" />
+      <LineId Id="390" Count="1" />
+      <LineId Id="397" Count="0" />
+      <LineId Id="266" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

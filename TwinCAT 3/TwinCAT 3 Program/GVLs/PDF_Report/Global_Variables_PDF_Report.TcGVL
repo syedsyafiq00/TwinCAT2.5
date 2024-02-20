@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_PDF_Report" Id="{2d771eeb-e33a-4e0b-80af-d87d64f94d69}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+	sNameUser	:STRING;													(*Map with User login Name*)
+
+	a1_dataLink								: ARRAY [1..100] OF ST_DataLog;
+	a2_dataLink								: ARRAY [1..100] OF ST_DataLog;
+	a3_dataLink								: ARRAY [1..100] OF ST_DataLog;
+	a4_dataLink								: ARRAY [1..100] OF ST_DataLog;
+	a5_dataLink								: ARRAY [1..100] OF ST_DataLog;
+	a6_dataLink								: ARRAY [1..100] OF ST_DataLog;
+	a7_dataLink								: ARRAY [1..100] OF ST_DataLog;
+	a8_dataLink								: ARRAY [1..100] OF ST_DataLog;
+	a9_dataLink								: ARRAY [1..100] OF ST_DataLog;
+	a10_dataLink								: ARRAY [1..100] OF ST_DataLog;
+	a11_dataLink								: ARRAY [1..100] OF ST_DataLog;
+	a12_dataLink								: ARRAY [1..100] OF ST_DataLog;
+
+	sLdtittle								: STRING;
+	sStn1tittle								: STRING;
+	sStn2tittle								: STRING;
+	sStn3tittle								: STRING;
+	sStn4tittle								: STRING;
+	sStn5tittle								: STRING;
+	sStn6tittle								: STRING;
+	sStn7tittle								: STRING;
+	sStn8tittle								: STRING;
+	sStn9tittle								: STRING;
+	sStn10tittle								: STRING;
+	sStn11tittle								: STRING;
+	sStn12tittle								: STRING;
+	sStn13tittle								: STRING;
+
+	
+	ARsLdBasketInTime 					: ARRAY [0..iLdStnQty] OF STRING;
+	ARsStnBasketInTime 					: ARRAY [0..iStnQty] OF STRING;
+	ARsStnBasketOutTime 				: ARRAY [0..iStnQty] OF STRING;
+	ARsUldBasketInTime 					: ARRAY [0..iUldStnQty] OF STRING;
+	
+	ARiLdBasketProductRecipeBuffer 		: ARRAY [0..iLdStnQty] OF INT;
+	ARsLdBasketNoBuffer 				: ARRAY [0..iLdStnQty] OF STRING;
+	
+	ARiStnBasketProductRecipeBuffer 	: ARRAY [0..iStnQty] OF INT;
+	ARsStnBasketNoBuffer 				: ARRAY [0..iStnQty] OF STRING;
+	
+	ARiUldBasketProductRecipeBuffer 	: ARRAY [0..iUldStnQty] OF INT;
+	ARsUldBasketNoBuffer 				: ARRAY [0..iUldStnQty] OF STRING;
+	
+END_VAR
+
+VAR_GLOBAL PERSISTENT
+
+	iProgBatchTotal							:INT; (*For Unique nobor for each file*)
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

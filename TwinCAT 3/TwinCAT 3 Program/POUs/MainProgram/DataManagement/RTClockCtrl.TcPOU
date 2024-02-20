@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="RTClockCtrl" Id="{68391f14-5129-411b-8e69-433640af71d1}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM RTClockCtrl
+VAR
+
+(*Local*)
+	TMOUT				: TIME := DEFAULT_ADS_TIMEOUT;(* Max fb execution time *)
+	BUSY				: BOOL;
+	ERR				: BOOL;
+	ERRID				: UDINT;
+	TIMESTR			: TIMESTRUCT;(* Local windows system time *)
+	NTGetTime			: NT_GetTime;
+	t1SClockPulse		: TON;
+	t1SClockPulse_RE	: R_TRIG;
+
+(*Global*)
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[t1SClockPulse(IN:=NOT t1SClockPulse.Q , PT:=t#1s , Q=> , ET=> );
+t1SClockPulse_RE(CLK:=t1SClockPulse.Q , Q=> );
+NTGetTime(
+	NETID:= , 
+	START:=t1SClockPulse_RE.Q ,
+	TMOUT:=TMOUT ,
+	BUSY=>BUSY ,
+	ERR=>ERR ,
+	ERRID=> ERRID,
+	TIMESTR=>TIMESTR );
+
+
+IF TIMESTR.wYear >= wShutDownYear AND TIMESTR.wMonth >= wShutDownMonth AND TIMESTR.wDay >= wShutDownDay AND NOT bMcShutDownDisable THEN
+bSystemError := TRUE;
+END_IF
+
+IF bMcShutDownDisable THEN
+bSystemError := FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="RTClockCtrl">
+      <LineId Id="16" Count="18" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

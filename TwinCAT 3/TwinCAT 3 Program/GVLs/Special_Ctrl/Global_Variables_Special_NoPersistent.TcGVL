@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_Special_NoPersistent" Id="{75a591e5-66ff-4cfa-a8b4-d2a04542e6a8}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Temperature Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARrStnWaterJacketTempPV									: ARRAY [1..iStnQty] OF REAL;
+	ARbStnWaterJacketTempOnOff									: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnWaterJacketTempRDY									: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnWaterJacketTempHAL									: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnWaterJacketTemp1stLimitAlarm							: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnWaterJacketTemp2ndLimitAlarm							: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnWaterJacketTempPreparationNoRdyAlarm					: ARRAY [1..iStnQty] OF BOOL;
+
+	ARrStnSubTankTempPV											: ARRAY [1..iStnQty] OF REAL;
+	ARbStnSubTankTempOnOff										: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnSubTankTempRDY										: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnSubTankTempHAL										: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnSubTankTemp1stLimitAlarm								: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnSubTankTemp2ndLimitAlarm								: ARRAY [1..iStnQty] OF BOOL;
+	ARbStnSubTankTempPreparationNoRdyAlarm						: ARRAY [1..iStnQty] OF BOOL;
+
+	rJRSInlineHeaterTempPV										: REAL;
+	bJRSInlineHeaterTempOnOff									: BOOL;
+	bJRSInlineHeaterTempRDY										: BOOL;
+	bJRSInlineHeaterTempHAL										: BOOL;
+	bJRSInlineHeaterTemp1stLimitAlarm							: BOOL;
+	bJRSInlineHeaterTemp2ndLimitAlarm							: BOOL;
+	bJRSInlineHeaterTempPreparationNoRdyAlarm					: BOOL;
+
+	rIncTempPV													: REAL;
+	bIncTempOnOff												: BOOL;
+	bIncTempRDY													: BOOL;
+	bIncTempHAL													: BOOL;
+	bIncTemp1stLimitAlarm										: BOOL;
+	bIncTemp2ndLimitAlarm										: BOOL;
+	bIncTempPreparationNoRdyAlarm								: BOOL;
+
+	rOilSeparatorTempPV											: REAL;
+	bOilSeparatorTempOnOff										: BOOL;
+	bOilSeparatorTempRDY										: BOOL;
+	bOilSeparatorTempHAL										: BOOL;
+	bOilSeparatorTemp1stLimitAlarm								: BOOL;
+	bOilSeparatorTemp2ndLimitAlarm								: BOOL;
+	bOilSeparatorTempPreparationNoRdyAlarm						: BOOL;
+	
+// 1= Left Top, 2 = Left Bottom, 3= Right Top, 4= Right bottom		
+	ARrStnExternalTempPV										: ARRAY [1..4] OF  REAL;
+	ARbStnExternalTempOnOff										: ARRAY [1..4] OF  BOOL;
+	ARbStnExternalempRDY										: ARRAY [1..4] OF  BOOL;
+	ARbStnExternalTempHAL										: ARRAY [1..4] OF  BOOL;
+	ARbStnExternalTemp1stLimitAlarm								: ARRAY [1..4] OF  BOOL;
+	ARbStnExternalTemp2ndLimitAlarm								: ARRAY [1..4] OF  BOOL;
+	ARbStnExternalTempPreparationNoRdyAlarm						: ARRAY [1..4] OF  BOOL;
+
+	ARrStnIncVaporPurgeTempPV									: ARRAY [1..iStnQty] OF REAL;
+	
+		rStnExternalTempMINsvHMIDisplay								: REAL;
+	rStnExternalTempMAXsvHMIDisplay								: REAL;
+	
+	rStnExternalTempHALMINsvHMIDisplay							: REAL;
+	rStnExternalTempHALMAXsvHMIDisplay							: REAL;
+	
+	rStnExternalTempHYSMINsvHMIDisplay							: REAL;
+	rStnExternalTempHYSMAXsvHMIDisplay							: REAL;
+	
+	rStnExternalTempRDYMINsvHMIDisplay							: REAL;
+	rStnExternalTempRDYMAXsvHMIDisplay							: REAL;
+	
+	rStnExternalTemp1stLimitMINsvHMIDisplay						: REAL;
+	rStnExternalTemp1stLimitMAXsvHMIDisplay						: REAL;
+	
+	iStnExternalPreparationTempMINsvHMIDisplay					: INT;
+	iStnExternalPreparationTempMAXsvHMIDisplay					: INT;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Multi Arm Auto Origin Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	bAutoOriginStep1: BOOL;
+	bAutoOriginStep2: BOOL;
+	bAutoOriginStep3: BOOL;
+	bAutoOriginStep4: BOOL;
+	bAutoOriginStep5: BOOL;
+	bAutoOriginStep6: BOOL;
+	bAutoOriginStep7: BOOL;
+	bAutoOriginStep8: BOOL;
+	bAutoOriginStep9: BOOL;
+
+	bMultiArmAutoOriginComplete: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Multi Arm Pnp Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	bAllMultiArmBtmPos: BOOL;
+	bAllMultiArmTopPos: BOOL;
+
+	bOverallProcessTimeStart: BOOL;
+	bOverallProcessTimeReset: BOOL;
+
+	bOverallProcessTimeComplete: BOOL;
+
+	bMultiArmPnpStep1: BOOL;
+	bMultiArmPnpStep2: BOOL;
+	bMultiArmPnpStep3: BOOL;
+	bMultiArmPnpStep4: BOOL;
+	bMultiArmPnpStep5: BOOL;
+	bMultiArmPnpStep6: BOOL;
+	bMultiArmPnpStep7: BOOL;
+	bMultiArmPnpStep8: BOOL;
+	bMultiArmPnpStep9: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Stn1-3 Station Agitation Process Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	bMultiArm1AgiEn: BOOL;
+	bMultiArm1AgiInProcess: BOOL;
+
+	bMultiArm2AgiEn: BOOL;
+	bMultiArm2AgiInProcess: BOOL;
+
+	bMultiArm3AgiEn: BOOL;
+	bMultiArm3AgiInProcess: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Stn1-3 Station Process Cltr xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	bRecycleMacChillarNoReadySignal  : BOOL;
+	bBasketTransferAvailableAlarmBit	: BOOL;
+(*Stn1*)
+
+	NoInt 							: INT;
+
+	iStn1ProcessTimeFeedSV			: INT;
+	iStn1ProcessTimeSV				: INT;
+	iStn1ProcessTimeFeedEV			: INT;
+
+	iStn1SubSeq1					: INT;
+	iStn1SubSeq2					: INT;
+	iStn1SubSeq3					: INT;
+	iStn1SubSeq4					: INT;
+	iStn1SubSeq5					: INT;
+	iStn1SubSeq6					: INT;
+	iStn1SubSeq7					: INT;
+	iStn1SubSeq8					: INT;
+	iStn1SubSeq9					: INT;
+	iStn1SubSeq10					: INT;
+
+	iStn1SubSeq1PV					: INT;
+	iStn1SubSeq2PV					: INT;
+	iStn1SubSeq3PV					: INT;
+	iStn1SubSeq4PV					: INT;
+	iStn1SubSeq5PV					: INT;
+	iStn1SubSeq6PV					: INT;
+	iStn1SubSeq7PV					: INT;
+	iStn1SubSeq8PV					: INT;
+	iStn1SubSeq9PV					: INT;
+	iStn1SubSeq10PV					: INT;
+
+	iMain_Prog_No					: INT;
+
+	iSubProg_No1					: INT;
+	iStn1SubProg_no					: INT;
+
+	iStn1RecipeNo					: INT;
+	iLdRecipeNo						: INT;
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

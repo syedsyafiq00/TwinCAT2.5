@@ -1,0 +1,1450 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbGnrProductRecipeMemory" Id="{20d122ef-1bd1-4e34-ad8c-9bc27af5805e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbGnrProductRecipeMemory
+
+VAR_INPUT
+	bSavePB : BOOL;
+	bLoadPB : BOOL;
+	bEnableCallArmNo : BOOL;
+	iCallArmNo : INT;
+
+	ARbProductRecipeCallEn(*ARbArmPnpSequenceStorageCall*) : ARRAY [0..iStnQty] OF BOOL;
+	ARiProductRecipeNoCall(*ARiPnpSequenceNoCall*) : ARRAY [0..iStnQty] OF INT;
+	ARiProductRecipeStepCall(*ARiPnpSequenceStepCall*) : ARRAY [0..iStnQty] OF INT;
+
+
+	iVertMaxVelo : INT;
+	iVertMaxAcc : INT;
+	iVertMaxDcc : INT;
+	iVertMinVelo : INT;
+	iVertMinAcc : INT;
+	iVertMinDcc : INT;
+
+END_VAR
+VAR_OUTPUT
+
+	bSaveInd : BOOL;
+	bLoadInd : BOOL;
+
+	DSLdZonePosOut : DSA32_StationZonePosOut;
+	ARDSStationZonePosOut : ARRAY [0..iStnQty] OF DSA32_StationZonePosOut;
+	DSUldZonePosOut : DSA32_StationZonePosOut;
+
+(*	bCallCompleted : BOOL;*)
+(*
+	bInvalidProductRecipeNoErrHold(*bInvalidPnpSequenceNoErrHold*) : BOOL;
+	bInvalidProductRecipeNoErrPulse(*bInvalidPnpSequenceNoErrPulse*): BOOL;
+	bInvalidProductRecipeStepErrHold(*bInvalidPnpSequenceStepErrHold*) : BOOL;
+	bInvalidProductRecipeStepErrPulse(*bInvalidPnpSequenceStepErrPulse*): BOOL;
+*)
+(*
+	bCallUpDownPatternMemoryErr : BOOL;
+	
+ : BOOL;
+	bCallPickStationNoErr : BOOL;
+	bCallTransferStationNoErr : BOOL;
+*)(*
+	iCalledProductRecipeNo(*iCalledPnpSequenceNo*) : INT; (*New*)
+	iCalledProductRecipeStep(*iCalledPnpSequenceStep*): INT; (*New*)
+	sProductRecipeDescription(*sPnpSequenceDescription*) : STRING(50);
+(*	DSA1CalledDownPickMovement : DSA1_UpDownMovement;
+	DSA1CalledUpPickMovement : DSA1_UpDownMovement;
+	DSA1CalledDownTransferMovement : DSA1_UpDownMovement;
+	DSA1CalledUpTransferMovement : DSA1_UpDownMovement;
+*)
+
+
+(*Continue Here*)
+	DSGnrCalledArmPnpParameter : DSGnr_CalledArmPnpParameter;
+
+	iCallCaseNo : INT;*)
+
+	DSfbGnrProductRecipeMemoryOut : DS_fbGnrProductRecipeMemoryOut;
+
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+
+(*	iLdStnID : INT;
+	iUldStnID : INT;
+*)(*	ARiArmID : ARRAY [0..iArmQty] OF INT;*)
+	ARiVertArmPosOffset : ARRAY [0..iArmQty] OF INT;
+	DSA1fbPnpSequenceMemoryCall : DSA1_fbPnpSequenceMemoryCall;
+	DSA1fbPnpSequenceMemoryStore : DSA1_fbPnpSequenceMemoryStore;
+
+	DSA21UpDownPatternCall : DSA21_UpDownPatternCall;
+	DSA21UpDownPatternStore : DSA21_UpDownPatternStore;
+
+	DSA31ArmSpeedProfileCall : DSA31_ArmSpeedProfileCall;
+	DSA31ArmSpeedProfileStore : DSA31_ArmSpeedProfileStore;
+
+	DSLdZoneHeight : DSA32_StationZoneHeight;
+	ARDSStationZoneHeight : ARRAY [0..iStnQty] OF DSA32_StationZoneHeight;
+	DSUldZoneHeight : DSA32_StationZoneHeight;
+
+	DSTimeTrackerInput : DS_TimeTrackerInput; (*New*)
+
+	ARiCurrentHorzStnNo						: ARRAY [1..iArmQty] OF INT;
+	ARi1StepPatternNo						: ARRAY [1..iArmQty] OF INT;
+	ARDs1StepUpDownMovement			: ARRAY [1..iArmQty] OF DSA1_UpDownMovement;
+	ARi4StepPatternNo						: ARRAY [1..iArmQty] OF INT;
+	ARDs4StepUpDownMovement			: ARRAY [1..iArmQty] OF DSA1_UpDownMovement;
+
+
+END_VAR
+
+VAR (*PERSISTENT*)
+
+	fbA1PnpSequenceMemory: fbA1_PnpSequenceMemory;
+	fbA21UpDownPattern: fbA21_UpDownPattern;
+	fbA31ArmSpeedProfileMemory: fbA31_ArmSpeedProfileMemory;
+	fbA32MachineZoneHeight: fbA32_MachineZoneHeight;
+
+
+END_VAR
+VAR
+	iProductRecipeNoCall(*iPnpSequenceNoCall*) : INT;
+	iProductRecipeStepCall(*iPnpSequenceStepCall*): INT;
+	bCallSt: BOOL;
+
+	CallSelfCheckHR: BOOL;
+(*	iPreviousPnpSequenceStep(*iPreviousPnpSequenceStep*): INT;*)
+	CallSelfCheckRE : R_TRIG;
+(*	febInvalidProductRecipeeNo(*febInvalidPnpSequenceNo*) : F_TRIG;
+	febInvalidProductRecipeStep(*febInvalidPnpSequenceStep*) : F_TRIG;
+*)
+	tInvalidProductRecipeNoErrTimer(*tInvalidPnpSequenceNoErrTimer*): TON;
+	tInvalidProductRecipeStepErrTimer(*tInvalidPnpSequenceStepErrTimer*): TON;
+	rebInvalidProductRecipeNo(*rebInvalidPnpSequenceNo*): R_TRIG;
+	rebInvalidProductRecipeStep(*rebInvalidPnpSequenceStep*): R_TRIG;
+
+	reCallCompleted: R_TRIG;
+	CallCompletedTimer: TON;
+
+	rebInvalidUpDownPatternMemoryCall: R_TRIG;
+	rebInvalidSpeedProfileMemoryCall: R_TRIG;
+	rebCallSt: R_TRIG;
+	tCallArmSpeedProfileMemoryErrTimer: TON;
+	tCallUpDownPatternMemoryErrTimer: TON;
+
+	iBufferPickStationNo: INT;
+	iBufferTransferStationNo: INT;
+
+	iBufferDownPickPatternNo: INT;
+	iBufferUpPickPatternNo: INT;
+	iBufferDownTransferPatternNo: INT;
+	iBufferUpTransferPatternNo: INT;
+
+	DSBufferDownPickPattern : DSA21_UpDownPatternMemory;
+	DSBufferUpPickPattern : DSA21_UpDownPatternMemory;
+	DSBufferDownTransferPattern : DSA21_UpDownPatternMemory;
+	DSBufferUpTransferPattern : DSA21_UpDownPatternMemory;
+
+(*	DSBufferDownPickSpdProfile : ARRAY [1..4] OF DSA31_ArmSpeedProfileMemory;
+	DSBufferUpPickSpdProfile : ARRAY [1..4] OF DSA31_ArmSpeedProfileMemory;
+	DSBufferDownTransferSpdProfile : ARRAY [1..4] OF DSA31_ArmSpeedProfileMemory;
+	DSBufferUpTransferSpdProfile : ARRAY [1..4] OF DSA31_ArmSpeedProfileMemory;*)
+
+
+	bCallStRE: R_TRIG;
+	bCallStFE: F_TRIG;
+	tCallPickStationNoErrTimer: TON;
+	tCallTransferStationNoErrTimer: TON;
+	iCallCheck: INT;
+	iCalledDataRequestFromStationNo: INT;
+	bCalledDataRequestStationFound: BOOL;
+	iPull1StepFL: INT;
+	iPull4StepFL: INT;
+	DSEmptyPnpSequenceMemory : DSA1_PnpSequenceMemory;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+(*Call TimeTracker - Product Recipe Info*)
+IF DSTimeTrackerInput.iTimeTrackerProductRecipeNo > 0 AND DSTimeTrackerInput.iTimeTrackerProductRecipeNo <= iProductRecipeArrayQty THEN
+DSTimeTrackerInput.ARiCallArmNo 									:= fbA1PnpSequenceMemory.ARDsPnpSequenceMemory[DSTimeTrackerInput.iTimeTrackerProductRecipeNo].ARiCallArmNo;
+DSTimeTrackerInput.ARiPickStationNo								:= fbA1PnpSequenceMemory.ARDsPnpSequenceMemory[DSTimeTrackerInput.iTimeTrackerProductRecipeNo].ARiPickStationNo;
+DSTimeTrackerInput.ARiStnSeqRepNo 								:= fbA1PnpSequenceMemory.ARDsPnpSequenceMemory[DSTimeTrackerInput.iTimeTrackerProductRecipeNo].ARiStnSeqRepNo;
+DSTimeTrackerInput.ARiTransferStationNo 							:= fbA1PnpSequenceMemory.ARDsPnpSequenceMemory[DSTimeTrackerInput.iTimeTrackerProductRecipeNo].ARiTransferStationNo;
+ELSE
+DSTimeTrackerInput.ARiCallArmNo 									:= DSEmptyPnpSequenceMemory.ARiCallArmNo;
+DSTimeTrackerInput.ARiPickStationNo								:= DSEmptyPnpSequenceMemory.ARiPickStationNo;
+DSTimeTrackerInput.ARiStnSeqRepNo 								:= DSEmptyPnpSequenceMemory.ARiStnSeqRepNo;
+DSTimeTrackerInput.ARiTransferStationNo 							:= DSEmptyPnpSequenceMemory.ARiTransferStationNo;
+END_IF
+
+
+(*1 Step UpDownMovement Data Pulling*)
+iPull1StepFL := 1;
+
+FOR iPull1StepFL := 1 TO iArmQty DO
+	IF iPull1StepFL >=1 AND iPull1StepFL <= iArmQty THEN
+			(*With Condition*)
+			IF ARiCurrentHorzStnNo[iPull1StepFL] = iLdStnID THEN
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone1StartPos					:= DSLdZonePosOut.lrZone1StartPos - ARiVertArmPosOffset[ARiCurrentHorzStnNo[iPull1StepFL]];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone1EndPos					:= DSLdZonePosOut.lrZone1EndPos - ARiVertArmPosOffset[ARiCurrentHorzStnNo[iPull1StepFL]];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone2StartPos					:= DSLdZonePosOut.lrZone2StartPos - ARiVertArmPosOffset[ARiCurrentHorzStnNo[iPull1StepFL]];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone2EndPos					:= DSLdZonePosOut.lrZone2EndPos - ARiVertArmPosOffset[ARiCurrentHorzStnNo[iPull1StepFL]];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone3StartPos					:= DSLdZonePosOut.lrZone3StartPos - ARiVertArmPosOffset[ARiCurrentHorzStnNo[iPull1StepFL]];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone3EndPos					:= DSLdZonePosOut.lrZone3EndPos - ARiVertArmPosOffset[ARiCurrentHorzStnNo[iPull1StepFL]];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone4StartPos					:= DSLdZonePosOut.lrZone4StartPos - ARiVertArmPosOffset[ARiCurrentHorzStnNo[iPull1StepFL]];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone4EndPos					:= DSLdZonePosOut.lrZone4EndPos - ARiVertArmPosOffset[ARiCurrentHorzStnNo[iPull1StepFL]];
+
+			ARDs1StepUpDownMovement[iPull1StepFL].lrMidPos							:= DSLdZonePosOut.lrMidPos;
+
+			END_IF
+			
+			IF ARiCurrentHorzStnNo[iPull1StepFL] = iUldStnID THEN
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone1StartPos					:= DSUldZonePosOut.lrZone1StartPos - ARiVertArmPosOffset[iPull1StepFL];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone1EndPos					:= DSUldZonePosOut.lrZone1EndPos - ARiVertArmPosOffset[iPull1StepFL];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone2StartPos					:= DSUldZonePosOut.lrZone2StartPos - ARiVertArmPosOffset[iPull1StepFL];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone2EndPos					:= DSUldZonePosOut.lrZone2EndPos - ARiVertArmPosOffset[iPull1StepFL];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone3StartPos					:= DSUldZonePosOut.lrZone3StartPos - ARiVertArmPosOffset[iPull1StepFL];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone3EndPos					:= DSUldZonePosOut.lrZone3EndPos - ARiVertArmPosOffset[iPull1StepFL];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone4StartPos					:= DSUldZonePosOut.lrZone4StartPos - ARiVertArmPosOffset[iPull1StepFL];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone4EndPos					:= DSUldZonePosOut.lrZone4EndPos - ARiVertArmPosOffset[iPull1StepFL];
+
+			ARDs1StepUpDownMovement[iPull1StepFL].lrMidPos							:= DSUldZonePosOut.lrMidPos;
+
+			END_IF
+			
+			IF ARiCurrentHorzStnNo[iPull1StepFL] >= 1 AND ARiCurrentHorzStnNo[iPull1StepFL] <= iStnQty THEN
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone1StartPos					:= ARDSStationZonePosOut[ARiCurrentHorzStnNo[iPull1StepFL]].lrZone1StartPos - ARiVertArmPosOffset[iPull1StepFL];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone1EndPos					:= ARDSStationZonePosOut[ARiCurrentHorzStnNo[iPull1StepFL]].lrZone1EndPos - ARiVertArmPosOffset[iPull1StepFL];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone2StartPos					:= ARDSStationZonePosOut[ARiCurrentHorzStnNo[iPull1StepFL]].lrZone2StartPos - ARiVertArmPosOffset[iPull1StepFL];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone2EndPos					:= ARDSStationZonePosOut[ARiCurrentHorzStnNo[iPull1StepFL]].lrZone2EndPos - ARiVertArmPosOffset[iPull1StepFL];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone3StartPos					:= ARDSStationZonePosOut[ARiCurrentHorzStnNo[iPull1StepFL]].lrZone3StartPos - ARiVertArmPosOffset[iPull1StepFL];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone3EndPos					:= ARDSStationZonePosOut[ARiCurrentHorzStnNo[iPull1StepFL]].lrZone3EndPos - ARiVertArmPosOffset[iPull1StepFL];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone4StartPos					:= ARDSStationZonePosOut[ARiCurrentHorzStnNo[iPull1StepFL]].lrZone4StartPos - ARiVertArmPosOffset[iPull1StepFL];
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone4EndPos					:= ARDSStationZonePosOut[ARiCurrentHorzStnNo[iPull1StepFL]].lrZone4EndPos - ARiVertArmPosOffset[iPull1StepFL];
+
+			ARDs1StepUpDownMovement[iPull1StepFL].lrMidPos							:= ARDSStationZonePosOut[ARiCurrentHorzStnNo[iPull1StepFL]].lrMidPos;
+
+			END_IF
+
+			(*No condition*)
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone1SpeedVelo				:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi1StepPatternNo[iPull1StepFL]].iZone1SpdProfileNo].lrSpeedVelo;
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone2SpeedVelo				:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi1StepPatternNo[iPull1StepFL]].iZone2SpdProfileNo].lrSpeedVelo;
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone3SpeedVelo				:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi1StepPatternNo[iPull1StepFL]].iZone3SpdProfileNo].lrSpeedVelo;
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone4SpeedVelo				:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi1StepPatternNo[iPull1StepFL]].iZone4SpdProfileNo].lrSpeedVelo;
+			
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone1Acc						:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi1StepPatternNo[iPull1StepFL]].iZone1SpdProfileNo].lrAcc;
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone1Dcc						:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi1StepPatternNo[iPull1StepFL]].iZone1SpdProfileNo].lrDcc;
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone2Acc						:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi1StepPatternNo[iPull1StepFL]].iZone2SpdProfileNo].lrAcc;
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone2Dcc						:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi1StepPatternNo[iPull1StepFL]].iZone2SpdProfileNo].lrDcc;
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone3Acc						:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi1StepPatternNo[iPull1StepFL]].iZone3SpdProfileNo].lrAcc;
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone3Dcc						:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi1StepPatternNo[iPull1StepFL]].iZone3SpdProfileNo].lrDcc;
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone4Acc						:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi1StepPatternNo[iPull1StepFL]].iZone4SpdProfileNo].lrAcc;
+			ARDs1StepUpDownMovement[iPull1StepFL].lrZone4Dcc						:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi1StepPatternNo[iPull1StepFL]].iZone4SpdProfileNo].lrDcc;
+			
+			ARDs1StepUpDownMovement[iPull1StepFL].sReservedLreal;
+			ARDs1StepUpDownMovement[iPull1StepFL].sUpDownPatternDescription	:= fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi1StepPatternNo[iPull1StepFL]].sDescription;
+	END_IF
+END_FOR
+
+
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+(*Call DS4StepUpDownMovement*)
+
+
+(*1 Step UpDownMovement Data Pulling*)
+iPull4StepFL := 1;
+
+FOR iPull4StepFL := 1 TO iArmQty DO
+	IF iPull4StepFL >=1 AND iPull4StepFL <= iArmQty THEN
+			(*With Condition*)
+			IF ARiCurrentHorzStnNo[iPull4StepFL] = iLdStnID THEN
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone1StartPos					:= DSLdZonePosOut.lrZone1StartPos - ARiVertArmPosOffset[ARiCurrentHorzStnNo[iPull4StepFL]];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone1EndPos					:= DSLdZonePosOut.lrZone1EndPos - ARiVertArmPosOffset[ARiCurrentHorzStnNo[iPull4StepFL]];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone2StartPos					:= DSLdZonePosOut.lrZone2StartPos - ARiVertArmPosOffset[ARiCurrentHorzStnNo[iPull4StepFL]];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone2EndPos					:= DSLdZonePosOut.lrZone2EndPos - ARiVertArmPosOffset[ARiCurrentHorzStnNo[iPull4StepFL]];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone3StartPos					:= DSLdZonePosOut.lrZone3StartPos - ARiVertArmPosOffset[ARiCurrentHorzStnNo[iPull4StepFL]];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone3EndPos					:= DSLdZonePosOut.lrZone3EndPos - ARiVertArmPosOffset[ARiCurrentHorzStnNo[iPull4StepFL]];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone4StartPos					:= DSLdZonePosOut.lrZone4StartPos - ARiVertArmPosOffset[ARiCurrentHorzStnNo[iPull4StepFL]];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone4EndPos					:= DSLdZonePosOut.lrZone4EndPos - ARiVertArmPosOffset[ARiCurrentHorzStnNo[iPull4StepFL]];
+
+			ARDs4StepUpDownMovement[iPull4StepFL].lrMidPos							:= DSLdZonePosOut.lrMidPos;
+
+			END_IF
+
+			IF ARiCurrentHorzStnNo[iPull4StepFL] = iUldStnID THEN
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone1StartPos					:= DSUldZonePosOut.lrZone1StartPos - ARiVertArmPosOffset[iPull4StepFL];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone1EndPos					:= DSUldZonePosOut.lrZone1EndPos - ARiVertArmPosOffset[iPull4StepFL];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone2StartPos					:= DSUldZonePosOut.lrZone2StartPos - ARiVertArmPosOffset[iPull4StepFL];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone2EndPos					:= DSUldZonePosOut.lrZone2EndPos - ARiVertArmPosOffset[iPull4StepFL];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone3StartPos					:= DSUldZonePosOut.lrZone3StartPos - ARiVertArmPosOffset[iPull4StepFL];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone3EndPos					:= DSUldZonePosOut.lrZone3EndPos - ARiVertArmPosOffset[iPull4StepFL];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone4StartPos					:= DSUldZonePosOut.lrZone4StartPos - ARiVertArmPosOffset[iPull4StepFL];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone4EndPos					:= DSUldZonePosOut.lrZone4EndPos - ARiVertArmPosOffset[iPull4StepFL];
+
+			ARDs4StepUpDownMovement[iPull4StepFL].lrMidPos							:= DSUldZonePosOut.lrMidPos;
+
+			END_IF
+
+			IF ARiCurrentHorzStnNo[iPull4StepFL] >= 1 AND ARiCurrentHorzStnNo[iPull4StepFL] <= iStnQty THEN
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone1StartPos					:= ARDSStationZonePosOut[ARiCurrentHorzStnNo[iPull4StepFL]].lrZone1StartPos - ARiVertArmPosOffset[iPull4StepFL];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone1EndPos					:= ARDSStationZonePosOut[ARiCurrentHorzStnNo[iPull4StepFL]].lrZone1EndPos - ARiVertArmPosOffset[iPull4StepFL];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone2StartPos					:= ARDSStationZonePosOut[ARiCurrentHorzStnNo[iPull4StepFL]].lrZone2StartPos - ARiVertArmPosOffset[iPull4StepFL];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone2EndPos					:= ARDSStationZonePosOut[ARiCurrentHorzStnNo[iPull4StepFL]].lrZone2EndPos - ARiVertArmPosOffset[iPull4StepFL];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone3StartPos					:= ARDSStationZonePosOut[ARiCurrentHorzStnNo[iPull4StepFL]].lrZone3StartPos - ARiVertArmPosOffset[iPull4StepFL];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone3EndPos					:= ARDSStationZonePosOut[ARiCurrentHorzStnNo[iPull4StepFL]].lrZone3EndPos - ARiVertArmPosOffset[iPull4StepFL];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone4StartPos					:= ARDSStationZonePosOut[ARiCurrentHorzStnNo[iPull4StepFL]].lrZone4StartPos - ARiVertArmPosOffset[iPull4StepFL];
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone4EndPos					:= ARDSStationZonePosOut[ARiCurrentHorzStnNo[iPull4StepFL]].lrZone4EndPos - ARiVertArmPosOffset[iPull4StepFL];
+
+			ARDs4StepUpDownMovement[iPull4StepFL].lrMidPos							:= ARDSStationZonePosOut[ARiCurrentHorzStnNo[iPull4StepFL]].lrMidPos;
+
+			END_IF
+
+			(*No condition*)
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone1SpeedVelo				:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi4StepPatternNo[iPull4StepFL]].iZone1SpdProfileNo].lrSpeedVelo;
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone2SpeedVelo				:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi4StepPatternNo[iPull4StepFL]].iZone2SpdProfileNo].lrSpeedVelo;
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone3SpeedVelo				:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi4StepPatternNo[iPull4StepFL]].iZone3SpdProfileNo].lrSpeedVelo;
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone4SpeedVelo				:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi4StepPatternNo[iPull4StepFL]].iZone4SpdProfileNo].lrSpeedVelo;
+
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone1Acc						:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi4StepPatternNo[iPull4StepFL]].iZone1SpdProfileNo].lrAcc;
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone1Dcc						:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi4StepPatternNo[iPull4StepFL]].iZone1SpdProfileNo].lrDcc;
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone2Acc						:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi4StepPatternNo[iPull4StepFL]].iZone2SpdProfileNo].lrAcc;
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone2Dcc						:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi4StepPatternNo[iPull4StepFL]].iZone2SpdProfileNo].lrDcc;
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone3Acc						:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi4StepPatternNo[iPull4StepFL]].iZone3SpdProfileNo].lrAcc;
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone3Dcc						:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi4StepPatternNo[iPull4StepFL]].iZone3SpdProfileNo].lrDcc;
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone4Acc						:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi4StepPatternNo[iPull4StepFL]].iZone4SpdProfileNo].lrAcc;
+			ARDs4StepUpDownMovement[iPull4StepFL].lrZone4Dcc						:= fbA31ArmSpeedProfileMemory.ARDsArmSpeedProfileMemory[fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi4StepPatternNo[iPull4StepFL]].iZone4SpdProfileNo].lrDcc;
+
+			ARDs4StepUpDownMovement[iPull4StepFL].sReservedLreal;
+			ARDs4StepUpDownMovement[iPull4StepFL].sUpDownPatternDescription	:= fbA21UpDownPattern.ARDsUpdownPatternMemory[ARi4StepPatternNo[iPull4StepFL]].sDescription;
+	END_IF
+END_FOR
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+(*Check Which Staton Request for Data*)
+iCallCheck := 0;
+bCalledDataRequestStationFound := FALSE;
+
+FOR iCallCheck := 0 TO iStnQty DO
+		IF ARbProductRecipeCallEn[iCallCheck] THEN
+		iCalledDataRequestFromStationNo := iCallCheck;
+		bCalledDataRequestStationFound := TRUE;
+		iCallCheck := 28;
+		END_IF
+END_FOR
+
+IF NOT bCalledDataRequestStationFound AND iCallCheck < iStnQty THEN
+		iCalledDataRequestFromStationNo := 0;
+END_IF
+
+iProductRecipeNoCall := ARiProductRecipeNoCall[iCalledDataRequestFromStationNo];
+iProductRecipeStepCall := ARiProductRecipeStepCall[iCalledDataRequestFromStationNo];
+bCallSt := bCalledDataRequestStationFound;
+
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+(*Reset fb*)
+bCallStRE(CLK:=bCallSt , Q=> );
+bCallStFE(CLK:=bCallSt , Q=> );
+
+IF bCallStRE.Q OR bCallStFE.Q THEN
+DSA1fbPnpSequenceMemoryCall.bCallPB := FALSE;
+DSA21UpDownPatternCall.bCallPB := FALSE;
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+DSfbGnrProductRecipeMemoryOut.bCallCompleted := FALSE;
+DSfbGnrProductRecipeMemoryOut.bCallArmSpeedProfileMemoryErr := FALSE;
+DSfbGnrProductRecipeMemoryOut.bCallUpDownPatternMemoryErr := FALSE;
+DSfbGnrProductRecipeMemoryOut.bCallPickStationNoErr := FALSE;
+DSfbGnrProductRecipeMemoryOut.bCallTransferStationNoErr := FALSE;
+
+iBufferPickStationNo:= 0;
+iBufferTransferStationNo:= 0;
+iBufferDownPickPatternNo:= 0;
+iBufferUpPickPatternNo:= 0;
+iBufferDownTransferPatternNo:= 0;
+iBufferUpTransferPatternNo:= 0;
+(*
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.iCallArmNo := 0;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.iPickStationNo := 0;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.iTransferStationNo := 0;
+*)
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo := 0;
+
+END_IF
+(*
+(*Limit Loading and Unloading ID*)
+IF iLdStnID < iStnQty THEN
+iLdStnID:= iStnQty + 1;
+END_IF
+IF iUldStnID < iStnQty THEN
+iUldStnID:= iStnQty + 2;
+END_IF
+*)
+
+
+(*Reset Err after 0.5Sec*)
+(*
+tCallPickStationNoErrTimer(IN:= DSfbGnrProductRecipeMemoryOut.bCallPickStationNoErr , PT:=t#0.5s , Q=> , ET=> );
+*)
+IF tCallPickStationNoErrTimer.Q OR NOT bCallSt THEN
+DSfbGnrProductRecipeMemoryOut.bCallPickStationNoErr := FALSE;
+END_IF
+
+(*
+tCallTransferStationNoErrTimer(IN:= DSfbGnrProductRecipeMemoryOut.bCallTransferStationNoErr , PT:=t#0.5s , Q=> , ET=> );
+*)
+IF tCallTransferStationNoErrTimer.Q OR NOT bCallSt THEN
+DSfbGnrProductRecipeMemoryOut.bCallTransferStationNoErr := FALSE;
+END_IF
+
+(*
+tCallArmSpeedProfileMemoryErrTimer(IN:= DSfbGnrProductRecipeMemoryOut.bCallArmSpeedProfileMemoryErr , PT:=t#0.5s , Q=> , ET=> );
+*)
+IF tCallArmSpeedProfileMemoryErrTimer.Q OR NOT bCallSt THEN
+DSfbGnrProductRecipeMemoryOut.bCallArmSpeedProfileMemoryErr := FALSE;
+END_IF
+
+(*
+tCallUpDownPatternMemoryErrTimer(IN:= DSfbGnrProductRecipeMemoryOut.bCallUpDownPatternMemoryErr , PT:=t#0.5s , Q=> , ET=> );
+*)
+IF tCallUpDownPatternMemoryErrTimer.Q OR NOT bCallSt THEN
+DSfbGnrProductRecipeMemoryOut.bCallUpDownPatternMemoryErr := FALSE;
+END_IF
+
+(*Trigger Error*)
+
+IF (iProductRecipeNoCall <= 0 OR iProductRecipeNoCall > iProductRecipeArrayQty) AND bCallSt THEN
+DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeNoErrHold := TRUE;
+ELSE
+DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeNoErrHold := FALSE;
+END_IF
+
+IF (iProductRecipeStepCall <= 0 OR iProductRecipeStepCall > iProductRecipeStepArrayQty) AND bCallSt THEN
+DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeStepErrHold := TRUE;
+ELSE
+DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeStepErrHold := FALSE;
+END_IF
+
+rebInvalidProductRecipeNo(CLK:=DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeNoErrHold AND bCallSt , Q=> );
+
+IF rebInvalidProductRecipeNo.Q THEN
+DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeNoErrPulse := TRUE;
+END_IF
+
+rebInvalidProductRecipeStep(CLK:=DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeStepErrHold AND bCallSt , Q=> );
+
+IF rebInvalidProductRecipeStep.Q THEN
+DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeStepErrPulse := TRUE;
+END_IF
+
+
+tInvalidProductRecipeNoErrTimer(IN:= DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeNoErrHold , PT:=t#0.5s , Q=> , ET=> );
+
+IF tInvalidProductRecipeNoErrTimer.Q OR NOT bCallSt THEN
+DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeNoErrPulse := FALSE;
+END_IF
+
+
+tInvalidProductRecipeStepErrTimer(IN:= DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeStepErrHold , PT:=t#0.5s , Q=> , ET=> );
+
+IF tInvalidProductRecipeStepErrTimer.Q OR NOT bCallSt THEN
+DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeStepErrPulse := FALSE;
+END_IF
+
+(*Declare FB*)
+
+fbA1PnpSequenceMemory(
+	bSavePB:=bSavePB ,
+	bLoadPB:= bLoadPB,
+	bCopyPB:=DSA1fbPnpSequenceMemoryStore.bCopyPB ,
+	iCopyToProductRecipeNo:=DSA1fbPnpSequenceMemoryStore.iCopyToProductRecipeNo ,
+(*	iLdStnID:= iLdStnID,
+	iUldStnID:= iUldStnID,
+*)	iProductRecipeNo:=DSA1fbPnpSequenceMemoryStore.iProductRecipeNo ,
+	DSA1inPnpSequenceMemory:=DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory ,
+	Call_iProductRecipeNo:=DSA1fbPnpSequenceMemoryCall.Call_iProductRecipeNo ,
+	bCallPB:=DSA1fbPnpSequenceMemoryCall.bCallPB ,
+	bSaveInd=>bSaveInd ,
+	bLoadInd=> bLoadInd,
+	bCallCompleted=>DSA1fbPnpSequenceMemoryCall.bCallCompleted ,
+	bInvalidCallProductRecipeNoHold=>DSA1fbPnpSequenceMemoryCall.bInvalidCallProductRecipeNoHold ,
+	bInvalidCallProductRecipeNoPulse=>DSA1fbPnpSequenceMemoryCall.bInvalidCallProductRecipeNoPulse ,
+	Call_DSA1PnpSequenceMemory=>DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory );
+
+fbA21UpDownPattern(
+	bSavePB:=bSavePB ,
+	bLoadPB:= bLoadPB,
+	bCopyPB:=DSA21UpDownPatternStore.bCopyPB ,
+	iCopyToUpDownPatternNo:= DSA21UpDownPatternStore.iCopyToUpDownPatternNo,
+	iUpDownPatternNo:=DSA21UpDownPatternStore.iUpDownPatternNo ,
+	DSinUpDownPatternMemory:=DSA21UpDownPatternStore.DsInUpDownPatternMemory ,
+	Call_iUpDownPatternNo:=DSA21UpDownPatternCall.Call_iUpDownPatternNo ,
+	bCallPB:=DSA21UpDownPatternCall.bCallPB ,
+	bSaveInd=>bSaveInd ,
+	bLoadInd=>bLoadInd,
+	bCallCompleted=>DSA21UpDownPatternCall.bCallCompleted ,
+	bInvalidCallUpdownPatternNoHold=>DSA21UpDownPatternCall.bInvalidCallUpDownPatternNoHold ,
+	bInvalidCallUpdownPatternNoPulse=>DSA21UpDownPatternCall.bInvalidCallUpDownPatternNoPulse ,
+	Call_DSUpdownPattern=>DSA21UpDownPatternCall.Call_DsUpDownPattern );
+
+fbA31ArmSpeedProfileMemory(
+	bSavePB:= bSavePB,
+	bLoadPB:= bLoadPB,
+	bCopyPB:=DSA31ArmSpeedProfileStore.bCopyPB ,
+	iCopyToSpdProfileNo:=DSA31ArmSpeedProfileStore.iCopyToSpdProfileNo ,
+	iVertMaxVelo:=iVertMaxVelo ,
+	iVertMaxAcc:=iVertMaxAcc ,
+	iVertMaxDcc:=iVertMaxDcc ,
+	iVertMinVelo:=iVertMinVelo ,
+	iVertMinAcc:=iVertMinAcc ,
+	iVertMinDcc:=iVertMinDcc ,
+	iArmSpdProfileNo:= DSA31ArmSpeedProfileStore.iArmSpdProfileNo,
+	DSArmSpeedProfile:= DSA31ArmSpeedProfileStore.DsArmSpeedProfile,
+	Call_iArmSpdProfile:= DSA31ArmSpeedProfileCall.Call_iArmSpdProfile ,
+	bCallPB:= DSA31ArmSpeedProfileCall.bCallPB ,
+	bSaveInd=>bSaveInd ,
+	bLoadInd=>bLoadInd ,
+	bCallCompleted=>DSA31ArmSpeedProfileCall.bCallCompleted ,
+	bInvalidCallArmSpdProfileNoHold=> DSA31ArmSpeedProfileCall.bInvalidCallArmSpdProfileNoHold,
+	bInvalidCallArmSpdProfileNoPulse=> DSA31ArmSpeedProfileCall.bInvalidCallArmSpdProfileNoPulse,
+	Call_DSArmSpeedProfile=>DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile );
+
+
+fbA32MachineZoneHeight(
+	DSLdZoneHeight:=DSLdZoneHeight ,
+	ARDSStationZoneHeight:=ARDSStationZoneHeight ,
+	DSUldZoneHeight:=DSUldZoneHeight ,
+	DSLdZonePosOut=>DSLdZonePosOut ,
+	ARDSStationZonePosOut=>ARDSStationZonePosOut ,
+	DSUldZonePosOut=>DSUldZonePosOut );
+
+
+(*Call Start*)
+
+rebCallSt(CLK:=bCallSt , Q=> );
+IF rebCallSt.Q AND NOT DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeNoErrHold AND NOT DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeStepErrHold(*) OR febInvalidProcessStep.Q*) THEN
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo := 1;
+END_IF
+
+
+
+rebInvalidUpDownPatternMemoryCall(CLK:=DSA21UpDownPatternCall.bInvalidCallUpDownPatternNoHold , Q=> );
+rebInvalidSpeedProfileMemoryCall(CLK:=DSA31ArmSpeedProfileCall.bInvalidCallArmSpdProfileNoHold , Q=> );
+
+
+
+CASE DSfbGnrProductRecipeMemoryOut.iCallCaseNo OF
+
+0:;
+
+1: (*Select PnpSequenceNo By Refering iProductRecipeNoCall*)
+DSfbGnrProductRecipeMemoryOut.bCallUpDownPatternMemoryErr := FALSE;
+DSfbGnrProductRecipeMemoryOut.bCallArmSpeedProfileMemoryErr := FALSE;
+DSfbGnrProductRecipeMemoryOut.bCallPickStationNoErr := FALSE;
+DSfbGnrProductRecipeMemoryOut.bCallTransferStationNoErr := FALSE;
+
+
+DSA1fbPnpSequenceMemoryCall.Call_iProductRecipeNo := iProductRecipeNoCall;
+DSA1fbPnpSequenceMemoryCall.bCallPB := TRUE;
+DSfbGnrProductRecipeMemoryOut.iCalledProductRecipeNo := iProductRecipeNoCall;
+DSfbGnrProductRecipeMemoryOut.iCalledProductRecipeStep := iProductRecipeStepCall;
+
+IF DSA1fbPnpSequenceMemoryCall.bCallCompleted THEN
+DSA1fbPnpSequenceMemoryCall.bCallPB := FALSE;
+
+
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=10;
+
+END_IF
+
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+62: (* Feed Transfer Station Vertical Zone Position*)
+
+
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.iTransferStationNo := iBufferTransferStationNo;
+
+
+IF iBufferTransferStationNo = iLdStnID THEN
+
+		IF bEnableCallArmNo THEN
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone1StartPos := DSLdZonePosOut.lrZone1StartPos - ARiVertArmPosOffset[iCallArmNo] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone2StartPos := DSLdZonePosOut.lrZone2StartPos - ARiVertArmPosOffset[iCallArmNo] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone3StartPos := DSLdZonePosOut.lrZone3StartPos - ARiVertArmPosOffset[iCallArmNo] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone4StartPos := DSLdZonePosOut.lrZone4StartPos - ARiVertArmPosOffset[iCallArmNo] ;
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone1EndPos := DSLdZonePosOut.lrZone1EndPos - ARiVertArmPosOffset[iCallArmNo] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone2EndPos := DSLdZonePosOut.lrZone2EndPos - ARiVertArmPosOffset[iCallArmNo] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone3EndPos := DSLdZonePosOut.lrZone3EndPos - ARiVertArmPosOffset[iCallArmNo] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone4EndPos := DSLdZonePosOut.lrZone4EndPos - ARiVertArmPosOffset[iCallArmNo] ;
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone1StartPos := DSLdZonePosOut.lrZone1StartPos - ARiVertArmPosOffset[iCallArmNo] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone2StartPos := DSLdZonePosOut.lrZone2StartPos - ARiVertArmPosOffset[iCallArmNo] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone3StartPos := DSLdZonePosOut.lrZone3StartPos - ARiVertArmPosOffset[iCallArmNo] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone4StartPos := DSLdZonePosOut.lrZone4StartPos - ARiVertArmPosOffset[iCallArmNo] ;
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone1EndPos := DSLdZonePosOut.lrZone1EndPos - ARiVertArmPosOffset[iCallArmNo] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone2EndPos := DSLdZonePosOut.lrZone2EndPos - ARiVertArmPosOffset[iCallArmNo] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone3EndPos := DSLdZonePosOut.lrZone3EndPos - ARiVertArmPosOffset[iCallArmNo] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone4EndPos := DSLdZonePosOut.lrZone4EndPos - ARiVertArmPosOffset[iCallArmNo] ;
+
+		ELSE
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone1StartPos := DSLdZonePosOut.lrZone1StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone2StartPos := DSLdZonePosOut.lrZone2StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone3StartPos := DSLdZonePosOut.lrZone3StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone4StartPos := DSLdZonePosOut.lrZone4StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]] ;
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone1EndPos := DSLdZonePosOut.lrZone1EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone2EndPos := DSLdZonePosOut.lrZone2EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone3EndPos := DSLdZonePosOut.lrZone3EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone4EndPos := DSLdZonePosOut.lrZone4EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone1StartPos := DSLdZonePosOut.lrZone1StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone2StartPos := DSLdZonePosOut.lrZone2StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone3StartPos := DSLdZonePosOut.lrZone3StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone4StartPos := DSLdZonePosOut.lrZone4StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]] ;
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone1EndPos := DSLdZonePosOut.lrZone1EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone2EndPos := DSLdZonePosOut.lrZone2EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone3EndPos := DSLdZonePosOut.lrZone3EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]] ;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone4EndPos := DSLdZonePosOut.lrZone4EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]] ;
+
+		END_IF
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=71;
+
+END_IF
+
+
+IF iBufferTransferStationNo = iUldStnID THEN
+
+		IF bEnableCallArmNo THEN
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone1StartPos := DSUldZonePosOut.lrZone1StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone2StartPos := DSUldZonePosOut.lrZone2StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone3StartPos := DSUldZonePosOut.lrZone3StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone4StartPos := DSUldZonePosOut.lrZone4StartPos - ARiVertArmPosOffset[iCallArmNo];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone1EndPos := DSUldZonePosOut.lrZone1EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone2EndPos := DSUldZonePosOut.lrZone2EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone3EndPos := DSUldZonePosOut.lrZone3EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone4EndPos := DSUldZonePosOut.lrZone4EndPos - ARiVertArmPosOffset[iCallArmNo];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone1StartPos := DSUldZonePosOut.lrZone1StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone2StartPos := DSUldZonePosOut.lrZone2StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone3StartPos := DSUldZonePosOut.lrZone3StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone4StartPos := DSUldZonePosOut.lrZone4StartPos - ARiVertArmPosOffset[iCallArmNo];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone1EndPos := DSUldZonePosOut.lrZone1EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone2EndPos := DSUldZonePosOut.lrZone2EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone3EndPos := DSUldZonePosOut.lrZone3EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone4EndPos := DSUldZonePosOut.lrZone4EndPos - ARiVertArmPosOffset[iCallArmNo];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrMidPos := DSUldZonePosOut.lrMidPos;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrMidPos := DSUldZonePosOut.lrMidPos;
+
+
+		ELSE
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone1StartPos := DSUldZonePosOut.lrZone1StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone2StartPos := DSUldZonePosOut.lrZone2StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone3StartPos := DSUldZonePosOut.lrZone3StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone4StartPos := DSUldZonePosOut.lrZone4StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone1EndPos := DSUldZonePosOut.lrZone1EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone2EndPos := DSUldZonePosOut.lrZone2EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone3EndPos := DSUldZonePosOut.lrZone3EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone4EndPos := DSUldZonePosOut.lrZone4EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone1StartPos := DSUldZonePosOut.lrZone1StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone2StartPos := DSUldZonePosOut.lrZone2StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone3StartPos := DSUldZonePosOut.lrZone3StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone4StartPos := DSUldZonePosOut.lrZone4StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone1EndPos := DSUldZonePosOut.lrZone1EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone2EndPos := DSUldZonePosOut.lrZone2EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone3EndPos := DSUldZonePosOut.lrZone3EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone4EndPos := DSUldZonePosOut.lrZone4EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrMidPos := DSUldZonePosOut.lrMidPos;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrMidPos := DSUldZonePosOut.lrMidPos;
+
+		END_IF
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=71;
+
+END_IF
+
+
+IF iBufferTransferStationNo <> iLdStnID AND  iBufferTransferStationNo <> iUldStnID AND iBufferTransferStationNo >= 1 AND  iBufferTransferStationNo <= iStnQty THEN
+
+		IF bEnableCallArmNo THEN
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone1StartPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone1StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone2StartPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone2StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone3StartPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone3StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone4StartPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone4StartPos - ARiVertArmPosOffset[iCallArmNo];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone1EndPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone1EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone2EndPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone2EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone3EndPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone3EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone4EndPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone4EndPos - ARiVertArmPosOffset[iCallArmNo];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone1StartPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone1StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone2StartPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone2StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone3StartPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone3StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone4StartPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone4StartPos - ARiVertArmPosOffset[iCallArmNo];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone1EndPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone1EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone2EndPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone2EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone3EndPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone3EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone4EndPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone4EndPos - ARiVertArmPosOffset[iCallArmNo];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrMidPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrMidPos;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrMidPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrMidPos;
+
+
+		ELSE
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone1StartPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone1StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone2StartPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone2StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone3StartPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone3StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone4StartPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone4StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone1EndPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone1EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone2EndPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone2EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone3EndPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone3EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone4EndPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone4EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone1StartPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone1StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone2StartPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone2StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone3StartPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone3StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone4StartPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone4StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone1EndPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone1EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone2EndPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone2EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone3EndPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone3EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone4EndPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrZone4EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrMidPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrMidPos;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrMidPos := ARDSStationZonePosOut[iBufferTransferStationNo].lrMidPos;
+
+		END_IF
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=71;
+
+END_IF
+
+
+IF iBufferTransferStationNo < 1 OR (iBufferTransferStationNo<>iLdStnID AND iBufferTransferStationNo<>iUldStnID AND  iBufferTransferStationNo > iStnQty) THEN
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=84;
+END_IF
+
+61: (* Feed Pick Station Vertical Zone Position*)
+
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.iPickStationNo := iBufferPickStationNo;
+
+
+IF iBufferPickStationNo = iLdStnID THEN
+
+		IF bEnableCallArmNo THEN
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone1StartPos := DSLdZonePosOut.lrZone1StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone2StartPos := DSLdZonePosOut.lrZone2StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone3StartPos := DSLdZonePosOut.lrZone3StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone4StartPos := DSLdZonePosOut.lrZone4StartPos - ARiVertArmPosOffset[iCallArmNo];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone1EndPos := DSLdZonePosOut.lrZone1EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone2EndPos := DSLdZonePosOut.lrZone2EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone3EndPos := DSLdZonePosOut.lrZone3EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone4EndPos := DSLdZonePosOut.lrZone4EndPos - ARiVertArmPosOffset[iCallArmNo];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone1StartPos := DSLdZonePosOut.lrZone1StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone2StartPos := DSLdZonePosOut.lrZone2StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone3StartPos := DSLdZonePosOut.lrZone3StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone4StartPos := DSLdZonePosOut.lrZone4StartPos - ARiVertArmPosOffset[iCallArmNo];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone1EndPos := DSLdZonePosOut.lrZone1EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone2EndPos := DSLdZonePosOut.lrZone2EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone3EndPos := DSLdZonePosOut.lrZone3EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone4EndPos := DSLdZonePosOut.lrZone4EndPos - ARiVertArmPosOffset[iCallArmNo];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrMidPos := DSLdZonePosOut.lrMidPos;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrMidPos := DSLdZonePosOut.lrMidPos;
+
+		ELSE
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone1StartPos := DSLdZonePosOut.lrZone1StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone2StartPos := DSLdZonePosOut.lrZone2StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone3StartPos := DSLdZonePosOut.lrZone3StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone4StartPos := DSLdZonePosOut.lrZone4StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone1EndPos := DSLdZonePosOut.lrZone1EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone2EndPos := DSLdZonePosOut.lrZone2EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone3EndPos := DSLdZonePosOut.lrZone3EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone4EndPos := DSLdZonePosOut.lrZone4EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone1StartPos := DSLdZonePosOut.lrZone1StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone2StartPos := DSLdZonePosOut.lrZone2StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone3StartPos := DSLdZonePosOut.lrZone3StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone4StartPos := DSLdZonePosOut.lrZone4StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone1EndPos := DSLdZonePosOut.lrZone1EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone2EndPos := DSLdZonePosOut.lrZone2EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone3EndPos := DSLdZonePosOut.lrZone3EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone4EndPos := DSLdZonePosOut.lrZone4EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrMidPos := DSLdZonePosOut.lrMidPos;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrMidPos := DSLdZonePosOut.lrMidPos;
+
+		END_IF
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=62;
+
+END_IF
+
+
+IF iBufferPickStationNo = iUldStnID THEN
+
+		IF bEnableCallArmNo THEN
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone1StartPos := DSUldZonePosOut.lrZone1StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone2StartPos := DSUldZonePosOut.lrZone2StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone3StartPos := DSUldZonePosOut.lrZone3StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone4StartPos := DSUldZonePosOut.lrZone4StartPos - ARiVertArmPosOffset[iCallArmNo];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone1EndPos := DSUldZonePosOut.lrZone1EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone2EndPos := DSUldZonePosOut.lrZone2EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone3EndPos := DSUldZonePosOut.lrZone3EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone4EndPos := DSUldZonePosOut.lrZone4EndPos - ARiVertArmPosOffset[iCallArmNo];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone1StartPos := DSUldZonePosOut.lrZone1StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone2StartPos := DSUldZonePosOut.lrZone2StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone3StartPos := DSUldZonePosOut.lrZone3StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone4StartPos := DSUldZonePosOut.lrZone4StartPos - ARiVertArmPosOffset[iCallArmNo];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone1EndPos := DSUldZonePosOut.lrZone1EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone2EndPos := DSUldZonePosOut.lrZone2EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone3EndPos := DSUldZonePosOut.lrZone3EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone4EndPos := DSUldZonePosOut.lrZone4EndPos - ARiVertArmPosOffset[iCallArmNo];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrMidPos := DSUldZonePosOut.lrMidPos;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrMidPos := DSUldZonePosOut.lrMidPos;
+
+		ELSE
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone1StartPos := DSUldZonePosOut.lrZone1StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone2StartPos := DSUldZonePosOut.lrZone2StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone3StartPos := DSUldZonePosOut.lrZone3StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone4StartPos := DSUldZonePosOut.lrZone4StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone1EndPos := DSUldZonePosOut.lrZone1EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone2EndPos := DSUldZonePosOut.lrZone2EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone3EndPos := DSUldZonePosOut.lrZone3EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone4EndPos := DSUldZonePosOut.lrZone4EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone1StartPos := DSUldZonePosOut.lrZone1StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone2StartPos := DSUldZonePosOut.lrZone2StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone3StartPos := DSUldZonePosOut.lrZone3StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone4StartPos := DSUldZonePosOut.lrZone4StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone1EndPos := DSUldZonePosOut.lrZone1EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone2EndPos := DSUldZonePosOut.lrZone2EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone3EndPos := DSUldZonePosOut.lrZone3EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone4EndPos := DSUldZonePosOut.lrZone4EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrMidPos := DSUldZonePosOut.lrMidPos;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrMidPos := DSUldZonePosOut.lrMidPos;
+
+END_IF
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=62;
+
+END_IF
+
+
+IF iBufferPickStationNo <> iLdStnID AND  iBufferPickStationNo <> iUldStnID AND iBufferPickStationNo >= 1 AND  iBufferPickStationNo <= iStnQty THEN
+
+		IF bEnableCallArmNo THEN
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone1StartPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone1StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone2StartPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone2StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone3StartPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone3StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone4StartPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone4StartPos - ARiVertArmPosOffset[iCallArmNo];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone1EndPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone1EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone2EndPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone2EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone3EndPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone3EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone4EndPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone4EndPos - ARiVertArmPosOffset[iCallArmNo];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone1StartPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone1StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone2StartPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone2StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone3StartPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone3StartPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone4StartPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone4StartPos - ARiVertArmPosOffset[iCallArmNo];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone1EndPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone1EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone2EndPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone2EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone3EndPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone3EndPos - ARiVertArmPosOffset[iCallArmNo];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone4EndPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone4EndPos - ARiVertArmPosOffset[iCallArmNo];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrMidPos := ARDSStationZonePosOut[iBufferPickStationNo].lrMidPos;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrMidPos := ARDSStationZonePosOut[iBufferPickStationNo].lrMidPos;
+
+		ELSE
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone1StartPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone1StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone2StartPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone2StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone3StartPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone3StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone4StartPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone4StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone1EndPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone1EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone2EndPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone2EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone3EndPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone3EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone4EndPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone4EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone1StartPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone1StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone2StartPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone2StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone3StartPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone3StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone4StartPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone4StartPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone1EndPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone1EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone2EndPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone2EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone3EndPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone3EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone4EndPos := ARDSStationZonePosOut[iBufferPickStationNo].lrZone4EndPos - ARiVertArmPosOffset[DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall]];
+
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrMidPos := ARDSStationZonePosOut[iBufferPickStationNo].lrMidPos;
+			DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrMidPos := ARDSStationZonePosOut[iBufferPickStationNo].lrMidPos;
+
+		END_IF
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=62;
+
+
+END_IF
+
+
+IF iBufferPickStationNo < 1 OR (iBufferPickStationNo<>iLdStnID AND iBufferPickStationNo<>iUldStnID AND  iBufferPickStationNo > iStnQty) THEN
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=83;
+END_IF
+
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+
+
+
+
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+54: (* Push UpTransfer Zone4  Velo/Acc/Dcc to UpTransfer Movement*)
+
+DSA31ArmSpeedProfileCall.Call_iArmSpdProfile := DSBufferUpTransferPattern.iZone4SpdProfileNo;
+DSA31ArmSpeedProfileCall.bCallPB := TRUE;
+
+
+IF DSA31ArmSpeedProfileCall.bCallCompleted THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone4SpeedVelo := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrSpeedVelo;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone4Acc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrAcc;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone4Dcc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrDcc;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=61;
+END_IF
+
+IF rebInvalidSpeedProfileMemoryCall.Q THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=82;
+END_IF
+
+
+
+53: (* Push UpTransfer Zone3  Velo/Acc/Dcc to UpTransfer Movement*)
+
+DSA31ArmSpeedProfileCall.Call_iArmSpdProfile := DSBufferUpTransferPattern.iZone3SpdProfileNo;
+DSA31ArmSpeedProfileCall.bCallPB := TRUE;
+
+
+IF DSA31ArmSpeedProfileCall.bCallCompleted THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone3SpeedVelo := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrSpeedVelo;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone3Acc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrAcc;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone3Dcc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrDcc;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=54;
+END_IF
+
+IF rebInvalidSpeedProfileMemoryCall.Q THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=82;
+END_IF
+
+
+
+52: (* Push UpTransfer Zone2  Velo/Acc/Dcc to UpTransfer Movement*)
+
+DSA31ArmSpeedProfileCall.Call_iArmSpdProfile := DSBufferUpTransferPattern.iZone2SpdProfileNo;
+DSA31ArmSpeedProfileCall.bCallPB := TRUE;
+
+
+IF DSA31ArmSpeedProfileCall.bCallCompleted THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone2SpeedVelo := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrSpeedVelo;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone2Acc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrAcc;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone2Dcc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrDcc;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=53;
+END_IF
+
+IF rebInvalidSpeedProfileMemoryCall.Q THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=82;
+END_IF
+
+
+51: (* Push UpTransfer Zone1  Velo/Acc/Dcc to UpTransfer Movement*)
+
+DSA31ArmSpeedProfileCall.Call_iArmSpdProfile := DSBufferUpTransferPattern.iZone1SpdProfileNo;
+DSA31ArmSpeedProfileCall.bCallPB := TRUE;
+
+
+IF DSA31ArmSpeedProfileCall.bCallCompleted THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone1SpeedVelo := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrSpeedVelo;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone1Acc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrAcc;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.lrZone1Dcc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrDcc;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=52;
+END_IF
+
+IF rebInvalidSpeedProfileMemoryCall.Q THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=82;
+END_IF
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+44: (* Push DownTransfer Zone4  Velo/Acc/Dcc to DownTransfer Movement*)
+
+DSA31ArmSpeedProfileCall.Call_iArmSpdProfile := DSBufferDownTransferPattern.iZone4SpdProfileNo;
+DSA31ArmSpeedProfileCall.bCallPB := TRUE;
+
+
+IF DSA31ArmSpeedProfileCall.bCallCompleted THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone4SpeedVelo := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrSpeedVelo;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone4Acc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrAcc;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone4Dcc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrDcc;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=51;
+END_IF
+
+IF rebInvalidSpeedProfileMemoryCall.Q THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=82;
+END_IF
+
+
+
+43: (* Push DownTransfer Zone3  Velo/Acc/Dcc to DownTransfer Movement*)
+
+DSA31ArmSpeedProfileCall.Call_iArmSpdProfile := DSBufferDownTransferPattern.iZone3SpdProfileNo;
+DSA31ArmSpeedProfileCall.bCallPB := TRUE;
+
+
+IF DSA31ArmSpeedProfileCall.bCallCompleted THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone3SpeedVelo := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrSpeedVelo;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone3Acc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrAcc;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone3Dcc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrDcc;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=44;
+END_IF
+
+IF rebInvalidSpeedProfileMemoryCall.Q THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=82;
+END_IF
+
+
+
+42: (* Push DownTransfer Zone2  Velo/Acc/Dcc to DownTransfer Movement*)
+
+DSA31ArmSpeedProfileCall.Call_iArmSpdProfile := DSBufferDownTransferPattern.iZone2SpdProfileNo;
+DSA31ArmSpeedProfileCall.bCallPB := TRUE;
+
+
+IF DSA31ArmSpeedProfileCall.bCallCompleted THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone2SpeedVelo := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrSpeedVelo;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone2Acc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrAcc;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone2Dcc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrDcc;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=43;
+END_IF
+
+IF rebInvalidSpeedProfileMemoryCall.Q THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=82;
+END_IF
+
+
+41: (* Push DownTransfer Zone1  Velo/Acc/Dcc to DownTransfer Movement*)
+
+DSA31ArmSpeedProfileCall.Call_iArmSpdProfile := DSBufferDownTransferPattern.iZone1SpdProfileNo;
+DSA31ArmSpeedProfileCall.bCallPB := TRUE;
+
+
+IF DSA31ArmSpeedProfileCall.bCallCompleted THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone1SpeedVelo := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrSpeedVelo;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone1Acc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrAcc;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.lrZone1Dcc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrDcc;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=42;
+END_IF
+
+IF rebInvalidSpeedProfileMemoryCall.Q THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=82;
+END_IF
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+34: (* Push UpPick Zone4  Velo/Acc/Dcc to UpPick Movement*)
+
+DSA31ArmSpeedProfileCall.Call_iArmSpdProfile := DSBufferUpPickPattern.iZone4SpdProfileNo;
+DSA31ArmSpeedProfileCall.bCallPB := TRUE;
+
+
+IF DSA31ArmSpeedProfileCall.bCallCompleted THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone4SpeedVelo := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrSpeedVelo;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone4Acc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrAcc;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone4Dcc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrDcc;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=41;
+END_IF
+
+IF rebInvalidSpeedProfileMemoryCall.Q THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=82;
+END_IF
+
+
+
+33: (* Push UpPick Zone3  Velo/Acc/Dcc to UpPick Movement*)
+
+DSA31ArmSpeedProfileCall.Call_iArmSpdProfile := DSBufferUpPickPattern.iZone3SpdProfileNo;
+DSA31ArmSpeedProfileCall.bCallPB := TRUE;
+
+
+IF DSA31ArmSpeedProfileCall.bCallCompleted THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone3SpeedVelo := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrSpeedVelo;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone3Acc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrAcc;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone3Dcc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrDcc;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=34;
+END_IF
+
+IF rebInvalidSpeedProfileMemoryCall.Q THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=82;
+END_IF
+
+
+
+32: (* Push UpPick Zone2  Velo/Acc/Dcc to UpPick Movement*)
+
+DSA31ArmSpeedProfileCall.Call_iArmSpdProfile := DSBufferUpPickPattern.iZone2SpdProfileNo;
+DSA31ArmSpeedProfileCall.bCallPB := TRUE;
+
+
+IF DSA31ArmSpeedProfileCall.bCallCompleted THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone2SpeedVelo := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrSpeedVelo;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone2Acc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrAcc;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone2Dcc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrDcc;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=33;
+END_IF
+
+IF rebInvalidSpeedProfileMemoryCall.Q THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=82;
+END_IF
+
+
+31: (* Push UpPick Zone1  Velo/Acc/Dcc to UpPick Movement*)
+
+DSA31ArmSpeedProfileCall.Call_iArmSpdProfile := DSBufferUpPickPattern.iZone1SpdProfileNo;
+DSA31ArmSpeedProfileCall.bCallPB := TRUE;
+
+
+IF DSA31ArmSpeedProfileCall.bCallCompleted THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone1SpeedVelo := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrSpeedVelo;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone1Acc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrAcc;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.lrZone1Dcc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrDcc;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=32;
+END_IF
+
+IF rebInvalidSpeedProfileMemoryCall.Q THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=82;
+END_IF
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+24: (* Push DownPick Zone4  Velo/Acc/Dcc to DownPick Movement*)
+
+DSA31ArmSpeedProfileCall.Call_iArmSpdProfile := DSBufferDownPickPattern.iZone4SpdProfileNo;
+DSA31ArmSpeedProfileCall.bCallPB := TRUE;
+
+
+IF DSA31ArmSpeedProfileCall.bCallCompleted THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone4SpeedVelo := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrSpeedVelo;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone4Acc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrAcc;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone4Dcc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrDcc;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=31;
+END_IF
+
+IF rebInvalidSpeedProfileMemoryCall.Q THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=82;
+END_IF
+
+
+
+23: (* Push DownPick Zone3  Velo/Acc/Dcc to DownPick Movement*)
+
+DSA31ArmSpeedProfileCall.Call_iArmSpdProfile := DSBufferDownPickPattern.iZone3SpdProfileNo;
+DSA31ArmSpeedProfileCall.bCallPB := TRUE;
+
+
+IF DSA31ArmSpeedProfileCall.bCallCompleted THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone3SpeedVelo := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrSpeedVelo;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone3Acc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrAcc;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone3Dcc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrDcc;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=24;
+END_IF
+
+IF rebInvalidSpeedProfileMemoryCall.Q THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=82;
+END_IF
+
+
+
+22: (* Push DownPick Zone2  Velo/Acc/Dcc to DownPick Movement*)
+
+DSA31ArmSpeedProfileCall.Call_iArmSpdProfile := DSBufferDownPickPattern.iZone2SpdProfileNo;
+DSA31ArmSpeedProfileCall.bCallPB := TRUE;
+
+
+IF DSA31ArmSpeedProfileCall.bCallCompleted THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone2SpeedVelo := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrSpeedVelo;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone2Acc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrAcc;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone2Dcc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrDcc;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=23;
+END_IF
+
+IF rebInvalidSpeedProfileMemoryCall.Q THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=82;
+END_IF
+
+
+21: (* Push DownPick Zone1  Velo/Acc/Dcc to DownPick Movement*)
+
+DSA31ArmSpeedProfileCall.Call_iArmSpdProfile := DSBufferDownPickPattern.iZone1SpdProfileNo;
+DSA31ArmSpeedProfileCall.bCallPB := TRUE;
+
+
+IF DSA31ArmSpeedProfileCall.bCallCompleted THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone1SpeedVelo := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrSpeedVelo;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone1Acc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrAcc;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.lrZone1Dcc := DSA31ArmSpeedProfileCall.Call_DSArmSpdProfile.lrDcc;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=22;
+END_IF
+
+IF rebInvalidSpeedProfileMemoryCall.Q THEN
+DSA31ArmSpeedProfileCall.bCallPB := FALSE;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=82;
+END_IF
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+
+
+14: (* Call UpPickPattern*)
+DSA21UpDownPatternCall.Call_iUpDownPatternNo := DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiUpTransferPatternNo[iProductRecipeStepCall];
+DSA21UpDownPatternCall.bCallPB := TRUE;
+
+
+IF DSA21UpDownPatternCall.bCallCompleted THEN
+DSA21UpDownPatternCall.bCallPB := FALSE;
+DSBufferUpTransferPattern := DSA21UpDownPatternCall.Call_DsUpDownPattern;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpTransferMovement.sUpDownPatternDescription := DSA21UpDownPatternCall.Call_DsUpDownPattern.sDescription;
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=21;
+END_IF
+
+13: (* Call DownTransferPattern*)
+DSA21UpDownPatternCall.Call_iUpDownPatternNo := DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiDownTransferPatternNo[iProductRecipeStepCall];
+DSA21UpDownPatternCall.bCallPB := TRUE;
+
+
+IF DSA21UpDownPatternCall.bCallCompleted THEN
+DSA21UpDownPatternCall.bCallPB := FALSE;
+DSBufferDownTransferPattern := DSA21UpDownPatternCall.Call_DsUpDownPattern;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownTransferMovement.sUpDownPatternDescription := DSA21UpDownPatternCall.Call_DsUpDownPattern.sDescription;
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=14;
+END_IF
+
+IF rebInvalidUpDownPatternMemoryCall.Q THEN
+DSA21UpDownPatternCall.bCallPB := FALSE;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=81;
+END_IF
+
+12: (* Call UpPickPattern*)
+DSA21UpDownPatternCall.Call_iUpDownPatternNo := DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiUpPickPatternNo[iProductRecipeStepCall];
+DSA21UpDownPatternCall.bCallPB := TRUE;
+
+
+IF DSA21UpDownPatternCall.bCallCompleted THEN
+DSA21UpDownPatternCall.bCallPB := FALSE;
+DSBufferUpPickPattern := DSA21UpDownPatternCall.Call_DsUpDownPattern;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1UpPickMovement.sUpDownPatternDescription := DSA21UpDownPatternCall.Call_DsUpDownPattern.sDescription;
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=13;
+END_IF
+
+IF rebInvalidUpDownPatternMemoryCall.Q THEN
+DSA21UpDownPatternCall.bCallPB := FALSE;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=81;
+END_IF
+
+11: (* Call DownPickPattern*)
+DSA21UpDownPatternCall.Call_iUpDownPatternNo := DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiDownPickPatternNo[iProductRecipeStepCall];
+DSA21UpDownPatternCall.bCallPB := TRUE;
+
+
+IF DSA21UpDownPatternCall.bCallCompleted THEN
+DSA21UpDownPatternCall.bCallPB := FALSE;
+DSBufferDownPickPattern := DSA21UpDownPatternCall.Call_DsUpDownPattern;
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.DSA1DownPickMovement.sUpDownPatternDescription := DSA21UpDownPatternCall.Call_DsUpDownPattern.sDescription;
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=12;
+END_IF
+
+IF rebInvalidUpDownPatternMemoryCall.Q THEN
+DSA21UpDownPatternCall.bCallPB := FALSE;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=81;
+END_IF
+
+
+10: (*Push UpDownPattern to Buffer*)
+iBufferPickStationNo := DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiPickStationNo[iProductRecipeStepCall];
+iBufferTransferStationNo := DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiTransferStationNo[iProductRecipeStepCall];
+
+iBufferDownPickPatternNo := DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiDownPickPatternNo[iProductRecipeStepCall];
+iBufferUpPickPatternNo := DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiUpPickPatternNo[iProductRecipeStepCall];
+iBufferDownTransferPatternNo := DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiDownTransferPatternNo[iProductRecipeStepCall];
+iBufferUpTransferPatternNo := DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiUpTransferPatternNo[iProductRecipeStepCall];
+
+DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.iStnSeqRecipeNo := DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiStnSeqRepNo[iProductRecipeStepCall];
+
+DSfbGnrProductRecipeMemoryOut.sProductRecipeDescription := DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.sDescription;
+
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=11;
+
+
+71: (*Complete Data Called*)
+
+	IF bEnableCallArmNo THEN
+	DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.iCallArmNo := iCallArmNo;
+	ELSE
+	DSfbGnrProductRecipeMemoryOut.DSGnrCalledArmPnpParameter.iCallArmNo := DSA1fbPnpSequenceMemoryCall.Call_DsPnpSequenceMemory.ARiCallArmNo[iProductRecipeStepCall];
+	END_IF
+
+DSfbGnrProductRecipeMemoryOut.bCallCompleted := TRUE;
+CallSelfCheckHR := FALSE;
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=72;
+
+72:; (*Done without error*)
+
+81:
+(*iPreviousProcessStep := iCurrentProcessStep;*)
+CallSelfCheckHR := FALSE;
+DSfbGnrProductRecipeMemoryOut.bCallUpDownPatternMemoryErr := TRUE;
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=91;
+
+82:
+(*iPreviousProcessStep := iCurrentProcessStep;*)
+DSfbGnrProductRecipeMemoryOut.bCallArmSpeedProfileMemoryErr := TRUE;
+CallSelfCheckHR := FALSE;
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=92;
+
+83:
+(*iPreviousProcessStep := iCurrentProcessStep;*)
+DSfbGnrProductRecipeMemoryOut.bCallPickStationNoErr := TRUE;
+CallSelfCheckHR := FALSE;
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=93;
+
+84:
+(*iPreviousProcessStep := iCurrentProcessStep;*)
+DSfbGnrProductRecipeMemoryOut.bCallTransferStationNoErr := TRUE;
+CallSelfCheckHR := FALSE;
+DSfbGnrProductRecipeMemoryOut.iCallCaseNo:=94;
+
+
+
+91:; (*Found UpDownPatternMemoryError and Task Not Complete *)
+
+92:; (*Found ArmSpeedProfileMemoryErr and Task Not Complete *)
+
+93:; (*Found PickStationNoErr and Task Not Complete *)
+
+94:; (*Found TransferStationNoErr and Task Not Complete *)
+
+
+
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="fbGnrProductRecipeMemory">
+      <LineId Id="158" Count="1281" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

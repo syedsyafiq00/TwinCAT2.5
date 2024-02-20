@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_ProminentDosingHMI" Id="{f2215f83-c77c-4e5b-8eb5-c36dfc17acb9}">
+    <Declaration><![CDATA[TYPE DS_ProminentDosingHMI :
+STRUCT
+	In_bCalibratePB							: BOOL;
+	In_iCalibrateFeed_Pulse					: INT;
+	In_iCalibrateTotalVolumeResult_ml			: INT;
+	Out_bCalibrateInProgress					: BOOL;
+	Out_bCalibrateDone						: BOOL;
+
+	In_rVolumePerPulse_ml 					: REAL; (*Replaced from INT*)
+	in_iFirstFillDosing_ml 						: INT;
+	In_iVolumePerBasket_ml 					: INT;
+	In_iNoOfBasketBetweenAutoDosing 			: INT;
+	In_iManualDosingVolume_ml 				: INT;
+
+	In_bResetRemainedDosingVolumePB 		: BOOL;
+	Out_bResetRemainedDosingVolumeIndicator 	: BOOL;
+	Out_rRemainedDosingVolume_ml 			: REAL; (*Replaced from INT*)
+
+	In_bResetDosingTotalizerPB				: BOOL;
+	Out_bResetDosingTotalizerIndicator			: BOOL;
+	Out_iDosingTotalizer_Litre 					: INT;
+	Out_iDosingTotalizer_ml					: INT;
+
+	Out_iBasketQtyBeforeAutoDosingPV			: INT;
+
+	Out_sStatusMessage						: STRING(50);
+
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

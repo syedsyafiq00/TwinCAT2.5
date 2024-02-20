@@ -1,0 +1,855 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbFBPTimeTrackerG3" Id="{6a383692-cd0e-4968-8517-7321dd268a0a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbFBPTimeTrackerG3
+
+VAR_INPUT
+	bScanningEN : BOOL;
+	ARbReset : ARRAY [0..iProductRecipeArrayQty] OF BOOL;
+	ARbArmSt : ARRAY [0..iArmQty] OF BOOL; (*Activated Bit*)
+	DSTimeTrackerInput : DS_TimeTrackerInput;
+	bAutoModeEn : BOOL;
+	bSimulatorModeEn : BOOL;
+	iAutoModeCallRecipeTimeBlock_ProductRecipeNo : INT;
+	iSimulatorModeCallRecipeTimeBlock_ProductRecipeNo : INT;
+	iCountFilterTime_Sec : INT;
+	iProductRecipeChangedDelayTime_ms : INT;
+	iLoadingCallArmTime : INT;
+	bMasterTimeBlockScanningEn : BOOL;
+END_VAR
+
+VAR_OUTPUT
+	bTrackerCompleted : BOOL;
+
+	bNoUldStnIDErr : BOOL;
+	bInvalidCallRecipeTimeBlockNo: BOOL;
+	bCallRTB_NoTrackerInfo: BOOL;
+	bCallRTB_CallOK : BOOL;
+	ARbProductRecipeTimeBlockAvailable : ARRAY [0..iProductRecipeArrayQty] OF BOOL;
+
+
+END_VAR
+
+
+VAR_IN_OUT
+(*	iLdStnID: INT;
+	iUldStnID: INT;
+*)	ARiArmID: ARRAY [1..iArmQty] OF INT;
+	AR2SiBufferRecipeTimeBlock : ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+	AR2SiCalledRecipeTimeBlockNoCallArmTime : ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+	AR2SiCalledRecipeTimeBlockWithCallArmTime : ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+
+(* RecipeTimeBlockDetail
+	1 - Start Time
+	2 - End Time
+	3 - Stn ID
+	4 - Step No (Based on Product Recipe PnP Step No)
+	5 - Adjusted Time (for Master Time Block Add Time -> Extend time to get earlier basket call in if possible)
+	6 - Min Time (Define by User -> Process Time Per Station)
+	7 - Tolerance Time (Define by User -> For Process Tank only)
+	8 - Eff Time (Final Process Time, Used on Station Timer and Call Arm Used)
+	9 - Reserved
+*)
+
+END_VAR
+
+
+VAR PERSISTENT
+	AR3SiRecipeTimeBlockMemoryNoCallArmTime: ARRAY [1..iProductRecipeArrayQty, 1..iRecipeBlockQty, 1..9] OF INT;
+	AR3SiRecipeTimeBlockMemoryWithCallArmTime: ARRAY [1..iProductRecipeArrayQty, 1..iRecipeBlockQty, 1..9] OF INT;
+	OnTime: TON;
+	OnTimeRE: R_TRIG;
+	bScanningRE: R_TRIG;
+	bResetRE : ARRAY [1..iProductRecipeArrayQty] OF R_TRIG;
+	ResetFL: INT;
+	ResetSFL: INT;
+
+
+	ARbArmStRE: ARRAY [1..iArmQty] OF R_TRIG;
+	ARbArmStFE: ARRAY [1..iArmQty] OF F_TRIG;
+	ARiArmStepCounter: ARRAY [1..iArmQty] OF INT;
+	iStnStepCounter: INT;
+
+	AR2SiArmRunningTime: ARRAY [1..iRecipeBlockQty, 1..iArmQty] OF INT;
+	ARiStnRunningTime: ARRAY [1..iRecipeBlockQty] OF INT;
+
+	ARiArmIDArrayLocationCounter: ARRAY [1..iArmQty] OF INT;
+
+	bStnStopRE: R_TRIG;
+	bStnStartRE: R_TRIG;
+
+	RtrigFL: INT;
+	ARiArmStOnTimeFilter: ARRAY [1..iArmQty] OF INT;
+	iStnOnTimeFilter: INT;
+
+	iArmOffFL: INT;
+
+	bArmInProgress: BOOL;
+	iArmFilterFL: INT;
+	iAutoResetFL: INT;
+
+	ResetBufferFL: INT;
+	iTracker: INT;
+	iCheckProductRecipeStep: INT;
+	iEndStep: INT;
+	bEndStepFound: BOOL;
+	iTransferIDFL: INT;
+	iTransferIDSFL: INT;
+	iRunningTimeFL: INT;
+	iTransferBufferRTBFL: INT;
+	iTransferBufferRTBSFL: INT;
+	iSaveToMemoryFL: INT;
+	iModStnMemoryFL: INT;
+
+	ARbArmCountEN: ARRAY [1..iArmQty] OF BOOL;
+	bStnCountEN: BOOL;
+	iClearRunTimeFL: INT;
+	iClearRunTimeSFL: INT;
+	CallRTBFL: INT;
+	iClearCallRTBFL: INT;
+
+(*End*)
+
+	Step: INT;
+	OnTimeHR: BOOL;
+	ResetFL2: INT;
+
+	ARbCountStRE: ARRAY [1..iStnQty] OF R_TRIG;
+	ARbCountStFE: ARRAY [1..iStnQty] OF F_TRIG;
+	ARiStnCounter : ARRAY [1..iStnQty] OF INT;
+
+
+	iTimeCounterFL: INT;
+	iTimeCounterFLSTN: INT;
+
+	iCounter: BOOL;
+	iClearCountFL: INT;
+
+	AR50Arm1Time_Sec : ARRAY[1..50] OF INT;
+	AR50Arm2Time_Sec : ARRAY[1..50] OF INT;
+
+	AR50Arm1PT_Sec : ARRAY [1..50] OF INT;
+	AR50Arm2PT_Sec : ARRAY [1..50] OF INT;
+
+
+	bCounterIncreaseEn: BOOL;
+(*	iArm1StationCounter: INT;*)
+	bCounterIncreaseEnSTN: BOOL;
+	iPushDataFL: INT;
+	AR50_iArmTime: ARRAY [1..50] OF INT;
+	AR50_iStnTime: ARRAY [1..50] OF INT;
+	bTestA: BOOL;
+END_VAR
+
+
+VAR
+	bCountStArm1FE: BOOL;
+	iArmInterchangeStn: BOOL;
+
+	bStnCountStartEN: BOOL;
+
+	bCallRTB_NoTrackerInfoRE: R_TRIG;
+	bInvalidCallRecipeTimeBlockNoRE: R_TRIG;
+	iBufferAutoModeCallRecipeTimeBlock_ProductRecipeNo: INT;
+	bProductRecipeChangesFound: BOOL;
+	tProductRecipeChangesFound: TON;
+	iBufferSimulatorModeCallRecipeTimeBlock_ProductRecipeNo: INT;
+	bSimulatorModeEn_RE: R_TRIG;
+	bAutoModeEn_RE: R_TRIG;
+	b: BOOL;
+	iCheckPRTBFL: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*1Sec Clock Pulse*)
+IF bScanningEN THEN
+OnTime(IN:=NOT OnTime.Q , PT:=T#1s , Q=> , ET=> );
+OnTimeRE(CLK:=OnTime.Q , Q=> );
+END_IF
+
+bScanningRE(CLK:=bScanningEN , Q=> );
+
+(*
+(*Limit Loading and Unloading ID*)
+IF iLdStnID < iStnQty THEN
+iLdStnID:= iStnQty + 1;
+END_IF
+IF iUldStnID < iStnQty THEN
+iUldStnID:= iStnQty + 2;
+END_IF
+*)
+
+(*Reset Buffer TimeBlock*)
+
+IF bScanningRE.Q THEN
+ResetBufferFL := 1;
+
+	FOR ResetBufferFL := 1 TO iRecipeBlockQty DO
+
+		IF ResetBufferFL >= 1 AND ResetBufferFL <= iRecipeBlockQty THEN
+	
+			AR2SiBufferRecipeTimeBlock[ResetBufferFL, 1] := 0;
+			AR2SiBufferRecipeTimeBlock[ResetBufferFL, 2] := 0;
+			AR2SiBufferRecipeTimeBlock[ResetBufferFL, 3] := 0;
+			AR2SiBufferRecipeTimeBlock[ResetBufferFL, 4] := 0;
+			AR2SiBufferRecipeTimeBlock[ResetBufferFL, 5] := 0;
+			AR2SiBufferRecipeTimeBlock[ResetBufferFL, 6] := 0;
+			AR2SiBufferRecipeTimeBlock[ResetBufferFL, 7] := 0;
+			AR2SiBufferRecipeTimeBlock[ResetBufferFL, 8] := 0;
+			AR2SiBufferRecipeTimeBlock[ResetBufferFL, 9] := 0;
+
+		END_IF
+
+END_FOR
+
+END_IF
+
+(*Manual Reset TimeBlock*)
+
+ResetFL := 1;
+
+FOR ResetFL := 1 TO iProductRecipeArrayQty DO
+
+	IF ResetFL >= 1 AND ResetFL <= iProductRecipeArrayQty THEN
+		bResetRE[ResetFL](CLK:=ARbReset[ResetFL] , Q=> );
+
+		IF bResetRE[ResetFL].Q THEN
+			ResetSFL :=1;
+	
+			FOR ResetSFL := 1 TO iRecipeBlockQty DO
+	
+				IF ResetSFL >= 1 AND ResetSFL <= iRecipeBlockQty THEN
+	
+					AR3SiRecipeTimeBlockMemoryNoCallArmTime[ResetFL, ResetSFL, 1] := 0;
+					AR3SiRecipeTimeBlockMemoryNoCallArmTime[ResetFL, ResetSFL, 2] := 0;
+					AR3SiRecipeTimeBlockMemoryNoCallArmTime[ResetFL, ResetSFL, 3] := 0;
+					AR3SiRecipeTimeBlockMemoryNoCallArmTime[ResetFL, ResetSFL, 4] := 0;
+					AR3SiRecipeTimeBlockMemoryNoCallArmTime[ResetFL, ResetSFL, 5] := 0;
+					AR3SiRecipeTimeBlockMemoryNoCallArmTime[ResetFL, ResetSFL, 6] := 0;
+					AR3SiRecipeTimeBlockMemoryNoCallArmTime[ResetFL, ResetSFL, 7] := 0;
+					AR3SiRecipeTimeBlockMemoryNoCallArmTime[ResetFL, ResetSFL, 8] := 0;
+					AR3SiRecipeTimeBlockMemoryNoCallArmTime[ResetFL, ResetSFL, 9] := 0;
+
+					AR3SiRecipeTimeBlockMemoryWithCallArmTime[ResetFL, ResetSFL, 1] := 0;
+					AR3SiRecipeTimeBlockMemoryWithCallArmTime[ResetFL, ResetSFL, 2] := 0;
+					AR3SiRecipeTimeBlockMemoryWithCallArmTime[ResetFL, ResetSFL, 3] := 0;
+					AR3SiRecipeTimeBlockMemoryWithCallArmTime[ResetFL, ResetSFL, 4] := 0;
+					AR3SiRecipeTimeBlockMemoryWithCallArmTime[ResetFL, ResetSFL, 5] := 0;
+					AR3SiRecipeTimeBlockMemoryWithCallArmTime[ResetFL, ResetSFL, 6] := 0;
+					AR3SiRecipeTimeBlockMemoryWithCallArmTime[ResetFL, ResetSFL, 7] := 0;
+					AR3SiRecipeTimeBlockMemoryWithCallArmTime[ResetFL, ResetSFL, 8] := 0;
+					AR3SiRecipeTimeBlockMemoryWithCallArmTime[ResetFL, ResetSFL, 9] := 0;
+				END_IF
+
+			END_FOR
+
+		END_IF
+
+	END_IF
+
+END_FOR
+
+(*Auto Reset*)
+IF NOT bScanningEN OR bScanningRE.Q THEN
+iAutoResetFL := 1;
+
+	FOR iAutoResetFL := 1 TO iArmQty DO
+
+		IF iAutoResetFL >= 1 AND iAutoResetFL <= iArmQty THEN
+
+			ARiArmStOnTimeFilter[iAutoResetFL] := 0;
+			ARbArmCountEN[iAutoResetFL] := FALSE;
+			ARiArmStepCounter[iAutoResetFL] := 1;
+			ARiArmIDArrayLocationCounter[iAutoResetFL] := 1;
+		END_IF
+
+	END_FOR
+
+
+iClearRunTimeFL := 1;
+
+	FOR iClearRunTimeFL := 1 TO iRecipeBlockQty DO
+		IF iClearRunTimeFL >0 AND iClearRunTimeFL <= iRecipeBlockQty THEN
+		iClearRunTimeSFL := 1;
+
+			FOR iClearRunTimeSFL := 1 TO iArmQty DO
+				IF iClearRunTimeSFL >0 AND iClearRunTimeSFL <= iArmQty THEN
+					AR2SiArmRunningTime[iClearRunTimeFL, iClearRunTimeSFL] := 0;
+				END_IF
+			END_FOR
+
+				ARiStnRunningTime[iClearRunTimeFL] := 0;
+
+		END_IF
+	END_FOR
+
+			IF bStnCountStartEN AND OnTimeRE.Q THEN
+			ARiStnRunningTime[iStnStepCounter] := ARiStnRunningTime[iStnStepCounter]+1;
+			END_IF
+
+
+
+iStnOnTimeFilter := 0;
+bStnCountEN := FALSE;
+bArmInProgress := FALSE;
+bStnCountStartEN := FALSE;
+iTracker := 0;
+bEndStepFound := FALSE;
+bNoUldStnIDErr := FALSE;
+iEndStep := 0;
+iStnStepCounter := 1;
+bTrackerCompleted:= FALSE;
+
+END_IF
+
+
+(*Check Arm In Progress*)
+bArmInProgress := FALSE;
+iArmOffFL := 1;
+
+FOR iArmOffFL := 1 TO iArmQty DO
+
+	IF iArmOffFL > 0 AND iArmOffFL <= iArmQty THEN
+
+		IF ARbArmSt[iArmOffFL] THEN
+		bArmInProgress := TRUE;
+		iArmOffFL := iArmQty + 1;
+		END_IF
+
+	END_IF
+
+END_FOR
+
+bStnStartRE(CLK:=NOT bArmInProgress , Q=> );
+bStnStopRE(CLK:=bArmInProgress , Q=> );
+
+
+
+(* Generate Arm triggering R_TRIG, F_TRIG and Managed Arm and Stn Counter*)
+IF bScanningEN THEN
+
+RtrigFL := 1;
+
+	FOR RtrigFL := 1 TO iArmQty DO
+		IF RtrigFL >= 1 AND RtrigFL <= iArmQty THEN
+
+			ARbArmStRE[RtrigFL](CLK:=ARbArmSt[RtrigFL] , Q=> );
+			ARbArmStFE[RtrigFL](CLK:=ARbArmSt[RtrigFL] , Q=> );
+
+			IF ARbArmStFE[RtrigFL].Q AND ARbArmCountEN[RtrigFL]  THEN
+			ARiArmStepCounter[RtrigFL] := ARiArmStepCounter[RtrigFL]+1;
+			END_IF
+
+			IF ARbArmStFE[RtrigFL].Q AND NOT ARbArmCountEN[RtrigFL]  THEN
+			AR2SiArmRunningTime[ARiArmStepCounter[RtrigFL], RtrigFL] := 0;
+			END_IF
+
+
+		END_IF
+	END_FOR
+
+			IF bStnStopRE.Q AND bStnCountEN THEN
+			iStnStepCounter := iStnStepCounter+1;
+			END_IF
+
+			IF bStnStopRE.Q AND NOT bStnCountEN THEN
+			ARiStnRunningTime[iStnStepCounter] := 0;
+			END_IF
+END_IF
+
+
+
+
+(* Capture Time*)
+
+IF bScanningEN THEN
+
+iRunningTimeFL := 1;
+
+	FOR iRunningTimeFL := 1 TO iArmQty DO
+
+		IF iRunningTimeFL >0 AND iRunningTimeFL <= iArmQty THEN
+
+			IF ARbArmSt[iRunningTimeFL] AND OnTimeRE.Q THEN
+			AR2SiArmRunningTime[ARiArmStepCounter[iRunningTimeFL], iRunningTimeFL] := AR2SiArmRunningTime[ARiArmStepCounter[iRunningTimeFL], iRunningTimeFL]+1;
+			END_IF
+		END_IF
+	END_FOR
+
+			IF bStnCountStartEN AND OnTimeRE.Q THEN
+			ARiStnRunningTime[iStnStepCounter] := ARiStnRunningTime[iStnStepCounter]+1;
+			END_IF
+
+END_IF
+
+
+
+
+(* Tracker Case Control*)
+
+IF bScanningRE.Q THEN
+iTracker := 1;
+END_IF
+
+
+CASE iTracker OF
+
+0:;
+
+1: (*Search End Step from Product Recipe Info*)
+iCheckProductRecipeStep := 1;
+bEndStepFound := FALSE;
+
+	FOR iCheckProductRecipeStep := 1 TO iProductRecipeStepArrayQty DO
+
+		IF iCheckProductRecipeStep >0 AND iCheckProductRecipeStep <= iProductRecipeStepArrayQty THEN
+
+			IF iUldStnID = DSTimeTrackerInput.ARiTransferStationNo[iCheckProductRecipeStep] THEN
+			iEndStep := iCheckProductRecipeStep;
+			bEndStepFound := TRUE;
+			iCheckProductRecipeStep := iProductRecipeStepArrayQty +1;
+			END_IF
+
+		END_IF
+
+	END_FOR
+
+	IF iCheckProductRecipeStep > iProductRecipeStepArrayQty  AND NOT bEndStepFound THEN
+	iTracker := 91; (*Error, Uld station not found*)
+	END_IF
+
+	IF iCheckProductRecipeStep > iProductRecipeStepArrayQty  AND bEndStepFound THEN
+	iTracker := 2; (*EndStepFound, proceed next Case*)
+	bEndStepFound := FALSE;
+	END_IF
+
+2: (*Transfer ID to BufferTimeBlock*)
+
+iTransferIDFL := 1;
+
+
+	FOR iTransferIDFL := 1 TO iEndStep DO
+
+		IF iTransferIDFL > 0 AND iTransferIDFL <= iEndStep THEN
+			iTransferIDSFL := 1;
+			FOR iTransferIDSFL := 1 TO iArmQty DO
+				IF DSTimeTrackerInput.ARiCallArmNo[iTransferIDFL] = iTransferIDSFL THEN
+				AR2SiBufferRecipeTimeBlock[iTransferIDFL+iTransferIDFL-1,3] := ARiArmID[iTransferIDSFL];
+				AR2SiBufferRecipeTimeBlock[iTransferIDFL+iTransferIDFL-1,2] := ARiArmIDArrayLocationCounter[iTransferIDSFL];
+				ARiArmIDArrayLocationCounter[iTransferIDSFL] := ARiArmIDArrayLocationCounter[iTransferIDSFL]+1;
+				END_IF
+			END_FOR
+		END_IF
+
+		IF iTransferIDFL > 0 AND iTransferIDFL < iEndStep THEN
+			AR2SiBufferRecipeTimeBlock[iTransferIDFL+iTransferIDFL,3] := DSTimeTrackerInput.ARiTransferStationNo[iTransferIDFL];
+		END_IF
+
+
+	END_FOR
+
+iTracker := 3;
+
+3:;(*Transfer Running Time to RecipeTimeBlock*)
+
+
+iTransferBufferRTBFL := 1;
+
+
+	FOR iTransferBufferRTBFL := 1 TO iEndStep DO
+
+		IF iTransferBufferRTBFL > 0 AND iTransferBufferRTBFL <= iEndStep THEN
+			iTransferBufferRTBSFL := 1;
+			FOR iTransferBufferRTBSFL := 1 TO iArmQty DO
+				IF AR2SiBufferRecipeTimeBlock[iTransferBufferRTBFL+iTransferBufferRTBFL-1,3] = ARiArmID[iTransferBufferRTBSFL] THEN
+				AR2SiBufferRecipeTimeBlock[iTransferBufferRTBFL+iTransferBufferRTBFL-1,1] := AR2SiArmRunningTime[(**)AR2SiBufferRecipeTimeBlock[iTransferBufferRTBFL+iTransferBufferRTBFL-1,2]  (**), iTransferBufferRTBSFL];
+				END_IF
+			END_FOR
+		END_IF
+
+		IF iTransferBufferRTBFL > 0 AND iTransferBufferRTBFL < iEndStep THEN
+			AR2SiBufferRecipeTimeBlock[iTransferBufferRTBFL+iTransferBufferRTBFL,1] := ARiStnRunningTime[iTransferBufferRTBFL];
+		END_IF
+
+
+	END_FOR
+
+IF AR2SiBufferRecipeTimeBlock[(iEndStep*2)-1,1] > iCountFilterTime_Sec AND NOT bArmInProgress THEN
+iTracker := 4;
+END_IF
+
+4:; (*Save To Memory*)
+
+iSaveToMemoryFL := 1;
+iModStnMemoryFL := 1;
+
+	FOR iSaveToMemoryFL := 1 TO iRecipeBlockQty DO
+
+		IF iSaveToMemoryFL > 0 AND iSaveToMemoryFL <= iRecipeBlockQty THEN
+			IF iSaveToMemoryFL = 1 AND AR2SiBufferRecipeTimeBlock[iSaveToMemoryFL, 3]<>0 THEN
+			AR3SiRecipeTimeBlockMemoryNoCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iSaveToMemoryFL, 1] := 1;
+			AR3SiRecipeTimeBlockMemoryNoCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iSaveToMemoryFL, 2] := AR2SiBufferRecipeTimeBlock[iSaveToMemoryFL, 1](*+iLoadingCallArmTime*);
+			AR3SiRecipeTimeBlockMemoryNoCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iSaveToMemoryFL, 3] := AR2SiBufferRecipeTimeBlock[iSaveToMemoryFL, 3];
+			END_IF
+
+			IF iSaveToMemoryFL > 1 AND AR2SiBufferRecipeTimeBlock[iSaveToMemoryFL, 3]<>0 THEN
+			AR3SiRecipeTimeBlockMemoryNoCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iSaveToMemoryFL, 1] := AR3SiRecipeTimeBlockMemoryNoCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iSaveToMemoryFL-1, 2]+1;
+			AR3SiRecipeTimeBlockMemoryNoCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iSaveToMemoryFL, 2] := AR3SiRecipeTimeBlockMemoryNoCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iSaveToMemoryFL-1, 2]+AR2SiBufferRecipeTimeBlock[iSaveToMemoryFL, 1];
+			AR3SiRecipeTimeBlockMemoryNoCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iSaveToMemoryFL, 3] := AR2SiBufferRecipeTimeBlock[iSaveToMemoryFL, 3];
+			END_IF
+
+
+		END_IF
+
+		IF iSaveToMemoryFL > 0 AND iSaveToMemoryFL <= iRecipeBlockQty THEN
+			IF iSaveToMemoryFL = 1 AND AR2SiBufferRecipeTimeBlock[iSaveToMemoryFL, 3]<>0 THEN
+			AR3SiRecipeTimeBlockMemoryWithCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iSaveToMemoryFL, 1] := 1;
+			AR3SiRecipeTimeBlockMemoryWithCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iSaveToMemoryFL, 2] := AR2SiBufferRecipeTimeBlock[iSaveToMemoryFL, 1]+iLoadingCallArmTime;
+			AR3SiRecipeTimeBlockMemoryWithCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iSaveToMemoryFL, 3] := AR2SiBufferRecipeTimeBlock[iSaveToMemoryFL, 3];
+			END_IF
+
+			IF iSaveToMemoryFL > 1 AND AR2SiBufferRecipeTimeBlock[iSaveToMemoryFL, 3]<>0 THEN
+			AR3SiRecipeTimeBlockMemoryWithCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iSaveToMemoryFL, 1] := AR3SiRecipeTimeBlockMemoryWithCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iSaveToMemoryFL-1, 2]+1;
+			AR3SiRecipeTimeBlockMemoryWithCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iSaveToMemoryFL, 2] := AR3SiRecipeTimeBlockMemoryWithCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iSaveToMemoryFL-1, 2]+AR2SiBufferRecipeTimeBlock[iSaveToMemoryFL, 1];
+			AR3SiRecipeTimeBlockMemoryWithCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iSaveToMemoryFL, 3] := AR2SiBufferRecipeTimeBlock[iSaveToMemoryFL, 3];
+			END_IF
+
+
+		END_IF
+
+	END_FOR
+
+
+	FOR iModStnMemoryFL := 1 TO iRecipeBlockQty DO
+
+		IF iModStnMemoryFL > 0 AND iModStnMemoryFL <= iRecipeBlockQty THEN
+			IF iModStnMemoryFL > 1
+			AND AR3SiRecipeTimeBlockMemoryNoCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iModStnMemoryFL, 3] > 0
+			AND AR3SiRecipeTimeBlockMemoryNoCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iModStnMemoryFL, 3] <= iStnQty THEN
+			AR3SiRecipeTimeBlockMemoryNoCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iModStnMemoryFL, 1] := AR3SiRecipeTimeBlockMemoryNoCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iModStnMemoryFL-1, 1];
+			AR3SiRecipeTimeBlockMemoryNoCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iModStnMemoryFL, 2] := AR3SiRecipeTimeBlockMemoryNoCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iModStnMemoryFL+1, 2];
+			AR3SiRecipeTimeBlockMemoryNoCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iModStnMemoryFL, 3] := AR3SiRecipeTimeBlockMemoryNoCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iModStnMemoryFL, 3];
+			END_IF
+
+		END_IF
+
+		IF iModStnMemoryFL > 0 AND iModStnMemoryFL <= iRecipeBlockQty THEN
+			IF iModStnMemoryFL > 1
+			AND AR3SiRecipeTimeBlockMemoryWithCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iModStnMemoryFL, 3] > 0
+			AND AR3SiRecipeTimeBlockMemoryWithCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iModStnMemoryFL, 3] <= iStnQty THEN
+			AR3SiRecipeTimeBlockMemoryWithCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iModStnMemoryFL, 1] := AR3SiRecipeTimeBlockMemoryWithCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iModStnMemoryFL-1, 1];
+			AR3SiRecipeTimeBlockMemoryWithCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iModStnMemoryFL, 2] := AR3SiRecipeTimeBlockMemoryWithCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iModStnMemoryFL+1, 2];
+			AR3SiRecipeTimeBlockMemoryWithCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iModStnMemoryFL, 3] := AR3SiRecipeTimeBlockMemoryWithCallArmTime[DSTimeTrackerInput.iTimeTrackerProductRecipeNo, iModStnMemoryFL, 3];
+			END_IF
+
+		END_IF
+
+
+	END_FOR
+
+
+
+
+
+
+iTracker := 5;
+
+
+5:; (*Completed and idling*)
+bTrackerCompleted := TRUE;
+
+(*
+AR2SiArmRunningTime
+ARbArmCountEN[iArmFilterFL]
+
+
+ARiStnRunningTime
+bStnCountEN
+
+ARbArmStFE[RtrigFL].Q
+bStnStopRE.Q
+*)
+
+
+
+91: (*Error, Uld station not found*)
+bNoUldStnIDErr := TRUE;
+
+
+
+END_CASE
+
+
+(* Filter Signal Noise with delay time*)
+
+IF bScanningEN THEN
+
+	IF bStnStartRE.Q THEN
+	bStnCountStartEN := TRUE;
+	END_IF
+
+	IF bStnStopRE.Q THEN
+	bStnCountStartEN := FALSE;
+	END_IF
+
+
+
+
+	iArmFilterFL := 1;
+
+	FOR iArmFilterFL := 1 TO iArmQty DO
+
+		IF iArmFilterFL >0 AND iArmFilterFL <= iArmQty THEN
+
+			IF ARbArmStRE[iArmFilterFL].Q OR bStnStartRE.Q THEN
+			ARiArmStOnTimeFilter[iArmFilterFL] := 0;
+			iStnOnTimeFilter := 0;
+			END_IF
+
+			IF ARbArmSt[iArmFilterFL] AND OnTimeRE.Q THEN
+			ARiArmStOnTimeFilter[iArmFilterFL] := ARiArmStOnTimeFilter[iArmFilterFL]+1;
+			END_IF
+
+			IF ARiArmStOnTimeFilter[iArmFilterFL] > iCountFilterTime_Sec THEN
+			ARbArmCountEN[iArmFilterFL] := TRUE;
+			ELSE
+			ARbArmCountEN[iArmFilterFL] := FALSE;
+			END_IF
+
+		END_IF
+
+	END_FOR
+
+
+			IF bStnCountStartEN AND OnTimeRE.Q THEN
+			iStnOnTimeFilter := iStnOnTimeFilter+1;
+			END_IF
+
+			IF iStnOnTimeFilter > iCountFilterTime_Sec THEN
+			bStnCountEN := TRUE;
+			ELSE
+			bStnCountEN := FALSE;
+			END_IF
+
+END_IF
+
+
+tProductRecipeChangesFound(IN:=bProductRecipeChangesFound  , PT:=INT_TO_TIME(iProductRecipeChangedDelayTime_ms) , Q=> , ET=> );
+bAutoModeEn_RE(CLK:=bAutoModeEn AND NOT bMasterTimeBlockScanningEn AND NOT tProductRecipeChangesFound.Q AND NOT bScanningEN AND iAutoModeCallRecipeTimeBlock_ProductRecipeNo >0  , Q=> );
+bSimulatorModeEn_RE(CLK:=bSimulatorModeEn AND NOT bMasterTimeBlockScanningEn AND NOT tProductRecipeChangesFound.Q AND NOT  bScanningEN AND iSimulatorModeCallRecipeTimeBlock_ProductRecipeNo >0  , Q=> );
+
+
+(*ProductRecipeNo changes check*)
+
+IF bAutoModeEn_RE.Q THEN
+iBufferAutoModeCallRecipeTimeBlock_ProductRecipeNo := iAutoModeCallRecipeTimeBlock_ProductRecipeNo;
+END_IF
+
+IF bSimulatorModeEn_RE.Q THEN
+iBufferSimulatorModeCallRecipeTimeBlock_ProductRecipeNo := iSimulatorModeCallRecipeTimeBlock_ProductRecipeNo;
+END_IF
+
+
+IF tProductRecipeChangesFound.Q THEN
+bProductRecipeChangesFound := FALSE;
+END_IF
+
+IF bAutoModeEn THEN
+
+	IF iBufferAutoModeCallRecipeTimeBlock_ProductRecipeNo <> iAutoModeCallRecipeTimeBlock_ProductRecipeNo  THEN
+		bProductRecipeChangesFound := TRUE;
+		iBufferAutoModeCallRecipeTimeBlock_ProductRecipeNo := iAutoModeCallRecipeTimeBlock_ProductRecipeNo;
+	END_IF
+
+ELSIF bSimulatorModeEn THEN
+
+
+	IF iBufferSimulatorModeCallRecipeTimeBlock_ProductRecipeNo <> iSimulatorModeCallRecipeTimeBlock_ProductRecipeNo  THEN
+		bProductRecipeChangesFound := TRUE;
+		iBufferSimulatorModeCallRecipeTimeBlock_ProductRecipeNo := iSimulatorModeCallRecipeTimeBlock_ProductRecipeNo;
+	END_IF
+
+END_IF
+
+
+
+(*Call Recipe Time Block*)
+
+bCallRTB_NoTrackerInfoRE(CLK:=bCallRTB_NoTrackerInfo , Q=> );
+bInvalidCallRecipeTimeBlockNoRE(CLK:=bInvalidCallRecipeTimeBlockNo , Q=> );
+
+(*Clear CalledTimeBlock*)
+IF NOT bMasterTimeBlockScanningEn AND (bAutoModeEn_RE.Q OR bSimulatorModeEn_RE.Q OR  (NOT bAutoModeEn AND NOT bSimulatorModeEn) OR bCallRTB_NoTrackerInfoRE.Q OR bInvalidCallRecipeTimeBlockNoRE.Q) THEN
+iClearCallRTBFL := 1;
+		FOR iClearCallRTBFL := 1 TO iRecipeBlockQty DO
+			IF iClearCallRTBFL > 0 AND iClearCallRTBFL <= iRecipeBlockQty THEN
+			AR2SiCalledRecipeTimeBlockNoCallArmTime[iClearCallRTBFL, 1] := 0;
+			AR2SiCalledRecipeTimeBlockNoCallArmTime[iClearCallRTBFL, 2] := 0;
+			AR2SiCalledRecipeTimeBlockNoCallArmTime[iClearCallRTBFL, 3] := 0;
+			END_IF
+		END_FOR
+
+		FOR iClearCallRTBFL := 1 TO iRecipeBlockQty DO
+			IF iClearCallRTBFL > 0 AND iClearCallRTBFL <= iRecipeBlockQty THEN
+			AR2SiCalledRecipeTimeBlockWithCallArmTime[iClearCallRTBFL, 1] := 0;
+			AR2SiCalledRecipeTimeBlockWithCallArmTime[iClearCallRTBFL, 2] := 0;
+			AR2SiCalledRecipeTimeBlockWithCallArmTime[iClearCallRTBFL, 3] := 0;
+			END_IF
+		END_FOR
+END_IF
+
+
+(*Reset Flag*)
+IF
+(NOT bAutoModeEn AND NOT bSimulatorModeEn)
+OR
+bProductRecipeChangesFound
+OR
+(bAutoModeEN AND iAutoModeCallRecipeTimeBlock_ProductRecipeNo = 0)
+OR
+(bSimulatorModeEN AND iSimulatorModeCallRecipeTimeBlock_ProductRecipeNo = 0)
+THEN
+	bInvalidCallRecipeTimeBlockNo := FALSE;
+	bCallRTB_NoTrackerInfo := FALSE;
+	bCallRTB_CallOK := FALSE;
+END_IF
+
+
+
+
+
+(*Call Time Block*)
+
+IF
+(( bAutoModeEN AND iAutoModeCallRecipeTimeBlock_ProductRecipeNo > 0 AND iAutoModeCallRecipeTimeBlock_ProductRecipeNo <= iProductRecipeArrayQty AND NOT ARbProductRecipeTimeBlockAvailable[iAutoModeCallRecipeTimeBlock_ProductRecipeNo])
+OR
+(bSimulatorModeEN AND iSimulatorModeCallRecipeTimeBlock_ProductRecipeNo > 0 AND iSimulatorModeCallRecipeTimeBlock_ProductRecipeNo <= iProductRecipeArrayQty AND NOT ARbProductRecipeTimeBlockAvailable[iSimulatorModeCallRecipeTimeBlock_ProductRecipeNo]))
+THEN
+bCallRTB_NoTrackerInfo := TRUE;
+bCallRTB_CallOK := FALSE;
+
+(*AutoMode Call*)
+ELSIF bAutoModeEn
+AND NOT bMasterTimeBlockScanningEn
+AND NOT tProductRecipeChangesFound.Q
+AND NOT bScanningEN
+AND iAutoModeCallRecipeTimeBlock_ProductRecipeNo >0
+THEN
+
+			IF iAutoModeCallRecipeTimeBlock_ProductRecipeNo >0 THEN
+			bInvalidCallRecipeTimeBlockNo := FALSE;
+
+				IF AR3SiRecipeTimeBlockMemoryNoCallArmTime[iAutoModeCallRecipeTimeBlock_ProductRecipeNo, 1, 3] <> 0 THEN
+				CallRTBFL := 1;
+
+					FOR CallRTBFL := 1 TO iRecipeBlockQty DO
+						IF CallRTBFL > 0 AND CallRTBFL <= iRecipeBlockQty THEN
+						AR2SiCalledRecipeTimeBlockNoCallArmTime[CallRTBFL, 1] :=	 AR3SiRecipeTimeBlockMemoryNoCallArmTime[iAutoModeCallRecipeTimeBlock_ProductRecipeNo, CallRTBFL, 1];
+						AR2SiCalledRecipeTimeBlockNoCallArmTime[CallRTBFL, 2] :=	 AR3SiRecipeTimeBlockMemoryNoCallArmTime[iAutoModeCallRecipeTimeBlock_ProductRecipeNo, CallRTBFL, 2];
+						AR2SiCalledRecipeTimeBlockNoCallArmTime[CallRTBFL, 3] :=	 AR3SiRecipeTimeBlockMemoryNoCallArmTime[iAutoModeCallRecipeTimeBlock_ProductRecipeNo, CallRTBFL, 3];
+						END_IF
+					END_FOR
+
+			
+				END_IF
+
+
+				IF AR3SiRecipeTimeBlockMemoryWithCallArmTime[iAutoModeCallRecipeTimeBlock_ProductRecipeNo, 1, 3] <> 0 THEN
+				CallRTBFL := 1;
+
+					FOR CallRTBFL := 1 TO iRecipeBlockQty DO
+						IF CallRTBFL > 0 AND CallRTBFL <= iRecipeBlockQty THEN
+						AR2SiCalledRecipeTimeBlockWithCallArmTime[CallRTBFL, 1] :=	 AR3SiRecipeTimeBlockMemoryWithCallArmTime[iAutoModeCallRecipeTimeBlock_ProductRecipeNo, CallRTBFL, 1];
+						AR2SiCalledRecipeTimeBlockWithCallArmTime[CallRTBFL, 2] :=	 AR3SiRecipeTimeBlockMemoryWithCallArmTime[iAutoModeCallRecipeTimeBlock_ProductRecipeNo, CallRTBFL, 2];
+						AR2SiCalledRecipeTimeBlockWithCallArmTime[CallRTBFL, 3] :=	 AR3SiRecipeTimeBlockMemoryWithCallArmTime[iAutoModeCallRecipeTimeBlock_ProductRecipeNo, CallRTBFL, 3];
+						END_IF
+					END_FOR
+			
+			
+				END_IF
+
+			ELSE
+			bInvalidCallRecipeTimeBlockNo := TRUE;
+			END_IF
+
+			IF AR2SiCalledRecipeTimeBlockWithCallArmTime [1,3] <> 0 THEN
+			bCallRTB_NoTrackerInfo := FALSE;
+			bCallRTB_CallOK := TRUE;
+			END_IF
+
+(*SimulatorMode Call*)
+ELSIF bSimulatorModeEn
+AND NOT bMasterTimeBlockScanningEn
+AND NOT tProductRecipeChangesFound.Q
+AND NOT  bScanningEN
+AND iSimulatorModeCallRecipeTimeBlock_ProductRecipeNo >0
+(*AND ARbProductRecipeTimeBlockAvailable[iSimulatorModeCallRecipeTimeBlock_ProductRecipeNo]
+AND AR2SiCalledRecipeTimeBlockNoCallArmTime[1, 3] = 0*)
+THEN
+
+			IF iSimulatorModeCallRecipeTimeBlock_ProductRecipeNo >0 THEN
+			bInvalidCallRecipeTimeBlockNo := FALSE;
+
+				IF AR3SiRecipeTimeBlockMemoryNoCallArmTime[iSimulatorModeCallRecipeTimeBlock_ProductRecipeNo, 1, 3] <> 0 THEN
+				CallRTBFL := 1;
+
+					FOR CallRTBFL := 1 TO iRecipeBlockQty DO
+						IF CallRTBFL > 0 AND CallRTBFL <= iRecipeBlockQty THEN
+						AR2SiCalledRecipeTimeBlockNoCallArmTime[CallRTBFL, 1] :=	 AR3SiRecipeTimeBlockMemoryNoCallArmTime[iSimulatorModeCallRecipeTimeBlock_ProductRecipeNo, CallRTBFL, 1];
+						AR2SiCalledRecipeTimeBlockNoCallArmTime[CallRTBFL, 2] :=	 AR3SiRecipeTimeBlockMemoryNoCallArmTime[iSimulatorModeCallRecipeTimeBlock_ProductRecipeNo, CallRTBFL, 2];
+						AR2SiCalledRecipeTimeBlockNoCallArmTime[CallRTBFL, 3] :=	 AR3SiRecipeTimeBlockMemoryNoCallArmTime[iSimulatorModeCallRecipeTimeBlock_ProductRecipeNo, CallRTBFL, 3];
+						END_IF
+					END_FOR
+			
+			
+				END_IF
+
+
+				IF AR3SiRecipeTimeBlockMemoryWithCallArmTime[iSimulatorModeCallRecipeTimeBlock_ProductRecipeNo, 1, 3] <> 0 THEN
+				CallRTBFL := 1;
+			
+					FOR CallRTBFL := 1 TO iRecipeBlockQty DO
+						IF CallRTBFL > 0 AND CallRTBFL <= iRecipeBlockQty THEN
+						AR2SiCalledRecipeTimeBlockWithCallArmTime[CallRTBFL, 1] :=	 AR3SiRecipeTimeBlockMemoryWithCallArmTime[iSimulatorModeCallRecipeTimeBlock_ProductRecipeNo, CallRTBFL, 1];
+						AR2SiCalledRecipeTimeBlockWithCallArmTime[CallRTBFL, 2] :=	 AR3SiRecipeTimeBlockMemoryWithCallArmTime[iSimulatorModeCallRecipeTimeBlock_ProductRecipeNo, CallRTBFL, 2];
+						AR2SiCalledRecipeTimeBlockWithCallArmTime[CallRTBFL, 3] :=	 AR3SiRecipeTimeBlockMemoryWithCallArmTime[iSimulatorModeCallRecipeTimeBlock_ProductRecipeNo, CallRTBFL, 3];
+						END_IF
+					END_FOR
+
+			
+				END_IF
+
+			ELSE
+			bInvalidCallRecipeTimeBlockNo := TRUE;
+			END_IF
+
+
+			IF AR2SiCalledRecipeTimeBlockWithCallArmTime [1,3] <> 0 THEN
+			bCallRTB_NoTrackerInfo := FALSE;
+			bCallRTB_CallOK := TRUE;
+			END_IF
+
+
+END_IF
+
+
+
+(*Check Product Recipe Time Block Availibility *)
+iCheckPRTBFL := 1;
+
+	FOR iCheckPRTBFL := 1 TO iProductRecipeArrayQty DO
+		IF iCheckPRTBFL >= 1 AND iCheckPRTBFL <= iProductRecipeArrayQty THEN
+
+			IF  AR3SiRecipeTimeBlockMemoryNoCallArmTime[iCheckPRTBFL, 1, 3] > 0 THEN
+			ARbProductRecipeTimeBlockAvailable[iCheckPRTBFL ] := TRUE;
+			ELSE
+			ARbProductRecipeTimeBlockAvailable[iCheckPRTBFL ] := FALSE;
+			END_IF
+
+		END_IF
+	END_FOR]]></ST>
+    </Implementation>
+    <LineIds Name="fbFBPTimeTrackerG3">
+      <LineId Id="158" Count="686" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbPreSuffixEliminator" Id="{ba17ec0e-98ab-4040-838d-d5874d223943}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbPreSuffixEliminator
+VAR_INPUT
+	bEN									: BOOL;
+	bPrefixEliminatorEN					: BOOL;
+	bSuffixEliminatorEN					: BOOL;
+	sData								: STRING;
+	sPrefix								: STRING (*:='$02'*);
+	sSuffix								:STRING;
+	iLengthAfterPrefix						: INT;
+	iLengthBeforeSuffix					: INT;
+
+END_VAR
+VAR_OUTPUT
+
+	sPrefixEliminatorResult					: STRING;
+	sSuffixEliminatorResult					: STRING;
+	sPreSuffixEliminatorResult				: STRING;
+	sNoneEliminatorReseult				: STRING;
+
+END_VAR
+VAR
+	iBCPrefixFound						: INT;
+	iBCSuffixFound						: INT;
+	sIntPrefixEliminatorResult				: STRING;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Prefix Eliminator*)
+IF bEN AND bPrefixEliminatorEN AND NOT bSuffixEliminatorEN THEN
+
+sSuffixEliminatorResult := '';
+sPreSuffixEliminatorResult := '';
+
+iBCPrefixFound:=FIND(sData, sPrefix);
+sPrefixEliminatorResult:=RIGHT(sData, iBCPrefixFound+iLengthAfterPrefix);
+
+END_IF
+
+(*Suffix Eliminator*)
+IF bEN AND bSuffixEliminatorEN AND NOT bPrefixEliminatorEN THEN
+
+sPrefixEliminatorResult := '';
+sPreSuffixEliminatorResult := '';
+
+
+iBCSuffixFound:=FIND(sData, sSuffix);
+sSuffixEliminatorResult:=LEFT(sData, iBCSuffixFound-iLengthBeforeSuffix);
+
+END_IF
+
+
+
+IF bEN AND bSuffixEliminatorEN AND bPrefixEliminatorEN THEN
+
+sPrefixEliminatorResult := '';
+sSuffixEliminatorResult := '';
+
+iBCPrefixFound:=FIND(sData, sPrefix);
+sIntPrefixEliminatorResult:=RIGHT(sData, iBCPrefixFound+iLengthAfterPrefix);
+
+
+iBCSuffixFound:=FIND(sIntPrefixEliminatorResult, sSuffix);
+sPreSuffixEliminatorResult:=LEFT(sIntPrefixEliminatorResult, iBCSuffixFound-iLengthBeforeSuffix);
+
+END_IF
+
+
+
+IF bEN AND NOT bSuffixEliminatorEN AND NOT bPrefixEliminatorEN THEN
+
+sNoneEliminatorReseult:=sData;
+
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbPreSuffixEliminator">
+      <LineId Id="25" Count="45" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

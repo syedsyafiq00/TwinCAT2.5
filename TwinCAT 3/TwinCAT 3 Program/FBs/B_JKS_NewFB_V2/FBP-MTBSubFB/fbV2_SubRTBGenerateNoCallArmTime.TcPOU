@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_SubRTBGenerateNoCallArmTime" Id="{8601fe0e-2bfe-439a-86ad-551bf0f84ec5}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_SubRTBGenerateNoCallArmTime
+VAR_INPUT
+	bReset			: BOOL;
+	iLoadingCallArmTime : INT;
+
+	AR2SiRecipeTimeBlockWithCallArmTime 			: ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+
+(* RecipeTimeBlockDetail
+	1 - Start Time
+	2 - End Time
+	3 - Stn ID
+	4 - Step No (Based on Product Recipe PnP Step No)
+	5 - Busy Time <Duration> = EndTime - StartTime + 1; 
+	6 - Min Time (Define by User -> Process Time Per Station)
+	7 - Max Time (Define by User -> For Process Tank only)
+	8 - Eff Time (Final Process Time, Used on Station Timer and Call Arm Used)
+	9 - BusyLink Reference 
+		0		=Non
+		11-19 	= BusyLinkGroupMaster No 1
+		21-29 	= BusyLinkGroupMaster No 2
+		=================================
+		91-99 	= BusyLinkGroupMaster No 9
+
+		111-119 	= BusyLinkGroupMaster No 1 - 1st Stn ID
+		121-129 	= BusyLinkGroupMaster No 1 - 2nd Stn ID
+		131-139 	= BusyLinkGroupMaster No 1 - 3rd Stn ID
+
+		211-219 	= BusyLinkGroupMaster No 2 - 1st Stn ID
+		221-229 	= BusyLinkGroupMaster No 2 - 2nd Stn ID
+		231-239 	= BusyLinkGroupMaster No 2 - 3rd Stn ID
+
+		911-919 	= BusyLinkGroupMaster No 9 - 1st Stn ID
+		921-929 	= BusyLinkGroupMaster No 9 - 2nd Stn ID
+		931-939 	= BusyLinkGroupMaster No 9 - 3rd Stn ID
+
+		
+
+*)
+
+END_VAR
+
+VAR_IN_OUT
+	bEn				: BOOL;
+
+
+END_VAR
+
+
+
+VAR_OUTPUT
+	bDone : BOOL;
+	AR2SiRecipeTimeBlockNoCallArmTime 			: ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+
+END_VAR
+
+VAR
+	bResetRE: R_TRIG;
+	iStep: INT;
+
+	iRecipeCheckFL: INT;
+	AR2SiRecipeTimeBlockNoCallArmTimeEmpty 			: ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+END_VAR
+
+VAR_INPUT
+
+
+
+END_VAR
+
+
+VAR PERSISTENT
+
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[bResetRE(CLK:=bReset , Q=> );
+
+IF bResetRE.Q THEN
+bDone := FALSE;
+END_IF
+
+
+IF NOT bReset AND bEn THEN
+
+	bDone := FALSE;
+	AR2SiRecipeTimeBlockNoCallArmTime := AR2SiRecipeTimeBlockNoCallArmTimeEmpty;
+(*
+CASE iStep OF
+
+1:
+*)
+	iRecipeCheckFL := 1;
+	IF iRecipeCheckFL>0 AND iRecipeCheckFL <= iRecipeBlockQty THEN
+		FOR iRecipeCheckFL := 1 TO iRecipeBlockQty DO
+
+			IF (iRecipeCheckFL = 1 OR iRecipeCheckFL = 2) AND AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,3] > 0 THEN
+
+				AR2SiRecipeTimeBlockNoCallArmTime[iRecipeCheckFL,1] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,1];
+				AR2SiRecipeTimeBlockNoCallArmTime[iRecipeCheckFL,2] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,2]-iLoadingCallArmTime;
+				AR2SiRecipeTimeBlockNoCallArmTime[iRecipeCheckFL,3] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,3];
+				AR2SiRecipeTimeBlockNoCallArmTime[iRecipeCheckFL,4] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,4];
+				AR2SiRecipeTimeBlockNoCallArmTime[iRecipeCheckFL,5] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,5]-iLoadingCallArmTime;
+				AR2SiRecipeTimeBlockNoCallArmTime[iRecipeCheckFL,6] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,6];
+				AR2SiRecipeTimeBlockNoCallArmTime[iRecipeCheckFL,7] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,7];
+				AR2SiRecipeTimeBlockNoCallArmTime[iRecipeCheckFL,8] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,8];
+				AR2SiRecipeTimeBlockNoCallArmTime[iRecipeCheckFL,9] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,9];
+
+			ELSIF iRecipeCheckFL > 1 AND AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,3] > 0 THEN
+
+				AR2SiRecipeTimeBlockNoCallArmTime[iRecipeCheckFL,1] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,1]-iLoadingCallArmTime;
+				AR2SiRecipeTimeBlockNoCallArmTime[iRecipeCheckFL,2] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,2]-iLoadingCallArmTime;
+				AR2SiRecipeTimeBlockNoCallArmTime[iRecipeCheckFL,3] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,3];
+				AR2SiRecipeTimeBlockNoCallArmTime[iRecipeCheckFL,4] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,4];
+				AR2SiRecipeTimeBlockNoCallArmTime[iRecipeCheckFL,5] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,5];
+				AR2SiRecipeTimeBlockNoCallArmTime[iRecipeCheckFL,6] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,6];
+				AR2SiRecipeTimeBlockNoCallArmTime[iRecipeCheckFL,7] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,7];
+				AR2SiRecipeTimeBlockNoCallArmTime[iRecipeCheckFL,8] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,8];
+				AR2SiRecipeTimeBlockNoCallArmTime[iRecipeCheckFL,9] := AR2SiRecipeTimeBlockWithCallArmTime[iRecipeCheckFL,9];
+			END_IF
+		END_FOR
+	END_IF
+
+
+bDone := TRUE;
+bEn := FALSE;
+
+(*
+iStep := 12;
+3:;
+
+END_CASE
+*)
+
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_SubRTBGenerateNoCallArmTime">
+      <LineId Id="74" Count="58" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

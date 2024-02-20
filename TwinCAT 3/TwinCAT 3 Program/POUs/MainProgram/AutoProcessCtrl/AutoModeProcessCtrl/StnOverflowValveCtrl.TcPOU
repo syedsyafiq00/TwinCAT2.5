@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="StnOverflowValveCtrl" Id="{b2739bad-310c-4261-aac2-e338279dc2d1}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM StnOverflowValveCtrl
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+IF bAutoPreparationPb AND ARbDI[Digital_Input.eX11013_Stn01ProcessTankSensor_Min_Overflow] AND ARbDO[eY10107_STN01PROCESSTANKPUMPON_OFF] THEN
+ARwDO[eY13001_STN01OVERFLOWSUCTIONAV1_2].00 := TRUE;
+ELSE
+ARwDO[eY13001_STN01OVERFLOWSUCTIONAV1_2].00 := FALSE;	
+END_IF
+
+
+IF bAutoPreparationPb AND ARbDI[Digital_Input.eX11102_Stn03ProcessTankSensor_Min_Overflow] AND ARbDO[eY10109_STN03PROCESSTANKPUMPON_OFF] THEN
+ARwDO[eY13004_STN03OVERFLOWSUCTIONAV3_2].00 := TRUE;
+ELSE
+ARwDO[eY13004_STN03OVERFLOWSUCTIONAV3_2].00 := FALSE;	
+END_IF
+
+
+IF bAutoPreparationPb AND ARbDI[Digital_Input.eX12006_Stn05ProcessTankSensor_Min_Overflow] AND ARbDO[eY10111_STN05PROCESSTANKPUMPON_OFF] THEN
+ARwDO[eY13008_STN05OVERFLOWSUCTIONAV5_2].00 := TRUE;
+ELSE
+ARwDO[eY13008_STN05OVERFLOWSUCTIONAV5_2].00 := FALSE;	
+END_IF
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="StnOverflowValveCtrl">
+      <LineId Id="6" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="15" Count="2" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="18" Count="4" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="24" Count="5" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="11" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

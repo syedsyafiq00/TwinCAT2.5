@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_InvAnalogSpdCtrl" Id="{0b9d9faa-f8b8-417b-a560-8df26e4494d1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_InvAnalogSpdCtrl
+VAR_INPUT
+	bJogEn : BOOL;
+	bHomeEn : BOOL;
+	bPosEn : BOOL;
+
+	rJogTargetSpdHz : REAL;
+	rHomeTargetSpdHz : REAL;
+	rPosTargetSpdHz : REAL;
+
+	bEstop : BOOL;
+
+END_VAR
+VAR_IN_OUT PERSISTENT
+	rHzToRawRatio : REAL;
+END_VAR
+
+VAR_OUTPUT
+	bJogInProgress : BOOL;
+	bHomeInProgress : BOOL;
+	bPosInProgress : BOOL;
+
+	iAnalogOutput : INT;
+	rTargetHzDisplay : REAL;
+
+END_VAR
+VAR
+	iStep: INT;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Lower / Higher Limit*)
+IF rHzToRawRatio < 1 THEN
+rHzToRawRatio := 1;
+END_IF
+
+
+(*Triggering*)
+IF bJogEn AND NOT bEstop THEN
+iStep := 1;
+ELSIF bHomeEn AND NOT bEstop THEN
+iStep := 2;
+ELSIF bPosEn AND NOT bEstop THEN
+iStep := 3;
+ELSE
+iStep := 0;
+END_IF
+
+
+(*************Process start******************)
+CASE iStep OF
+
+(*No Operation*)
+0:
+bJogInProgress := FALSE;
+bHomeInProgress := FALSE;
+bPosInProgress := FALSE;
+
+iAnalogOutput := 0;
+rTargetHzDisplay := 0;
+
+
+(*Jog Operation*)
+1:
+bJogInProgress := TRUE;
+bHomeInProgress := FALSE;
+bPosInProgress := FALSE;
+
+iAnalogOutput := REAL_TO_INT(rJogTargetSpdHz * rHzToRawRatio);
+rTargetHzDisplay := rJogTargetSpdHz;
+
+
+
+
+(*Home Operation*)
+2:
+bJogInProgress := FALSE;
+bHomeInProgress := TRUE;
+bPosInProgress := FALSE;
+
+iAnalogOutput := REAL_TO_INT(rHomeTargetSpdHz * rHzToRawRatio);
+rTargetHzDisplay := rHomeTargetSpdHz;
+
+
+
+
+(*Positioning Operation*)
+3:
+bJogInProgress := FALSE;
+bHomeInProgress := FALSE;
+bPosInProgress := TRUE;
+
+iAnalogOutput := REAL_TO_INT(rPosTargetSpdHz * rHzToRawRatio);
+rTargetHzDisplay := rPosTargetSpdHz;
+
+
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_InvAnalogSpdCtrl">
+      <LineId Id="30" Count="65" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

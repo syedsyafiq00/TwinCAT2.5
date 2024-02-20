@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fb_V3StringEliminator" Id="{5ba8dfb5-7b4d-444e-9625-c08d6e826f9d}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fb_V3StringEliminator
+VAR_INPUT
+	bEn: BOOL;
+	sString: STRING;
+	iCharEliminateQty : INT;
+	iCharNeededQty: INT;
+END_VAR
+VAR_OUTPUT
+	sResult: STRING;
+	bDone : BOOL;
+	bError: BOOL;
+	sStatus: STRING(50);
+END_VAR
+VAR
+	sResultTemp: STRING(50);
+	iResultQty: INT;
+	iLEN: INT;
+	iPOS: INT;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[iCharEliminateQty;
+
+
+iLEN := LEN (sString);
+iPOS := iCharEliminateQty+1;
+
+IF bEn THEN
+	sResultTemp := '';
+	sResult := '';
+	sStatus := '';
+	bError := FALSE;
+	bDone := FALSE;
+
+	(*IF iCharNeededQty <= 0 THEN*)
+	IF iLEN <= 0 THEN
+		sResult := '';
+		sStatus := 'Error - Character Needed Quantity Lower Than "0"';
+		bError := TRUE;
+		bDone := FALSE;
+
+
+	ELSIF iCharEliminateQty >= 0 THEN
+		sResultTemp := MID(sString, iLEN, iPOS);
+		iResultQty := LEN(sResultTemp);
+		sResult := sResultTemp;
+		bDone := TRUE;
+		sStatus := 'Done';
+
+		IF  iLEN <  iPOS THEN
+		sResult := '' ;
+		sStatus := 'Error - Character Output Quantity Not Matched';
+		bError := TRUE;
+		bDone := FALSE;
+		END_IF
+
+	ELSE
+	sResult := '';
+	sStatus := 'Error - Character Eliminate Quantity Lower Than "0"';
+	bError := TRUE;
+	bDone := FALSE;
+	END_IF
+
+ELSE
+	sResultTemp := '';
+	sResult := '';
+	sStatus := 'Press "bStart" to Execute';
+	bError := FALSE;
+	bDone := FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fb_V3StringEliminator">
+      <LineId Id="88" Count="47" />
+      <LineId Id="68" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

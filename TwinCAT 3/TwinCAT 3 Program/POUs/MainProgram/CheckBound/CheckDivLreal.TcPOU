@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="CheckDivLreal" Id="{711eb4a6-9cba-4f33-8249-d1c338edd2be}" SpecialFunc="CheckDivReal64">
+    <Declaration><![CDATA[FUNCTION CheckDivLreal : LREAL
+VAR_INPUT
+	divisor		 		: LREAL;
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF divisor = 0 THEN
+	CheckLrealZeroDiv_ErrCnt := CheckLrealZeroDiv_ErrCnt + 1;
+	CheckDivLreal := 1;
+ELSE
+	CheckDivLreal := divisor;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="CheckDivLreal">
+      <LineId Id="7" Count="5" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

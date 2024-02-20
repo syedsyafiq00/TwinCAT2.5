@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="WeberFreqSelector" Id="{fe2a7aef-c6f7-487e-a6d1-6ae66d1ac209}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK WeberFreqSelector
+VAR_INPUT
+	bSwitch : BOOL;
+
+END_VAR
+VAR_IN_OUT
+
+	iFreqAdd : INT;
+
+
+END_VAR
+VAR
+	SwitchDF: R_TRIG;
+	step : BYTE;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[SwitchDF (CLK:=bSwitch , Q=> );
+
+IF iFreqAdd <> 40 AND iFreqAdd <> 80 AND iFreqAdd <> 120 THEN
+iFreqAdd := 40;
+END_IF
+
+IF SwitchDF.Q AND iFreqAdd = 40 THEN
+step := 1;
+END_IF
+
+IF SwitchDF.Q AND iFreqAdd = 80 THEN
+step := 2;
+END_IF
+
+IF SwitchDF.Q AND iFreqAdd = 120 THEN
+step := 3;
+END_IF
+
+
+CASE step OF
+	0:; (*Standby*)
+
+	1:
+
+		iFreqAdd := 80;
+		step := 0;
+
+	2:
+
+		iFreqAdd := 120;
+		step := 0;
+
+	3:
+
+		iFreqAdd := 40;
+		step := 0;
+
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="WeberFreqSelector">
+      <LineId Id="16" Count="37" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

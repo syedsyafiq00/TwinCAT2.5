@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="OmronServoEnable" Id="{c8aa9bd6-7f3d-431d-9123-154fdcefa32f}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM OmronServoEnable
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF PowerOnDelay.Q AND NOT EmergencyStop THEN
+	ARwDO[eY10007_STN09SLOWPULLMECHANISMSERVOMOTOR_ERRORSTOP].00 := TRUE;
+	ARwDO[eY10008_Arm01HorizontalServoMotor_ErrorStop].00 := TRUE;
+	ARwDO[eY10009_Arm01VerticalServoMotor_ErrorStop].00 := TRUE;
+	ELSE
+	ARwDO[eY10007_STN09SLOWPULLMECHANISMSERVOMOTOR_ERRORSTOP].00 := FALSE;
+	ARwDO[eY10008_Arm01HorizontalServoMotor_ErrorStop].00 := FALSE;
+	ARwDO[eY10009_Arm01VerticalServoMotor_ErrorStop].00 := FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="OmronServoEnable">
+      <LineId Id="5" Count="1" />
+      <LineId Id="8" Count="2" />
+      <LineId Id="13" Count="1" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

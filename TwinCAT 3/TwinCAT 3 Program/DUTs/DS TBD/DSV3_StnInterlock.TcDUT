@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSV3_StnInterlock" Id="{7800e43f-65ce-40bf-bbcf-c041d79688ce}">
+    <Declaration><![CDATA[TYPE DSV3_StnInterlock :
+STRUCT
+
+	ARbArmDownInterlock 	: ARRAY [0..iStnQty] OF BOOL;
+	ARbArmUpInterlock 		: ARRAY [0..iStnQty] OF BOOL;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

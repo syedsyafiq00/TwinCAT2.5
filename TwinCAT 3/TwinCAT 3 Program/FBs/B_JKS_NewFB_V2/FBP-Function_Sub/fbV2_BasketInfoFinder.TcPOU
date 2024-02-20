@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_BasketInfoFinder" Id="{88ff752a-fca3-4c27-bc14-ccafa175251b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_BasketInfoFinder
+VAR_INPUT
+	iCurrentStationAddress 							: INT;													(*Individual*) (* Input - Define current station no so that this fb know which array number to used*)
+
+END_VAR
+VAR_IN_OUT
+	ARDSLdBasketInfo_Uni		 			: ARRAY [0..iLdStnQty] OF DSV2_BasketInfo;								(*Input - Loading CONFIRM Basket Info*)
+	ARDSUldBasketInfo_Uni		 			: ARRAY [0..iUldStnQty] OF DSV2_BasketInfo;							(*Input - Unloading CONFIRM Basket Info*)
+	ARDsStnBasketInfo_Uni					: ARRAY [0..iStnQty] OF DSV2_BasketInfo;								(*Input - Station Basket Info*)
+
+END_VAR
+
+VAR_OUTPUT
+	DSBasketInfo_Result 						: DSV2_BasketInfo;													(*Individual*) (* InOut - Basket Information that comes into current station*)
+
+END_VAR
+VAR
+	DSBasketInfo_Empty						: DSV2_BasketInfo;													(*Individual*) (* InOut - Basket Information that comes into current station*)
+
+	iSearchFL: INT;
+	bStnFound: BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF iCurrentStationAddress <= 0 THEN
+
+	DSBasketInfo_Result := DSBasketInfo_Empty;
+
+ELSIF iCurrentStationAddress >= 1 AND iCurrentStationAddress <= iStnQty THEN
+
+	DSBasketInfo_Result := ARDsStnBasketInfo_Uni[iCurrentStationAddress];
+
+ELSE
+
+	bStnFound := FALSE;
+
+	IF NOT bStnFound THEN
+		iSearchFL := 1;
+			FOR iSearchFL := 1 TO iLdStnQty DO
+				IF iSearchFL >= 1 AND iSearchFL <= iLdStnQty THEN
+					IF iCurrentStationAddress = ARiLdStnID[iSearchFL] THEN
+						DSBasketInfo_Result := ARDSLdBasketInfo_Uni[iSearchFL];
+						bStnFound := TRUE;
+					END_IF
+				END_IF
+			END_FOR
+	END_IF
+	
+	IF NOT bStnFound THEN
+		iSearchFL := 1;
+			FOR iSearchFL := 1 TO iUldStnQty DO
+				IF iSearchFL >= 1 AND iSearchFL <= iUldStnQty THEN
+					IF iCurrentStationAddress = ARiUldStnID[iSearchFL] THEN
+						DSBasketInfo_Result := ARDSUldBasketInfo_Uni[iSearchFL];
+						bStnFound := TRUE;
+					END_IF
+				END_IF
+			END_FOR
+	END_IF
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_BasketInfoFinder">
+      <LineId Id="22" Count="35" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

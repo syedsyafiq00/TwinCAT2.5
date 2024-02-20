@@ -1,0 +1,610 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="LdPrcs_General" Id="{904da373-7e93-4853-98a1-730adc2aff2b}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM LdPrcs_General
+VAR
+
+	ARbStopLoadingBasket_RE 				: ARRAY [1..15] OF R_TRIG;
+	ARbStopLoadingBasket_FE 				: ARRAY [1..15] OF F_TRIG;
+
+	iStopLoadingREFL				   		: INT;
+
+	tLoadingBasketDelayTimer					: TON;
+
+	bLoadingBasketAvailibilityFE				: F_TRIG;
+	tLoadingBasketDelayEV					: TIME;
+	iStnCallHmiFL							: INT;
+	iUpDownPatternDescriptionFL				: INT;
+
+	tAutoRecipeBarcodeClosePgDelayOffTimer	: TON;
+
+	iSearchFL								: INT;
+	iLdStnAddFound							: INT;
+	bLdStnFound								: BOOL;
+	bUldStnFound							: BOOL;
+	iUldStnAddFound							: INT;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*ProductRecipeDescriptionArray*)
+ARsProductRecipeDescription := PnPstorageMemory_Arm.fbGnrProductRecipeMemory_Main.fbA1PnpSequenceMemory.ARsStoragePnpSequenceDescription;
+
+(*Generate UpDownPatternDescription for TS*)
+iUpDownPatternDescriptionFL := 1;
+
+FOR iUpDownPatternDescriptionFL := 1 TO iProductRecipeStepArrayQty DO
+	IF iUpDownPatternDescriptionFL >= 1 AND iUpDownPatternDescriptionFL <= iProductRecipeStepArrayQty THEN
+		IF DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiUpPickPatternNo[iUpDownPatternDescriptionFL] >= 1 AND DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiUpPickPatternNo[iUpDownPatternDescriptionFL] <= iArmUpDownPatternArrayQty THEN
+		ARsUpPickPatternDescription[iUpDownPatternDescriptionFL] := PnPstorageMemory_Arm.fbGnrProductRecipeMemory_Main.fbA21UpDownPattern.ARsStorageUpdownPatternDescription[DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiUpPickPatternNo[iUpDownPatternDescriptionFL]];
+		ELSE
+		ARsUpPickPatternDescription[iUpDownPatternDescriptionFL] := ' - - - Wrong Pattern No - - -';
+		END_IF
+	END_IF
+
+
+	IF iUpDownPatternDescriptionFL >= 1 AND iUpDownPatternDescriptionFL <= iProductRecipeStepArrayQty THEN
+		IF DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiDownTransferPatternNo[iUpDownPatternDescriptionFL] >= 1 AND DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiDownTransferPatternNo[iUpDownPatternDescriptionFL] <= iArmUpDownPatternArrayQty THEN
+		ARsDownTransferPatternDescription[iUpDownPatternDescriptionFL] := PnPstorageMemory_Arm.fbGnrProductRecipeMemory_Main.fbA21UpDownPattern.ARsStorageUpdownPatternDescription[DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiDownTransferPatternNo[iUpDownPatternDescriptionFL]];
+		ELSE
+		ARsDownTransferPatternDescription[iUpDownPatternDescriptionFL] := ' - - - Wrong Pattern No - - -';
+		END_IF
+	END_IF
+
+END_FOR
+
+ARsUpPickPatternDescription1 := ARsUpPickPatternDescription[1];
+ARsUpPickPatternDescription2 := ARsUpPickPatternDescription[2];
+ARsUpPickPatternDescription3 := ARsUpPickPatternDescription[3];
+ARsUpPickPatternDescription4 := ARsUpPickPatternDescription[4];
+ARsUpPickPatternDescription5 := ARsUpPickPatternDescription[5];
+ARsUpPickPatternDescription6 := ARsUpPickPatternDescription[6];
+ARsUpPickPatternDescription7 := ARsUpPickPatternDescription[7];
+ARsUpPickPatternDescription8 := ARsUpPickPatternDescription[8];
+ARsUpPickPatternDescription9 := ARsUpPickPatternDescription[9];
+ARsUpPickPatternDescription10 := ARsUpPickPatternDescription[10];
+ARsUpPickPatternDescription11 := ARsUpPickPatternDescription[11];
+ARsUpPickPatternDescription12 := ARsUpPickPatternDescription[12];
+ARsUpPickPatternDescription13 := ARsUpPickPatternDescription[13];
+ARsUpPickPatternDescription14 := ARsUpPickPatternDescription[14];
+ARsUpPickPatternDescription15 := ARsUpPickPatternDescription[15];
+ARsUpPickPatternDescription16 := ARsUpPickPatternDescription[16];
+ARsUpPickPatternDescription17 := ARsUpPickPatternDescription[17];
+ARsUpPickPatternDescription18 := ARsUpPickPatternDescription[18];
+ARsUpPickPatternDescription19 := ARsUpPickPatternDescription[19];
+ARsUpPickPatternDescription20 := ARsUpPickPatternDescription[20];
+
+ARsDownTransferPatternDescription1 := ARsDownTransferPatternDescription[1];
+ARsDownTransferPatternDescription2 := ARsDownTransferPatternDescription[2];
+ARsDownTransferPatternDescription3 := ARsDownTransferPatternDescription[3];
+ARsDownTransferPatternDescription4 := ARsDownTransferPatternDescription[4];
+ARsDownTransferPatternDescription5 := ARsDownTransferPatternDescription[5];
+ARsDownTransferPatternDescription6 := ARsDownTransferPatternDescription[6];
+ARsDownTransferPatternDescription7 := ARsDownTransferPatternDescription[7];
+ARsDownTransferPatternDescription8 := ARsDownTransferPatternDescription[8];
+ARsDownTransferPatternDescription9 := ARsDownTransferPatternDescription[9];
+ARsDownTransferPatternDescription10 := ARsDownTransferPatternDescription[10];
+ARsDownTransferPatternDescription11 := ARsDownTransferPatternDescription[11];
+ARsDownTransferPatternDescription12 := ARsDownTransferPatternDescription[12];
+ARsDownTransferPatternDescription13 := ARsDownTransferPatternDescription[13];
+ARsDownTransferPatternDescription14 := ARsDownTransferPatternDescription[14];
+ARsDownTransferPatternDescription15 := ARsDownTransferPatternDescription[15];
+ARsDownTransferPatternDescription16 := ARsDownTransferPatternDescription[16];
+ARsDownTransferPatternDescription17 := ARsDownTransferPatternDescription[17];
+ARsDownTransferPatternDescription18 := ARsDownTransferPatternDescription[18];
+ARsDownTransferPatternDescription19 := ARsDownTransferPatternDescription[19];
+ARsDownTransferPatternDescription20 := ARsDownTransferPatternDescription[20];
+
+DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiUpPickPatternNo[1];
+DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiUpPickPatternNo[2];
+
+DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiDownTransferPatternNo[1];
+DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.ARiDownTransferPatternNo[2];
+
+
+
+(*Stop Loading R_TRIG and F_TRIG*)
+
+ARbStopLoadingBasket_RE[1](CLK:=ARbStnBasketCounter2ndLimitAlarm[1] , Q=> );
+ARbStopLoadingBasket_RE[2](CLK:=ARbStnBasketCounter2ndLimitAlarm[2] , Q=> );
+ARbStopLoadingBasket_RE[3](CLK:=FALSE , Q=> );
+ARbStopLoadingBasket_RE[4](CLK:=bInvalidCallRecipeTimeBlockNo , Q=> );
+ARbStopLoadingBasket_RE[5](CLK:=ARbArmOvertimeError[1] , Q=> ); //ARbArmOvertimeError
+ARbStopLoadingBasket_RE[6](CLK:=ARbArmOvertimeError[2] , Q=> ); //ARbArmOvertimeError
+ARbStopLoadingBasket_RE[7](CLK:=ARdsEventCtrl[114].bEventOutput , Q=> ); (*Arm 1 Misshook 1 Alarm*)
+ARbStopLoadingBasket_RE[8](CLK:=ARdsEventCtrl[115].bEventOutput , Q=> ); (*Arm 1 Misshook 2 Alarm*)
+ARbStopLoadingBasket_RE[9](CLK:=FALSE , Q=> ); (*Arm 2 Misshook 1 Alarm*)
+ARbStopLoadingBasket_RE[10](CLK:=FALSE , Q=> ); (*Arm 2 Misshook 2 Alarm*)
+ARbStopLoadingBasket_RE[11](CLK:=ARdsEventCtrl[107].bEventOutput , Q=> ); (*LeakSignal A*)
+ARbStopLoadingBasket_RE[12](CLK:=ARdsEventCtrl[131].bEventOutput , Q=> ); (*LeakSignal B*)
+ARbStopLoadingBasket_RE[13](CLK:=ARdsEventCtrl[150].bEventOutput , Q=> ); (*LeakSignal C*)
+ARbStopLoadingBasket_RE[14](CLK:=FALSE , Q=> ); (*LeakSignal D*)
+ARbStopLoadingBasket_RE[15](CLK:=FALSE , Q=> ); (**)
+
+ARbStopLoadingBasket_FE[1](CLK:=FALSE , Q=> );
+ARbStopLoadingBasket_FE[2](CLK:=FALSE , Q=> );
+ARbStopLoadingBasket_FE[3](CLK:=FALSE , Q=> );
+ARbStopLoadingBasket_FE[4](CLK:=FALSE , Q=> );
+ARbStopLoadingBasket_FE[5](CLK:=FALSE , Q=> );
+ARbStopLoadingBasket_FE[6](CLK:=FALSE , Q=> );
+ARbStopLoadingBasket_FE[7](CLK:=FALSE , Q=> );
+ARbStopLoadingBasket_FE[8](CLK:=FALSE , Q=> );
+ARbStopLoadingBasket_FE[9](CLK:=FALSE , Q=> );
+ARbStopLoadingBasket_FE[10](CLK:=FALSE, Q=> );
+
+bREFE_StopLoadingBasket := FALSE;
+
+iStopLoadingREFL := 1;
+	FOR iStopLoadingREFL := 1 TO 10 DO
+		IF iStopLoadingREFL >= 1 AND iStopLoadingREFL <= 15 THEN
+
+			IF ARbStopLoadingBasket_RE[iStopLoadingREFL].Q THEN
+			bREFE_StopLoadingBasket := TRUE;
+			END_IF
+
+			IF ARbStopLoadingBasket_FE[iStopLoadingREFL].Q THEN
+			bREFE_StopLoadingBasket := TRUE;
+			END_IF
+		END_IF
+	END_FOR
+
+
+bBarcodePagePopUpFlag := bAutoRecipeBarcodeCallPage ;
+
+
+IF ARbDI[eX14000_LOADINGCONVEYORSENSOR_FEED] AND bAutoStartPB AND NOT bConfirmPB AND bAllowLoadingBasketIn AND NOT bAutoRecipeBarcodeClosePage AND NOT bBarcodeBypass  THEN
+bAutoRecipeBarcodeCallPage := TRUE;
+ELSE
+bAutoRecipeBarcodeCallPage := FALSE;
+END_IF
+
+tAutoRecipeBarcodeClosePgDelayOffTimer(IN:= ( NOT ARbDI[eX14000_LOADINGCONVEYORSENSOR_FEED] OR bConfirmPB) AND bAutoStartPB AND bAllowLoadingBasketIn , PT:= T#0.1S , Q=> , ET=> );
+IF tAutoRecipeBarcodeClosePgDelayOffTimer.Q THEN
+bAutoRecipeBarcodeClosePage := TRUE;
+ELSE
+bAutoRecipeBarcodeClosePage := FALSE;
+END_IF
+
+(*Loading Product Recipe Define - Control*)
+IF NOT ManualPageEnable AND (NOT ARbDI[eX14003_LOADINGCONVEYORSENSOR_PICK] OR NOT bAutoStartPB OR NOT bAllowLoadingBasketIn) THEN
+BarcodeRecipeNO := 0;
+END_IF
+
+IF  bAutoStartPB AND ARbDI[eX14003_LOADINGCONVEYORSENSOR_PICK] AND AR2sDSCv_LdConfirmBasketInfo[1,4].iProductRecipeNo <> 0 THEN
+iTrackerProductRecipeNo := AR2sDSCv_LdConfirmBasketInfo[1,4].iProductRecipeNo;
+END_IF
+
+
+(* Activate 4 Step Movement via Full Bone Method*)
+(*ARM 1*)
+
+IF ARbPnPbusy[1] AND ( iArm1PnpStep =  6 OR iArm1PnpStep = 7) AND ARDSGnrFeedArmPnpParameter[1].DSA1DownTransferMovement.lrZone1StartPos <>0 THEN
+
+(*Vert Down*)
+
+	DS4StepsMovement.lrZone1Acc  			:= ARDSGnrFeedArmPnpParameter[1].DSA1DownTransferMovement.lrZone1Acc;
+	DS4StepsMovement.lrZone1Dcc  			:= ARDSGnrFeedArmPnpParameter[1].DSA1DownTransferMovement.lrZone1Dcc;
+	DS4StepsMovement.lrZone1Speed  			:= ARDSGnrFeedArmPnpParameter[1].DSA1DownTransferMovement.lrZone1SpeedVelo;
+
+	DS4StepsMovement.lrZone2Acc  			:= ARDSGnrFeedArmPnpParameter[1].DSA1DownTransferMovement.lrZone2Acc;
+	DS4StepsMovement.lrZone2Dcc  			:= ARDSGnrFeedArmPnpParameter[1].DSA1DownTransferMovement.lrZone2Dcc;
+	DS4StepsMovement.lrZone2Speed  			:= ARDSGnrFeedArmPnpParameter[1].DSA1DownTransferMovement.lrZone2SpeedVelo;
+
+	DS4StepsMovement.lrZone3Acc  			:= ARDSGnrFeedArmPnpParameter[1].DSA1DownTransferMovement.lrZone3Acc;
+	DS4StepsMovement.lrZone3Dcc  			:= ARDSGnrFeedArmPnpParameter[1].DSA1DownTransferMovement.lrZone3Dcc;
+	DS4StepsMovement.lrZone3Speed  			:= ARDSGnrFeedArmPnpParameter[1].DSA1DownTransferMovement.lrZone3SpeedVelo;
+
+	DS4StepsMovement.lrZone4Acc  			:= ARDSGnrFeedArmPnpParameter[1].DSA1DownTransferMovement.lrZone4Acc;
+	DS4StepsMovement.lrZone4Dcc  			:= ARDSGnrFeedArmPnpParameter[1].DSA1DownTransferMovement.lrZone4Dcc;
+	DS4StepsMovement.lrZone4Speed  			:= ARDSGnrFeedArmPnpParameter[1].DSA1DownTransferMovement.lrZone4SpeedVelo;
+
+	DS4StepsMovement.lrZone1StartPos  		:= ARDSGnrFeedArmPnpParameter[1].DSA1DownTransferMovement.lrZone1StartPos;
+	DS4StepsMovement.lrZone2StartPos  		:= ARDSGnrFeedArmPnpParameter[1].DSA1DownTransferMovement.lrZone2StartPos;
+	DS4StepsMovement.lrZone3StartPos  		:= ARDSGnrFeedArmPnpParameter[1].DSA1DownTransferMovement.lrZone3StartPos;
+	DS4StepsMovement.lrZone4StartPos  		:= ARDSGnrFeedArmPnpParameter[1].DSA1DownTransferMovement.lrZone4StartPos;
+
+	DS4StepsMovement.lrZone4EndPos  		:= ARDSGnrFeedArmPnpParameter[1].DSA1DownTransferMovement.lrZone4EndPos;
+
+(*Vert Up*)
+
+ELSIF ARbPnPbusy[1] AND ( iArm1PnpStep =  4 OR iArm1PnpStep = 5) AND ARDSGnrFeedArmPnpParameter[1].DSA1UpPickMovement.lrZone4EndPos <>0 THEN
+
+
+	DS4StepsMovement.lrZone1Acc  			:= ARDSGnrFeedArmPnpParameter[1].DSA1UpPickMovement.lrZone1Acc;
+	DS4StepsMovement.lrZone1Dcc  			:= ARDSGnrFeedArmPnpParameter[1].DSA1UpPickMovement.lrZone1Dcc;
+	DS4StepsMovement.lrZone1Speed  			:= ARDSGnrFeedArmPnpParameter[1].DSA1UpPickMovement.lrZone1SpeedVelo;
+
+	DS4StepsMovement.lrZone2Acc  			:= ARDSGnrFeedArmPnpParameter[1].DSA1UpPickMovement.lrZone2Acc;
+	DS4StepsMovement.lrZone2Dcc  			:= ARDSGnrFeedArmPnpParameter[1].DSA1UpPickMovement.lrZone2Dcc;
+	DS4StepsMovement.lrZone2Speed  			:= ARDSGnrFeedArmPnpParameter[1].DSA1UpPickMovement.lrZone2SpeedVelo;
+
+	DS4StepsMovement.lrZone3Acc  			:= ARDSGnrFeedArmPnpParameter[1].DSA1UpPickMovement.lrZone3Acc;
+	DS4StepsMovement.lrZone3Dcc  			:= ARDSGnrFeedArmPnpParameter[1].DSA1UpPickMovement.lrZone3Dcc;
+	DS4StepsMovement.lrZone3Speed  			:= ARDSGnrFeedArmPnpParameter[1].DSA1UpPickMovement.lrZone3SpeedVelo;
+
+	DS4StepsMovement.lrZone4Acc  			:= ARDSGnrFeedArmPnpParameter[1].DSA1UpPickMovement.lrZone4Acc;
+	DS4StepsMovement.lrZone4Dcc  			:= ARDSGnrFeedArmPnpParameter[1].DSA1UpPickMovement.lrZone4Dcc;
+	DS4StepsMovement.lrZone4Speed  			:= ARDSGnrFeedArmPnpParameter[1].DSA1UpPickMovement.lrZone4SpeedVelo;
+
+	DS4StepsMovement.lrZone1StartPos  		:= ARDSGnrFeedArmPnpParameter[1].DSA1UpPickMovement.lrZone1StartPos;
+	DS4StepsMovement.lrZone2StartPos  		:= ARDSGnrFeedArmPnpParameter[1].DSA1UpPickMovement.lrZone2StartPos;
+	DS4StepsMovement.lrZone3StartPos  		:= ARDSGnrFeedArmPnpParameter[1].DSA1UpPickMovement.lrZone3StartPos;
+	DS4StepsMovement.lrZone4StartPos  		:= ARDSGnrFeedArmPnpParameter[1].DSA1UpPickMovement.lrZone4StartPos;
+
+	DS4StepsMovement.lrZone4EndPos  		:= ARDSGnrFeedArmPnpParameter[1].DSA1UpPickMovement.lrZone4EndPos;
+
+ELSE
+
+(*Vert Down*)
+
+	DS4StepsMovement.lrZone1Acc  			:= DSManual4StepsMovement.lrZone1Acc;
+	DS4StepsMovement.lrZone1Dcc  			:= DSManual4StepsMovement.lrZone1Dcc;
+	DS4StepsMovement.lrZone1Speed  			:= DSManual4StepsMovement.lrZone1Speed;
+
+	DS4StepsMovement.lrZone2Acc  			:= DSManual4StepsMovement.lrZone2Acc;
+	DS4StepsMovement.lrZone2Dcc  			:= DSManual4StepsMovement.lrZone2Dcc;
+	DS4StepsMovement.lrZone2Speed  			:= DSManual4StepsMovement.lrZone2Speed;
+
+	DS4StepsMovement.lrZone3Acc  			:= DSManual4StepsMovement.lrZone3Acc;
+	DS4StepsMovement.lrZone3Dcc  			:= DSManual4StepsMovement.lrZone3Dcc;
+	DS4StepsMovement.lrZone3Speed  			:= DSManual4StepsMovement.lrZone3Speed;
+
+	DS4StepsMovement.lrZone4Acc  			:= DSManual4StepsMovement.lrZone4Acc;
+	DS4StepsMovement.lrZone4Dcc  			:= DSManual4StepsMovement.lrZone4Dcc;
+	DS4StepsMovement.lrZone4Speed  			:= DSManual4StepsMovement.lrZone4Speed;
+
+(*******************)
+
+	iSearchFL := 1;
+	bLdStnFound := FALSE;
+
+	FOR iSearchFL := 1 TO iLdStnQty DO
+		IF iSearchFL >= 1 AND iSearchFL <= iLdStnQty THEN
+			IF ARiLdStnID[iSearchFL] = ARiArmCurrentHorzZoneNo[1] THEN
+			iLdStnAddFound := iSearchFL;
+			bLdStnFound := TRUE;
+			iSearchFL := iLdStnQty + 1;
+			END_IF
+		END_IF
+	END_FOR
+
+
+	iSearchFL := 1;
+	bUldStnFound := FALSE;
+
+	FOR iSearchFL := 1 TO iUldStnQty DO
+		IF iSearchFL >= 1 AND iSearchFL <= iUldStnQty THEN
+			IF ARiUldStnID[iSearchFL] = ARiArmCurrentHorzZoneNo[1] THEN
+			iUldStnAddFound := iSearchFL;
+			bUldStnFound := TRUE;
+			iSearchFL := iUldStnQty + 1;
+			END_IF
+		END_IF
+	END_FOR
+
+(*******************)
+	IF ARbArmHorzHomeDone[1] AND  bLdStnFound THEN
+
+		DS4StepsMovement.lrZone1StartPos  	:= ARDSLdZonePosOut[iLdStnAddFound].lrZone1StartPos;
+		DS4StepsMovement.lrZone2StartPos  	:= ARDSLdZonePosOut[iLdStnAddFound].lrZone2StartPos;
+		DS4StepsMovement.lrZone3StartPos 	:= ARDSLdZonePosOut[iLdStnAddFound].lrZone3StartPos;
+		DS4StepsMovement.lrZone4StartPos  	:= ARDSLdZonePosOut[iLdStnAddFound].lrZone4StartPos;
+		DS4StepsMovement.lrZone4EndPos 		:= ARDSLdZonePosOut[iLdStnAddFound].lrZone4EndPos;
+
+	ELSIF ARbArmHorzHomeDone[1] AND bUldStnFound THEN
+
+		DS4StepsMovement.lrZone1StartPos  	:= ARDSUldZonePosOut[iUldStnAddFound].lrZone1StartPos;
+		DS4StepsMovement.lrZone2StartPos  	:= ARDSUldZonePosOut[iUldStnAddFound].lrZone2StartPos;
+		DS4StepsMovement.lrZone3StartPos  	:= ARDSUldZonePosOut[iUldStnAddFound].lrZone3StartPos;
+		DS4StepsMovement.lrZone4StartPos  	:= ARDSUldZonePosOut[iUldStnAddFound].lrZone4StartPos;
+		DS4StepsMovement.lrZone4EndPos  	:= ARDSUldZonePosOut[iUldStnAddFound].lrZone4EndPos;
+
+	ELSIF ARbArmHorzHomeDone[1] AND ARiArmCurrentHorzZoneNo[1] >= 1 AND ARiArmCurrentHorzZoneNo[1] <= iStnQty THEN
+
+		DS4StepsMovement.lrZone1StartPos  	:= ARDSStationZonePosOut[ARiArmCurrentHorzZoneNo[1]].lrZone1StartPos;
+		DS4StepsMovement.lrZone2StartPos  	:= ARDSStationZonePosOut[ARiArmCurrentHorzZoneNo[1]].lrZone2StartPos;
+		DS4StepsMovement.lrZone3StartPos  	:= ARDSStationZonePosOut[ARiArmCurrentHorzZoneNo[1]].lrZone3StartPos;
+		DS4StepsMovement.lrZone4StartPos  	:= ARDSStationZonePosOut[ARiArmCurrentHorzZoneNo[1]].lrZone4StartPos;
+		DS4StepsMovement.lrZone4EndPos  	:= ARDSStationZonePosOut[ARiArmCurrentHorzZoneNo[1]].lrZone4EndPos;
+
+	ELSIF NOT ARbArmHorzHomeDone[1] THEN
+
+		DS4StepsMovement.lrZone1StartPos  	:= ARDSArmCtrl[1].AR3slrPosition[2,1,1];
+		DS4StepsMovement.lrZone2StartPos  	:= ARDSArmCtrl[1].AR3slrPosition[2,1,1];
+		DS4StepsMovement.lrZone3StartPos  	:= ARDSArmCtrl[1].AR3slrPosition[2,1,1];
+		DS4StepsMovement.lrZone4StartPos  	:= ARDSArmCtrl[1].AR3slrPosition[2,1,1];
+		DS4StepsMovement.lrZone4EndPos  	:= ARDSArmCtrl[1].AR3slrPosition[2,1,1];
+
+	ELSE
+
+		DS4StepsMovement.lrZone1StartPos  	:= 0;
+		DS4StepsMovement.lrZone2StartPos  	:= 0;
+		DS4StepsMovement.lrZone3StartPos  	:= 0;
+		DS4StepsMovement.lrZone4StartPos  	:= 0;
+		DS4StepsMovement.lrZone4EndPos  	:= 0;
+
+	END_IF
+
+
+END_IF
+
+(*ARM 2*)
+IF ARbPnPbusy[2] AND ( iArm2PnpStep =  6 OR iArm2PnpStep = 7) AND ARDSGnrFeedArmPnpParameter[2].DSA1DownTransferMovement.lrZone1StartPos <>0 THEN
+
+(*Vert Down*)
+
+	DS4StepsMovementArm2.lrZone1Acc  		:= ARDSGnrFeedArmPnpParameter[2].DSA1DownTransferMovement.lrZone1Acc;
+	DS4StepsMovementArm2.lrZone1Dcc  		:= ARDSGnrFeedArmPnpParameter[2].DSA1DownTransferMovement.lrZone1Dcc;
+	DS4StepsMovementArm2.lrZone1Speed  		:= ARDSGnrFeedArmPnpParameter[2].DSA1DownTransferMovement.lrZone1SpeedVelo;
+
+	DS4StepsMovementArm2.lrZone2Acc  		:= ARDSGnrFeedArmPnpParameter[2].DSA1DownTransferMovement.lrZone2Acc;
+	DS4StepsMovementArm2.lrZone2Dcc  		:= ARDSGnrFeedArmPnpParameter[2].DSA1DownTransferMovement.lrZone2Dcc;
+	DS4StepsMovementArm2.lrZone2Speed  		:= ARDSGnrFeedArmPnpParameter[2].DSA1DownTransferMovement.lrZone2SpeedVelo;
+
+	DS4StepsMovementArm2.lrZone3Acc  		:= ARDSGnrFeedArmPnpParameter[2].DSA1DownTransferMovement.lrZone3Acc;
+	DS4StepsMovementArm2.lrZone3Dcc  		:= ARDSGnrFeedArmPnpParameter[2].DSA1DownTransferMovement.lrZone3Dcc;
+	DS4StepsMovementArm2.lrZone3Speed  		:= ARDSGnrFeedArmPnpParameter[2].DSA1DownTransferMovement.lrZone3SpeedVelo;
+
+	DS4StepsMovementArm2.lrZone4Acc  		:= ARDSGnrFeedArmPnpParameter[2].DSA1DownTransferMovement.lrZone4Acc;
+	DS4StepsMovementArm2.lrZone4Dcc  		:= ARDSGnrFeedArmPnpParameter[2].DSA1DownTransferMovement.lrZone4Dcc;
+	DS4StepsMovementArm2.lrZone4Speed  		:= ARDSGnrFeedArmPnpParameter[2].DSA1DownTransferMovement.lrZone4SpeedVelo;
+
+	DS4StepsMovementArm2.lrZone1StartPos  	:= ARDSGnrFeedArmPnpParameter[2].DSA1DownTransferMovement.lrZone1StartPos;
+	DS4StepsMovementArm2.lrZone2StartPos  	:= ARDSGnrFeedArmPnpParameter[2].DSA1DownTransferMovement.lrZone2StartPos;
+	DS4StepsMovementArm2.lrZone3StartPos  	:= ARDSGnrFeedArmPnpParameter[2].DSA1DownTransferMovement.lrZone3StartPos;
+	DS4StepsMovementArm2.lrZone4StartPos  	:= ARDSGnrFeedArmPnpParameter[2].DSA1DownTransferMovement.lrZone4StartPos;
+
+	DS4StepsMovementArm2.lrZone4EndPos  	:= ARDSGnrFeedArmPnpParameter[2].DSA1DownTransferMovement.lrZone4EndPos;
+
+(*Vert Up*)
+
+ELSIF ARbPnPbusy[2] AND ( iArm2PnpStep =  4 OR iArm2PnpStep = 5) AND ARDSGnrFeedArmPnpParameter[2].DSA1UpPickMovement.lrZone4EndPos <>0 THEN
+
+
+	DS4StepsMovementArm2.lrZone1Acc  		:= ARDSGnrFeedArmPnpParameter[2].DSA1UpPickMovement.lrZone1Acc;
+	DS4StepsMovementArm2.lrZone1Dcc  		:= ARDSGnrFeedArmPnpParameter[2].DSA1UpPickMovement.lrZone1Dcc;
+	DS4StepsMovementArm2.lrZone1Speed  		:= ARDSGnrFeedArmPnpParameter[2].DSA1UpPickMovement.lrZone1SpeedVelo;
+
+	DS4StepsMovementArm2.lrZone2Acc  		:= ARDSGnrFeedArmPnpParameter[2].DSA1UpPickMovement.lrZone2Acc;
+	DS4StepsMovementArm2.lrZone2Dcc  		:= ARDSGnrFeedArmPnpParameter[2].DSA1UpPickMovement.lrZone2Dcc;
+	DS4StepsMovementArm2.lrZone2Speed  		:= ARDSGnrFeedArmPnpParameter[2].DSA1UpPickMovement.lrZone2SpeedVelo;
+
+	DS4StepsMovementArm2.lrZone3Acc  		:= ARDSGnrFeedArmPnpParameter[2].DSA1UpPickMovement.lrZone3Acc;
+	DS4StepsMovementArm2.lrZone3Dcc  		:= ARDSGnrFeedArmPnpParameter[2].DSA1UpPickMovement.lrZone3Dcc;
+	DS4StepsMovementArm2.lrZone3Speed  		:= ARDSGnrFeedArmPnpParameter[2].DSA1UpPickMovement.lrZone3SpeedVelo;
+
+	DS4StepsMovementArm2.lrZone4Acc  		:= ARDSGnrFeedArmPnpParameter[2].DSA1UpPickMovement.lrZone4Acc;
+	DS4StepsMovementArm2.lrZone4Dcc  		:= ARDSGnrFeedArmPnpParameter[2].DSA1UpPickMovement.lrZone4Dcc;
+	DS4StepsMovementArm2.lrZone4Speed  		:= ARDSGnrFeedArmPnpParameter[2].DSA1UpPickMovement.lrZone4SpeedVelo;
+
+	DS4StepsMovementArm2.lrZone1StartPos  	:= ARDSGnrFeedArmPnpParameter[2].DSA1UpPickMovement.lrZone1StartPos;
+	DS4StepsMovementArm2.lrZone2StartPos  	:= ARDSGnrFeedArmPnpParameter[2].DSA1UpPickMovement.lrZone2StartPos;
+	DS4StepsMovementArm2.lrZone3StartPos	:= ARDSGnrFeedArmPnpParameter[2].DSA1UpPickMovement.lrZone3StartPos;
+	DS4StepsMovementArm2.lrZone4StartPos  	:= ARDSGnrFeedArmPnpParameter[2].DSA1UpPickMovement.lrZone4StartPos;
+
+	DS4StepsMovementArm2.lrZone4EndPos  	:= ARDSGnrFeedArmPnpParameter[2].DSA1UpPickMovement.lrZone4EndPos;
+
+ELSE
+
+(*Vert Down*)
+
+	DS4StepsMovementArm2.lrZone1Acc  		:= DSManual4StepsMovementArm2.lrZone1Acc;
+	DS4StepsMovementArm2.lrZone1Dcc  		:= DSManual4StepsMovementArm2.lrZone1Dcc;
+	DS4StepsMovementArm2.lrZone1Speed  		:= DSManual4StepsMovementArm2.lrZone1Speed;
+
+	DS4StepsMovementArm2.lrZone2Acc  		:= DSManual4StepsMovementArm2.lrZone2Acc;
+	DS4StepsMovementArm2.lrZone2Dcc  		:= DSManual4StepsMovementArm2.lrZone2Dcc;
+	DS4StepsMovementArm2.lrZone2Speed  		:= DSManual4StepsMovementArm2.lrZone2Speed;
+
+	DS4StepsMovementArm2.lrZone3Acc  		:= DSManual4StepsMovementArm2.lrZone3Acc;
+	DS4StepsMovementArm2.lrZone3Dcc  		:= DSManual4StepsMovementArm2.lrZone3Dcc;
+	DS4StepsMovementArm2.lrZone3Speed  		:= DSManual4StepsMovementArm2.lrZone3Speed;
+
+	DS4StepsMovementArm2.lrZone4Acc  		:= DSManual4StepsMovementArm2.lrZone4Acc;
+	DS4StepsMovementArm2.lrZone4Dcc  		:= DSManual4StepsMovementArm2.lrZone4Dcc;
+	DS4StepsMovementArm2.lrZone4Speed  		:= DSManual4StepsMovementArm2.lrZone4Speed;
+
+(*******************)
+(*
+	iSearchFL := 1;
+	bLdStnFound := FALSE;
+
+	FOR iSearchFL := 1 TO iLdStnQty DO
+		IF iSearchFL >= 1 AND iSearchFL <= iLdStnQty THEN
+			IF ARiLdStnID[iSearchFL] = ARiArmCurrentHorzZoneNo[1] THEN
+			iLdStnAddFound := iSearchFL;
+			bLdStnFound := TRUE;
+			iSearchFL := iLdStnQty + 1;
+			END_IF
+		END_IF
+	END_FOR
+*)
+
+	iSearchFL := 1;
+	bUldStnFound := FALSE;
+
+	FOR iSearchFL := 1 TO iUldStnQty DO
+		IF iSearchFL >= 1 AND iSearchFL <= iUldStnQty THEN
+			IF ARiUldStnID[iSearchFL] = ARiArmCurrentHorzZoneNo[2] THEN
+			iUldStnAddFound := iSearchFL;
+			bUldStnFound := TRUE;
+			iSearchFL := iUldStnQty + 1;
+			END_IF
+		END_IF
+	END_FOR
+
+(*******************)
+(*	IF ARbArmHorzHomeDone[1] AND  bLdStnFound THEN
+
+		DS4StepsMovement.lrZone1StartPos  		:= ARDSLdZonePosOut[iLdStnAddFound].lrZone1StartPos;
+		DS4StepsMovement.lrZone2StartPos  		:= ARDSLdZonePosOut[iLdStnAddFound].lrZone2StartPos;
+		DS4StepsMovement.lrZone3StartPos  		:= ARDSLdZonePosOut[iLdStnAddFound].lrZone3StartPos;
+		DS4StepsMovement.lrZone4StartPos  		:= ARDSLdZonePosOut[iLdStnAddFound].lrZone4StartPos;
+		DS4StepsMovement.lrZone4EndPos  		:= ARDSLdZonePosOut[iLdStnAddFound].lrZone4EndPos;
+*)
+	IF ARbArmHorzHomeDone[2] AND bUldStnFound THEN
+
+		DS4StepsMovementArm2.lrZone1StartPos  	:= ARDSUldZonePosOut[iUldStnAddFound].lrZone1StartPos;
+		DS4StepsMovementArm2.lrZone2StartPos  	:= ARDSUldZonePosOut[iUldStnAddFound].lrZone2StartPos;
+		DS4StepsMovementArm2.lrZone3StartPos  	:= ARDSUldZonePosOut[iUldStnAddFound].lrZone3StartPos;
+		DS4StepsMovementArm2.lrZone4StartPos  	:= ARDSUldZonePosOut[iUldStnAddFound].lrZone4StartPos;
+		DS4StepsMovementArm2.lrZone4EndPos  	:= ARDSUldZonePosOut[iUldStnAddFound].lrZone4EndPos;
+
+	ELSIF ARbArmHorzHomeDone[2] AND ARiArmCurrentHorzZoneNo[2] >= 1 AND ARiArmCurrentHorzZoneNo[2] <= iStnQty THEN
+
+		DS4StepsMovementArm2.lrZone1StartPos  	:= ARDSStationZonePosOut[ARiArmCurrentHorzZoneNo[2]].lrZone1StartPos;
+		DS4StepsMovementArm2.lrZone2StartPos  	:= ARDSStationZonePosOut[ARiArmCurrentHorzZoneNo[2]].lrZone2StartPos;
+		DS4StepsMovementArm2.lrZone3StartPos  	:= ARDSStationZonePosOut[ARiArmCurrentHorzZoneNo[2]].lrZone3StartPos;
+		DS4StepsMovementArm2.lrZone4StartPos  	:= ARDSStationZonePosOut[ARiArmCurrentHorzZoneNo[2]].lrZone4StartPos;
+		DS4StepsMovementArm2.lrZone4EndPos  	:= ARDSStationZonePosOut[ARiArmCurrentHorzZoneNo[2]].lrZone4EndPos;
+
+	ELSIF NOT ARbArmHorzHomeDone[2] THEN
+
+		DS4StepsMovementArm2.lrZone1StartPos  	:= ARDSArmCtrl[2].AR3slrPosition[3,1,1];
+		DS4StepsMovementArm2.lrZone2StartPos  	:= ARDSArmCtrl[2].AR3slrPosition[3,1,1];
+		DS4StepsMovementArm2.lrZone3StartPos  	:= ARDSArmCtrl[2].AR3slrPosition[3,1,1];
+		DS4StepsMovementArm2.lrZone4StartPos  	:= ARDSArmCtrl[2].AR3slrPosition[3,1,1];
+		DS4StepsMovementArm2.lrZone4EndPos  	:= ARDSArmCtrl[2].AR3slrPosition[3,1,1];
+
+	ELSE
+
+		DS4StepsMovementArm2.lrZone1StartPos  	:= 0;
+		DS4StepsMovementArm2.lrZone2StartPos  	:= 0;
+		DS4StepsMovementArm2.lrZone3StartPos  	:= 0;
+		DS4StepsMovementArm2.lrZone4StartPos  	:= 0;
+		DS4StepsMovementArm2.lrZone4EndPos  	:= 0;
+
+	END_IF
+
+
+END_IF
+
+
+
+
+iStnCallHmiFL := 1;
+
+	FOR iStnCallHmiFL := 1 TO iStnQty DO
+		IF iStnCallHmiFL >= 1 AND iStnCallHmiFL <= iStnQty THEN
+
+			IF DSStnBasketInfo[iStnCallHmiFL].bAvailibility THEN
+				DSHmiStationDisplayInfo[iStnCallHmiFL].iProductRecipeNo 							:=  DSStnBasketInfo[iStnCallHmiFL].iProductRecipeNo; (*Product Recipe No*)
+				DSHmiStationDisplayInfo[iStnCallHmiFL].iProductRecipeStepNo 						:= DSStnBasketInfo[iStnCallHmiFL].iProductRecipeStepNo; (*Product Recipe Step No*)
+
+				DSHmiStationDisplayInfo[iStnCallHmiFL].iStationSeqenceRecipeNo 					:= DSStnBasketInfo[iStnCallHmiFL].iStationSeqenceRecipeNo; (*Station Sequence Recipe No*)
+				DSHmiStationDisplayInfo[iStnCallHmiFL].iStationSequenceRecipeStepNo 				:= ARDsStnSeqProcessCtrl[iStnCallHmiFL].Out_iCurrentProcessStep; (*Current StationSequenceRecipe Step No*)
+
+				DSHmiStationDisplayInfo[iStnCallHmiFL].iSubRecipeTimeEV 						:= ARDsStnSeqProcessCtrl[iStnCallHmiFL].Out_iComConProcessTimeEV; (*Sub recipe Time EV*)
+				DSHmiStationDisplayInfo[iStnCallHmiFL].iTotalProcessTimeEV 						:= ARDsStnSeqProcessCtrl[iStnCallHmiFL].Out_iTotalProcessTimeEV;(*Process Total Time EV*)
+
+				DSHmiStationDisplayInfo[iStnCallHmiFL].iSubRecipeNo								:= fbMainStationProcess_Stn[iStnCallHmiFL].StnSeqProcessfb.fbStationSequenceRecipefb.ARDsStorageStationSequenceRecipeMemory[DSStnBasketInfo[iStnCallHmiFL].iStationSeqenceRecipeNo].AR10iStationSubProNo[ARDsStnSeqProcessCtrl[iStnCallHmiFL].Out_iCurrentProcessStep];
+
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bStationSequenceProcessStart 				:= ARDsStnSeqProcessCtrl[iStnCallHmiFL].In_bProcessStart; (*Indicator*)
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bStationSequenceProcessInProgressFlag 		:= ARDsStnSeqProcessCtrl[iStnCallHmiFL].Out_bProcessInProgressFlag; (*Indicator*)
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bStationSequenceProcessCompleted 		:= ARDsStnSeqProcessCtrl[iStnCallHmiFL].Out_bProcessCompleted; (*Indicator*)
+
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bCallStnSeqRecipeErr 						:=  ARDsStnSeqProcessCtrl[iStnCallHmiFL].Err_bCallStnSeqRecipeErr; (*Error Message*)
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bInvalidProcessStepErr 						:= ARDsStnSeqProcessCtrl[iStnCallHmiFL].Err_bInvalidProcessStepErr; (*Error Message*)
+
+
+				DSHmiStationDisplayInfo[iStnCallHmiFL].sProductRecipeDescription 					:=  PnPstorageMemory_Arm.fbGnrProductRecipeMemory_Main.fbA1PnpSequenceMemory.ARsStoragePnpSequenceDescription[DSStnBasketInfo[iStnCallHmiFL].iProductRecipeNo]; (*Product Recipe Description*)
+
+				DSHmiStationDisplayInfo[iStnCallHmiFL].sStationSequenceRecipeDescription 			:=  fbMainStationProcess_Stn[iStnCallHmiFL].StnSeqProcessfb.fbStationSequenceRecipefb.ARsStorageStationSequenceRecipeDescription[DSStnBasketInfo[iStnCallHmiFL].iStationSeqenceRecipeNo]; (*StationSequenceRecipeDescription*)
+				DSHmiStationDisplayInfo[iStnCallHmiFL].sStationSubDescription 						:=  fbMainStationProcess_Stn[iStnCallHmiFL].StnSeqProcessfb.fbStationSubRecipefb.ARsStorageSubDescription[(**)fbMainStationProcess_Stn[iStnCallHmiFL].StnSeqProcessfb.fbStationSequenceRecipefb.ARDsStorageStationSequenceRecipeMemory[DSStnBasketInfo[iStnCallHmiFL].iStationSeqenceRecipeNo].AR10iStationSubProNo[ARDsStnSeqProcessCtrl[iStnCallHmiFL].Out_iCurrentProcessStep](**)] ;(*Station Sub Recipe Description*)
+			END_IF
+
+			IF NOT DSStnBasketInfo[iStnCallHmiFL].bAvailibility THEN
+				DSHmiStationDisplayInfo[iStnCallHmiFL].iProductRecipeNo 							:= 0; (*Product Recipe No*)
+				DSHmiStationDisplayInfo[iStnCallHmiFL].iProductRecipeStepNo 						:= 0; (*Product Recipe Step No*)
+
+				DSHmiStationDisplayInfo[iStnCallHmiFL].iStationSeqenceRecipeNo 					:= 0; (*Station Sequence Recipe No*)
+				DSHmiStationDisplayInfo[iStnCallHmiFL].iStationSequenceRecipeStepNo 				:= 0; (*Current StationSequenceRecipe Step No*)
+
+				DSHmiStationDisplayInfo[iStnCallHmiFL].iSubRecipeTimeEV 						:= 0; (*Sub recipe Time EV*)
+				DSHmiStationDisplayInfo[iStnCallHmiFL].iTotalProcessTimeEV 						:= 0;(*Process Total Time EV*)
+
+				DSHmiStationDisplayInfo[iStnCallHmiFL].iSubRecipeNo								:= 0;
+
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bStationSequenceProcessStart 				:= FALSE; (*Indicator*)
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bStationSequenceProcessInProgressFlag 		:= FALSE; (*Indicator*)
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bStationSequenceProcessCompleted 		:= FALSE; (*Indicator*)
+
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bCallStnSeqRecipeErr 						:= FALSE; (*Error Message*)
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bInvalidProcessStepErr 						:= FALSE; (*Error Message*)
+
+
+				DSHmiStationDisplayInfo[iStnCallHmiFL].sProductRecipeDescription 					:=  '';
+
+				DSHmiStationDisplayInfo[iStnCallHmiFL].sStationSequenceRecipeDescription 			:= 'No Process';
+
+				DSHmiStationDisplayInfo[iStnCallHmiFL].sStationSubDescription 						:= 'No Process';
+			END_IF
+
+
+			IF ARbProductRecipeCallEn[iStnCallHmiFL]  THEN
+
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bCallArmSpeedProfileMemoryErr		:= DSfbGnrProductRecipeMemoryOut.bCallArmSpeedProfileMemoryErr;
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bCallPickStationNoErr				:= DSfbGnrProductRecipeMemoryOut.bCallPickStationNoErr;
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bCallTransferStationNoErr			:= DSfbGnrProductRecipeMemoryOut.bCallTransferStationNoErr;
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bCallUpDownPatternMemoryErr		:= DSfbGnrProductRecipeMemoryOut.bCallUpDownPatternMemoryErr;
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bInvalidProductRecipeNoErr			:= DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeNoErrHold;
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bInvalidProductRecipeStepErr		:= DSfbGnrProductRecipeMemoryOut.bInvalidProductRecipeStepErrHold;
+
+			ELSE
+
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bCallArmSpeedProfileMemoryErr		:= FALSE;
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bCallPickStationNoErr				:= FALSE;
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bCallTransferStationNoErr			:= FALSE;
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bCallUpDownPatternMemoryErr		:= FALSE;
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bInvalidProductRecipeNoErr			:= FALSE;
+				DSHmiStationDisplayInfo[iStnCallHmiFL].bInvalidProductRecipeStepErr		:= FALSE;
+
+			END_IF
+
+
+			IF		DSHmiStationDisplayInfo[iStnCallHmiFL].bCallStnSeqRecipeErr				THEN
+
+					DSHmiStationDisplayInfo[iStnCallHmiFL].sErrorMessage := 'Status - Call Station Sequence Recipe Error' ;
+
+			ELSIF 	DSHmiStationDisplayInfo[iStnCallHmiFL].bInvalidProcessStepErr 				THEN
+
+					DSHmiStationDisplayInfo[iStnCallHmiFL].sErrorMessage := 'Status - Invalid Process Step Error' ;
+
+			ELSIF 	DSHmiStationDisplayInfo[iStnCallHmiFL].bCallArmSpeedProfileMemoryErr		 THEN
+
+					DSHmiStationDisplayInfo[iStnCallHmiFL].sErrorMessage := 'Status - Call Arm Speed Profile Memory Error' ;
+
+			ELSIF 	DSHmiStationDisplayInfo[iStnCallHmiFL].bCallPickStationNoErr				THEN
+
+					DSHmiStationDisplayInfo[iStnCallHmiFL].sErrorMessage := 'Status - Call Pick Station No Error' ;
+
+			ELSIF 	DSHmiStationDisplayInfo[iStnCallHmiFL].bCallTransferStationNoErr			THEN
+
+					DSHmiStationDisplayInfo[iStnCallHmiFL].sErrorMessage := 'Status - Call Transfer Station No Error' ;
+
+			ELSIF 	DSHmiStationDisplayInfo[iStnCallHmiFL].bCallUpDownPatternMemoryErr		THEN
+
+					DSHmiStationDisplayInfo[iStnCallHmiFL].sErrorMessage := 'Status - Call Up/Down Pattern Memory Error' ;
+
+			ELSIF 	DSHmiStationDisplayInfo[iStnCallHmiFL].bInvalidProductRecipeNoErr			THEN
+
+					DSHmiStationDisplayInfo[iStnCallHmiFL].sErrorMessage := 'Status - Invalid Product Recipe No Error' ;
+
+			ELSIF 	DSHmiStationDisplayInfo[iStnCallHmiFL].bInvalidProductRecipeStepErr		THEN
+
+					DSHmiStationDisplayInfo[iStnCallHmiFL].sErrorMessage := 'Status - Invalid Product Recipe Step No Error' ;
+
+			ELSE
+
+					DSHmiStationDisplayInfo[iStnCallHmiFL].sErrorMessage := 'Status - Normal' ;
+
+			END_IF
+
+
+		END_IF
+	END_FOR]]></ST>
+    </Implementation>
+    <LineIds Name="LdPrcs_General">
+      <LineId Id="24" Count="575" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

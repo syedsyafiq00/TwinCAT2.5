@@ -1,0 +1,511 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="ModbusControl_ST" Id="{3d5f66b6-995f-442c-84e5-a4c7c219cdd5}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM ModbusControl_ST
+VAR PERSISTENT
+	
+	fbV2ModbusControl2		: fbV2_ModbusControl;
+	fbV2ModbusControl3		: fbV2_ModbusControl;
+
+END_VAR
+VAR
+
+	rTimeout_Sec				: REAL := 2;
+	bEnStart					: BOOL;
+	iStepReadOut				: INT;
+	iCounterReadOut				: INT;
+
+	rTimeout_Sec2				: REAL := 2;
+	bEnStart2					: BOOL;
+	iStepReadOut2				: INT;
+	iCounterReadOut2			: INT;
+		
+	rTimeout_Sec3				: REAL := 2;
+	bEnStart3					: BOOL;
+	iStepReadOut3				: INT;
+	iCounterReadOut3			: INT;
+
+	bModbusError				: MODBUS_ERRORS;
+	bModbusErrorFlag			: BOOL;
+	bModbusErrorFlagRE			: R_TRIG;
+	iCounterError				: INT;
+	bTimerEn					: TON;
+
+	bMegaReadRE: R_TRIG;
+	bMegaWriteRE: R_TRIG;
+	iMegaReadErrorCounter: INT;
+	iMegaWriteErrorCounter: INT;
+	bModbusReadErrorRE: R_TRIG;
+	bModbusWriteErrorRE: R_TRIG;
+	iModbusReadErrorCount: INT;
+	iModbusWriteErrorCount: INT;
+fbV2ModbusControl: fbV2_ModbusControl;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//iTimeout_Sec := 1;
+//iTimeout_Sec2 := 1;
+
+
+	fbV2ModbusControl(
+	bStart:= PowerOnDelay.Q OR bEnStart, 
+	iStepDelaySVns:= iStepDelaySVns, 
+	rtimeout_Sec:= rTimeout_Sec, 
+	DSV2ModbusControl:= DSV2ModbusControl, 
+	bModbusReadRegsBusy=>bModbusReadBusy , 
+	bModbusReadInputRegsBusy=>bModbusRead2Busy , 
+	bModbusWriteBusy=> bModbusWriteBusy, 
+	bModbusReadRegsError=> bModbusReadError, 
+	bModbusReadInputRegsError=> bModbusRead2Error, 
+	bModbusWriteError=>bModbusWriteError , 
+	ErrorId_ReadRegs=>ErrorId_Read , 
+	ErrorId_ReadInputRegs=>ErrorId_ReadNew , 
+	ErrorId_Write=>ErrorId_Write , 
+	iStep=>iStepReadOut , 
+	iAddCounter=>iCounterReadOut );
+
+	Megasonic();
+	SCRHeater();
+
+	bModbusReadErrorRE(CLK:=bModbusReadError , Q=> );
+	bModbusWriteErrorRE(CLK:=bModbusWriteError , Q=> );
+
+	IF bModbusReadErrorRE.Q THEN
+		iModbusReadErrorCount := iModbusReadErrorCount + 1;		
+	END_IF
+	
+	IF bModbusWriteErrorRE.Q THEN
+		iModbusWriteErrorCount := iModbusWriteErrorCount + 1;		
+	END_IF
+	
+
+
+DSV2ModbusControl.wModbusData[1]; 		DSV2ModbusControl.B_UnitID[1]; 		DSV2ModbusControl.wModbusRegisterAddr[1]; 		DSV2ModbusControl.iRWRef[1]; // STN 1 US Power PV
+DSV2ModbusControl.wModbusData[2]; 		DSV2ModbusControl.B_UnitID[2]; 		DSV2ModbusControl.wModbusRegisterAddr[2]; 		DSV2ModbusControl.iRWRef[2]; // STN 1 US Power SV
+DSV2ModbusControl.wModbusData[3]; 		DSV2ModbusControl.B_UnitID[3]; 		DSV2ModbusControl.wModbusRegisterAddr[3]; 		DSV2ModbusControl.iRWRef[3]; // STN 2 US Power PV
+DSV2ModbusControl.wModbusData[4]; 		DSV2ModbusControl.B_UnitID[4]; 		DSV2ModbusControl.wModbusRegisterAddr[4]; 		DSV2ModbusControl.iRWRef[4]; // STN 2 US Power SV
+DSV2ModbusControl.wModbusData[5]; 		DSV2ModbusControl.B_UnitID[5]; 		DSV2ModbusControl.wModbusRegisterAddr[5]; 		DSV2ModbusControl.iRWRef[5]; // STN 4 US Power PV 
+DSV2ModbusControl.wModbusData[6]; 		DSV2ModbusControl.B_UnitID[6]; 		DSV2ModbusControl.wModbusRegisterAddr[6]; 		DSV2ModbusControl.iRWRef[6]; // STN 4 US Power SV 
+DSV2ModbusControl.wModbusData[7]; 		DSV2ModbusControl.B_UnitID[7]; 		DSV2ModbusControl.wModbusRegisterAddr[7]; 		DSV2ModbusControl.iRWRef[7]; // STN 5 US Power PV 
+DSV2ModbusControl.wModbusData[8]; 		DSV2ModbusControl.B_UnitID[8]; 		DSV2ModbusControl.wModbusRegisterAddr[8]; 		DSV2ModbusControl.iRWRef[8]; ;// STN 5 US Power SV
+DSV2ModbusControl.wModbusData[9]; 		DSV2ModbusControl.B_UnitID[9]; 		DSV2ModbusControl.wModbusRegisterAddr[9]; 		DSV2ModbusControl.iRWRef[9]; ;// STN 7 US Power PV
+DSV2ModbusControl.wModbusData[10]; 		DSV2ModbusControl.B_UnitID[10]; 	DSV2ModbusControl.wModbusRegisterAddr[10]; 		DSV2ModbusControl.iRWRef[10] ;// STN 7 US Power SV
+DSV2ModbusControl.wModbusData[11]; 		DSV2ModbusControl.B_UnitID[11]; 	DSV2ModbusControl.wModbusRegisterAddr[11]; 		DSV2ModbusControl.iRWRef[11] ;// STN 8 US Power PV
+                                                                                                                                                          
+
+DSV2ModbusControl.wModbusData[12]; 		DSV2ModbusControl.B_UnitID[12]; 		DSV2ModbusControl.wModbusRegisterAddr[12]; 		DSV2ModbusControl.iRWRef[12];// STN 8 US Power SV
+DSV2ModbusControl.wModbusData[13]; 		DSV2ModbusControl.B_UnitID[13]; 		DSV2ModbusControl.wModbusRegisterAddr[13]; 		DSV2ModbusControl.iRWRef[13];// STN 3 US Power PV
+DSV2ModbusControl.wModbusData[14]; 		DSV2ModbusControl.B_UnitID[14]; 		DSV2ModbusControl.wModbusRegisterAddr[14]; 		DSV2ModbusControl.iRWRef[14];// STN 3 US Power SV
+DSV2ModbusControl.wModbusData[15]; 		DSV2ModbusControl.B_UnitID[15]; 		DSV2ModbusControl.wModbusRegisterAddr[15]; 		DSV2ModbusControl.iRWRef[15];// STN 3 US Power PV
+DSV2ModbusControl.wModbusData[16]; 		DSV2ModbusControl.B_UnitID[16]; 		DSV2ModbusControl.wModbusRegisterAddr[16]; 		DSV2ModbusControl.iRWRef[16];// STN 6 US Power SV
+DSV2ModbusControl.wModbusData[17]; 		DSV2ModbusControl.B_UnitID[17]; 		DSV2ModbusControl.wModbusRegisterAddr[17]; 		DSV2ModbusControl.iRWRef[17];
+DSV2ModbusControl.wModbusData[18]; 		DSV2ModbusControl.B_UnitID[18]; 		DSV2ModbusControl.wModbusRegisterAddr[18]; 		DSV2ModbusControl.iRWRef[18];
+DSV2ModbusControl.wModbusData[19]; 		DSV2ModbusControl.B_UnitID[19]; 		DSV2ModbusControl.wModbusRegisterAddr[19]; 		DSV2ModbusControl.iRWRef[19];
+DSV2ModbusControl.wModbusData[20]; 		DSV2ModbusControl.B_UnitID[20]; 		DSV2ModbusControl.wModbusRegisterAddr[20]; 		DSV2ModbusControl.iRWRef[20];
+DSV2ModbusControl.wModbusData[21]; 		DSV2ModbusControl.B_UnitID[21]; 		DSV2ModbusControl.wModbusRegisterAddr[21]; 		DSV2ModbusControl.iRWRef[21];
+DSV2ModbusControl.wModbusData[22]; 		DSV2ModbusControl.B_UnitID[22]; 		DSV2ModbusControl.wModbusRegisterAddr[22]; 		DSV2ModbusControl.iRWRef[22];
+
+
+DSV2ModbusControl.wModbusData[23]; 		DSV2ModbusControl.B_UnitID[23]; 		DSV2ModbusControl.wModbusRegisterAddr[23]; 		DSV2ModbusControl.iRWRef[23];
+DSV2ModbusControl.wModbusData[24]; 		DSV2ModbusControl.B_UnitID[24]; 		DSV2ModbusControl.wModbusRegisterAddr[24]; 		DSV2ModbusControl.iRWRef[24];
+DSV2ModbusControl.wModbusData[25]; 		DSV2ModbusControl.B_UnitID[25]; 		DSV2ModbusControl.wModbusRegisterAddr[25]; 		DSV2ModbusControl.iRWRef[25];
+DSV2ModbusControl.wModbusData[26]; 		DSV2ModbusControl.B_UnitID[26]; 		DSV2ModbusControl.wModbusRegisterAddr[26]; 		DSV2ModbusControl.iRWRef[26];
+DSV2ModbusControl.wModbusData[27]; 		DSV2ModbusControl.B_UnitID[27]; 		DSV2ModbusControl.wModbusRegisterAddr[27]; 		DSV2ModbusControl.iRWRef[27];
+DSV2ModbusControl.wModbusData[28]; 		DSV2ModbusControl.B_UnitID[28]; 		DSV2ModbusControl.wModbusRegisterAddr[28]; 		DSV2ModbusControl.iRWRef[28];
+DSV2ModbusControl.wModbusData[29]; 		DSV2ModbusControl.B_UnitID[29]; 		DSV2ModbusControl.wModbusRegisterAddr[29]; 		DSV2ModbusControl.iRWRef[29];
+DSV2ModbusControl.wModbusData[30]; 		DSV2ModbusControl.B_UnitID[30]; 		DSV2ModbusControl.wModbusRegisterAddr[30]; 		DSV2ModbusControl.iRWRef[30];
+DSV2ModbusControl.wModbusData[31]; 		DSV2ModbusControl.B_UnitID[31]; 		DSV2ModbusControl.wModbusRegisterAddr[31]; 		DSV2ModbusControl.iRWRef[31];
+DSV2ModbusControl.wModbusData[32]; 		DSV2ModbusControl.B_UnitID[32]; 		DSV2ModbusControl.wModbusRegisterAddr[32]; 		DSV2ModbusControl.iRWRef[32];
+DSV2ModbusControl.wModbusData[33]; 		DSV2ModbusControl.B_UnitID[33]; 		DSV2ModbusControl.wModbusRegisterAddr[33]; 		DSV2ModbusControl.iRWRef[33];
+
+
+DSV2ModbusControl.wModbusData[34];		DSV2ModbusControl.B_UnitID[34];		DSV2ModbusControl.wModbusRegisterAddr[34];		DSV2ModbusControl.iRWRef[34];
+DSV2ModbusControl.wModbusData[35];		DSV2ModbusControl.B_UnitID[35];		DSV2ModbusControl.wModbusRegisterAddr[35];		DSV2ModbusControl.iRWRef[35];
+DSV2ModbusControl.wModbusData[36];		DSV2ModbusControl.B_UnitID[36];		DSV2ModbusControl.wModbusRegisterAddr[36];		DSV2ModbusControl.iRWRef[36];
+DSV2ModbusControl.wModbusData[37];		DSV2ModbusControl.B_UnitID[37];		DSV2ModbusControl.wModbusRegisterAddr[37];		DSV2ModbusControl.iRWRef[37];
+DSV2ModbusControl.wModbusData[38];		DSV2ModbusControl.B_UnitID[38];		DSV2ModbusControl.wModbusRegisterAddr[38];		DSV2ModbusControl.iRWRef[38];
+DSV2ModbusControl.wModbusData[39];		DSV2ModbusControl.B_UnitID[39];		DSV2ModbusControl.wModbusRegisterAddr[39];		DSV2ModbusControl.iRWRef[39];
+DSV2ModbusControl.wModbusData[40];		DSV2ModbusControl.B_UnitID[40];		DSV2ModbusControl.wModbusRegisterAddr[40];		DSV2ModbusControl.iRWRef[40];
+DSV2ModbusControl.wModbusData[41];		DSV2ModbusControl.B_UnitID[41];		DSV2ModbusControl.wModbusRegisterAddr[41];		DSV2ModbusControl.iRWRef[41];
+DSV2ModbusControl.wModbusData[42];		DSV2ModbusControl.B_UnitID[42];		DSV2ModbusControl.wModbusRegisterAddr[42];		DSV2ModbusControl.iRWRef[42];
+DSV2ModbusControl.wModbusData[43];		DSV2ModbusControl.B_UnitID[43];		DSV2ModbusControl.wModbusRegisterAddr[43];		DSV2ModbusControl.iRWRef[43];
+DSV2ModbusControl.wModbusData[44];		DSV2ModbusControl.B_UnitID[44];		DSV2ModbusControl.wModbusRegisterAddr[44];		DSV2ModbusControl.iRWRef[44];
+
+
+DSV2ModbusControl.wModbusData[45];		DSV2ModbusControl.B_UnitID[45];		DSV2ModbusControl.wModbusRegisterAddr[45];		DSV2ModbusControl.iRWRef[45];
+DSV2ModbusControl.wModbusData[46];		DSV2ModbusControl.B_UnitID[46];		DSV2ModbusControl.wModbusRegisterAddr[46];		DSV2ModbusControl.iRWRef[46];
+DSV2ModbusControl.wModbusData[47];		DSV2ModbusControl.B_UnitID[47];		DSV2ModbusControl.wModbusRegisterAddr[47];		DSV2ModbusControl.iRWRef[47];
+DSV2ModbusControl.wModbusData[48];		DSV2ModbusControl.B_UnitID[48];		DSV2ModbusControl.wModbusRegisterAddr[48];		DSV2ModbusControl.iRWRef[48];
+DSV2ModbusControl.wModbusData[49];		DSV2ModbusControl.B_UnitID[49];		DSV2ModbusControl.wModbusRegisterAddr[49];		DSV2ModbusControl.iRWRef[49];
+DSV2ModbusControl.wModbusData[50];		DSV2ModbusControl.B_UnitID[50];		DSV2ModbusControl.wModbusRegisterAddr[50];		DSV2ModbusControl.iRWRef[50];
+DSV2ModbusControl.wModbusData[51];		DSV2ModbusControl.B_UnitID[51];		DSV2ModbusControl.wModbusRegisterAddr[51];		DSV2ModbusControl.iRWRef[51];
+DSV2ModbusControl.wModbusData[52];		DSV2ModbusControl.B_UnitID[52];		DSV2ModbusControl.wModbusRegisterAddr[52];		DSV2ModbusControl.iRWRef[52];
+DSV2ModbusControl.wModbusData[53];		DSV2ModbusControl.B_UnitID[53];		DSV2ModbusControl.wModbusRegisterAddr[53];		DSV2ModbusControl.iRWRef[53];
+DSV2ModbusControl.wModbusData[54];		DSV2ModbusControl.B_UnitID[54];		DSV2ModbusControl.wModbusRegisterAddr[54];		DSV2ModbusControl.iRWRef[54];			
+DSV2ModbusControl.wModbusData[55];		DSV2ModbusControl.B_UnitID[55];		DSV2ModbusControl.wModbusRegisterAddr[55];		DSV2ModbusControl.iRWRef[55];
+
+
+DSV2ModbusControl.wModbusData[56];		DSV2ModbusControl.B_UnitID[56];		DSV2ModbusControl.wModbusRegisterAddr[56];		DSV2ModbusControl.iRWRef[56];
+DSV2ModbusControl.wModbusData[57];		DSV2ModbusControl.B_UnitID[57];		DSV2ModbusControl.wModbusRegisterAddr[57];		DSV2ModbusControl.iRWRef[57];
+DSV2ModbusControl.wModbusData[58];		DSV2ModbusControl.B_UnitID[58];		DSV2ModbusControl.wModbusRegisterAddr[58];		DSV2ModbusControl.iRWRef[58];
+DSV2ModbusControl.wModbusData[59];		DSV2ModbusControl.B_UnitID[59];		DSV2ModbusControl.wModbusRegisterAddr[59];		DSV2ModbusControl.iRWRef[59];
+DSV2ModbusControl.wModbusData[60];		DSV2ModbusControl.B_UnitID[60];		DSV2ModbusControl.wModbusRegisterAddr[60];		DSV2ModbusControl.iRWRef[60];
+DSV2ModbusControl.wModbusData[61];		DSV2ModbusControl.B_UnitID[61];		DSV2ModbusControl.wModbusRegisterAddr[61];		DSV2ModbusControl.iRWRef[61];
+DSV2ModbusControl.wModbusData[62];		DSV2ModbusControl.B_UnitID[62];		DSV2ModbusControl.wModbusRegisterAddr[62];		DSV2ModbusControl.iRWRef[62];
+DSV2ModbusControl.wModbusData[63];		DSV2ModbusControl.B_UnitID[63];		DSV2ModbusControl.wModbusRegisterAddr[63];		DSV2ModbusControl.iRWRef[63];
+DSV2ModbusControl.wModbusData[64];		DSV2ModbusControl.B_UnitID[64];		DSV2ModbusControl.wModbusRegisterAddr[64];		DSV2ModbusControl.iRWRef[64];
+DSV2ModbusControl.wModbusData[65];		DSV2ModbusControl.B_UnitID[65];		DSV2ModbusControl.wModbusRegisterAddr[65];		DSV2ModbusControl.iRWRef[65];
+DSV2ModbusControl.wModbusData[66];		DSV2ModbusControl.B_UnitID[66];		DSV2ModbusControl.wModbusRegisterAddr[66];		DSV2ModbusControl.iRWRef[66];
+
+
+DSV2ModbusControl.wModbusData[67];		DSV2ModbusControl.B_UnitID[67];		DSV2ModbusControl.wModbusRegisterAddr[67];		DSV2ModbusControl.iRWRef[67];
+DSV2ModbusControl.wModbusData[68];		DSV2ModbusControl.B_UnitID[68];		DSV2ModbusControl.wModbusRegisterAddr[68];		DSV2ModbusControl.iRWRef[68];
+DSV2ModbusControl.wModbusData[69];		DSV2ModbusControl.B_UnitID[69];		DSV2ModbusControl.wModbusRegisterAddr[69];		DSV2ModbusControl.iRWRef[69];
+DSV2ModbusControl.wModbusData[70];		DSV2ModbusControl.B_UnitID[70];		DSV2ModbusControl.wModbusRegisterAddr[70];		DSV2ModbusControl.iRWRef[70];
+DSV2ModbusControl.wModbusData[71];		DSV2ModbusControl.B_UnitID[71];		DSV2ModbusControl.wModbusRegisterAddr[71];		DSV2ModbusControl.iRWRef[71];
+DSV2ModbusControl.wModbusData[72];		DSV2ModbusControl.B_UnitID[72];		DSV2ModbusControl.wModbusRegisterAddr[72];		DSV2ModbusControl.iRWRef[72];
+DSV2ModbusControl.wModbusData[73];		DSV2ModbusControl.B_UnitID[73];		DSV2ModbusControl.wModbusRegisterAddr[73];		DSV2ModbusControl.iRWRef[73];
+DSV2ModbusControl.wModbusData[74];		DSV2ModbusControl.B_UnitID[74];		DSV2ModbusControl.wModbusRegisterAddr[74];		DSV2ModbusControl.iRWRef[74];
+DSV2ModbusControl.wModbusData[75];		DSV2ModbusControl.B_UnitID[75];		DSV2ModbusControl.wModbusRegisterAddr[75];		DSV2ModbusControl.iRWRef[75];
+DSV2ModbusControl.wModbusData[76];		DSV2ModbusControl.B_UnitID[76];		DSV2ModbusControl.wModbusRegisterAddr[76];		DSV2ModbusControl.iRWRef[76];
+DSV2ModbusControl.wModbusData[77];		DSV2ModbusControl.B_UnitID[77];		DSV2ModbusControl.wModbusRegisterAddr[77];		DSV2ModbusControl.iRWRef[77];
+
+
+DSV2ModbusControl.wModbusData[78];		DSV2ModbusControl.B_UnitID[78];		DSV2ModbusControl.wModbusRegisterAddr[78];		DSV2ModbusControl.iRWRef[78];
+DSV2ModbusControl.wModbusData[79];		DSV2ModbusControl.B_UnitID[79];		DSV2ModbusControl.wModbusRegisterAddr[79];		DSV2ModbusControl.iRWRef[79];
+DSV2ModbusControl.wModbusData[80];		DSV2ModbusControl.B_UnitID[80];		DSV2ModbusControl.wModbusRegisterAddr[80];		DSV2ModbusControl.iRWRef[80];
+DSV2ModbusControl.wModbusData[81];		DSV2ModbusControl.B_UnitID[81];		DSV2ModbusControl.wModbusRegisterAddr[81];		DSV2ModbusControl.iRWRef[81];
+DSV2ModbusControl.wModbusData[82];		DSV2ModbusControl.B_UnitID[82];		DSV2ModbusControl.wModbusRegisterAddr[82];		DSV2ModbusControl.iRWRef[82];
+DSV2ModbusControl.wModbusData[83];		DSV2ModbusControl.B_UnitID[83];		DSV2ModbusControl.wModbusRegisterAddr[83];		DSV2ModbusControl.iRWRef[83];
+DSV2ModbusControl.wModbusData[84];		DSV2ModbusControl.B_UnitID[84];		DSV2ModbusControl.wModbusRegisterAddr[84];		DSV2ModbusControl.iRWRef[84];
+DSV2ModbusControl.wModbusData[85];		DSV2ModbusControl.B_UnitID[85];		DSV2ModbusControl.wModbusRegisterAddr[85];		DSV2ModbusControl.iRWRef[85];
+DSV2ModbusControl.wModbusData[86];		DSV2ModbusControl.B_UnitID[86];		DSV2ModbusControl.wModbusRegisterAddr[86];		DSV2ModbusControl.iRWRef[86];
+DSV2ModbusControl.wModbusData[87];		DSV2ModbusControl.B_UnitID[87];		DSV2ModbusControl.wModbusRegisterAddr[87];		DSV2ModbusControl.iRWRef[87];
+DSV2ModbusControl.wModbusData[88];		DSV2ModbusControl.B_UnitID[88];		DSV2ModbusControl.wModbusRegisterAddr[88];		DSV2ModbusControl.iRWRef[88];
+
+
+DSV2ModbusControl.wModbusData[89];		DSV2ModbusControl.B_UnitID[89];		DSV2ModbusControl.wModbusRegisterAddr[89];		DSV2ModbusControl.iRWRef[89];
+DSV2ModbusControl.wModbusData[90];		DSV2ModbusControl.B_UnitID[90];		DSV2ModbusControl.wModbusRegisterAddr[90];		DSV2ModbusControl.iRWRef[90];
+DSV2ModbusControl.wModbusData[91];		DSV2ModbusControl.B_UnitID[91];		DSV2ModbusControl.wModbusRegisterAddr[91];		DSV2ModbusControl.iRWRef[91];
+DSV2ModbusControl.wModbusData[92];		DSV2ModbusControl.B_UnitID[92];		DSV2ModbusControl.wModbusRegisterAddr[92];		DSV2ModbusControl.iRWRef[92];
+DSV2ModbusControl.wModbusData[93];		DSV2ModbusControl.B_UnitID[93];		DSV2ModbusControl.wModbusRegisterAddr[93];		DSV2ModbusControl.iRWRef[93];
+DSV2ModbusControl.wModbusData[94];		DSV2ModbusControl.B_UnitID[94];		DSV2ModbusControl.wModbusRegisterAddr[94];		DSV2ModbusControl.iRWRef[94];
+DSV2ModbusControl.wModbusData[95];		DSV2ModbusControl.B_UnitID[95];		DSV2ModbusControl.wModbusRegisterAddr[95];		DSV2ModbusControl.iRWRef[95];
+DSV2ModbusControl.wModbusData[96];		DSV2ModbusControl.B_UnitID[96];		DSV2ModbusControl.wModbusRegisterAddr[96];		DSV2ModbusControl.iRWRef[96];
+DSV2ModbusControl.wModbusData[97];		DSV2ModbusControl.B_UnitID[97];		DSV2ModbusControl.wModbusRegisterAddr[97];		DSV2ModbusControl.iRWRef[97];
+DSV2ModbusControl.wModbusData[98];		DSV2ModbusControl.B_UnitID[98];		DSV2ModbusControl.wModbusRegisterAddr[98];		DSV2ModbusControl.iRWRef[98];
+DSV2ModbusControl.wModbusData[99];		DSV2ModbusControl.B_UnitID[99];		DSV2ModbusControl.wModbusRegisterAddr[99];		DSV2ModbusControl.iRWRef[99];
+
+
+(*
+
+
+*)]]></ST>
+    </Implementation>
+    <Action Name="Megasonic" Id="{7ead38c3-4039-4067-af5e-da49ed31cd0d}">
+      <Implementation>
+        <ST><![CDATA[
+
+	fbV2ModbusControl2(
+	bStart:= PowerOnDelay.Q OR bEnStart2, 
+	iStepDelaySVns:= iStepDelaySVns2, 
+	rtimeout_Sec:= rTimeout_Sec2, 
+	DSV2ModbusControl:= DSV2ModbusControl2, 
+	bModbusReadRegsBusy=>bModbusReadBusy2 , 
+	bModbusReadInputRegsBusy=>bModbusRead2Busy2 , 
+	bModbusWriteBusy=> bModbusWriteBusy2, 
+	bModbusReadRegsError=> bModbusReadError2, 
+	bModbusReadInputRegsError=> bModbusRead2Error2, 
+	bModbusWriteError=>bModbusWriteError2 , 
+	ErrorId_ReadRegs=>ErrorId_Read2 , 
+	ErrorId_ReadInputRegs=>ErrorId_ReadNew2 , 
+	ErrorId_Write=>ErrorId_Write2 , 
+	iStep=>iStepReadOut2 , 
+	iAddCounter=>iCounterReadOut2 );
+
+bMegaReadRE(CLK:=bModbusReadError2 , Q=> );
+bMegaWriteRE(CLK:=bModbusWriteError2 , Q=> );
+
+IF bMegaReadRE.Q THEN
+	iMegaReadErrorCounter := iMegaReadErrorCounter +1;
+	
+END_IF
+
+IF bMegaWriteRE.Q THEN
+	iMegaWriteErrorCounter := iMegaWriteErrorCounter +1;
+	
+END_IF
+	
+
+DSV2ModbusControl2.wModbusData[1]; 		DSV2ModbusControl2.B_UnitID[1]; 		DSV2ModbusControl2.wModbusRegisterAddr[1]; 		DSV2ModbusControl2.iRWRef[1]; 
+DSV2ModbusControl2.wModbusData[2]; 		DSV2ModbusControl2.B_UnitID[2]; 		DSV2ModbusControl2.wModbusRegisterAddr[2]; 		DSV2ModbusControl2.iRWRef[2]; 
+DSV2ModbusControl2.wModbusData[3]; 		DSV2ModbusControl2.B_UnitID[3]; 		DSV2ModbusControl2.wModbusRegisterAddr[3]; 		DSV2ModbusControl2.iRWRef[3]; 
+DSV2ModbusControl2.wModbusData[4]; 		DSV2ModbusControl2.B_UnitID[4]; 		DSV2ModbusControl2.wModbusRegisterAddr[4]; 		DSV2ModbusControl2.iRWRef[4]; 
+DSV2ModbusControl2.wModbusData[5]; 		DSV2ModbusControl2.B_UnitID[5]; 		DSV2ModbusControl2.wModbusRegisterAddr[5]; 		DSV2ModbusControl2.iRWRef[5]; 
+DSV2ModbusControl2.wModbusData[6]; 		DSV2ModbusControl2.B_UnitID[6]; 		DSV2ModbusControl2.wModbusRegisterAddr[6]; 		DSV2ModbusControl2.iRWRef[6];
+DSV2ModbusControl2.wModbusData[7]; 		DSV2ModbusControl2.B_UnitID[7]; 		DSV2ModbusControl2.wModbusRegisterAddr[7]; 		DSV2ModbusControl2.iRWRef[7];
+DSV2ModbusControl2.wModbusData[8]; 		DSV2ModbusControl2.B_UnitID[8]; 		DSV2ModbusControl2.wModbusRegisterAddr[8]; 		DSV2ModbusControl2.iRWRef[8];
+DSV2ModbusControl2.wModbusData[9]; 		DSV2ModbusControl2.B_UnitID[9]; 		DSV2ModbusControl2.wModbusRegisterAddr[9]; 		DSV2ModbusControl2.iRWRef[9];
+DSV2ModbusControl2.wModbusData[10]; 	DSV2ModbusControl2.B_UnitID[10]; 		DSV2ModbusControl2.wModbusRegisterAddr[10]; 		DSV2ModbusControl2.iRWRef[10];
+DSV2ModbusControl2.wModbusData[11]; 	DSV2ModbusControl2.B_UnitID[11]; 		DSV2ModbusControl2.wModbusRegisterAddr[11]; 		DSV2ModbusControl2.iRWRef[11];
+
+
+DSV2ModbusControl2.wModbusData[12]; 		DSV2ModbusControl2.B_UnitID[12]; 		DSV2ModbusControl2.wModbusRegisterAddr[12]; 		DSV2ModbusControl2.iRWRef[12];
+DSV2ModbusControl2.wModbusData[13]; 		DSV2ModbusControl2.B_UnitID[13]; 		DSV2ModbusControl2.wModbusRegisterAddr[13]; 		DSV2ModbusControl2.iRWRef[13];
+DSV2ModbusControl2.wModbusData[14]; 		DSV2ModbusControl2.B_UnitID[14]; 		DSV2ModbusControl2.wModbusRegisterAddr[14]; 		DSV2ModbusControl2.iRWRef[14];
+DSV2ModbusControl2.wModbusData[15]; 		DSV2ModbusControl2.B_UnitID[15]; 		DSV2ModbusControl2.wModbusRegisterAddr[15]; 		DSV2ModbusControl2.iRWRef[15];
+DSV2ModbusControl2.wModbusData[16]; 		DSV2ModbusControl2.B_UnitID[16]; 		DSV2ModbusControl2.wModbusRegisterAddr[16]; 		DSV2ModbusControl2.iRWRef[16];
+DSV2ModbusControl2.wModbusData[17]; 		DSV2ModbusControl2.B_UnitID[17]; 		DSV2ModbusControl2.wModbusRegisterAddr[17]; 		DSV2ModbusControl2.iRWRef[17];
+DSV2ModbusControl2.wModbusData[18]; 		DSV2ModbusControl2.B_UnitID[18]; 		DSV2ModbusControl2.wModbusRegisterAddr[18]; 		DSV2ModbusControl2.iRWRef[18];
+DSV2ModbusControl2.wModbusData[19]; 		DSV2ModbusControl2.B_UnitID[19]; 		DSV2ModbusControl2.wModbusRegisterAddr[19]; 		DSV2ModbusControl2.iRWRef[19];
+DSV2ModbusControl2.wModbusData[20]; 		DSV2ModbusControl2.B_UnitID[20]; 		DSV2ModbusControl2.wModbusRegisterAddr[20]; 		DSV2ModbusControl2.iRWRef[20];
+DSV2ModbusControl2.wModbusData[21]; 		DSV2ModbusControl2.B_UnitID[21]; 		DSV2ModbusControl2.wModbusRegisterAddr[21]; 		DSV2ModbusControl2.iRWRef[21];
+DSV2ModbusControl2.wModbusData[22]; 		DSV2ModbusControl2.B_UnitID[22]; 		DSV2ModbusControl2.wModbusRegisterAddr[22]; 		DSV2ModbusControl2.iRWRef[22];
+
+
+DSV2ModbusControl2.wModbusData[23]; 		DSV2ModbusControl2.B_UnitID[23]; 		DSV2ModbusControl2.wModbusRegisterAddr[23]; 		DSV2ModbusControl2.iRWRef[23];
+DSV2ModbusControl2.wModbusData[24]; 		DSV2ModbusControl2.B_UnitID[24]; 		DSV2ModbusControl2.wModbusRegisterAddr[24]; 		DSV2ModbusControl2.iRWRef[24];
+DSV2ModbusControl2.wModbusData[25]; 		DSV2ModbusControl2.B_UnitID[25]; 		DSV2ModbusControl2.wModbusRegisterAddr[25]; 		DSV2ModbusControl2.iRWRef[25];
+DSV2ModbusControl2.wModbusData[26]; 		DSV2ModbusControl2.B_UnitID[26]; 		DSV2ModbusControl2.wModbusRegisterAddr[26]; 		DSV2ModbusControl2.iRWRef[26];
+DSV2ModbusControl2.wModbusData[27]; 		DSV2ModbusControl2.B_UnitID[27]; 		DSV2ModbusControl2.wModbusRegisterAddr[27]; 		DSV2ModbusControl2.iRWRef[27];
+DSV2ModbusControl2.wModbusData[28]; 		DSV2ModbusControl2.B_UnitID[28]; 		DSV2ModbusControl2.wModbusRegisterAddr[28]; 		DSV2ModbusControl2.iRWRef[28];
+DSV2ModbusControl2.wModbusData[29]; 		DSV2ModbusControl2.B_UnitID[29]; 		DSV2ModbusControl2.wModbusRegisterAddr[29]; 		DSV2ModbusControl2.iRWRef[29];
+DSV2ModbusControl2.wModbusData[30]; 		DSV2ModbusControl2.B_UnitID[30]; 		DSV2ModbusControl2.wModbusRegisterAddr[30]; 		DSV2ModbusControl2.iRWRef[30];
+DSV2ModbusControl2.wModbusData[31]; 		DSV2ModbusControl2.B_UnitID[31]; 		DSV2ModbusControl2.wModbusRegisterAddr[31]; 		DSV2ModbusControl2.iRWRef[31];
+DSV2ModbusControl2.wModbusData[32]; 		DSV2ModbusControl2.B_UnitID[32]; 		DSV2ModbusControl2.wModbusRegisterAddr[32]; 		DSV2ModbusControl2.iRWRef[32];
+DSV2ModbusControl2.wModbusData[33]; 		DSV2ModbusControl2.B_UnitID[33]; 		DSV2ModbusControl2.wModbusRegisterAddr[33]; 		DSV2ModbusControl2.iRWRef[33];
+
+
+DSV2ModbusControl2.wModbusData[34];		DSV2ModbusControl2.B_UnitID[34];		DSV2ModbusControl2.wModbusRegisterAddr[34];		DSV2ModbusControl2.iRWRef[34];
+DSV2ModbusControl2.wModbusData[35];		DSV2ModbusControl2.B_UnitID[35];		DSV2ModbusControl2.wModbusRegisterAddr[35];		DSV2ModbusControl2.iRWRef[35];
+DSV2ModbusControl2.wModbusData[36];		DSV2ModbusControl2.B_UnitID[36];		DSV2ModbusControl2.wModbusRegisterAddr[36];		DSV2ModbusControl2.iRWRef[36];
+DSV2ModbusControl2.wModbusData[37];		DSV2ModbusControl2.B_UnitID[37];		DSV2ModbusControl2.wModbusRegisterAddr[37];		DSV2ModbusControl2.iRWRef[37];
+DSV2ModbusControl2.wModbusData[38];		DSV2ModbusControl2.B_UnitID[38];		DSV2ModbusControl2.wModbusRegisterAddr[38];		DSV2ModbusControl2.iRWRef[38];
+DSV2ModbusControl2.wModbusData[39];		DSV2ModbusControl2.B_UnitID[39];		DSV2ModbusControl2.wModbusRegisterAddr[39];		DSV2ModbusControl2.iRWRef[39];
+DSV2ModbusControl2.wModbusData[40];		DSV2ModbusControl2.B_UnitID[40];		DSV2ModbusControl2.wModbusRegisterAddr[40];		DSV2ModbusControl2.iRWRef[40];
+DSV2ModbusControl2.wModbusData[41];		DSV2ModbusControl2.B_UnitID[41];		DSV2ModbusControl2.wModbusRegisterAddr[41];		DSV2ModbusControl2.iRWRef[41];
+DSV2ModbusControl2.wModbusData[42];		DSV2ModbusControl2.B_UnitID[42];		DSV2ModbusControl2.wModbusRegisterAddr[42];		DSV2ModbusControl2.iRWRef[42];
+DSV2ModbusControl2.wModbusData[43];		DSV2ModbusControl2.B_UnitID[43];		DSV2ModbusControl2.wModbusRegisterAddr[43];		DSV2ModbusControl2.iRWRef[43];
+DSV2ModbusControl2.wModbusData[44];		DSV2ModbusControl2.B_UnitID[44];		DSV2ModbusControl2.wModbusRegisterAddr[44];		DSV2ModbusControl2.iRWRef[44];
+
+
+DSV2ModbusControl2.wModbusData[45];		DSV2ModbusControl2.B_UnitID[45];		DSV2ModbusControl2.wModbusRegisterAddr[45];		DSV2ModbusControl2.iRWRef[45];
+DSV2ModbusControl2.wModbusData[46];		DSV2ModbusControl2.B_UnitID[46];		DSV2ModbusControl2.wModbusRegisterAddr[46];		DSV2ModbusControl2.iRWRef[46];
+DSV2ModbusControl2.wModbusData[47];		DSV2ModbusControl2.B_UnitID[47];		DSV2ModbusControl2.wModbusRegisterAddr[47];		DSV2ModbusControl2.iRWRef[47];
+DSV2ModbusControl2.wModbusData[48];		DSV2ModbusControl2.B_UnitID[48];		DSV2ModbusControl2.wModbusRegisterAddr[48];		DSV2ModbusControl2.iRWRef[48];
+DSV2ModbusControl2.wModbusData[49];		DSV2ModbusControl2.B_UnitID[49];		DSV2ModbusControl2.wModbusRegisterAddr[49];		DSV2ModbusControl2.iRWRef[49];			
+DSV2ModbusControl2.wModbusData[50];		DSV2ModbusControl2.B_UnitID[50];		DSV2ModbusControl2.wModbusRegisterAddr[50];		DSV2ModbusControl2.iRWRef[50];
+DSV2ModbusControl2.wModbusData[51];		DSV2ModbusControl2.B_UnitID[51];		DSV2ModbusControl2.wModbusRegisterAddr[51];		DSV2ModbusControl2.iRWRef[51];
+DSV2ModbusControl2.wModbusData[52];		DSV2ModbusControl2.B_UnitID[52];		DSV2ModbusControl2.wModbusRegisterAddr[52];		DSV2ModbusControl2.iRWRef[52];
+DSV2ModbusControl2.wModbusData[53];		DSV2ModbusControl2.B_UnitID[53];		DSV2ModbusControl2.wModbusRegisterAddr[53];		DSV2ModbusControl2.iRWRef[53];
+DSV2ModbusControl2.wModbusData[54];		DSV2ModbusControl2.B_UnitID[54];		DSV2ModbusControl2.wModbusRegisterAddr[54];		DSV2ModbusControl2.iRWRef[54];			
+DSV2ModbusControl2.wModbusData[55];		DSV2ModbusControl2.B_UnitID[55];		DSV2ModbusControl2.wModbusRegisterAddr[55];		DSV2ModbusControl2.iRWRef[55];
+
+
+DSV2ModbusControl2.wModbusData[56];		DSV2ModbusControl2.B_UnitID[56];		DSV2ModbusControl2.wModbusRegisterAddr[56];		DSV2ModbusControl2.iRWRef[56];
+DSV2ModbusControl2.wModbusData[57];		DSV2ModbusControl2.B_UnitID[57];		DSV2ModbusControl2.wModbusRegisterAddr[57];		DSV2ModbusControl2.iRWRef[57];
+DSV2ModbusControl2.wModbusData[58];		DSV2ModbusControl2.B_UnitID[58];		DSV2ModbusControl2.wModbusRegisterAddr[58];		DSV2ModbusControl2.iRWRef[58];
+DSV2ModbusControl2.wModbusData[59];		DSV2ModbusControl2.B_UnitID[59];		DSV2ModbusControl2.wModbusRegisterAddr[59];		DSV2ModbusControl2.iRWRef[59];
+DSV2ModbusControl2.wModbusData[60];		DSV2ModbusControl2.B_UnitID[60];		DSV2ModbusControl2.wModbusRegisterAddr[60];		DSV2ModbusControl2.iRWRef[60];
+DSV2ModbusControl2.wModbusData[61];		DSV2ModbusControl2.B_UnitID[61];		DSV2ModbusControl2.wModbusRegisterAddr[61];		DSV2ModbusControl2.iRWRef[61];
+DSV2ModbusControl2.wModbusData[62];		DSV2ModbusControl2.B_UnitID[62];		DSV2ModbusControl2.wModbusRegisterAddr[62];		DSV2ModbusControl2.iRWRef[62];
+DSV2ModbusControl2.wModbusData[63];		DSV2ModbusControl2.B_UnitID[63];		DSV2ModbusControl2.wModbusRegisterAddr[63];		DSV2ModbusControl2.iRWRef[63];
+DSV2ModbusControl2.wModbusData[64];		DSV2ModbusControl2.B_UnitID[64];		DSV2ModbusControl2.wModbusRegisterAddr[64];		DSV2ModbusControl2.iRWRef[64];
+DSV2ModbusControl2.wModbusData[65];		DSV2ModbusControl2.B_UnitID[65];		DSV2ModbusControl2.wModbusRegisterAddr[65];		DSV2ModbusControl2.iRWRef[65];
+DSV2ModbusControl2.wModbusData[66];		DSV2ModbusControl2.B_UnitID[66];		DSV2ModbusControl2.wModbusRegisterAddr[66];		DSV2ModbusControl2.iRWRef[66];
+
+
+DSV2ModbusControl2.wModbusData[67];		DSV2ModbusControl2.B_UnitID[67];		DSV2ModbusControl2.wModbusRegisterAddr[67];		DSV2ModbusControl2.iRWRef[67];
+DSV2ModbusControl2.wModbusData[68];		DSV2ModbusControl2.B_UnitID[68];		DSV2ModbusControl2.wModbusRegisterAddr[68];		DSV2ModbusControl2.iRWRef[68];
+DSV2ModbusControl2.wModbusData[69];		DSV2ModbusControl2.B_UnitID[69];		DSV2ModbusControl2.wModbusRegisterAddr[69];		DSV2ModbusControl2.iRWRef[69];
+DSV2ModbusControl2.wModbusData[70];		DSV2ModbusControl2.B_UnitID[70];		DSV2ModbusControl2.wModbusRegisterAddr[70];		DSV2ModbusControl2.iRWRef[70];
+DSV2ModbusControl2.wModbusData[71];		DSV2ModbusControl2.B_UnitID[71];		DSV2ModbusControl2.wModbusRegisterAddr[71];		DSV2ModbusControl2.iRWRef[71];
+DSV2ModbusControl2.wModbusData[72];		DSV2ModbusControl2.B_UnitID[72];		DSV2ModbusControl2.wModbusRegisterAddr[72];		DSV2ModbusControl2.iRWRef[72];
+DSV2ModbusControl2.wModbusData[73];		DSV2ModbusControl2.B_UnitID[73];		DSV2ModbusControl2.wModbusRegisterAddr[73];		DSV2ModbusControl2.iRWRef[73];
+DSV2ModbusControl2.wModbusData[74];		DSV2ModbusControl2.B_UnitID[74];		DSV2ModbusControl2.wModbusRegisterAddr[74];		DSV2ModbusControl2.iRWRef[74];
+DSV2ModbusControl2.wModbusData[75];		DSV2ModbusControl2.B_UnitID[75];		DSV2ModbusControl2.wModbusRegisterAddr[75];		DSV2ModbusControl2.iRWRef[75];
+DSV2ModbusControl2.wModbusData[76];		DSV2ModbusControl2.B_UnitID[76];		DSV2ModbusControl2.wModbusRegisterAddr[76];		DSV2ModbusControl2.iRWRef[76];
+DSV2ModbusControl2.wModbusData[77];		DSV2ModbusControl2.B_UnitID[77];		DSV2ModbusControl2.wModbusRegisterAddr[77];		DSV2ModbusControl2.iRWRef[77];
+
+
+DSV2ModbusControl2.wModbusData[78];		DSV2ModbusControl2.B_UnitID[78];		DSV2ModbusControl2.wModbusRegisterAddr[78];		DSV2ModbusControl2.iRWRef[78];
+DSV2ModbusControl2.wModbusData[79];		DSV2ModbusControl2.B_UnitID[79];		DSV2ModbusControl2.wModbusRegisterAddr[79];		DSV2ModbusControl2.iRWRef[79];
+DSV2ModbusControl2.wModbusData[80];		DSV2ModbusControl2.B_UnitID[80];		DSV2ModbusControl2.wModbusRegisterAddr[80];		DSV2ModbusControl2.iRWRef[80];
+DSV2ModbusControl2.wModbusData[81];		DSV2ModbusControl2.B_UnitID[81];		DSV2ModbusControl2.wModbusRegisterAddr[81];		DSV2ModbusControl2.iRWRef[81];
+DSV2ModbusControl2.wModbusData[82];		DSV2ModbusControl2.B_UnitID[82];		DSV2ModbusControl2.wModbusRegisterAddr[82];		DSV2ModbusControl2.iRWRef[82];
+DSV2ModbusControl2.wModbusData[83];		DSV2ModbusControl2.B_UnitID[83];		DSV2ModbusControl2.wModbusRegisterAddr[83];		DSV2ModbusControl2.iRWRef[83];
+DSV2ModbusControl2.wModbusData[84];		DSV2ModbusControl2.B_UnitID[84];		DSV2ModbusControl2.wModbusRegisterAddr[84];		DSV2ModbusControl2.iRWRef[84];
+DSV2ModbusControl2.wModbusData[85];		DSV2ModbusControl2.B_UnitID[85];		DSV2ModbusControl2.wModbusRegisterAddr[85];		DSV2ModbusControl2.iRWRef[85];
+DSV2ModbusControl2.wModbusData[86];		DSV2ModbusControl2.B_UnitID[86];		DSV2ModbusControl2.wModbusRegisterAddr[86];		DSV2ModbusControl2.iRWRef[86];
+DSV2ModbusControl2.wModbusData[87];		DSV2ModbusControl2.B_UnitID[87];		DSV2ModbusControl2.wModbusRegisterAddr[87];		DSV2ModbusControl2.iRWRef[87];
+DSV2ModbusControl2.wModbusData[88];		DSV2ModbusControl2.B_UnitID[88];		DSV2ModbusControl2.wModbusRegisterAddr[88];		DSV2ModbusControl2.iRWRef[88];]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="SCRHeater" Id="{f5417572-cad0-4ce9-b54b-5e956bc7b311}">
+      <Implementation>
+        <ST><![CDATA[	
+fbV2ModbusControl3(
+	bStart:= PowerOnDelay.Q OR bEnStart3, 
+	iStepDelaySVns:= iStepDelaySVns3, 
+	rtimeout_Sec:= rTimeout_Sec3, 
+	DSV2ModbusControl:= DSV2ModbusControl3, 
+	bModbusReadRegsBusy=>bModbusReadBusy3 , 
+	bModbusReadInputRegsBusy=>bModbusRead2Busy3 , 
+	bModbusWriteBusy=> bModbusWriteBusy3, 
+	bModbusReadRegsError=> bModbusReadError3, 
+	bModbusReadInputRegsError=> bModbusRead2Error3, 
+	bModbusWriteError=>bModbusWriteError3 , 
+	ErrorId_ReadRegs=>ErrorId_Read3 , 
+	ErrorId_ReadInputRegs=>ErrorId_ReadNew3 , 
+	ErrorId_Write=>ErrorId_Write3 , 
+	iStep=>iStepReadOut3 , 
+	iAddCounter=>iCounterReadOut3 );
+	
+
+DSV2ModbusControl3.wModbusData[1]; 		DSV2ModbusControl3.B_UnitID[1]; 		DSV2ModbusControl3.wModbusRegisterAddr[1]; 		DSV2ModbusControl3.iRWRef[1]; 
+DSV2ModbusControl3.wModbusData[2]; 		DSV2ModbusControl3.B_UnitID[2]; 		DSV2ModbusControl3.wModbusRegisterAddr[2]; 		DSV2ModbusControl3.iRWRef[2]; 
+DSV2ModbusControl3.wModbusData[3]; 		DSV2ModbusControl3.B_UnitID[3]; 		DSV2ModbusControl3.wModbusRegisterAddr[3]; 		DSV2ModbusControl3.iRWRef[3]; 
+DSV2ModbusControl3.wModbusData[4]; 		DSV2ModbusControl3.B_UnitID[4]; 		DSV2ModbusControl3.wModbusRegisterAddr[4]; 		DSV2ModbusControl3.iRWRef[4]; 
+DSV2ModbusControl3.wModbusData[5]; 		DSV2ModbusControl3.B_UnitID[5]; 		DSV2ModbusControl3.wModbusRegisterAddr[5]; 		DSV2ModbusControl3.iRWRef[5]; 
+DSV2ModbusControl3.wModbusData[6]; 		DSV2ModbusControl3.B_UnitID[6]; 		DSV2ModbusControl3.wModbusRegisterAddr[6]; 		DSV2ModbusControl3.iRWRef[6];
+DSV2ModbusControl3.wModbusData[7]; 		DSV2ModbusControl3.B_UnitID[7]; 		DSV2ModbusControl3.wModbusRegisterAddr[7]; 		DSV2ModbusControl3.iRWRef[7];
+DSV2ModbusControl3.wModbusData[8]; 		DSV2ModbusControl3.B_UnitID[8]; 		DSV2ModbusControl3.wModbusRegisterAddr[8]; 		DSV2ModbusControl3.iRWRef[8];
+DSV2ModbusControl3.wModbusData[9]; 		DSV2ModbusControl3.B_UnitID[9]; 		DSV2ModbusControl3.wModbusRegisterAddr[9]; 		DSV2ModbusControl3.iRWRef[9];
+DSV2ModbusControl3.wModbusData[10]; 	DSV2ModbusControl3.B_UnitID[10]; 		DSV2ModbusControl3.wModbusRegisterAddr[10]; 		DSV2ModbusControl3.iRWRef[10];
+DSV2ModbusControl3.wModbusData[11]; 	DSV2ModbusControl3.B_UnitID[11]; 		DSV2ModbusControl3.wModbusRegisterAddr[11]; 		DSV2ModbusControl3.iRWRef[11];
+
+
+DSV2ModbusControl3.wModbusData[12]; 		DSV2ModbusControl3.B_UnitID[12]; 		DSV2ModbusControl3.wModbusRegisterAddr[12]; 		DSV2ModbusControl3.iRWRef[12];
+DSV2ModbusControl3.wModbusData[13]; 		DSV2ModbusControl3.B_UnitID[13]; 		DSV2ModbusControl3.wModbusRegisterAddr[13]; 		DSV2ModbusControl3.iRWRef[13];
+DSV2ModbusControl3.wModbusData[14]; 		DSV2ModbusControl3.B_UnitID[14]; 		DSV2ModbusControl3.wModbusRegisterAddr[14]; 		DSV2ModbusControl3.iRWRef[14];
+DSV2ModbusControl3.wModbusData[15]; 		DSV2ModbusControl3.B_UnitID[15]; 		DSV2ModbusControl3.wModbusRegisterAddr[15]; 		DSV2ModbusControl3.iRWRef[15];
+DSV2ModbusControl3.wModbusData[16]; 		DSV2ModbusControl3.B_UnitID[16]; 		DSV2ModbusControl3.wModbusRegisterAddr[16]; 		DSV2ModbusControl3.iRWRef[16];
+DSV2ModbusControl3.wModbusData[17]; 		DSV2ModbusControl3.B_UnitID[17]; 		DSV2ModbusControl3.wModbusRegisterAddr[17]; 		DSV2ModbusControl3.iRWRef[17];
+DSV2ModbusControl3.wModbusData[18]; 		DSV2ModbusControl3.B_UnitID[18]; 		DSV2ModbusControl3.wModbusRegisterAddr[18]; 		DSV2ModbusControl3.iRWRef[18];
+DSV2ModbusControl3.wModbusData[19]; 		DSV2ModbusControl3.B_UnitID[19]; 		DSV2ModbusControl3.wModbusRegisterAddr[19]; 		DSV2ModbusControl3.iRWRef[19];
+DSV2ModbusControl3.wModbusData[20]; 		DSV2ModbusControl3.B_UnitID[20]; 		DSV2ModbusControl3.wModbusRegisterAddr[20]; 		DSV2ModbusControl3.iRWRef[20];
+DSV2ModbusControl3.wModbusData[21]; 		DSV2ModbusControl3.B_UnitID[21]; 		DSV2ModbusControl3.wModbusRegisterAddr[21]; 		DSV2ModbusControl3.iRWRef[21];
+DSV2ModbusControl3.wModbusData[22]; 		DSV2ModbusControl3.B_UnitID[22]; 		DSV2ModbusControl3.wModbusRegisterAddr[22]; 		DSV2ModbusControl3.iRWRef[22];
+
+(*
+DSV2ModbusControl2.wModbusData[23]; 		DSV2ModbusControl2.B_UnitID[23]; 		DSV2ModbusControl2.wModbusRegisterAddr[23]; 		DSV2ModbusControl2.iRWRef[23];
+DSV2ModbusControl2.wModbusData[24]; 		DSV2ModbusControl2.B_UnitID[24]; 		DSV2ModbusControl2.wModbusRegisterAddr[24]; 		DSV2ModbusControl2.iRWRef[24];
+DSV2ModbusControl2.wModbusData[25]; 		DSV2ModbusControl2.B_UnitID[25]; 		DSV2ModbusControl2.wModbusRegisterAddr[25]; 		DSV2ModbusControl2.iRWRef[25];
+DSV2ModbusControl2.wModbusData[26]; 		DSV2ModbusControl2.B_UnitID[26]; 		DSV2ModbusControl2.wModbusRegisterAddr[26]; 		DSV2ModbusControl2.iRWRef[26];
+DSV2ModbusControl2.wModbusData[27]; 		DSV2ModbusControl2.B_UnitID[27]; 		DSV2ModbusControl2.wModbusRegisterAddr[27]; 		DSV2ModbusControl2.iRWRef[27];
+DSV2ModbusControl2.wModbusData[28]; 		DSV2ModbusControl2.B_UnitID[28]; 		DSV2ModbusControl2.wModbusRegisterAddr[28]; 		DSV2ModbusControl2.iRWRef[28];
+DSV2ModbusControl2.wModbusData[29]; 		DSV2ModbusControl2.B_UnitID[29]; 		DSV2ModbusControl2.wModbusRegisterAddr[29]; 		DSV2ModbusControl2.iRWRef[29];
+DSV2ModbusControl2.wModbusData[30]; 		DSV2ModbusControl2.B_UnitID[30]; 		DSV2ModbusControl2.wModbusRegisterAddr[30]; 		DSV2ModbusControl2.iRWRef[30];
+DSV2ModbusControl2.wModbusData[31]; 		DSV2ModbusControl2.B_UnitID[31]; 		DSV2ModbusControl2.wModbusRegisterAddr[31]; 		DSV2ModbusControl2.iRWRef[31];
+DSV2ModbusControl2.wModbusData[32]; 		DSV2ModbusControl2.B_UnitID[32]; 		DSV2ModbusControl2.wModbusRegisterAddr[32]; 		DSV2ModbusControl2.iRWRef[32];
+DSV2ModbusControl2.wModbusData[33]; 		DSV2ModbusControl2.B_UnitID[33]; 		DSV2ModbusControl2.wModbusRegisterAddr[33]; 		DSV2ModbusControl2.iRWRef[33];
+
+
+DSV2ModbusControl2.wModbusData[34];		DSV2ModbusControl2.B_UnitID[34];		DSV2ModbusControl2.wModbusRegisterAddr[34];		DSV2ModbusControl2.iRWRef[34];
+DSV2ModbusControl2.wModbusData[35];		DSV2ModbusControl2.B_UnitID[35];		DSV2ModbusControl2.wModbusRegisterAddr[35];		DSV2ModbusControl2.iRWRef[35];
+DSV2ModbusControl2.wModbusData[36];		DSV2ModbusControl2.B_UnitID[36];		DSV2ModbusControl2.wModbusRegisterAddr[36];		DSV2ModbusControl2.iRWRef[36];
+DSV2ModbusControl2.wModbusData[37];		DSV2ModbusControl2.B_UnitID[37];		DSV2ModbusControl2.wModbusRegisterAddr[37];		DSV2ModbusControl2.iRWRef[37];
+DSV2ModbusControl2.wModbusData[38];		DSV2ModbusControl2.B_UnitID[38];		DSV2ModbusControl2.wModbusRegisterAddr[38];		DSV2ModbusControl2.iRWRef[38];
+DSV2ModbusControl2.wModbusData[39];		DSV2ModbusControl2.B_UnitID[39];		DSV2ModbusControl2.wModbusRegisterAddr[39];		DSV2ModbusControl2.iRWRef[39];
+DSV2ModbusControl2.wModbusData[40];		DSV2ModbusControl2.B_UnitID[40];		DSV2ModbusControl2.wModbusRegisterAddr[40];		DSV2ModbusControl2.iRWRef[40];
+DSV2ModbusControl2.wModbusData[41];		DSV2ModbusControl2.B_UnitID[41];		DSV2ModbusControl2.wModbusRegisterAddr[41];		DSV2ModbusControl2.iRWRef[41];
+DSV2ModbusControl2.wModbusData[42];		DSV2ModbusControl2.B_UnitID[42];		DSV2ModbusControl2.wModbusRegisterAddr[42];		DSV2ModbusControl2.iRWRef[42];
+DSV2ModbusControl2.wModbusData[43];		DSV2ModbusControl2.B_UnitID[43];		DSV2ModbusControl2.wModbusRegisterAddr[43];		DSV2ModbusControl2.iRWRef[43];
+DSV2ModbusControl2.wModbusData[44];		DSV2ModbusControl2.B_UnitID[44];		DSV2ModbusControl2.wModbusRegisterAddr[44];		DSV2ModbusControl2.iRWRef[44];
+
+
+DSV2ModbusControl2.wModbusData[45];		DSV2ModbusControl2.B_UnitID[45];		DSV2ModbusControl2.wModbusRegisterAddr[45];		DSV2ModbusControl2.iRWRef[45];
+DSV2ModbusControl2.wModbusData[46];		DSV2ModbusControl2.B_UnitID[46];		DSV2ModbusControl2.wModbusRegisterAddr[46];		DSV2ModbusControl2.iRWRef[46];
+DSV2ModbusControl2.wModbusData[47];		DSV2ModbusControl2.B_UnitID[47];		DSV2ModbusControl2.wModbusRegisterAddr[47];		DSV2ModbusControl2.iRWRef[47];
+DSV2ModbusControl2.wModbusData[48];		DSV2ModbusControl2.B_UnitID[48];		DSV2ModbusControl2.wModbusRegisterAddr[48];		DSV2ModbusControl2.iRWRef[48];
+DSV2ModbusControl2.wModbusData[49];		DSV2ModbusControl2.B_UnitID[49];		DSV2ModbusControl2.wModbusRegisterAddr[49];		DSV2ModbusControl2.iRWRef[49];			
+DSV2ModbusControl2.wModbusData[50];		DSV2ModbusControl2.B_UnitID[50];		DSV2ModbusControl2.wModbusRegisterAddr[50];		DSV2ModbusControl2.iRWRef[50];
+DSV2ModbusControl2.wModbusData[51];		DSV2ModbusControl2.B_UnitID[51];		DSV2ModbusControl2.wModbusRegisterAddr[51];		DSV2ModbusControl2.iRWRef[51];
+DSV2ModbusControl2.wModbusData[52];		DSV2ModbusControl2.B_UnitID[52];		DSV2ModbusControl2.wModbusRegisterAddr[52];		DSV2ModbusControl2.iRWRef[52];
+DSV2ModbusControl2.wModbusData[53];		DSV2ModbusControl2.B_UnitID[53];		DSV2ModbusControl2.wModbusRegisterAddr[53];		DSV2ModbusControl2.iRWRef[53];
+DSV2ModbusControl2.wModbusData[54];		DSV2ModbusControl2.B_UnitID[54];		DSV2ModbusControl2.wModbusRegisterAddr[54];		DSV2ModbusControl2.iRWRef[54];			
+DSV2ModbusControl2.wModbusData[55];		DSV2ModbusControl2.B_UnitID[55];		DSV2ModbusControl2.wModbusRegisterAddr[55];		DSV2ModbusControl2.iRWRef[55];
+
+
+DSV2ModbusControl2.wModbusData[56];		DSV2ModbusControl2.B_UnitID[56];		DSV2ModbusControl2.wModbusRegisterAddr[56];		DSV2ModbusControl2.iRWRef[56];
+DSV2ModbusControl2.wModbusData[57];		DSV2ModbusControl2.B_UnitID[57];		DSV2ModbusControl2.wModbusRegisterAddr[57];		DSV2ModbusControl2.iRWRef[57];
+DSV2ModbusControl2.wModbusData[58];		DSV2ModbusControl2.B_UnitID[58];		DSV2ModbusControl2.wModbusRegisterAddr[58];		DSV2ModbusControl2.iRWRef[58];
+DSV2ModbusControl2.wModbusData[59];		DSV2ModbusControl2.B_UnitID[59];		DSV2ModbusControl2.wModbusRegisterAddr[59];		DSV2ModbusControl2.iRWRef[59];
+DSV2ModbusControl2.wModbusData[60];		DSV2ModbusControl2.B_UnitID[60];		DSV2ModbusControl2.wModbusRegisterAddr[60];		DSV2ModbusControl2.iRWRef[60];
+DSV2ModbusControl2.wModbusData[61];		DSV2ModbusControl2.B_UnitID[61];		DSV2ModbusControl2.wModbusRegisterAddr[61];		DSV2ModbusControl2.iRWRef[61];
+DSV2ModbusControl2.wModbusData[62];		DSV2ModbusControl2.B_UnitID[62];		DSV2ModbusControl2.wModbusRegisterAddr[62];		DSV2ModbusControl2.iRWRef[62];
+DSV2ModbusControl2.wModbusData[63];		DSV2ModbusControl2.B_UnitID[63];		DSV2ModbusControl2.wModbusRegisterAddr[63];		DSV2ModbusControl2.iRWRef[63];
+DSV2ModbusControl2.wModbusData[64];		DSV2ModbusControl2.B_UnitID[64];		DSV2ModbusControl2.wModbusRegisterAddr[64];		DSV2ModbusControl2.iRWRef[64];
+DSV2ModbusControl2.wModbusData[65];		DSV2ModbusControl2.B_UnitID[65];		DSV2ModbusControl2.wModbusRegisterAddr[65];		DSV2ModbusControl2.iRWRef[65];
+DSV2ModbusControl2.wModbusData[66];		DSV2ModbusControl2.B_UnitID[66];		DSV2ModbusControl2.wModbusRegisterAddr[66];		DSV2ModbusControl2.iRWRef[66];
+
+
+DSV2ModbusControl2.wModbusData[67];		DSV2ModbusControl2.B_UnitID[67];		DSV2ModbusControl2.wModbusRegisterAddr[67];		DSV2ModbusControl2.iRWRef[67];
+DSV2ModbusControl2.wModbusData[68];		DSV2ModbusControl2.B_UnitID[68];		DSV2ModbusControl2.wModbusRegisterAddr[68];		DSV2ModbusControl2.iRWRef[68];
+DSV2ModbusControl2.wModbusData[69];		DSV2ModbusControl2.B_UnitID[69];		DSV2ModbusControl2.wModbusRegisterAddr[69];		DSV2ModbusControl2.iRWRef[69];
+DSV2ModbusControl2.wModbusData[70];		DSV2ModbusControl2.B_UnitID[70];		DSV2ModbusControl2.wModbusRegisterAddr[70];		DSV2ModbusControl2.iRWRef[70];
+DSV2ModbusControl2.wModbusData[71];		DSV2ModbusControl2.B_UnitID[71];		DSV2ModbusControl2.wModbusRegisterAddr[71];		DSV2ModbusControl2.iRWRef[71];
+DSV2ModbusControl2.wModbusData[72];		DSV2ModbusControl2.B_UnitID[72];		DSV2ModbusControl2.wModbusRegisterAddr[72];		DSV2ModbusControl2.iRWRef[72];
+DSV2ModbusControl2.wModbusData[73];		DSV2ModbusControl2.B_UnitID[73];		DSV2ModbusControl2.wModbusRegisterAddr[73];		DSV2ModbusControl2.iRWRef[73];
+DSV2ModbusControl2.wModbusData[74];		DSV2ModbusControl2.B_UnitID[74];		DSV2ModbusControl2.wModbusRegisterAddr[74];		DSV2ModbusControl2.iRWRef[74];
+DSV2ModbusControl2.wModbusData[75];		DSV2ModbusControl2.B_UnitID[75];		DSV2ModbusControl2.wModbusRegisterAddr[75];		DSV2ModbusControl2.iRWRef[75];
+DSV2ModbusControl2.wModbusData[76];		DSV2ModbusControl2.B_UnitID[76];		DSV2ModbusControl2.wModbusRegisterAddr[76];		DSV2ModbusControl2.iRWRef[76];
+DSV2ModbusControl2.wModbusData[77];		DSV2ModbusControl2.B_UnitID[77];		DSV2ModbusControl2.wModbusRegisterAddr[77];		DSV2ModbusControl2.iRWRef[77];
+
+
+DSV2ModbusControl2.wModbusData[78];		DSV2ModbusControl2.B_UnitID[78];		DSV2ModbusControl2.wModbusRegisterAddr[78];		DSV2ModbusControl2.iRWRef[78];
+DSV2ModbusControl2.wModbusData[79];		DSV2ModbusControl2.B_UnitID[79];		DSV2ModbusControl2.wModbusRegisterAddr[79];		DSV2ModbusControl2.iRWRef[79];
+DSV2ModbusControl2.wModbusData[80];		DSV2ModbusControl2.B_UnitID[80];		DSV2ModbusControl2.wModbusRegisterAddr[80];		DSV2ModbusControl2.iRWRef[80];
+DSV2ModbusControl2.wModbusData[81];		DSV2ModbusControl2.B_UnitID[81];		DSV2ModbusControl2.wModbusRegisterAddr[81];		DSV2ModbusControl2.iRWRef[81];
+DSV2ModbusControl2.wModbusData[82];		DSV2ModbusControl2.B_UnitID[82];		DSV2ModbusControl2.wModbusRegisterAddr[82];		DSV2ModbusControl2.iRWRef[82];
+DSV2ModbusControl2.wModbusData[83];		DSV2ModbusControl2.B_UnitID[83];		DSV2ModbusControl2.wModbusRegisterAddr[83];		DSV2ModbusControl2.iRWRef[83];
+DSV2ModbusControl2.wModbusData[84];		DSV2ModbusControl2.B_UnitID[84];		DSV2ModbusControl2.wModbusRegisterAddr[84];		DSV2ModbusControl2.iRWRef[84];
+DSV2ModbusControl2.wModbusData[85];		DSV2ModbusControl2.B_UnitID[85];		DSV2ModbusControl2.wModbusRegisterAddr[85];		DSV2ModbusControl2.iRWRef[85];
+DSV2ModbusControl2.wModbusData[86];		DSV2ModbusControl2.B_UnitID[86];		DSV2ModbusControl2.wModbusRegisterAddr[86];		DSV2ModbusControl2.iRWRef[86];
+DSV2ModbusControl2.wModbusData[87];		DSV2ModbusControl2.B_UnitID[87];		DSV2ModbusControl2.wModbusRegisterAddr[87];		DSV2ModbusControl2.iRWRef[87];
+DSV2ModbusControl2.wModbusData[88];		DSV2ModbusControl2.B_UnitID[88];		DSV2ModbusControl2.wModbusRegisterAddr[88];		DSV2ModbusControl2.iRWRef[88];
+*)]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="ModbusControl_ST">
+      <LineId Id="24" Count="2" />
+      <LineId Id="430" Count="0" />
+      <LineId Id="432" Count="14" />
+      <LineId Id="431" Count="0" />
+      <LineId Id="304" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="391" Count="0" />
+      <LineId Id="332" Count="0" />
+      <LineId Id="334" Count="1" />
+      <LineId Id="339" Count="0" />
+      <LineId Id="344" Count="7" />
+      <LineId Id="57" Count="120" />
+      <LineId Id="279" Count="0" />
+      <LineId Id="303" Count="0" />
+    </LineIds>
+    <LineIds Name="ModbusControl_ST.Megasonic">
+      <LineId Id="103" Count="0" />
+      <LineId Id="141" Count="0" />
+      <LineId Id="143" Count="14" />
+      <LineId Id="142" Count="0" />
+      <LineId Id="127" Count="1" />
+      <LineId Id="130" Count="3" />
+      <LineId Id="135" Count="0" />
+      <LineId Id="134" Count="0" />
+      <LineId Id="140" Count="0" />
+      <LineId Id="136" Count="3" />
+      <LineId Id="129" Count="0" />
+      <LineId Id="114" Count="0" />
+      <LineId Id="2" Count="100" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="ModbusControl_ST.SCRHeater">
+      <LineId Id="132" Count="0" />
+      <LineId Id="134" Count="14" />
+      <LineId Id="133" Count="0" />
+      <LineId Id="28" Count="102" />
+      <LineId Id="1" Count="0" />
+      <LineId Id="131" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSV3_JRS_Alarm" Id="{50decb08-01f4-4e57-a2a9-cbb81052b075}">
+    <Declaration><![CDATA[TYPE DSV3_JRS_Alarm :
+STRUCT
+	b200_00_FreshHCTankCircPumpTORAlarm					: BOOL;
+	b200_01_CircTankCircPumpTORAlarm 						: BOOL;
+	b200_02_ThermalOilPumpTORAlarm							: BOOL;
+	b200_03_ThermalOilLowLevelAlarm 							: BOOL;
+	b200_04_ThermalOilTempHighAlarm 						: BOOL;
+	b200_05_ThermalOilTempNotReadyAlarm 					: BOOL;
+	b200_06_ThermalOilHeaterOnOffAlarm 						: BOOL;
+	b200_07_TopDistillatorTempHighAlarm					 	: BOOL;
+	b200_08_TopDistillatorTempNotReadyAlarm 					: BOOL;
+	b200_09_TopDistillatorHeaterOnOffAlarm 						: BOOL;
+	b200_10_RecycleStartStopPBAlarm 							: BOOL;
+	b200_11_EstopPBAlarm 									: BOOL;
+
+	b201_00_PhaseSeqenceRelayAlarm 						: BOOL;
+	b201_01_ThermalOilUpThermostatAlarm 						: BOOL;
+	b201_02_SludgeTankHighLevelAlarm 						: BOOL;
+	b201_03_FreshHCTankLowLevelAlarm 						: BOOL;
+	b201_04_VacuumNotAchieveAlarm 							: BOOL;
+	b201_05_IncomingCDALowPressureAlarm 					: BOOL;
+	b201_06_CoolingWaterLowFlowAlarm 						: BOOL;
+	b201_07_CircularTankLowLevelAlarm 						: BOOL;
+	b201_08_BottomDistillatorTempHighAlarm 					: BOOL;
+	b201_09_BottomDistillatorTempNotReadyAlarm				: BOOL;
+	b201_10_BottomDistillatorHeaterOnOffAlarm					: BOOL;
+	b201_11_ThermalOilDownThermostatAlarm 					: BOOL;
+	b201_12_ThermalOilMidThermostatAlarm 						: BOOL; (*New Added- Lee, 190109*)
+
+	b202_00_VaporGenerationTempHighAlarm 					: BOOL;
+	b202_01_VaporGenerationTempNotReadyAlarm 				: BOOL;
+	b202_02_VaporGenerationHeaterOnOffAlarm 					: BOOL;
+	b202_03_WasteCollectionTankLowLevelAlarm 				: BOOL;
+	b202_04_VaporGenerationTankLowLevelAlarm 				: BOOL;
+	b202_05_HCPurgingAV3_1Alarm 							: BOOL;
+	b202_06_MainMachineWasteTankLowLevelAlarm 				: BOOL;
+	b202_07_MainMachineWasteTankHighLevelAlarm 				: BOOL;
+	b202_08_ReservedAlarm 									: BOOL;
+	b202_09_ReservedAlarm 									: BOOL;
+	b202_10_ReservedAlarm 									: BOOL;
+	b202_11_ReservedAlarm 									: BOOL;
+
+	b203_00_ChillerSelectorOnOffAlarm 							: BOOL;
+	b203_01_ColdWaterTankLowLevelAlarm 						: BOOL;
+	b203_02_SludgeTankMissingAlarm 							: BOOL;
+	b203_03_ColdWaterTankTempHighAlarm 					: BOOL;
+	b203_04_ColdWaterTankTempNotReadyAlarm 				: BOOL;
+	b203_05_ColdWaterTankHeaterOnOffAlarm 					: BOOL;
+	b203_06_ChillerPumpTORAlarm 							: BOOL;
+	b203_07_ChillerFlowSwitchAlarm 							: BOOL;
+	b203_08_ChillerInterlockRelayAlarm 							: BOOL;
+	b203_09_ReservedAlarm 									: BOOL;
+	b203_10_ThermalOilChangeWarning 							: BOOL;
+	b203_11_ThermalOilChangeAlarm 							: BOOL;
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbRawRatioConversionUsPercent" Id="{29d34e88-76be-4b9c-804e-d32530e38668}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbRawRatioConversionUsPercent
+VAR_INPUT
+	iUsRawDataFeedback_Watt 					: INT;
+	iUsRawDataOutput_Percent 					: INT;
+	lrUsRawRatio_Percent 							: LREAL;
+	lrUsMaxData_Watt							: LREAL;
+	iUsRawDataOutput_PercentTolerance			: INT;
+	tUsRawDataFeedback_PercentCfmDelayOnTime 	: TIME;
+	bOutputUs									: BOOL;
+END_VAR
+
+VAR_OUTPUT
+	iUsFeedbackConvertedResult_Percent			: INT;
+	iUsOutputConvertedResult_Watt					: INT;
+	bUsFeedbackInRange							: BOOL;
+END_VAR
+
+VAR
+	lrUsRawDataFeedback_Watt					: LREAL;
+	lrUsRawDataOutput_Percent 					: LREAL;
+	lrUsFeedbackConvertedResult_Percent			: LREAL;
+	lrUsOutputConvertedResult_Watt				: LREAL;
+	iUsPercentToleranceP							: INT;
+	iUsPercentToleranceN							: INT;
+END_VAR
+
+VAR PERSISTENT
+	tDelayTimer 									: TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Converted the US feedback of UsRawDataFeedback_Watt into UsRawDataFeedback_percent *)
+lrUsRawDataFeedback_Watt := INT_TO_LREAL (iUsRawDataFeedback_Watt);
+
+IF lrUsRawDataFeedback_Watt <> 0 AND lrUsRawRatio_Percent <> 0 AND lrUsMaxData_Watt <> 0 THEN
+lrUsFeedbackConvertedResult_percent := (lrUsRawDataFeedback_Watt / lrUsMaxData_Watt) * lrUsRawRatio_Percent;
+END_IF
+
+IF lrUsRawDataFeedback_Watt = 0 OR lrUsRawRatio_Percent = 0 THEN
+lrUsFeedbackConvertedResult_percent := 0;
+END_IF
+
+iUsFeedbackConvertedResult_percent := LREAL_TO_INT(lrUsFeedbackConvertedResult_percent);
+
+(*Converted the US Output of UsRawDataOutput_Percent into UsRawDataOutput_Watt *)
+lrUsRawDataOutput_Percent := INT_TO_LREAL (iUsRawDataOutput_Percent);
+
+IF lrUsRawDataOutput_Percent <> 0 AND lrUsRawRatio_Percent <> 0 AND lrUsMaxData_Watt <> 0 THEN
+lrUsOutputConvertedResult_Watt := (lrUsRawDataOutput_Percent / lrUsRawRatio_Percent) * lrUsMaxData_Watt;
+END_IF
+
+IF lrUsRawDataOutput_Percent = 0 OR lrUsRawRatio_Percent = 0 THEN
+lrUsOutputConvertedResult_Watt := 0;
+END_IF
+
+iUsOutputConvertedResult_Watt := LREAL_TO_INT(lrUsOutputConvertedResult_Watt);
+
+(*Fix the tolerance to control US Feedack in Range *)
+IF bOutputUS THEN
+iUsPercentToleranceP := iUsRawDataOutput_Percent + iUsRawDataOutput_PercentTolerance;
+iUsPercentToleranceN := iUsRawDataOutput_Percent - iUsRawDataOutput_PercentTolerance;
+END_IF
+
+IF bOutputUS THEN
+
+	tDelayTimer(IN:= iUsFeedbackConvertedResult_Percent >= iUsPercentToleranceN AND iUsFeedbackConvertedResult_Percent <= iUsPercentToleranceP , PT:= tUsRawDataFeedback_PercentCfmDelayOnTime, Q=> , ET=> );
+
+	IF tDelayTimer.Q THEN
+	bUSfeedbackInRange := TRUE;
+	ELSE
+	bUSfeedbackInRange := FALSE;
+	END_IF
+
+ELSIF NOT bOutputUS THEN
+
+	bUSfeedbackInRange := FALSE;
+
+ELSE
+	bUSfeedbackInRange := FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbRawRatioConversionUsPercent">
+      <LineId Id="30" Count="48" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

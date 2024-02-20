@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <TextList Name="TextList_AccessLevel" Id="{5240aac9-530b-40f6-be71-0583f7df25f7}">
+    <XmlArchive>
+      <Data>
+        <o xml:space="preserve" t="TextListObject">
+          <v n="UniqueIdGenerator">"0"</v>
+          <l n="TextList" t="ArrayList" cet="TextListRow">
+            <o>
+              <v n="TextID">"0"</v>
+              <v n="TextDefault">"GUEST"</v>
+              <l n="LanguageTexts" t="ArrayList" cet="String">
+                <v></v>
+                <v></v>
+                <v></v>
+              </l>
+            </o>
+            <o>
+              <v n="TextID">"1"</v>
+              <v n="TextDefault">"OPERATOR"</v>
+              <l n="LanguageTexts" t="ArrayList" cet="String">
+                <v></v>
+                <v></v>
+                <v></v>
+              </l>
+            </o>
+            <o>
+              <v n="TextID">"2"</v>
+              <v n="TextDefault">"TECHNICIAN"</v>
+              <l n="LanguageTexts" t="ArrayList" cet="String">
+                <v></v>
+                <v></v>
+                <v></v>
+              </l>
+            </o>
+            <o>
+              <v n="TextID">"3"</v>
+              <v n="TextDefault">"ENGINEER"</v>
+              <l n="LanguageTexts" t="ArrayList" cet="String">
+                <v></v>
+                <v></v>
+                <v></v>
+              </l>
+            </o>
+            <o>
+              <v n="TextID">"4"</v>
+              <v n="TextDefault">"MANAGER"</v>
+              <l n="LanguageTexts" t="ArrayList" cet="String">
+                <v></v>
+                <v></v>
+                <v></v>
+              </l>
+            </o>
+            <o>
+              <v n="TextID">"5"</v>
+              <v n="TextDefault">"JKS"</v>
+              <l n="LanguageTexts" t="ArrayList" cet="String">
+                <v></v>
+                <v></v>
+                <v></v>
+              </l>
+            </o>
+            <o>
+              <v n="TextID">""</v>
+              <v n="TextDefault">""</v>
+              <l n="LanguageTexts" t="ArrayList" cet="String">
+                <v></v>
+                <v></v>
+                <v></v>
+              </l>
+            </o>
+          </l>
+          <l n="Languages" t="ArrayList" cet="String">
+            <v>German</v>
+            <v>France</v>
+            <v>English</v>
+          </l>
+          <v n="GuidInit">{ab68dfc8-529c-4d32-bcfc-d353dc11f9bf}</v>
+          <v n="GuidReInit">{80153df2-7a3c-4439-ae68-7937736a49f0}</v>
+          <v n="GuidExitX">{7930b9b9-f500-4536-b596-ccbf6cc1f186}</v>
+        </o>
+      </Data>
+      <TypeList>
+        <Type n="ArrayList">System.Collections.ArrayList</Type>
+        <Type n="Guid">System.Guid</Type>
+        <Type n="String">System.String</Type>
+        <Type n="TextListObject">{2bef0454-1bd3-412a-ac2c-af0f31dbc40f}</Type>
+        <Type n="TextListRow">{53da1be7-ad25-47c3-b0e8-e26286dad2e0}</Type>
+      </TypeList>
+    </XmlArchive>
+  </TextList>
+</TcPlcObject>

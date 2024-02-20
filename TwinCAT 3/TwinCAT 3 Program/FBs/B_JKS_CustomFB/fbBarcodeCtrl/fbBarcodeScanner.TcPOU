@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbBarcodeScanner" Id="{ba4dc4fe-6dbe-4947-b793-ca7627eb5037}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbBarcodeScanner
+VAR_INPUT
+
+	bON							: BOOL;
+
+END_VAR
+
+VAR_OUTPUT
+
+	sSendString						: STRING;
+	sReceivedString					: STRING;
+
+END_VAR
+
+VAR_IN_OUT
+
+	cbComBufferWrite 					: ComBuffer;
+	cbComBufferRead 				: ComBuffer;
+
+
+END_VAR
+
+VAR
+	bEnable  						: BOOL := TRUE;
+	bSendString						: BOOL;
+	fbTON_1s						: TON;
+	bON_Delay						: TON;
+	bOFF_Reflash					: TON;
+
+	R_TRIG_ON						: R_TRIG;
+	R_TRIG_OFF						: R_TRIG;
+
+
+	step								:BYTE;
+
+	fbReceiveString 					: ReceiveString;
+	fbReceiveString_Rst				: BOOL;
+	fbReceiveString_StrRcv			: BOOL;
+
+	fbSendString255					: SendString;
+	busy							: BOOL;
+	error							: comerror_t;
+
+	DelimiteChar						:STRING:='$R';
+	sReceivedStringRaw				: STRING;
+	iReceivedStingProcess			: INT;
+
+	sReceivedStringRaw2: STRING;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*bON is "ON" --> Trigger 1 time sending*)
+
+bON_Delay(IN:=bON, PT:=t#0.5s , Q=> , ET=> );
+
+R_TRIG_ON(CLK:=bON_Delay.Q AND bON,Q=>);
+IF R_TRIG_ON.Q THEN
+	step:= 10;
+END_IF
+
+(*bON is "OFF" --> Trigger always OFF reflash*)
+
+bOFF_Reflash(IN:=NOT bOFF_Reflash.Q AND NOT bON, PT:=t#1s , Q=> , ET=> );
+
+R_TRIG_OFF(CLK:=bOFF_Reflash.Q AND NOT bON,Q=>);
+IF R_TRIG_OFF.Q THEN
+	step:= 20;
+END_IF
+
+
+IF bEnable THEN
+	CASE step OF
+	0:;
+
+	10:
+	sSendString:=CONCAT('LON','$R'); (*ON*)
+	step:=0;
+
+	20:
+	sSendString:=CONCAT('LOFF','$R'); (*OFF*)
+	step:=0;
+
+END_CASE
+
+END_IF
+
+fbReceiveString(
+	Prefix:='' ,
+	Suffix:='$R',
+	Timeout:=t#1s ,
+	Reset:=fbReceiveString_Rst ,
+	ReceivedString:=sReceivedStringRaw ,
+	RXbuffer:=cbComBufferRead ,
+	StringReceived=>fbReceiveString_StrRcv ,
+	Busy=> ,
+	Error=> ,
+	RxTimeout=> );
+
+fbTON_1s(IN:=NOT  fbTON_1s.Q, PT:=t#1s , Q=> , ET=> );
+bSendString:=fbTON_1s.Q;
+
+IF bSendString AND NOT fbSendString255.Busy THEN
+fbSendString255(
+	SendString:=sSendString ,
+	TXbuffer:=cbComBufferWrite,
+	Busy=>busy ,
+	Error=> error);
+END_IF
+
+IF bON THEN
+(*this will find where is the $R located in the string*)
+iReceivedStingProcess:=FIND(sReceivedStringRaw, DelimiteChar);
+
+(*after you know the location, you can move the string to another string according to the size*)
+sReceivedStringRaw2:=LEFT(sReceivedStringRaw, iReceivedStingProcess-1);
+
+ELSE
+
+sReceivedString := '';
+sReceivedStringRaw := 'ERROR$R';
+
+END_IF
+
+IF sReceivedStringRaw2 <> 'ERROR' AND bON THEN
+
+sReceivedString := sReceivedStringRaw2;
+
+ELSE
+
+sReceivedString := '';
+
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbBarcodeScanner">
+      <LineId Id="49" Count="80" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,1951 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MAIN_Arm_Mapping" Id="{f0056e3e-927f-4971-ad64-483279056155}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN_Arm_Mapping
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Horizontal Home
+dwArm1HorzHomeStart.00:=bArm1HorzHomeStart_00;
+dwArm1HorzHomeStart.01:=bArm1HorzHomeStart_01;
+dwArm1HorzHomeStart.02:=bArm1HorzHomeStart_02;
+dwArm1HorzHomeStart.03:=bArm1HorzHomeStart_03;
+dwArm1HorzHomeStart.04:=bArm1HorzHomeStart_04;
+dwArm1HorzHomeStart.05:=bArm1HorzHomeStart_05;
+dwArm1HorzHomeStart.06:=bArm1HorzHomeStart_06;
+dwArm1HorzHomeStart.07:=bArm1HorzHomeStart_07;
+dwArm1HorzHomeStart.08:=bArm1HorzHomeStart_08;
+dwArm1HorzHomeStart.09:=bArm1HorzHomeStart_09;
+dwArm1HorzHomeStart.10:=bArm1HorzHomeStart_10;
+dwArm1HorzHomeStart.11:=bArm1HorzHomeStart_11;
+dwArm1HorzHomeStart.12:=bArm1HorzHomeStart_12;
+dwArm1HorzHomeStart.13:=bArm1HorzHomeStart_13;
+dwArm1HorzHomeStart.14:=bArm1HorzHomeStart_14;
+dwArm1HorzHomeStart.15:=bArm1HorzHomeStart_15;
+dwArm1HorzHomeStart.16:=bArm1HorzHomeStart_16;
+dwArm1HorzHomeStart.17:=bArm1HorzHomeStart_17;
+dwArm1HorzHomeStart.18:=bArm1HorzHomeStart_18;
+dwArm1HorzHomeStart.19:=bArm1HorzHomeStart_19;
+dwArm1HorzHomeStart.20:=bArm1HorzHomeStart_20;
+dwArm1HorzHomeStart.21:=bArm1HorzHomeStart_21;
+dwArm1HorzHomeStart.22:=bArm1HorzHomeStart_22;
+dwArm1HorzHomeStart.23:=bArm1HorzHomeStart_23;
+dwArm1HorzHomeStart.24:=bArm1HorzHomeStart_24;
+dwArm1HorzHomeStart.25:=bArm1HorzHomeStart_25;
+dwArm1HorzHomeStart.26:=bArm1HorzHomeStart_26;
+dwArm1HorzHomeStart.27:=bArm1HorzHomeStart_27;
+dwArm1HorzHomeStart.28:=bArm1HorzHomeStart_28;
+dwArm1HorzHomeStart.29:=bArm1HorzHomeStart_29;
+dwArm1HorzHomeStart.30:=bArm1HorzHomeStart_30;
+
+// Vertical Home
+dwArm1VertHomeStart.00:=bArm1VertHomeStart_00;
+dwArm1VertHomeStart.01:=bArm1VertHomeStart_01;
+dwArm1VertHomeStart.02:=bArm1VertHomeStart_02;
+dwArm1VertHomeStart.03:=bArm1VertHomeStart_03;
+dwArm1VertHomeStart.04:=bArm1VertHomeStart_04;
+dwArm1VertHomeStart.05:=bArm1VertHomeStart_05;
+dwArm1VertHomeStart.06:=bArm1VertHomeStart_06;
+dwArm1VertHomeStart.07:=bArm1VertHomeStart_07;
+dwArm1VertHomeStart.08:=bArm1VertHomeStart_08;
+dwArm1VertHomeStart.09:=bArm1VertHomeStart_09;
+dwArm1VertHomeStart.10:=bArm1VertHomeStart_10;
+dwArm1VertHomeStart.11:=bArm1VertHomeStart_11;
+dwArm1VertHomeStart.12:=bArm1VertHomeStart_12;
+dwArm1VertHomeStart.13:=bArm1VertHomeStart_13;
+dwArm1VertHomeStart.14:=bArm1VertHomeStart_14;
+dwArm1VertHomeStart.15:=bArm1VertHomeStart_15;
+dwArm1VertHomeStart.16:=bArm1VertHomeStart_16;
+dwArm1VertHomeStart.17:=bArm1VertHomeStart_17;
+dwArm1VertHomeStart.18:=bArm1VertHomeStart_18;
+dwArm1VertHomeStart.19:=bArm1VertHomeStart_19;
+dwArm1VertHomeStart.20:=bArm1VertHomeStart_20;
+dwArm1VertHomeStart.21:=bArm1VertHomeStart_21;
+dwArm1VertHomeStart.22:=bArm1VertHomeStart_22;
+dwArm1VertHomeStart.23:=bArm1VertHomeStart_23;
+dwArm1VertHomeStart.24:=bArm1VertHomeStart_24;
+dwArm1VertHomeStart.25:=bArm1VertHomeStart_25;
+dwArm1VertHomeStart.26:=bArm1VertHomeStart_26;
+dwArm1VertHomeStart.27:=bArm1VertHomeStart_27;
+dwArm1VertHomeStart.28:=bArm1VertHomeStart_28;
+dwArm1VertHomeStart.29:=bArm1VertHomeStart_29;
+dwArm1VertHomeStart.30:=bArm1VertHomeStart_30;
+
+// Slow pull Home
+dwSlowPull1LifterHomeStart.00:=bSlowPull1LifterHomeStart_00;
+dwSlowPull1LifterHomeStart.00:=bSlowPull1LifterHomeStart_00;
+dwSlowPull1LifterHomeStart.01:=bSlowPull1LifterHomeStart_01;
+dwSlowPull1LifterHomeStart.02:=bSlowPull1LifterHomeStart_02;
+dwSlowPull1LifterHomeStart.03:=bSlowPull1LifterHomeStart_03;
+dwSlowPull1LifterHomeStart.04:=bSlowPull1LifterHomeStart_04;
+dwSlowPull1LifterHomeStart.05:=bSlowPull1LifterHomeStart_05;
+dwSlowPull1LifterHomeStart.06:=bSlowPull1LifterHomeStart_06;
+dwSlowPull1LifterHomeStart.07:=bSlowPull1LifterHomeStart_07;
+dwSlowPull1LifterHomeStart.08:=bSlowPull1LifterHomeStart_08;
+dwSlowPull1LifterHomeStart.09:=bSlowPull1LifterHomeStart_09;
+dwSlowPull1LifterHomeStart.10:=bSlowPull1LifterHomeStart_10;
+dwSlowPull1LifterHomeStart.11:=bSlowPull1LifterHomeStart_11;
+dwSlowPull1LifterHomeStart.12:=bSlowPull1LifterHomeStart_12;
+dwSlowPull1LifterHomeStart.13:=bSlowPull1LifterHomeStart_13;
+dwSlowPull1LifterHomeStart.14:=bSlowPull1LifterHomeStart_14;
+dwSlowPull1LifterHomeStart.15:=bSlowPull1LifterHomeStart_15;
+dwSlowPull1LifterHomeStart.16:=bSlowPull1LifterHomeStart_16;
+dwSlowPull1LifterHomeStart.17:=bSlowPull1LifterHomeStart_17;
+dwSlowPull1LifterHomeStart.18:=bSlowPull1LifterHomeStart_18;
+dwSlowPull1LifterHomeStart.19:=bSlowPull1LifterHomeStart_19;
+dwSlowPull1LifterHomeStart.20:=bSlowPull1LifterHomeStart_20;
+dwSlowPull1LifterHomeStart.21:=bSlowPull1LifterHomeStart_21;
+dwSlowPull1LifterHomeStart.22:=bSlowPull1LifterHomeStart_22;
+dwSlowPull1LifterHomeStart.23:=bSlowPull1LifterHomeStart_23;
+dwSlowPull1LifterHomeStart.24:=bSlowPull1LifterHomeStart_24;
+dwSlowPull1LifterHomeStart.25:=bSlowPull1LifterHomeStart_25;
+dwSlowPull1LifterHomeStart.26:=bSlowPull1LifterHomeStart_26;
+dwSlowPull1LifterHomeStart.27:=bSlowPull1LifterHomeStart_27;
+dwSlowPull1LifterHomeStart.28:=bSlowPull1LifterHomeStart_28;
+dwSlowPull1LifterHomeStart.29:=bSlowPull1LifterHomeStart_29;
+dwSlowPull1LifterHomeStart.30:=bSlowPull1LifterHomeStart_30;
+
+//Slowpull Up
+dwSlowPull1LifterStn1Up.00:=bSlowPull1LifterStn1Up_00;
+dwSlowPull1LifterStn1Up.00:=bSlowPull1LifterStn1Up_00;
+dwSlowPull1LifterStn1Up.01:=bSlowPull1LifterStn1Up_01;
+dwSlowPull1LifterStn1Up.02:=bSlowPull1LifterStn1Up_02;
+dwSlowPull1LifterStn1Up.03:=bSlowPull1LifterStn1Up_03;
+dwSlowPull1LifterStn1Up.04:=bSlowPull1LifterStn1Up_04;
+dwSlowPull1LifterStn1Up.05:=bSlowPull1LifterStn1Up_05;
+dwSlowPull1LifterStn1Up.06:=bSlowPull1LifterStn1Up_06;
+dwSlowPull1LifterStn1Up.07:=bSlowPull1LifterStn1Up_07;
+dwSlowPull1LifterStn1Up.08:=bSlowPull1LifterStn1Up_08;
+dwSlowPull1LifterStn1Up.09:=bSlowPull1LifterStn1Up_09;
+dwSlowPull1LifterStn1Up.10:=bSlowPull1LifterStn1Up_10;
+dwSlowPull1LifterStn1Up.11:=bSlowPull1LifterStn1Up_11;
+dwSlowPull1LifterStn1Up.12:=bSlowPull1LifterStn1Up_12;
+dwSlowPull1LifterStn1Up.13:=bSlowPull1LifterStn1Up_13;
+dwSlowPull1LifterStn1Up.14:=bSlowPull1LifterStn1Up_14;
+dwSlowPull1LifterStn1Up.15:=bSlowPull1LifterStn1Up_15;
+dwSlowPull1LifterStn1Up.16:=bSlowPull1LifterStn1Up_16;
+dwSlowPull1LifterStn1Up.17:=bSlowPull1LifterStn1Up_17;
+dwSlowPull1LifterStn1Up.18:=bSlowPull1LifterStn1Up_18;
+dwSlowPull1LifterStn1Up.19:=bSlowPull1LifterStn1Up_19;
+dwSlowPull1LifterStn1Up.20:=bSlowPull1LifterStn1Up_20;
+dwSlowPull1LifterStn1Up.21:=bSlowPull1LifterStn1Up_21;
+dwSlowPull1LifterStn1Up.22:=bSlowPull1LifterStn1Up_22;
+dwSlowPull1LifterStn1Up.23:=bSlowPull1LifterStn1Up_23;
+dwSlowPull1LifterStn1Up.24:=bSlowPull1LifterStn1Up_24;
+dwSlowPull1LifterStn1Up.25:=bSlowPull1LifterStn1Up_25;
+dwSlowPull1LifterStn1Up.26:=bSlowPull1LifterStn1Up_26;
+dwSlowPull1LifterStn1Up.27:=bSlowPull1LifterStn1Up_27;
+dwSlowPull1LifterStn1Up.28:=bSlowPull1LifterStn1Up_28;
+dwSlowPull1LifterStn1Up.29:=bSlowPull1LifterStn1Up_29;
+dwSlowPull1LifterStn1Up.30:=bSlowPull1LifterStn1Up_30;
+
+dwSlowPull1LifterStn9Up.00:=bSlowPull1LifterStn9Up_00;
+dwSlowPull1LifterStn9Up.01:=bSlowPull1LifterStn9Up_01;
+dwSlowPull1LifterStn9Up.02:=bSlowPull1LifterStn9Up_02;
+dwSlowPull1LifterStn9Up.03:=bSlowPull1LifterStn9Up_03;
+dwSlowPull1LifterStn9Up.04:=bSlowPull1LifterStn9Up_04;
+dwSlowPull1LifterStn9Up.05:=bSlowPull1LifterStn9Up_05;
+dwSlowPull1LifterStn9Up.06:=bSlowPull1LifterStn9Up_06;
+dwSlowPull1LifterStn9Up.07:=bSlowPull1LifterStn9Up_07;
+dwSlowPull1LifterStn9Up.08:=bSlowPull1LifterStn9Up_08;
+dwSlowPull1LifterStn9Up.09:=bSlowPull1LifterStn9Up_09;
+dwSlowPull1LifterStn9Up.10:=bSlowPull1LifterStn9Up_10;
+dwSlowPull1LifterStn9Up.11:=bSlowPull1LifterStn9Up_11;
+dwSlowPull1LifterStn9Up.12:=bSlowPull1LifterStn9Up_12;
+dwSlowPull1LifterStn9Up.13:=bSlowPull1LifterStn9Up_13;
+dwSlowPull1LifterStn9Up.14:=bSlowPull1LifterStn9Up_14;
+dwSlowPull1LifterStn9Up.15:=bSlowPull1LifterStn9Up_15;
+dwSlowPull1LifterStn9Up.16:=bSlowPull1LifterStn9Up_16;
+dwSlowPull1LifterStn9Up.17:=bSlowPull1LifterStn9Up_17;
+dwSlowPull1LifterStn9Up.18:=bSlowPull1LifterStn9Up_18;
+dwSlowPull1LifterStn9Up.19:=bSlowPull1LifterStn9Up_19;
+dwSlowPull1LifterStn9Up.20:=bSlowPull1LifterStn9Up_20;
+dwSlowPull1LifterStn9Up.21:=bSlowPull1LifterStn9Up_21;
+dwSlowPull1LifterStn9Up.22:=bSlowPull1LifterStn9Up_22;
+dwSlowPull1LifterStn9Up.23:=bSlowPull1LifterStn9Up_23;
+dwSlowPull1LifterStn9Up.24:=bSlowPull1LifterStn9Up_24;
+dwSlowPull1LifterStn9Up.25:=bSlowPull1LifterStn9Up_25;
+dwSlowPull1LifterStn9Up.26:=bSlowPull1LifterStn9Up_26;
+dwSlowPull1LifterStn9Up.27:=bSlowPull1LifterStn9Up_27;
+dwSlowPull1LifterStn9Up.28:=bSlowPull1LifterStn9Up_28;
+dwSlowPull1LifterStn9Up.29:=bSlowPull1LifterStn9Up_29;
+dwSlowPull1LifterStn9Up.30:=bSlowPull1LifterStn9Up_30;
+
+//Slowpull Down
+dwSlowPull1LifterStn1Down.00:= bSlowPull1LifterStn1Down_00;
+dwSlowPull1LifterStn1Down.00:=bSlowPull1LifterStn1Down_00;
+dwSlowPull1LifterStn1Down.01:=bSlowPull1LifterStn1Down_01;
+dwSlowPull1LifterStn1Down.02:=bSlowPull1LifterStn1Down_02;
+dwSlowPull1LifterStn1Down.03:=bSlowPull1LifterStn1Down_03;
+dwSlowPull1LifterStn1Down.04:=bSlowPull1LifterStn1Down_04;
+dwSlowPull1LifterStn1Down.05:=bSlowPull1LifterStn1Down_05;
+dwSlowPull1LifterStn1Down.06:=bSlowPull1LifterStn1Down_06;
+dwSlowPull1LifterStn1Down.07:=bSlowPull1LifterStn1Down_07;
+dwSlowPull1LifterStn1Down.08:=bSlowPull1LifterStn1Down_08;
+dwSlowPull1LifterStn1Down.09:=bSlowPull1LifterStn1Down_09;
+dwSlowPull1LifterStn1Down.10:=bSlowPull1LifterStn1Down_10;
+dwSlowPull1LifterStn1Down.11:=bSlowPull1LifterStn1Down_11;
+dwSlowPull1LifterStn1Down.12:=bSlowPull1LifterStn1Down_12;
+dwSlowPull1LifterStn1Down.13:=bSlowPull1LifterStn1Down_13;
+dwSlowPull1LifterStn1Down.14:=bSlowPull1LifterStn1Down_14;
+dwSlowPull1LifterStn1Down.15:=bSlowPull1LifterStn1Down_15;
+dwSlowPull1LifterStn1Down.16:=bSlowPull1LifterStn1Down_16;
+dwSlowPull1LifterStn1Down.17:=bSlowPull1LifterStn1Down_17;
+dwSlowPull1LifterStn1Down.18:=bSlowPull1LifterStn1Down_18;
+dwSlowPull1LifterStn1Down.19:=bSlowPull1LifterStn1Down_19;
+dwSlowPull1LifterStn1Down.20:=bSlowPull1LifterStn1Down_20;
+dwSlowPull1LifterStn1Down.21:=bSlowPull1LifterStn1Down_21;
+dwSlowPull1LifterStn1Down.22:=bSlowPull1LifterStn1Down_22;
+dwSlowPull1LifterStn1Down.23:=bSlowPull1LifterStn1Down_23;
+dwSlowPull1LifterStn1Down.24:=bSlowPull1LifterStn1Down_24;
+dwSlowPull1LifterStn1Down.25:=bSlowPull1LifterStn1Down_25;
+dwSlowPull1LifterStn1Down.26:=bSlowPull1LifterStn1Down_26;
+dwSlowPull1LifterStn1Down.27:=bSlowPull1LifterStn1Down_27;
+dwSlowPull1LifterStn1Down.28:=bSlowPull1LifterStn1Down_28;
+dwSlowPull1LifterStn1Down.29:=bSlowPull1LifterStn1Down_29;
+dwSlowPull1LifterStn1Down.30:=bSlowPull1LifterStn1Down_30;
+
+dwSlowPull1LifterStn9Down.00:=bSlowPull1LifterStn9Down_00;
+dwSlowPull1LifterStn9Down.01:=bSlowPull1LifterStn9Down_01;
+dwSlowPull1LifterStn9Down.02:=bSlowPull1LifterStn9Down_02;
+dwSlowPull1LifterStn9Down.03:=bSlowPull1LifterStn9Down_03;
+dwSlowPull1LifterStn9Down.04:=bSlowPull1LifterStn9Down_04;
+dwSlowPull1LifterStn9Down.05:=bSlowPull1LifterStn9Down_05;
+dwSlowPull1LifterStn9Down.06:=bSlowPull1LifterStn9Down_06;
+dwSlowPull1LifterStn9Down.07:=bSlowPull1LifterStn9Down_07;
+dwSlowPull1LifterStn9Down.08:=bSlowPull1LifterStn9Down_08;
+dwSlowPull1LifterStn9Down.09:=bSlowPull1LifterStn9Down_09;
+dwSlowPull1LifterStn9Down.10:=bSlowPull1LifterStn9Down_10;
+dwSlowPull1LifterStn9Down.11:=bSlowPull1LifterStn9Down_11;
+dwSlowPull1LifterStn9Down.12:=bSlowPull1LifterStn9Down_12;
+dwSlowPull1LifterStn9Down.13:=bSlowPull1LifterStn9Down_13;
+dwSlowPull1LifterStn9Down.14:=bSlowPull1LifterStn9Down_14;
+dwSlowPull1LifterStn9Down.15:=bSlowPull1LifterStn9Down_15;
+dwSlowPull1LifterStn9Down.16:=bSlowPull1LifterStn9Down_16;
+dwSlowPull1LifterStn9Down.17:=bSlowPull1LifterStn9Down_17;
+dwSlowPull1LifterStn9Down.18:=bSlowPull1LifterStn9Down_18;
+dwSlowPull1LifterStn9Down.19:=bSlowPull1LifterStn9Down_19;
+dwSlowPull1LifterStn9Down.20:=bSlowPull1LifterStn9Down_20;
+dwSlowPull1LifterStn9Down.21:=bSlowPull1LifterStn9Down_21;
+dwSlowPull1LifterStn9Down.22:=bSlowPull1LifterStn9Down_22;
+dwSlowPull1LifterStn9Down.23:=bSlowPull1LifterStn9Down_23;
+dwSlowPull1LifterStn9Down.24:=bSlowPull1LifterStn9Down_24;
+dwSlowPull1LifterStn9Down.25:=bSlowPull1LifterStn9Down_25;
+dwSlowPull1LifterStn9Down.26:=bSlowPull1LifterStn9Down_26;
+dwSlowPull1LifterStn9Down.27:=bSlowPull1LifterStn9Down_27;
+dwSlowPull1LifterStn9Down.28:=bSlowPull1LifterStn9Down_28;
+dwSlowPull1LifterStn9Down.29:=bSlowPull1LifterStn9Down_29;
+dwSlowPull1LifterStn9Down.30:=bSlowPull1LifterStn9Down_30;
+
+//LD Up
+dwArm1Ld1Up.00:=bArm1VertLD1Up_00;
+dwArm1Ld1Up.01:=bArm1VertLD1Up_01;
+dwArm1Ld1Up.02:=bArm1VertLD1Up_02;
+dwArm1Ld1Up.03:=bArm1VertLD1Up_03;
+dwArm1Ld1Up.04:=bArm1VertLD1Up_04;
+dwArm1Ld1Up.05:=bArm1VertLD1Up_05;
+dwArm1Ld1Up.06:=bArm1VertLD1Up_06;
+dwArm1Ld1Up.07:=bArm1VertLD1Up_07;
+dwArm1Ld1Up.08:=bArm1VertLD1Up_08;
+dwArm1Ld1Up.09:=bArm1VertLD1Up_09;
+dwArm1Ld1Up.10:=bArm1VertLD1Up_10;
+dwArm1Ld1Up.11:=bArm1VertLD1Up_11;
+dwArm1Ld1Up.12:=bArm1VertLD1Up_12;
+dwArm1Ld1Up.13:=bArm1VertLD1Up_13;
+dwArm1Ld1Up.14:=bArm1VertLD1Up_14;
+dwArm1Ld1Up.15:=bArm1VertLD1Up_15;
+dwArm1Ld1Up.16:=bArm1VertLD1Up_16;
+dwArm1Ld1Up.17:=bArm1VertLD1Up_17;
+dwArm1Ld1Up.18:=bArm1VertLD1Up_18;
+dwArm1Ld1Up.19:=bArm1VertLD1Up_19;
+dwArm1Ld1Up.20:=bArm1VertLD1Up_20;
+dwArm1Ld1Up.21:=bArm1VertLD1Up_21;
+dwArm1Ld1Up.22:=bArm1VertLD1Up_22;
+dwArm1Ld1Up.23:=bArm1VertLD1Up_23;
+dwArm1Ld1Up.24:=bArm1VertLD1Up_24;
+dwArm1Ld1Up.25:=bArm1VertLD1Up_25;
+dwArm1Ld1Up.26:=bArm1VertLD1Up_26;
+dwArm1Ld1Up.27:=bArm1VertLD1Up_27;
+dwArm1Ld1Up.28:=bArm1VertLD1Up_28;
+dwArm1Ld1Up.29:=bArm1VertLD1Up_29;
+dwArm1Ld1Up.30:=bArm1VertLD1Up_30;
+dwArm1Ld1Up.31:=bArm1VertLD1Up_31;
+
+//Ld Hook
+dwArm1Ld1Hook.00:=bArm1HorzLD1Hook_00;
+dwArm1Ld1Hook.01:=bArm1HorzLD1Hook_01;
+dwArm1Ld1Hook.02:=bArm1HorzLD1Hook_02;
+dwArm1Ld1Hook.03:=bArm1HorzLD1Hook_03;
+dwArm1Ld1Hook.04:=bArm1HorzLD1Hook_04;
+dwArm1Ld1Hook.05:=bArm1HorzLD1Hook_05;
+dwArm1Ld1Hook.06:=bArm1HorzLD1Hook_06;
+dwArm1Ld1Hook.07:=bArm1HorzLD1Hook_07;
+dwArm1Ld1Hook.08:=bArm1HorzLD1Hook_08;
+dwArm1Ld1Hook.09:=bArm1HorzLD1Hook_09;
+dwArm1Ld1Hook.10:=bArm1HorzLD1Hook_10;
+dwArm1Ld1Hook.11:=bArm1HorzLD1Hook_11;
+dwArm1Ld1Hook.12:=bArm1HorzLD1Hook_12;
+dwArm1Ld1Hook.13:=bArm1HorzLD1Hook_13;
+dwArm1Ld1Hook.14:=bArm1HorzLD1Hook_14;
+dwArm1Ld1Hook.15:=bArm1HorzLD1Hook_15;
+dwArm1Ld1Hook.16:=bArm1HorzLD1Hook_16;
+dwArm1Ld1Hook.17:=bArm1HorzLD1Hook_17;
+dwArm1Ld1Hook.18:=bArm1HorzLD1Hook_18;
+dwArm1Ld1Hook.19:=bArm1HorzLD1Hook_19;
+dwArm1Ld1Hook.20:=bArm1HorzLD1Hook_20;
+dwArm1Ld1Hook.21:=bArm1HorzLD1Hook_21;
+dwArm1Ld1Hook.22:=bArm1HorzLD1Hook_22;
+dwArm1Ld1Hook.23:=bArm1HorzLD1Hook_23;
+dwArm1Ld1Hook.24:=bArm1HorzLD1Hook_24;
+dwArm1Ld1Hook.25:=bArm1HorzLD1Hook_25;
+dwArm1Ld1Hook.26:=bArm1HorzLD1Hook_26;
+dwArm1Ld1Hook.27:=bArm1HorzLD1Hook_27;
+dwArm1Ld1Hook.28:=bArm1HorzLD1Hook_28;
+dwArm1Ld1Hook.29:=bArm1HorzLD1Hook_29;
+dwArm1Ld1Hook.30:=bArm1HorzLD1Hook_30;
+
+//ULD Hook
+dwArm1Uld1Hook.00:=bArm1HorzULD1Hook_00;
+dwArm1Uld1Hook.01:=bArm1HorzULD1Hook_01;
+dwArm1Uld1Hook.02:=bArm1HorzULD1Hook_02;
+dwArm1Uld1Hook.03:=bArm1HorzULD1Hook_03;
+dwArm1Uld1Hook.04:=bArm1HorzULD1Hook_04;
+dwArm1Uld1Hook.05:=bArm1HorzULD1Hook_05;
+dwArm1Uld1Hook.06:=bArm1HorzULD1Hook_06;
+dwArm1Uld1Hook.07:=bArm1HorzULD1Hook_07;
+dwArm1Uld1Hook.08:=bArm1HorzULD1Hook_08;
+dwArm1Uld1Hook.09:=bArm1HorzULD1Hook_09;
+dwArm1Uld1Hook.10:=bArm1HorzULD1Hook_10;
+dwArm1Uld1Hook.11:=bArm1HorzULD1Hook_11;
+dwArm1Uld1Hook.12:=bArm1HorzULD1Hook_12;
+dwArm1Uld1Hook.13:=bArm1HorzULD1Hook_13;
+dwArm1Uld1Hook.14:=bArm1HorzULD1Hook_14;
+dwArm1Uld1Hook.15:=bArm1HorzULD1Hook_15;
+dwArm1Uld1Hook.16:=bArm1HorzULD1Hook_16;
+dwArm1Uld1Hook.17:=bArm1HorzULD1Hook_17;
+dwArm1Uld1Hook.18:=bArm1HorzULD1Hook_18;
+dwArm1Uld1Hook.19:=bArm1HorzULD1Hook_19;
+dwArm1Uld1Hook.20:=bArm1HorzULD1Hook_20;
+dwArm1Uld1Hook.21:=bArm1HorzULD1Hook_21;
+dwArm1Uld1Hook.22:=bArm1HorzULD1Hook_22;
+dwArm1Uld1Hook.23:=bArm1HorzULD1Hook_23;
+dwArm1Uld1Hook.24:=bArm1HorzULD1Hook_24;
+dwArm1Uld1Hook.25:=bArm1HorzULD1Hook_25;
+dwArm1Uld1Hook.26:=bArm1HorzULD1Hook_26;
+dwArm1Uld1Hook.27:=bArm1HorzULD1Hook_27;
+dwArm1Uld1Hook.28:=bArm1HorzULD1Hook_28;
+dwArm1Uld1Hook.29:=bArm1HorzULD1Hook_29;
+dwArm1Uld1Hook.30:=bArm1HorzULD1Hook_30;
+
+
+//Stn 1 Hook
+dwArm1HorzStn1Hook.00:=bArm1HorzStn1Hook_00;
+dwArm1HorzStn1Hook.01:=bArm1HorzStn1Hook_01;
+dwArm1HorzStn1Hook.02:=bArm1HorzStn1Hook_02;
+dwArm1HorzStn1Hook.03:=bArm1HorzStn1Hook_03;
+dwArm1HorzStn1Hook.04:=bArm1HorzStn1Hook_04;
+dwArm1HorzStn1Hook.05:=bArm1HorzStn1Hook_05;
+dwArm1HorzStn1Hook.06:=bArm1HorzStn1Hook_06;
+dwArm1HorzStn1Hook.07:=bArm1HorzStn1Hook_07;
+dwArm1HorzStn1Hook.08:=bArm1HorzStn1Hook_08;
+dwArm1HorzStn1Hook.09:=bArm1HorzStn1Hook_09;
+dwArm1HorzStn1Hook.10:=bArm1HorzStn1Hook_10;
+dwArm1HorzStn1Hook.11:=bArm1HorzStn1Hook_11;
+dwArm1HorzStn1Hook.12:=bArm1HorzStn1Hook_12;
+dwArm1HorzStn1Hook.13:=bArm1HorzStn1Hook_13;
+dwArm1HorzStn1Hook.14:=bArm1HorzStn1Hook_14;
+dwArm1HorzStn1Hook.15:=bArm1HorzStn1Hook_15;
+dwArm1HorzStn1Hook.16:=bArm1HorzStn1Hook_16;
+dwArm1HorzStn1Hook.17:=bArm1HorzStn1Hook_17;
+dwArm1HorzStn1Hook.18:=bArm1HorzStn1Hook_18;
+dwArm1HorzStn1Hook.19:=bArm1HorzStn1Hook_19;
+dwArm1HorzStn1Hook.20:=bArm1HorzStn1Hook_20;
+dwArm1HorzStn1Hook.21:=bArm1HorzStn1Hook_21;
+dwArm1HorzStn1Hook.22:=bArm1HorzStn1Hook_22;
+dwArm1HorzStn1Hook.23:=bArm1HorzStn1Hook_23;
+dwArm1HorzStn1Hook.24:=bArm1HorzStn1Hook_24;
+dwArm1HorzStn1Hook.25:=bArm1HorzStn1Hook_25;
+dwArm1HorzStn1Hook.26:=bArm1HorzStn1Hook_26;
+dwArm1HorzStn1Hook.27:=bArm1HorzStn1Hook_27;
+dwArm1HorzStn1Hook.28:=bArm1HorzStn1Hook_28;
+dwArm1HorzStn1Hook.29:=bArm1HorzStn1Hook_29;
+dwArm1HorzStn1Hook.30:=bArm1HorzStn1Hook_30;
+
+//Stn 2 Hook
+dwArm1HorzStn2Hook.00:=bArm1HorzStn2Hook_00;
+dwArm1HorzStn2Hook.01:=bArm1HorzStn2Hook_01;
+dwArm1HorzStn2Hook.02:=bArm1HorzStn2Hook_02;
+dwArm1HorzStn2Hook.03:=bArm1HorzStn2Hook_03;
+dwArm1HorzStn2Hook.04:=bArm1HorzStn2Hook_04;
+dwArm1HorzStn2Hook.05:=bArm1HorzStn2Hook_05;
+dwArm1HorzStn2Hook.06:=bArm1HorzStn2Hook_06;
+dwArm1HorzStn2Hook.07:=bArm1HorzStn2Hook_07;
+dwArm1HorzStn2Hook.08:=bArm1HorzStn2Hook_08;
+dwArm1HorzStn2Hook.09:=bArm1HorzStn2Hook_09;
+dwArm1HorzStn2Hook.10:=bArm1HorzStn2Hook_10;
+dwArm1HorzStn2Hook.11:=bArm1HorzStn2Hook_11;
+dwArm1HorzStn2Hook.12:=bArm1HorzStn2Hook_12;
+dwArm1HorzStn2Hook.13:=bArm1HorzStn2Hook_13;
+dwArm1HorzStn2Hook.14:=bArm1HorzStn2Hook_14;
+dwArm1HorzStn2Hook.15:=bArm1HorzStn2Hook_15;
+dwArm1HorzStn2Hook.16:=bArm1HorzStn2Hook_16;
+dwArm1HorzStn2Hook.17:=bArm1HorzStn2Hook_17;
+dwArm1HorzStn2Hook.18:=bArm1HorzStn2Hook_18;
+dwArm1HorzStn2Hook.19:=bArm1HorzStn2Hook_19;
+dwArm1HorzStn2Hook.20:=bArm1HorzStn2Hook_20;
+dwArm1HorzStn2Hook.21:=bArm1HorzStn2Hook_21;
+dwArm1HorzStn2Hook.22:=bArm1HorzStn2Hook_22;
+dwArm1HorzStn2Hook.23:=bArm1HorzStn2Hook_23;
+dwArm1HorzStn2Hook.24:=bArm1HorzStn2Hook_24;
+dwArm1HorzStn2Hook.25:=bArm1HorzStn2Hook_25;
+dwArm1HorzStn2Hook.26:=bArm1HorzStn2Hook_26;
+dwArm1HorzStn2Hook.27:=bArm1HorzStn2Hook_27;
+dwArm1HorzStn2Hook.28:=bArm1HorzStn2Hook_28;
+dwArm1HorzStn2Hook.29:=bArm1HorzStn2Hook_29;
+dwArm1HorzStn2Hook.30:=bArm1HorzStn2Hook_30;
+
+//Stn 3 Hook
+dwArm1HorzStn3Hook.00:=bArm1HorzStn3Hook_00;
+dwArm1HorzStn3Hook.01:=bArm1HorzStn3Hook_01;
+dwArm1HorzStn3Hook.02:=bArm1HorzStn3Hook_02;
+dwArm1HorzStn3Hook.03:=bArm1HorzStn3Hook_03;
+dwArm1HorzStn3Hook.04:=bArm1HorzStn3Hook_04;
+dwArm1HorzStn3Hook.05:=bArm1HorzStn3Hook_05;
+dwArm1HorzStn3Hook.06:=bArm1HorzStn3Hook_06;
+dwArm1HorzStn3Hook.07:=bArm1HorzStn3Hook_07;
+dwArm1HorzStn3Hook.08:=bArm1HorzStn3Hook_08;
+dwArm1HorzStn3Hook.09:=bArm1HorzStn3Hook_09;
+dwArm1HorzStn3Hook.10:=bArm1HorzStn3Hook_10;
+dwArm1HorzStn3Hook.11:=bArm1HorzStn3Hook_11;
+dwArm1HorzStn3Hook.12:=bArm1HorzStn3Hook_12;
+dwArm1HorzStn3Hook.13:=bArm1HorzStn3Hook_13;
+dwArm1HorzStn3Hook.14:=bArm1HorzStn3Hook_14;
+dwArm1HorzStn3Hook.15:=bArm1HorzStn3Hook_15;
+dwArm1HorzStn3Hook.16:=bArm1HorzStn3Hook_16;
+dwArm1HorzStn3Hook.17:=bArm1HorzStn3Hook_17;
+dwArm1HorzStn3Hook.18:=bArm1HorzStn3Hook_18;
+dwArm1HorzStn3Hook.19:=bArm1HorzStn3Hook_19;
+dwArm1HorzStn3Hook.20:=bArm1HorzStn3Hook_20;
+dwArm1HorzStn3Hook.21:=bArm1HorzStn3Hook_21;
+dwArm1HorzStn3Hook.22:=bArm1HorzStn3Hook_22;
+dwArm1HorzStn3Hook.23:=bArm1HorzStn3Hook_23;
+dwArm1HorzStn3Hook.24:=bArm1HorzStn3Hook_24;
+dwArm1HorzStn3Hook.25:=bArm1HorzStn3Hook_25;
+dwArm1HorzStn3Hook.26:=bArm1HorzStn3Hook_26;
+dwArm1HorzStn3Hook.27:=bArm1HorzStn3Hook_27;
+dwArm1HorzStn3Hook.28:=bArm1HorzStn3Hook_28;
+dwArm1HorzStn3Hook.29:=bArm1HorzStn3Hook_29;
+dwArm1HorzStn3Hook.30:=bArm1HorzStn3Hook_30;
+
+
+//Stn 4 Hook
+dwArm1HorzStn4Hook.00:=bArm1HorzStn4Hook_00;
+dwArm1HorzStn4Hook.01:=bArm1HorzStn4Hook_01;
+dwArm1HorzStn4Hook.02:=bArm1HorzStn4Hook_02;
+dwArm1HorzStn4Hook.03:=bArm1HorzStn4Hook_03;
+dwArm1HorzStn4Hook.04:=bArm1HorzStn4Hook_04;
+dwArm1HorzStn4Hook.05:=bArm1HorzStn4Hook_05;
+dwArm1HorzStn4Hook.06:=bArm1HorzStn4Hook_06;
+dwArm1HorzStn4Hook.07:=bArm1HorzStn4Hook_07;
+dwArm1HorzStn4Hook.08:=bArm1HorzStn4Hook_08;
+dwArm1HorzStn4Hook.09:=bArm1HorzStn4Hook_09;
+dwArm1HorzStn4Hook.10:=bArm1HorzStn4Hook_10;
+dwArm1HorzStn4Hook.11:=bArm1HorzStn4Hook_11;
+dwArm1HorzStn4Hook.12:=bArm1HorzStn4Hook_12;
+dwArm1HorzStn4Hook.13:=bArm1HorzStn4Hook_13;
+dwArm1HorzStn4Hook.14:=bArm1HorzStn4Hook_14;
+dwArm1HorzStn4Hook.15:=bArm1HorzStn4Hook_15;
+dwArm1HorzStn4Hook.16:=bArm1HorzStn4Hook_16;
+dwArm1HorzStn4Hook.17:=bArm1HorzStn4Hook_17;
+dwArm1HorzStn4Hook.18:=bArm1HorzStn4Hook_18;
+dwArm1HorzStn4Hook.19:=bArm1HorzStn4Hook_19;
+dwArm1HorzStn4Hook.20:=bArm1HorzStn4Hook_20;
+dwArm1HorzStn4Hook.21:=bArm1HorzStn4Hook_21;
+dwArm1HorzStn4Hook.22:=bArm1HorzStn4Hook_22;
+dwArm1HorzStn4Hook.23:=bArm1HorzStn4Hook_23;
+dwArm1HorzStn4Hook.24:=bArm1HorzStn4Hook_24;
+dwArm1HorzStn4Hook.25:=bArm1HorzStn4Hook_25;
+dwArm1HorzStn4Hook.26:=bArm1HorzStn4Hook_26;
+dwArm1HorzStn4Hook.27:=bArm1HorzStn4Hook_27;
+dwArm1HorzStn4Hook.28:=bArm1HorzStn4Hook_28;
+dwArm1HorzStn4Hook.29:=bArm1HorzStn4Hook_29;
+dwArm1HorzStn4Hook.30:=bArm1HorzStn4Hook_30;
+
+
+//Stn 5 Hook
+dwArm1HorzStn5Hook.00:=bArm1HorzStn5Hook_00;
+dwArm1HorzStn5Hook.01:=bArm1HorzStn5Hook_01;
+dwArm1HorzStn5Hook.02:=bArm1HorzStn5Hook_02;
+dwArm1HorzStn5Hook.03:=bArm1HorzStn5Hook_03;
+dwArm1HorzStn5Hook.04:=bArm1HorzStn5Hook_04;
+dwArm1HorzStn5Hook.05:=bArm1HorzStn5Hook_05;
+dwArm1HorzStn5Hook.06:=bArm1HorzStn5Hook_06;
+dwArm1HorzStn5Hook.07:=bArm1HorzStn5Hook_07;
+dwArm1HorzStn5Hook.08:=bArm1HorzStn5Hook_08;
+dwArm1HorzStn5Hook.09:=bArm1HorzStn5Hook_09;
+dwArm1HorzStn5Hook.10:=bArm1HorzStn5Hook_10;
+dwArm1HorzStn5Hook.11:=bArm1HorzStn5Hook_11;
+dwArm1HorzStn5Hook.12:=bArm1HorzStn5Hook_12;
+dwArm1HorzStn5Hook.13:=bArm1HorzStn5Hook_13;
+dwArm1HorzStn5Hook.14:=bArm1HorzStn5Hook_14;
+dwArm1HorzStn5Hook.15:=bArm1HorzStn5Hook_15;
+dwArm1HorzStn5Hook.16:=bArm1HorzStn5Hook_16;
+dwArm1HorzStn5Hook.17:=bArm1HorzStn5Hook_17;
+dwArm1HorzStn5Hook.18:=bArm1HorzStn5Hook_18;
+dwArm1HorzStn5Hook.19:=bArm1HorzStn5Hook_19;
+dwArm1HorzStn5Hook.20:=bArm1HorzStn5Hook_20;
+dwArm1HorzStn5Hook.21:=bArm1HorzStn5Hook_21;
+dwArm1HorzStn5Hook.22:=bArm1HorzStn5Hook_22;
+dwArm1HorzStn5Hook.23:=bArm1HorzStn5Hook_23;
+dwArm1HorzStn5Hook.24:=bArm1HorzStn5Hook_24;
+dwArm1HorzStn5Hook.25:=bArm1HorzStn5Hook_25;
+dwArm1HorzStn5Hook.26:=bArm1HorzStn5Hook_26;
+dwArm1HorzStn5Hook.27:=bArm1HorzStn5Hook_27;
+dwArm1HorzStn5Hook.28:=bArm1HorzStn5Hook_28;
+dwArm1HorzStn5Hook.29:=bArm1HorzStn5Hook_29;
+dwArm1HorzStn5Hook.30:=bArm1HorzStn5Hook_30;
+
+
+//Stn 6 Hook
+dwArm1HorzStn6Hook.00:=bArm1HorzStn6Hook_00;
+dwArm1HorzStn6Hook.01:=bArm1HorzStn6Hook_01;
+dwArm1HorzStn6Hook.02:=bArm1HorzStn6Hook_02;
+dwArm1HorzStn6Hook.03:=bArm1HorzStn6Hook_03;
+dwArm1HorzStn6Hook.04:=bArm1HorzStn6Hook_04;
+dwArm1HorzStn6Hook.05:=bArm1HorzStn6Hook_05;
+dwArm1HorzStn6Hook.06:=bArm1HorzStn6Hook_06;
+dwArm1HorzStn6Hook.07:=bArm1HorzStn6Hook_07;
+dwArm1HorzStn6Hook.08:=bArm1HorzStn6Hook_08;
+dwArm1HorzStn6Hook.09:=bArm1HorzStn6Hook_09;
+dwArm1HorzStn6Hook.10:=bArm1HorzStn6Hook_10;
+dwArm1HorzStn6Hook.11:=bArm1HorzStn6Hook_11;
+dwArm1HorzStn6Hook.12:=bArm1HorzStn6Hook_12;
+dwArm1HorzStn6Hook.13:=bArm1HorzStn6Hook_13;
+dwArm1HorzStn6Hook.14:=bArm1HorzStn6Hook_14;
+dwArm1HorzStn6Hook.15:=bArm1HorzStn6Hook_15;
+dwArm1HorzStn6Hook.16:=bArm1HorzStn6Hook_16;
+dwArm1HorzStn6Hook.17:=bArm1HorzStn6Hook_17;
+dwArm1HorzStn6Hook.18:=bArm1HorzStn6Hook_18;
+dwArm1HorzStn6Hook.19:=bArm1HorzStn6Hook_19;
+dwArm1HorzStn6Hook.20:=bArm1HorzStn6Hook_20;
+dwArm1HorzStn6Hook.21:=bArm1HorzStn6Hook_21;
+dwArm1HorzStn6Hook.22:=bArm1HorzStn6Hook_22;
+dwArm1HorzStn6Hook.23:=bArm1HorzStn6Hook_23;
+dwArm1HorzStn6Hook.24:=bArm1HorzStn6Hook_24;
+dwArm1HorzStn6Hook.25:=bArm1HorzStn6Hook_25;
+dwArm1HorzStn6Hook.26:=bArm1HorzStn6Hook_26;
+dwArm1HorzStn6Hook.27:=bArm1HorzStn6Hook_27;
+dwArm1HorzStn6Hook.28:=bArm1HorzStn6Hook_28;
+dwArm1HorzStn6Hook.29:=bArm1HorzStn6Hook_29;
+dwArm1HorzStn6Hook.30:=bArm1HorzStn6Hook_30;
+
+
+//Stn 7 Hook
+dwArm1HorzStn7Hook.00:=bArm1HorzStn7Hook_00;
+dwArm1HorzStn7Hook.01:=bArm1HorzStn7Hook_01;
+dwArm1HorzStn7Hook.02:=bArm1HorzStn7Hook_02;
+dwArm1HorzStn7Hook.03:=bArm1HorzStn7Hook_03;
+dwArm1HorzStn7Hook.04:=bArm1HorzStn7Hook_04;
+dwArm1HorzStn7Hook.05:=bArm1HorzStn7Hook_05;
+dwArm1HorzStn7Hook.06:=bArm1HorzStn7Hook_06;
+dwArm1HorzStn7Hook.07:=bArm1HorzStn7Hook_07;
+dwArm1HorzStn7Hook.08:=bArm1HorzStn7Hook_08;
+dwArm1HorzStn7Hook.09:=bArm1HorzStn7Hook_09;
+dwArm1HorzStn7Hook.10:=bArm1HorzStn7Hook_10;
+dwArm1HorzStn7Hook.11:=bArm1HorzStn7Hook_11;
+dwArm1HorzStn7Hook.12:=bArm1HorzStn7Hook_12;
+dwArm1HorzStn7Hook.13:=bArm1HorzStn7Hook_13;
+dwArm1HorzStn7Hook.14:=bArm1HorzStn7Hook_14;
+dwArm1HorzStn7Hook.15:=bArm1HorzStn7Hook_15;
+dwArm1HorzStn7Hook.16:=bArm1HorzStn7Hook_16;
+dwArm1HorzStn7Hook.17:=bArm1HorzStn7Hook_17;
+dwArm1HorzStn7Hook.18:=bArm1HorzStn7Hook_18;
+dwArm1HorzStn7Hook.19:=bArm1HorzStn7Hook_19;
+dwArm1HorzStn7Hook.20:=bArm1HorzStn7Hook_20;
+dwArm1HorzStn7Hook.21:=bArm1HorzStn7Hook_21;
+dwArm1HorzStn7Hook.22:=bArm1HorzStn7Hook_22;
+dwArm1HorzStn7Hook.23:=bArm1HorzStn7Hook_23;
+dwArm1HorzStn7Hook.24:=bArm1HorzStn7Hook_24;
+dwArm1HorzStn7Hook.25:=bArm1HorzStn7Hook_25;
+dwArm1HorzStn7Hook.26:=bArm1HorzStn7Hook_26;
+dwArm1HorzStn7Hook.27:=bArm1HorzStn7Hook_27;
+dwArm1HorzStn7Hook.28:=bArm1HorzStn7Hook_28;
+dwArm1HorzStn7Hook.29:=bArm1HorzStn7Hook_29;
+dwArm1HorzStn7Hook.30:=bArm1HorzStn7Hook_30;
+
+
+//Stn 8 Hook
+dwArm1HorzStn8Hook.00:=bArm1HorzStn8Hook_00;
+dwArm1HorzStn8Hook.01:=bArm1HorzStn8Hook_01;
+dwArm1HorzStn8Hook.02:=bArm1HorzStn8Hook_02;
+dwArm1HorzStn8Hook.03:=bArm1HorzStn8Hook_03;
+dwArm1HorzStn8Hook.04:=bArm1HorzStn8Hook_04;
+dwArm1HorzStn8Hook.05:=bArm1HorzStn8Hook_05;
+dwArm1HorzStn8Hook.06:=bArm1HorzStn8Hook_06;
+dwArm1HorzStn8Hook.07:=bArm1HorzStn8Hook_07;
+dwArm1HorzStn8Hook.08:=bArm1HorzStn8Hook_08;
+dwArm1HorzStn8Hook.09:=bArm1HorzStn8Hook_09;
+dwArm1HorzStn8Hook.10:=bArm1HorzStn8Hook_10;
+dwArm1HorzStn8Hook.11:=bArm1HorzStn8Hook_11;
+dwArm1HorzStn8Hook.12:=bArm1HorzStn8Hook_12;
+dwArm1HorzStn8Hook.13:=bArm1HorzStn8Hook_13;
+dwArm1HorzStn8Hook.14:=bArm1HorzStn8Hook_14;
+dwArm1HorzStn8Hook.15:=bArm1HorzStn8Hook_15;
+dwArm1HorzStn8Hook.16:=bArm1HorzStn8Hook_16;
+dwArm1HorzStn8Hook.17:=bArm1HorzStn8Hook_17;
+dwArm1HorzStn8Hook.18:=bArm1HorzStn8Hook_18;
+dwArm1HorzStn8Hook.19:=bArm1HorzStn8Hook_19;
+dwArm1HorzStn8Hook.20:=bArm1HorzStn8Hook_20;
+dwArm1HorzStn8Hook.21:=bArm1HorzStn8Hook_21;
+dwArm1HorzStn8Hook.22:=bArm1HorzStn8Hook_22;
+dwArm1HorzStn8Hook.23:=bArm1HorzStn8Hook_23;
+dwArm1HorzStn8Hook.24:=bArm1HorzStn8Hook_24;
+dwArm1HorzStn8Hook.25:=bArm1HorzStn8Hook_25;
+dwArm1HorzStn8Hook.26:=bArm1HorzStn8Hook_26;
+dwArm1HorzStn8Hook.27:=bArm1HorzStn8Hook_27;
+dwArm1HorzStn8Hook.28:=bArm1HorzStn8Hook_28;
+dwArm1HorzStn8Hook.29:=bArm1HorzStn8Hook_29;
+dwArm1HorzStn8Hook.30:=bArm1HorzStn8Hook_30;
+
+
+//Stn 9 Hook
+dwArm1HorzStn9Hook.00:=bArm1HorzStn9Hook_00;
+dwArm1HorzStn9Hook.01:=bArm1HorzStn9Hook_01;
+dwArm1HorzStn9Hook.02:=bArm1HorzStn9Hook_02;
+dwArm1HorzStn9Hook.03:=bArm1HorzStn9Hook_03;
+dwArm1HorzStn9Hook.04:=bArm1HorzStn9Hook_04;
+dwArm1HorzStn9Hook.05:=bArm1HorzStn9Hook_05;
+dwArm1HorzStn9Hook.06:=bArm1HorzStn9Hook_06;
+dwArm1HorzStn9Hook.07:=bArm1HorzStn9Hook_07;
+dwArm1HorzStn9Hook.08:=bArm1HorzStn9Hook_08;
+dwArm1HorzStn9Hook.09:=bArm1HorzStn9Hook_09;
+dwArm1HorzStn9Hook.10:=bArm1HorzStn9Hook_10;
+dwArm1HorzStn9Hook.11:=bArm1HorzStn9Hook_11;
+dwArm1HorzStn9Hook.12:=bArm1HorzStn9Hook_12;
+dwArm1HorzStn9Hook.13:=bArm1HorzStn9Hook_13;
+dwArm1HorzStn9Hook.14:=bArm1HorzStn9Hook_14;
+dwArm1HorzStn9Hook.15:=bArm1HorzStn9Hook_15;
+dwArm1HorzStn9Hook.16:=bArm1HorzStn9Hook_16;
+dwArm1HorzStn9Hook.17:=bArm1HorzStn9Hook_17;
+dwArm1HorzStn9Hook.18:=bArm1HorzStn9Hook_18;
+dwArm1HorzStn9Hook.19:=bArm1HorzStn9Hook_19;
+dwArm1HorzStn9Hook.20:=bArm1HorzStn9Hook_20;
+dwArm1HorzStn9Hook.21:=bArm1HorzStn9Hook_21;
+dwArm1HorzStn9Hook.22:=bArm1HorzStn9Hook_22;
+dwArm1HorzStn9Hook.23:=bArm1HorzStn9Hook_23;
+dwArm1HorzStn9Hook.24:=bArm1HorzStn9Hook_24;
+dwArm1HorzStn9Hook.25:=bArm1HorzStn9Hook_25;
+dwArm1HorzStn9Hook.26:=bArm1HorzStn9Hook_26;
+dwArm1HorzStn9Hook.27:=bArm1HorzStn9Hook_27;
+dwArm1HorzStn9Hook.28:=bArm1HorzStn9Hook_28;
+dwArm1HorzStn9Hook.29:=bArm1HorzStn9Hook_29;
+dwArm1HorzStn9Hook.30:=bArm1HorzStn9Hook_30;
+
+
+//Stn 10 Hook
+
+dwArm1HorzStn10Hook.00:=bArm1HorzStn10Hook_00;
+dwArm1HorzStn10Hook.01:=bArm1HorzStn10Hook_01;
+dwArm1HorzStn10Hook.02:=bArm1HorzStn10Hook_02;
+dwArm1HorzStn10Hook.03:=bArm1HorzStn10Hook_03;
+dwArm1HorzStn10Hook.04:=bArm1HorzStn10Hook_04;
+dwArm1HorzStn10Hook.05:=bArm1HorzStn10Hook_05;
+dwArm1HorzStn10Hook.06:=bArm1HorzStn10Hook_06;
+dwArm1HorzStn10Hook.07:=bArm1HorzStn10Hook_07;
+dwArm1HorzStn10Hook.08:=bArm1HorzStn10Hook_08;
+dwArm1HorzStn10Hook.09:=bArm1HorzStn10Hook_09;
+dwArm1HorzStn10Hook.10:=bArm1HorzStn10Hook_10;
+dwArm1HorzStn10Hook.11:=bArm1HorzStn10Hook_11;
+dwArm1HorzStn10Hook.12:=bArm1HorzStn10Hook_12;
+dwArm1HorzStn10Hook.13:=bArm1HorzStn10Hook_13;
+dwArm1HorzStn10Hook.14:=bArm1HorzStn10Hook_14;
+dwArm1HorzStn10Hook.15:=bArm1HorzStn10Hook_15;
+dwArm1HorzStn10Hook.16:=bArm1HorzStn10Hook_16;
+dwArm1HorzStn10Hook.17:=bArm1HorzStn10Hook_17;
+dwArm1HorzStn10Hook.18:=bArm1HorzStn10Hook_18;
+dwArm1HorzStn10Hook.19:=bArm1HorzStn10Hook_19;
+dwArm1HorzStn10Hook.20:=bArm1HorzStn10Hook_20;
+dwArm1HorzStn10Hook.21:=bArm1HorzStn10Hook_21;
+dwArm1HorzStn10Hook.22:=bArm1HorzStn10Hook_22;
+dwArm1HorzStn10Hook.23:=bArm1HorzStn10Hook_23;
+dwArm1HorzStn10Hook.24:=bArm1HorzStn10Hook_24;
+dwArm1HorzStn10Hook.25:=bArm1HorzStn10Hook_25;
+dwArm1HorzStn10Hook.26:=bArm1HorzStn10Hook_26;
+dwArm1HorzStn10Hook.27:=bArm1HorzStn10Hook_27;
+dwArm1HorzStn10Hook.28:=bArm1HorzStn10Hook_28;
+dwArm1HorzStn10Hook.29:=bArm1HorzStn10Hook_29;
+dwArm1HorzStn10Hook.30:=bArm1HorzStn10Hook_30;
+
+
+//Stn 11 Hook
+dwArm1HorzStn11Hook.00:=bArm1HorzStn11Hook_00;
+dwArm1HorzStn11Hook.01:=bArm1HorzStn11Hook_01;
+dwArm1HorzStn11Hook.02:=bArm1HorzStn11Hook_02;
+dwArm1HorzStn11Hook.03:=bArm1HorzStn11Hook_03;
+dwArm1HorzStn11Hook.04:=bArm1HorzStn11Hook_04;
+dwArm1HorzStn11Hook.05:=bArm1HorzStn11Hook_05;
+dwArm1HorzStn11Hook.06:=bArm1HorzStn11Hook_06;
+dwArm1HorzStn11Hook.07:=bArm1HorzStn11Hook_07;
+dwArm1HorzStn11Hook.08:=bArm1HorzStn11Hook_08;
+dwArm1HorzStn11Hook.09:=bArm1HorzStn11Hook_09;
+dwArm1HorzStn11Hook.10:=bArm1HorzStn11Hook_10;
+dwArm1HorzStn11Hook.11:=bArm1HorzStn11Hook_11;
+dwArm1HorzStn11Hook.12:=bArm1HorzStn11Hook_12;
+dwArm1HorzStn11Hook.13:=bArm1HorzStn11Hook_13;
+dwArm1HorzStn11Hook.14:=bArm1HorzStn11Hook_14;
+dwArm1HorzStn11Hook.15:=bArm1HorzStn11Hook_15;
+dwArm1HorzStn11Hook.16:=bArm1HorzStn11Hook_16;
+dwArm1HorzStn11Hook.17:=bArm1HorzStn11Hook_17;
+dwArm1HorzStn11Hook.18:=bArm1HorzStn11Hook_18;
+dwArm1HorzStn11Hook.19:=bArm1HorzStn11Hook_19;
+dwArm1HorzStn11Hook.20:=bArm1HorzStn11Hook_20;
+dwArm1HorzStn11Hook.21:=bArm1HorzStn11Hook_21;
+dwArm1HorzStn11Hook.22:=bArm1HorzStn11Hook_22;
+dwArm1HorzStn11Hook.23:=bArm1HorzStn11Hook_23;
+dwArm1HorzStn11Hook.24:=bArm1HorzStn11Hook_24;
+dwArm1HorzStn11Hook.25:=bArm1HorzStn11Hook_25;
+dwArm1HorzStn11Hook.26:=bArm1HorzStn11Hook_26;
+dwArm1HorzStn11Hook.27:=bArm1HorzStn11Hook_27;
+dwArm1HorzStn11Hook.28:=bArm1HorzStn11Hook_28;
+dwArm1HorzStn11Hook.29:=bArm1HorzStn11Hook_29;
+dwArm1HorzStn11Hook.30:=bArm1HorzStn11Hook_30;
+
+
+//Stn 12 Hook
+dwArm1HorzStn12Hook.00:=bArm1HorzStn12Hook_00;
+dwArm1HorzStn12Hook.01:=bArm1HorzStn12Hook_01;
+dwArm1HorzStn12Hook.02:=bArm1HorzStn12Hook_02;
+dwArm1HorzStn12Hook.03:=bArm1HorzStn12Hook_03;
+dwArm1HorzStn12Hook.04:=bArm1HorzStn12Hook_04;
+dwArm1HorzStn12Hook.05:=bArm1HorzStn12Hook_05;
+dwArm1HorzStn12Hook.06:=bArm1HorzStn12Hook_06;
+dwArm1HorzStn12Hook.07:=bArm1HorzStn12Hook_07;
+dwArm1HorzStn12Hook.08:=bArm1HorzStn12Hook_08;
+dwArm1HorzStn12Hook.09:=bArm1HorzStn12Hook_09;
+dwArm1HorzStn12Hook.10:=bArm1HorzStn12Hook_10;
+dwArm1HorzStn12Hook.11:=bArm1HorzStn12Hook_11;
+dwArm1HorzStn12Hook.12:=bArm1HorzStn12Hook_12;
+dwArm1HorzStn12Hook.13:=bArm1HorzStn12Hook_13;
+dwArm1HorzStn12Hook.14:=bArm1HorzStn12Hook_14;
+dwArm1HorzStn12Hook.15:=bArm1HorzStn12Hook_15;
+dwArm1HorzStn12Hook.16:=bArm1HorzStn12Hook_16;
+dwArm1HorzStn12Hook.17:=bArm1HorzStn12Hook_17;
+dwArm1HorzStn12Hook.18:=bArm1HorzStn12Hook_18;
+dwArm1HorzStn12Hook.19:=bArm1HorzStn12Hook_19;
+dwArm1HorzStn12Hook.20:=bArm1HorzStn12Hook_20;
+dwArm1HorzStn12Hook.21:=bArm1HorzStn12Hook_21;
+dwArm1HorzStn12Hook.22:=bArm1HorzStn12Hook_22;
+dwArm1HorzStn12Hook.23:=bArm1HorzStn12Hook_23;
+dwArm1HorzStn12Hook.24:=bArm1HorzStn12Hook_24;
+dwArm1HorzStn12Hook.25:=bArm1HorzStn12Hook_25;
+dwArm1HorzStn12Hook.26:=bArm1HorzStn12Hook_26;
+dwArm1HorzStn12Hook.27:=bArm1HorzStn12Hook_27;
+dwArm1HorzStn12Hook.28:=bArm1HorzStn12Hook_28;
+dwArm1HorzStn11Hook.29:=bArm1HorzStn11Hook_29;
+dwArm1HorzStn12Hook.30:=bArm1HorzStn12Hook_30;
+
+//STN Ld Unhook
+dwArm1Ld1Unhook.00:=bArm1HorzLD1Unhook_00;
+dwArm1Ld1Unhook.01:=bArm1HorzLD1Unhook_01;
+dwArm1Ld1Unhook.02:=bArm1HorzLD1Unhook_02;
+dwArm1Ld1Unhook.03:=bArm1HorzLD1Unhook_03;
+dwArm1Ld1Unhook.04:=bArm1HorzLD1Unhook_04;
+dwArm1Ld1Unhook.05:=bArm1HorzLD1Unhook_05;
+dwArm1Ld1Unhook.06:=bArm1HorzLD1Unhook_06;
+dwArm1Ld1Unhook.07:=bArm1HorzLD1Unhook_07;
+dwArm1Ld1Unhook.08:=bArm1HorzLD1Unhook_08;
+dwArm1Ld1Unhook.09:=bArm1HorzLD1Unhook_09;
+dwArm1Ld1Unhook.10:=bArm1HorzLD1Unhook_10;
+dwArm1Ld1Unhook.11:=bArm1HorzLD1Unhook_11;
+dwArm1Ld1Unhook.12:=bArm1HorzLD1Unhook_12;
+dwArm1Ld1Unhook.13:=bArm1HorzLD1Unhook_13;
+dwArm1Ld1Unhook.14:=bArm1HorzLD1Unhook_14;
+dwArm1Ld1Unhook.15:=bArm1HorzLD1Unhook_15;
+dwArm1Ld1Unhook.16:=bArm1HorzLD1Unhook_16;
+dwArm1Ld1Unhook.17:=bArm1HorzLD1Unhook_17;
+dwArm1Ld1Unhook.18:=bArm1HorzLD1Unhook_18;
+dwArm1Ld1Unhook.19:=bArm1HorzLD1Unhook_19;
+dwArm1Ld1Unhook.20:=bArm1HorzLD1Unhook_20;
+dwArm1Ld1Unhook.21:=bArm1HorzLD1Unhook_21;
+dwArm1Ld1Unhook.22:=bArm1HorzLD1Unhook_22;
+dwArm1Ld1Unhook.23:=bArm1HorzLD1Unhook_23;
+dwArm1Ld1Unhook.24:=bArm1HorzLD1Unhook_24;
+dwArm1Ld1Unhook.25:=bArm1HorzLD1Unhook_25;
+dwArm1Ld1Unhook.26:=bArm1HorzLD1Unhook_26;
+dwArm1Ld1Unhook.27:=bArm1HorzLD1Unhook_27;
+dwArm1Ld1Unhook.28:=bArm1HorzLD1Unhook_28;
+dwArm1Ld1Unhook.29:=bArm1HorzLD1Unhook_29;
+dwArm1Ld1Unhook.30 := bArm1HorzLD1Unhook_30;
+dwArm1Ld1Unhook.31 := bArm1HorzLD1Unhook_31;
+
+//STN Uld Unhook
+dwArm1Uld1Unhook.00:=bArm1HorzULD1Unhook_00;
+dwArm1Uld1Unhook.01:=bArm1HorzULD1Unhook_01;
+dwArm1Uld1Unhook.02:=bArm1HorzULD1Unhook_02;
+dwArm1Uld1Unhook.03:=bArm1HorzULD1Unhook_03;
+dwArm1Uld1Unhook.04:=bArm1HorzULD1Unhook_04;
+dwArm1Uld1Unhook.05:=bArm1HorzULD1Unhook_05;
+dwArm1Uld1Unhook.06:=bArm1HorzULD1Unhook_06;
+dwArm1Uld1Unhook.07:=bArm1HorzULD1Unhook_07;
+dwArm1Uld1Unhook.08:=bArm1HorzULD1Unhook_08;
+dwArm1Uld1Unhook.09:=bArm1HorzULD1Unhook_09;
+dwArm1Uld1Unhook.10:=bArm1HorzULD1Unhook_10;
+dwArm1Uld1Unhook.11:=bArm1HorzULD1Unhook_11;
+dwArm1Uld1Unhook.12:=bArm1HorzULD1Unhook_12;
+dwArm1Uld1Unhook.13:=bArm1HorzULD1Unhook_13;
+dwArm1Uld1Unhook.14:=bArm1HorzULD1Unhook_14;
+dwArm1Uld1Unhook.15:=bArm1HorzULD1Unhook_15;
+dwArm1Uld1Unhook.16:=bArm1HorzULD1Unhook_16;
+dwArm1Uld1Unhook.17:=bArm1HorzULD1Unhook_17;
+dwArm1Uld1Unhook.18:=bArm1HorzULD1Unhook_18;
+dwArm1Uld1Unhook.19:=bArm1HorzULD1Unhook_19;
+dwArm1Uld1Unhook.20:=bArm1HorzULD1Unhook_20;
+dwArm1Uld1Unhook.21:=bArm1HorzULD1Unhook_21;
+dwArm1Uld1Unhook.22:=bArm1HorzULD1Unhook_22;
+dwArm1Uld1Unhook.23:=bArm1HorzULD1Unhook_23;
+dwArm1Uld1Unhook.24:=bArm1HorzULD1Unhook_24;
+dwArm1Uld1Unhook.25:=bArm1HorzULD1Unhook_25;
+dwArm1Uld1Unhook.26:=bArm1HorzULD1Unhook_26;
+dwArm1Uld1Unhook.27:=bArm1HorzULD1Unhook_27;
+dwArm1Uld1Unhook.28:=bArm1HorzULD1Unhook_28;
+dwArm1Uld1Unhook.29:=bArm1HorzULD1Unhook_29;
+dwArm1Uld1Unhook.30:=bArm1HorzULD1Unhook_30;
+
+//STN Stn 1 Unhook
+dwArm1HorzStn1Unhook.00:=bArm1HorzStn1Unhook_00;
+dwArm1HorzStn1Unhook.01:=bArm1HorzStn1Unhook_01;
+dwArm1HorzStn1Unhook.02:=bArm1HorzStn1Unhook_02;
+dwArm1HorzStn1Unhook.03:=bArm1HorzStn1Unhook_03;
+dwArm1HorzStn1Unhook.04:=bArm1HorzStn1Unhook_04;
+dwArm1HorzStn1Unhook.05:=bArm1HorzStn1Unhook_05;
+dwArm1HorzStn1Unhook.06:=bArm1HorzStn1Unhook_06;
+dwArm1HorzStn1Unhook.07:=bArm1HorzStn1Unhook_07;
+dwArm1HorzStn1Unhook.08:=bArm1HorzStn1Unhook_08;
+dwArm1HorzStn1Unhook.09:=bArm1HorzStn1Unhook_09;
+dwArm1HorzStn1Unhook.10:=bArm1HorzStn1Unhook_10;
+dwArm1HorzStn1Unhook.11:=bArm1HorzStn1Unhook_11;
+dwArm1HorzStn1Unhook.12:=bArm1HorzStn1Unhook_12;
+dwArm1HorzStn1Unhook.13:=bArm1HorzStn1Unhook_13;
+dwArm1HorzStn1Unhook.14:=bArm1HorzStn1Unhook_14;
+dwArm1HorzStn1Unhook.15:=bArm1HorzStn1Unhook_15;
+dwArm1HorzStn1Unhook.16:=bArm1HorzStn1Unhook_16;
+dwArm1HorzStn1Unhook.17:=bArm1HorzStn1Unhook_17;
+dwArm1HorzStn1Unhook.18:=bArm1HorzStn1Unhook_18;
+dwArm1HorzStn1Unhook.19:=bArm1HorzStn1Unhook_19;
+dwArm1HorzStn1Unhook.20:=bArm1HorzStn1Unhook_20;
+dwArm1HorzStn1Unhook.21:=bArm1HorzStn1Unhook_21;
+dwArm1HorzStn1Unhook.22:=bArm1HorzStn1Unhook_22;
+dwArm1HorzStn1Unhook.23:=bArm1HorzStn1Unhook_23;
+dwArm1HorzStn1Unhook.24:=bArm1HorzStn1Unhook_24;
+dwArm1HorzStn1Unhook.25:=bArm1HorzStn1Unhook_25;
+dwArm1HorzStn1Unhook.26:=bArm1HorzStn1Unhook_26;
+dwArm1HorzStn1Unhook.27:=bArm1HorzStn1Unhook_27;
+dwArm1HorzStn1Unhook.28:=bArm1HorzStn1Unhook_28;
+dwArm1HorzStn1Unhook.29:=bArm1HorzStn1Unhook_29;
+dwArm1HorzStn1Unhook.30:=bArm1HorzStn1Unhook_30;
+
+//STN Stn 2 Unhook
+dwArm1HorzStn2Unhook.00:=bArm1HorzStn2Unhook_00;
+dwArm1HorzStn2Unhook.01:=bArm1HorzStn2Unhook_01;
+dwArm1HorzStn2Unhook.02:=bArm1HorzStn2Unhook_02;
+dwArm1HorzStn2Unhook.03:=bArm1HorzStn2Unhook_03;
+dwArm1HorzStn2Unhook.04:=bArm1HorzStn2Unhook_04;
+dwArm1HorzStn2Unhook.05:=bArm1HorzStn2Unhook_05;
+dwArm1HorzStn2Unhook.06:=bArm1HorzStn2Unhook_06;
+dwArm1HorzStn2Unhook.07:=bArm1HorzStn2Unhook_07;
+dwArm1HorzStn2Unhook.08:=bArm1HorzStn2Unhook_08;
+dwArm1HorzStn2Unhook.09:=bArm1HorzStn2Unhook_09;
+dwArm1HorzStn2Unhook.10:=bArm1HorzStn2Unhook_10;
+dwArm1HorzStn2Unhook.11:=bArm1HorzStn2Unhook_11;
+dwArm1HorzStn2Unhook.12:=bArm1HorzStn2Unhook_12;
+dwArm1HorzStn2Unhook.13:=bArm1HorzStn2Unhook_13;
+dwArm1HorzStn2Unhook.14:=bArm1HorzStn2Unhook_14;
+dwArm1HorzStn2Unhook.15:=bArm1HorzStn2Unhook_15;
+dwArm1HorzStn2Unhook.16:=bArm1HorzStn2Unhook_16;
+dwArm1HorzStn2Unhook.17:=bArm1HorzStn2Unhook_17;
+dwArm1HorzStn2Unhook.18:=bArm1HorzStn2Unhook_18;
+dwArm1HorzStn2Unhook.19:=bArm1HorzStn2Unhook_19;
+dwArm1HorzStn2Unhook.20:=bArm1HorzStn2Unhook_20;
+dwArm1HorzStn2Unhook.21:=bArm1HorzStn2Unhook_21;
+dwArm1HorzStn2Unhook.22:=bArm1HorzStn2Unhook_22;
+dwArm1HorzStn2Unhook.23:=bArm1HorzStn2Unhook_23;
+dwArm1HorzStn2Unhook.24:=bArm1HorzStn2Unhook_24;
+dwArm1HorzStn2Unhook.25:=bArm1HorzStn2Unhook_25;
+dwArm1HorzStn2Unhook.26:=bArm1HorzStn2Unhook_26;
+dwArm1HorzStn2Unhook.27:=bArm1HorzStn2Unhook_27;
+dwArm1HorzStn2Unhook.28:=bArm1HorzStn2Unhook_28;
+dwArm1HorzStn2Unhook.29:=bArm1HorzStn2Unhook_29;
+dwArm1HorzStn2Unhook.30:=bArm1HorzStn2Unhook_30;
+
+//STN Stn 3 Unhook
+dwArm1HorzStn3Unhook.00:=bArm1HorzStn3Unhook_00;
+dwArm1HorzStn3Unhook.01:=bArm1HorzStn3Unhook_01;
+dwArm1HorzStn3Unhook.02:=bArm1HorzStn3Unhook_02;
+dwArm1HorzStn3Unhook.03:=bArm1HorzStn3Unhook_03;
+dwArm1HorzStn3Unhook.04:=bArm1HorzStn3Unhook_04;
+dwArm1HorzStn3Unhook.05:=bArm1HorzStn3Unhook_05;
+dwArm1HorzStn3Unhook.06:=bArm1HorzStn3Unhook_06;
+dwArm1HorzStn3Unhook.07:=bArm1HorzStn3Unhook_07;
+dwArm1HorzStn3Unhook.08:=bArm1HorzStn3Unhook_08;
+dwArm1HorzStn3Unhook.09:=bArm1HorzStn3Unhook_09;
+dwArm1HorzStn3Unhook.10:=bArm1HorzStn3Unhook_10;
+dwArm1HorzStn3Unhook.11:=bArm1HorzStn3Unhook_11;
+dwArm1HorzStn3Unhook.12:=bArm1HorzStn3Unhook_12;
+dwArm1HorzStn3Unhook.13:=bArm1HorzStn3Unhook_13;
+dwArm1HorzStn3Unhook.14:=bArm1HorzStn3Unhook_14;
+dwArm1HorzStn3Unhook.15:=bArm1HorzStn3Unhook_15;
+dwArm1HorzStn3Unhook.16:=bArm1HorzStn3Unhook_16;
+dwArm1HorzStn3Unhook.17:=bArm1HorzStn3Unhook_17;
+dwArm1HorzStn3Unhook.18:=bArm1HorzStn3Unhook_18;
+dwArm1HorzStn3Unhook.19:=bArm1HorzStn3Unhook_19;
+dwArm1HorzStn3Unhook.20:=bArm1HorzStn3Unhook_20;
+dwArm1HorzStn3Unhook.21:=bArm1HorzStn3Unhook_21;
+dwArm1HorzStn3Unhook.22:=bArm1HorzStn3Unhook_22;
+dwArm1HorzStn3Unhook.23:=bArm1HorzStn3Unhook_23;
+dwArm1HorzStn3Unhook.24:=bArm1HorzStn3Unhook_24;
+dwArm1HorzStn3Unhook.25:=bArm1HorzStn3Unhook_25;
+dwArm1HorzStn3Unhook.26:=bArm1HorzStn3Unhook_26;
+dwArm1HorzStn3Unhook.27:=bArm1HorzStn3Unhook_27;
+dwArm1HorzStn3Unhook.28:=bArm1HorzStn3Unhook_28;
+dwArm1HorzStn3Unhook.29:=bArm1HorzStn3Unhook_29;
+dwArm1HorzStn3Unhook.30:=bArm1HorzStn3Unhook_30;
+
+//STN Stn 4 Unhook
+dwArm1HorzStn4Unhook.00:=bArm1HorzStn4Unhook_00;
+dwArm1HorzStn4Unhook.01:=bArm1HorzStn4Unhook_01;
+dwArm1HorzStn4Unhook.02:=bArm1HorzStn4Unhook_02;
+dwArm1HorzStn4Unhook.03:=bArm1HorzStn4Unhook_03;
+dwArm1HorzStn4Unhook.04:=bArm1HorzStn4Unhook_04;
+dwArm1HorzStn4Unhook.05:=bArm1HorzStn4Unhook_05;
+dwArm1HorzStn4Unhook.06:=bArm1HorzStn4Unhook_06;
+dwArm1HorzStn4Unhook.07:=bArm1HorzStn4Unhook_07;
+dwArm1HorzStn4Unhook.08:=bArm1HorzStn4Unhook_08;
+dwArm1HorzStn4Unhook.09:=bArm1HorzStn4Unhook_09;
+dwArm1HorzStn4Unhook.10:=bArm1HorzStn4Unhook_10;
+dwArm1HorzStn4Unhook.11:=bArm1HorzStn4Unhook_11;
+dwArm1HorzStn4Unhook.12:=bArm1HorzStn4Unhook_12;
+dwArm1HorzStn4Unhook.13:=bArm1HorzStn4Unhook_13;
+dwArm1HorzStn4Unhook.14:=bArm1HorzStn4Unhook_14;
+dwArm1HorzStn4Unhook.15:=bArm1HorzStn4Unhook_15;
+dwArm1HorzStn4Unhook.16:=bArm1HorzStn4Unhook_16;
+dwArm1HorzStn4Unhook.17:=bArm1HorzStn4Unhook_17;
+dwArm1HorzStn4Unhook.18:=bArm1HorzStn4Unhook_18;
+dwArm1HorzStn4Unhook.19:=bArm1HorzStn4Unhook_19;
+dwArm1HorzStn4Unhook.20:=bArm1HorzStn4Unhook_20;
+dwArm1HorzStn4Unhook.21:=bArm1HorzStn4Unhook_21;
+dwArm1HorzStn4Unhook.22:=bArm1HorzStn4Unhook_22;
+dwArm1HorzStn4Unhook.23:=bArm1HorzStn4Unhook_23;
+dwArm1HorzStn4Unhook.24:=bArm1HorzStn4Unhook_24;
+dwArm1HorzStn4Unhook.25:=bArm1HorzStn4Unhook_25;
+dwArm1HorzStn4Unhook.26:=bArm1HorzStn4Unhook_26;
+dwArm1HorzStn4Unhook.27:=bArm1HorzStn4Unhook_27;
+dwArm1HorzStn4Unhook.28:=bArm1HorzStn4Unhook_28;
+dwArm1HorzStn4Unhook.29:=bArm1HorzStn4Unhook_29;
+dwArm1HorzStn4Unhook.30:=bArm1HorzStn4Unhook_30;
+
+//STN Stn 5 Unhook
+dwArm1HorzStn5Unhook.00:=bArm1HorzStn5Unhook_00;
+dwArm1HorzStn5Unhook.01:=bArm1HorzStn5Unhook_01;
+dwArm1HorzStn5Unhook.02:=bArm1HorzStn5Unhook_02;
+dwArm1HorzStn5Unhook.03:=bArm1HorzStn5Unhook_03;
+dwArm1HorzStn5Unhook.04:=bArm1HorzStn5Unhook_04;
+dwArm1HorzStn5Unhook.05:=bArm1HorzStn5Unhook_05;
+dwArm1HorzStn5Unhook.06:=bArm1HorzStn5Unhook_06;
+dwArm1HorzStn5Unhook.07:=bArm1HorzStn5Unhook_07;
+dwArm1HorzStn5Unhook.08:=bArm1HorzStn5Unhook_08;
+dwArm1HorzStn5Unhook.09:=bArm1HorzStn5Unhook_09;
+dwArm1HorzStn5Unhook.10:=bArm1HorzStn5Unhook_10;
+dwArm1HorzStn5Unhook.11:=bArm1HorzStn5Unhook_11;
+dwArm1HorzStn5Unhook.12:=bArm1HorzStn5Unhook_12;
+dwArm1HorzStn5Unhook.13:=bArm1HorzStn5Unhook_13;
+dwArm1HorzStn5Unhook.14:=bArm1HorzStn5Unhook_14;
+dwArm1HorzStn5Unhook.15:=bArm1HorzStn5Unhook_15;
+dwArm1HorzStn5Unhook.16:=bArm1HorzStn5Unhook_16;
+dwArm1HorzStn5Unhook.17:=bArm1HorzStn5Unhook_17;
+dwArm1HorzStn5Unhook.18:=bArm1HorzStn5Unhook_18;
+dwArm1HorzStn5Unhook.19:=bArm1HorzStn5Unhook_19;
+dwArm1HorzStn5Unhook.20:=bArm1HorzStn5Unhook_20;
+dwArm1HorzStn5Unhook.21:=bArm1HorzStn5Unhook_21;
+dwArm1HorzStn5Unhook.22:=bArm1HorzStn5Unhook_22;
+dwArm1HorzStn5Unhook.23:=bArm1HorzStn5Unhook_23;
+dwArm1HorzStn5Unhook.24:=bArm1HorzStn5Unhook_24;
+dwArm1HorzStn5Unhook.25:=bArm1HorzStn5Unhook_25;
+dwArm1HorzStn5Unhook.26:=bArm1HorzStn5Unhook_26;
+dwArm1HorzStn5Unhook.27:=bArm1HorzStn5Unhook_27;
+dwArm1HorzStn5Unhook.28:=bArm1HorzStn5Unhook_28;
+dwArm1HorzStn5Unhook.29:=bArm1HorzStn5Unhook_29;
+dwArm1HorzStn5Unhook.30:=bArm1HorzStn5Unhook_30;
+
+//STN Stn 6 Unhook
+dwArm1HorzStn6Unhook.00:=bArm1HorzStn6Unhook_00;
+dwArm1HorzStn6Unhook.01:=bArm1HorzStn6Unhook_01;
+dwArm1HorzStn6Unhook.02:=bArm1HorzStn6Unhook_02;
+dwArm1HorzStn6Unhook.03:=bArm1HorzStn6Unhook_03;
+dwArm1HorzStn6Unhook.04:=bArm1HorzStn6Unhook_04;
+dwArm1HorzStn6Unhook.05:=bArm1HorzStn6Unhook_05;
+dwArm1HorzStn6Unhook.06:=bArm1HorzStn6Unhook_06;
+dwArm1HorzStn6Unhook.07:=bArm1HorzStn6Unhook_07;
+dwArm1HorzStn6Unhook.08:=bArm1HorzStn6Unhook_08;
+dwArm1HorzStn6Unhook.09:=bArm1HorzStn6Unhook_09;
+dwArm1HorzStn6Unhook.10:=bArm1HorzStn6Unhook_10;
+dwArm1HorzStn6Unhook.11:=bArm1HorzStn6Unhook_11;
+dwArm1HorzStn6Unhook.12:=bArm1HorzStn6Unhook_12;
+dwArm1HorzStn6Unhook.13:=bArm1HorzStn6Unhook_13;
+dwArm1HorzStn6Unhook.14:=bArm1HorzStn6Unhook_14;
+dwArm1HorzStn6Unhook.15:=bArm1HorzStn6Unhook_15;
+dwArm1HorzStn6Unhook.16:=bArm1HorzStn6Unhook_16;
+dwArm1HorzStn6Unhook.17:=bArm1HorzStn6Unhook_17;
+dwArm1HorzStn6Unhook.18:=bArm1HorzStn6Unhook_18;
+dwArm1HorzStn6Unhook.19:=bArm1HorzStn6Unhook_19;
+dwArm1HorzStn6Unhook.20:=bArm1HorzStn6Unhook_20;
+dwArm1HorzStn6Unhook.21:=bArm1HorzStn6Unhook_21;
+dwArm1HorzStn6Unhook.22:=bArm1HorzStn6Unhook_22;
+dwArm1HorzStn6Unhook.23:=bArm1HorzStn6Unhook_23;
+dwArm1HorzStn6Unhook.24:=bArm1HorzStn6Unhook_24;
+dwArm1HorzStn6Unhook.25:=bArm1HorzStn6Unhook_25;
+dwArm1HorzStn6Unhook.26:=bArm1HorzStn6Unhook_26;
+dwArm1HorzStn6Unhook.27:=bArm1HorzStn6Unhook_27;
+dwArm1HorzStn6Unhook.28:=bArm1HorzStn6Unhook_28;
+dwArm1HorzStn6Unhook.29:=bArm1HorzStn6Unhook_29;
+dwArm1HorzStn6Unhook.30:=bArm1HorzStn6Unhook_30;
+
+//STN Stn 7 Unhook
+dwArm1HorzStn7Unhook.00:=bArm1HorzStn7Unhook_00;
+dwArm1HorzStn7Unhook.01:=bArm1HorzStn7Unhook_01;
+dwArm1HorzStn7Unhook.02:=bArm1HorzStn7Unhook_02;
+dwArm1HorzStn7Unhook.03:=bArm1HorzStn7Unhook_03;
+dwArm1HorzStn7Unhook.04:=bArm1HorzStn7Unhook_04;
+dwArm1HorzStn7Unhook.05:=bArm1HorzStn7Unhook_05;
+dwArm1HorzStn7Unhook.06:=bArm1HorzStn7Unhook_06;
+dwArm1HorzStn7Unhook.07:=bArm1HorzStn7Unhook_07;
+dwArm1HorzStn7Unhook.08:=bArm1HorzStn7Unhook_08;
+dwArm1HorzStn7Unhook.09:=bArm1HorzStn7Unhook_09;
+dwArm1HorzStn7Unhook.10:=bArm1HorzStn7Unhook_10;
+dwArm1HorzStn7Unhook.11:=bArm1HorzStn7Unhook_11;
+dwArm1HorzStn7Unhook.12:=bArm1HorzStn7Unhook_12;
+dwArm1HorzStn7Unhook.13:=bArm1HorzStn7Unhook_13;
+dwArm1HorzStn7Unhook.14:=bArm1HorzStn7Unhook_14;
+dwArm1HorzStn7Unhook.15:=bArm1HorzStn7Unhook_15;
+dwArm1HorzStn7Unhook.16:=bArm1HorzStn7Unhook_16;
+dwArm1HorzStn7Unhook.17:=bArm1HorzStn7Unhook_17;
+dwArm1HorzStn7Unhook.18:=bArm1HorzStn7Unhook_18;
+dwArm1HorzStn7Unhook.19:=bArm1HorzStn7Unhook_19;
+dwArm1HorzStn7Unhook.20:=bArm1HorzStn7Unhook_20;
+dwArm1HorzStn7Unhook.21:=bArm1HorzStn7Unhook_21;
+dwArm1HorzStn7Unhook.22:=bArm1HorzStn7Unhook_22;
+dwArm1HorzStn7Unhook.23:=bArm1HorzStn7Unhook_23;
+dwArm1HorzStn7Unhook.24:=bArm1HorzStn7Unhook_24;
+dwArm1HorzStn7Unhook.25:=bArm1HorzStn7Unhook_25;
+dwArm1HorzStn7Unhook.26:=bArm1HorzStn7Unhook_26;
+dwArm1HorzStn7Unhook.27:=bArm1HorzStn7Unhook_27;
+dwArm1HorzStn7Unhook.28:=bArm1HorzStn7Unhook_28;
+dwArm1HorzStn7Unhook.29:=bArm1HorzStn7Unhook_29;
+dwArm1HorzStn7Unhook.30:=bArm1HorzStn7Unhook_30;
+
+//STN Stn 8 Unhook
+dwArm1HorzStn8Unhook.00:=bArm1HorzStn8Unhook_00;
+dwArm1HorzStn8Unhook.01:=bArm1HorzStn8Unhook_01;
+dwArm1HorzStn8Unhook.02:=bArm1HorzStn8Unhook_02;
+dwArm1HorzStn8Unhook.03:=bArm1HorzStn8Unhook_03;
+dwArm1HorzStn8Unhook.04:=bArm1HorzStn8Unhook_04;
+dwArm1HorzStn8Unhook.05:=bArm1HorzStn8Unhook_05;
+dwArm1HorzStn8Unhook.06:=bArm1HorzStn8Unhook_06;
+dwArm1HorzStn8Unhook.07:=bArm1HorzStn8Unhook_07;
+dwArm1HorzStn8Unhook.08:=bArm1HorzStn8Unhook_08;
+dwArm1HorzStn8Unhook.09:=bArm1HorzStn8Unhook_09;
+dwArm1HorzStn8Unhook.10:=bArm1HorzStn8Unhook_10;
+dwArm1HorzStn8Unhook.11:=bArm1HorzStn8Unhook_11;
+dwArm1HorzStn8Unhook.12:=bArm1HorzStn8Unhook_12;
+dwArm1HorzStn8Unhook.13:=bArm1HorzStn8Unhook_13;
+dwArm1HorzStn8Unhook.14:=bArm1HorzStn8Unhook_14;
+dwArm1HorzStn8Unhook.15:=bArm1HorzStn8Unhook_15;
+dwArm1HorzStn8Unhook.16:=bArm1HorzStn8Unhook_16;
+dwArm1HorzStn8Unhook.17:=bArm1HorzStn8Unhook_17;
+dwArm1HorzStn8Unhook.18:=bArm1HorzStn8Unhook_18;
+dwArm1HorzStn8Unhook.19:=bArm1HorzStn8Unhook_19;
+dwArm1HorzStn8Unhook.20:=bArm1HorzStn8Unhook_20;
+dwArm1HorzStn8Unhook.21:=bArm1HorzStn8Unhook_21;
+dwArm1HorzStn8Unhook.22:=bArm1HorzStn8Unhook_22;
+dwArm1HorzStn8Unhook.23:=bArm1HorzStn8Unhook_23;
+dwArm1HorzStn8Unhook.24:=bArm1HorzStn8Unhook_24;
+dwArm1HorzStn8Unhook.25:=bArm1HorzStn8Unhook_25;
+dwArm1HorzStn8Unhook.26:=bArm1HorzStn8Unhook_26;
+dwArm1HorzStn8Unhook.27:=bArm1HorzStn8Unhook_27;
+dwArm1HorzStn8Unhook.28:=bArm1HorzStn8Unhook_28;
+dwArm1HorzStn8Unhook.29:=bArm1HorzStn8Unhook_29;
+dwArm1HorzStn8Unhook.30:=bArm1HorzStn8Unhook_30;
+
+//STN Stn 9 Unhook
+dwArm1HorzStn9Unhook.00:=bArm1HorzStn9Unhook_00;
+dwArm1HorzStn9Unhook.01:=bArm1HorzStn9Unhook_01;
+dwArm1HorzStn9Unhook.02:=bArm1HorzStn9Unhook_02;
+dwArm1HorzStn9Unhook.03:=bArm1HorzStn9Unhook_03;
+dwArm1HorzStn9Unhook.04:=bArm1HorzStn9Unhook_04;
+dwArm1HorzStn9Unhook.05:=bArm1HorzStn9Unhook_05;
+dwArm1HorzStn9Unhook.06:=bArm1HorzStn9Unhook_06;
+dwArm1HorzStn9Unhook.07:=bArm1HorzStn9Unhook_07;
+dwArm1HorzStn9Unhook.08:=bArm1HorzStn9Unhook_08;
+dwArm1HorzStn9Unhook.09:=bArm1HorzStn9Unhook_09;
+dwArm1HorzStn9Unhook.10:=bArm1HorzStn9Unhook_10;
+dwArm1HorzStn9Unhook.11:=bArm1HorzStn9Unhook_11;
+dwArm1HorzStn9Unhook.12:=bArm1HorzStn9Unhook_12;
+dwArm1HorzStn9Unhook.13:=bArm1HorzStn9Unhook_13;
+dwArm1HorzStn9Unhook.14:=bArm1HorzStn9Unhook_14;
+dwArm1HorzStn9Unhook.15:=bArm1HorzStn9Unhook_15;
+dwArm1HorzStn9Unhook.16:=bArm1HorzStn9Unhook_16;
+dwArm1HorzStn9Unhook.17:=bArm1HorzStn9Unhook_17;
+dwArm1HorzStn9Unhook.18:=bArm1HorzStn9Unhook_18;
+dwArm1HorzStn9Unhook.19:=bArm1HorzStn9Unhook_19;
+dwArm1HorzStn9Unhook.20:=bArm1HorzStn9Unhook_20;
+dwArm1HorzStn9Unhook.21:=bArm1HorzStn9Unhook_21;
+dwArm1HorzStn9Unhook.22:=bArm1HorzStn9Unhook_22;
+dwArm1HorzStn9Unhook.23:=bArm1HorzStn9Unhook_23;
+dwArm1HorzStn9Unhook.24:=bArm1HorzStn9Unhook_24;
+dwArm1HorzStn9Unhook.25:=bArm1HorzStn9Unhook_25;
+dwArm1HorzStn9Unhook.26:=bArm1HorzStn9Unhook_26;
+dwArm1HorzStn9Unhook.27:=bArm1HorzStn9Unhook_27;
+dwArm1HorzStn9Unhook.28:=bArm1HorzStn9Unhook_28;
+dwArm1HorzStn9Unhook.29:=bArm1HorzStn9Unhook_29;
+dwArm1HorzStn9Unhook.30:=bArm1HorzStn9Unhook_30;
+
+
+//STN Stn 10 Unhook
+dwArm1HorzStn10Unhook.00:=bArm1HorzStn10Unhook_00;
+dwArm1HorzStn10Unhook.01:=bArm1HorzStn10Unhook_01;
+dwArm1HorzStn10Unhook.02:=bArm1HorzStn10Unhook_02;
+dwArm1HorzStn10Unhook.03:=bArm1HorzStn10Unhook_03;
+dwArm1HorzStn10Unhook.04:=bArm1HorzStn10Unhook_04;
+dwArm1HorzStn10Unhook.05:=bArm1HorzStn10Unhook_05;
+dwArm1HorzStn10Unhook.06:=bArm1HorzStn10Unhook_06;
+dwArm1HorzStn10Unhook.07:=bArm1HorzStn10Unhook_07;
+dwArm1HorzStn10Unhook.08:=bArm1HorzStn10Unhook_08;
+dwArm1HorzStn10Unhook.09:=bArm1HorzStn10Unhook_09;
+dwArm1HorzStn10Unhook.10:=bArm1HorzStn10Unhook_10;
+dwArm1HorzStn10Unhook.11:=bArm1HorzStn10Unhook_11;
+dwArm1HorzStn10Unhook.12:=bArm1HorzStn10Unhook_12;
+dwArm1HorzStn10Unhook.13:=bArm1HorzStn10Unhook_13;
+dwArm1HorzStn10Unhook.14:=bArm1HorzStn10Unhook_14;
+dwArm1HorzStn10Unhook.15:=bArm1HorzStn10Unhook_15;
+dwArm1HorzStn10Unhook.16:=bArm1HorzStn10Unhook_16;
+dwArm1HorzStn10Unhook.17:=bArm1HorzStn10Unhook_17;
+dwArm1HorzStn10Unhook.18:=bArm1HorzStn10Unhook_18;
+dwArm1HorzStn10Unhook.19:=bArm1HorzStn10Unhook_19;
+dwArm1HorzStn10Unhook.20:=bArm1HorzStn10Unhook_20;
+dwArm1HorzStn10Unhook.21:=bArm1HorzStn10Unhook_21;
+dwArm1HorzStn10Unhook.22:=bArm1HorzStn10Unhook_22;
+dwArm1HorzStn10Unhook.23:=bArm1HorzStn10Unhook_23;
+dwArm1HorzStn10Unhook.24:=bArm1HorzStn10Unhook_24;
+dwArm1HorzStn10Unhook.25:=bArm1HorzStn10Unhook_25;
+dwArm1HorzStn10Unhook.26:=bArm1HorzStn10Unhook_26;
+dwArm1HorzStn10Unhook.27:=bArm1HorzStn10Unhook_27;
+dwArm1HorzStn10Unhook.28:=bArm1HorzStn10Unhook_28;
+dwArm1HorzStn10Unhook.29:=bArm1HorzStn10Unhook_29;
+dwArm1HorzStn10Unhook.30:=bArm1HorzStn10Unhook_30;
+
+//STN Stn 11 Unhook
+dwArm1HorzStn11Unhook.00:=bArm1HorzStn11Unhook_00;
+dwArm1HorzStn10Unhook.01:=bArm1HorzStn10Unhook_01;
+dwArm1HorzStn10Unhook.02:=bArm1HorzStn10Unhook_02;
+dwArm1HorzStn10Unhook.03:=bArm1HorzStn10Unhook_03;
+dwArm1HorzStn10Unhook.04:=bArm1HorzStn10Unhook_04;
+dwArm1HorzStn10Unhook.05:=bArm1HorzStn10Unhook_05;
+dwArm1HorzStn10Unhook.06:=bArm1HorzStn10Unhook_06;
+dwArm1HorzStn10Unhook.07:=bArm1HorzStn10Unhook_07;
+dwArm1HorzStn10Unhook.08:=bArm1HorzStn10Unhook_08;
+dwArm1HorzStn10Unhook.09:=bArm1HorzStn10Unhook_09;
+dwArm1HorzStn10Unhook.10:=bArm1HorzStn10Unhook_10;
+dwArm1HorzStn10Unhook.11:=bArm1HorzStn10Unhook_11;
+dwArm1HorzStn10Unhook.12:=bArm1HorzStn10Unhook_12;
+dwArm1HorzStn10Unhook.13:=bArm1HorzStn10Unhook_13;
+dwArm1HorzStn10Unhook.14:=bArm1HorzStn10Unhook_14;
+dwArm1HorzStn10Unhook.15:=bArm1HorzStn10Unhook_15;
+dwArm1HorzStn10Unhook.16:=bArm1HorzStn10Unhook_16;
+dwArm1HorzStn10Unhook.17:=bArm1HorzStn10Unhook_17;
+dwArm1HorzStn10Unhook.18:=bArm1HorzStn10Unhook_18;
+dwArm1HorzStn10Unhook.19:=bArm1HorzStn10Unhook_19;
+dwArm1HorzStn10Unhook.20:=bArm1HorzStn10Unhook_20;
+dwArm1HorzStn10Unhook.21:=bArm1HorzStn10Unhook_21;
+dwArm1HorzStn10Unhook.22:=bArm1HorzStn10Unhook_22;
+dwArm1HorzStn10Unhook.23:=bArm1HorzStn10Unhook_23;
+dwArm1HorzStn10Unhook.24:=bArm1HorzStn10Unhook_24;
+dwArm1HorzStn10Unhook.25:=bArm1HorzStn10Unhook_25;
+dwArm1HorzStn10Unhook.26:=bArm1HorzStn10Unhook_26;
+dwArm1HorzStn10Unhook.27:=bArm1HorzStn10Unhook_27;
+dwArm1HorzStn10Unhook.28:=bArm1HorzStn10Unhook_28;
+dwArm1HorzStn10Unhook.29:=bArm1HorzStn10Unhook_29;
+dwArm1HorzStn11Unhook.30:=bArm1HorzStn11Unhook_30;
+
+//STN Stn 12 Unhook
+dwArm1HorzStn12Unhook.00:=bArm1HorzStn12Unhook_00;
+dwArm1HorzStn12Unhook.01:=bArm1HorzStn12Unhook_01;
+dwArm1HorzStn12Unhook.02:=bArm1HorzStn12Unhook_02;
+dwArm1HorzStn12Unhook.03:=bArm1HorzStn12Unhook_03;
+dwArm1HorzStn12Unhook.04:=bArm1HorzStn12Unhook_04;
+dwArm1HorzStn12Unhook.05:=bArm1HorzStn12Unhook_05;
+dwArm1HorzStn12Unhook.06:=bArm1HorzStn12Unhook_06;
+dwArm1HorzStn12Unhook.07:=bArm1HorzStn12Unhook_07;
+dwArm1HorzStn12Unhook.08:=bArm1HorzStn12Unhook_08;
+dwArm1HorzStn12Unhook.09:=bArm1HorzStn12Unhook_09;
+dwArm1HorzStn12Unhook.10:=bArm1HorzStn12Unhook_10;
+dwArm1HorzStn12Unhook.11:=bArm1HorzStn12Unhook_11;
+dwArm1HorzStn12Unhook.12:=bArm1HorzStn12Unhook_12;
+dwArm1HorzStn12Unhook.13:=bArm1HorzStn12Unhook_13;
+dwArm1HorzStn12Unhook.14:=bArm1HorzStn12Unhook_14;
+dwArm1HorzStn12Unhook.15:=bArm1HorzStn12Unhook_15;
+dwArm1HorzStn12Unhook.16:=bArm1HorzStn12Unhook_16;
+dwArm1HorzStn12Unhook.17:=bArm1HorzStn12Unhook_17;
+dwArm1HorzStn12Unhook.18:=bArm1HorzStn12Unhook_18;
+dwArm1HorzStn12Unhook.19:=bArm1HorzStn12Unhook_19;
+dwArm1HorzStn12Unhook.20:=bArm1HorzStn12Unhook_20;
+dwArm1HorzStn12Unhook.21:=bArm1HorzStn12Unhook_21;
+dwArm1HorzStn12Unhook.22:=bArm1HorzStn12Unhook_22;
+dwArm1HorzStn12Unhook.23:=bArm1HorzStn12Unhook_23;
+dwArm1HorzStn12Unhook.24:=bArm1HorzStn12Unhook_24;
+dwArm1HorzStn12Unhook.25:=bArm1HorzStn12Unhook_25;
+dwArm1HorzStn12Unhook.26:=bArm1HorzStn12Unhook_26;
+dwArm1HorzStn12Unhook.27:=bArm1HorzStn12Unhook_27;
+dwArm1HorzStn12Unhook.28:=bArm1HorzStn12Unhook_28;
+dwArm1HorzStn12Unhook.29:=bArm1HorzStn12Unhook_29;
+dwArm1HorzStn12Unhook.30:=bArm1HorzStn12Unhook_30;
+
+//STN Ld Up 
+dwArm1Ld1Up.00:=bArm1VertLD1Up_00;
+dwArm1Ld1Up.01:=bArm1VertLD1Up_01;
+dwArm1Ld1Up.02:=bArm1VertLD1Up_02;
+dwArm1Ld1Up.03:=bArm1VertLD1Up_03;
+dwArm1Ld1Up.04:=bArm1VertLD1Up_04;
+dwArm1Ld1Up.05:=bArm1VertLD1Up_05;
+dwArm1Ld1Up.06:=bArm1VertLD1Up_06;
+dwArm1Ld1Up.07:=bArm1VertLD1Up_07;
+dwArm1Ld1Up.08:=bArm1VertLD1Up_08;
+dwArm1Ld1Up.09:=bArm1VertLD1Up_09;
+dwArm1Ld1Up.10:=bArm1VertLD1Up_10;
+dwArm1Ld1Up.11:=bArm1VertLD1Up_11;
+dwArm1Ld1Up.12:=bArm1VertLD1Up_12;
+dwArm1Ld1Up.13:=bArm1VertLD1Up_13;
+dwArm1Ld1Up.14:=bArm1VertLD1Up_14;
+dwArm1Ld1Up.15:=bArm1VertLD1Up_15;
+dwArm1Ld1Up.16:=bArm1VertLD1Up_16;
+dwArm1Ld1Up.17:=bArm1VertLD1Up_17;
+dwArm1Ld1Up.18:=bArm1VertLD1Up_18;
+dwArm1Ld1Up.19:=bArm1VertLD1Up_19;
+dwArm1Ld1Up.20:=bArm1VertLD1Up_20;
+dwArm1Ld1Up.21:=bArm1VertLD1Up_21;
+dwArm1Ld1Up.22:=bArm1VertLD1Up_22;
+dwArm1Ld1Up.23:=bArm1VertLD1Up_23;
+dwArm1Ld1Up.24:=bArm1VertLD1Up_24;
+dwArm1Ld1Up.25:=bArm1VertLD1Up_25;
+dwArm1Ld1Up.26:=bArm1VertLD1Up_26;
+dwArm1Ld1Up.27:=bArm1VertLD1Up_27;
+dwArm1Ld1Up.28:=bArm1VertLD1Up_28;
+dwArm1Ld1Up.29:=bArm1VertLD1Up_29;
+dwArm1Ld1Up.30:=bArm1VertLD1Up_30;
+
+
+//STN Ld Down 
+dwArm1Ld1Down.00:=bArm1VertLD1Down_00;
+dwArm1Ld1Down.01:=bArm1VertLD1Down_01;
+dwArm1Ld1Down.02:=bArm1VertLD1Down_02;
+dwArm1Ld1Down.03:=bArm1VertLD1Down_03;
+dwArm1Ld1Down.04:=bArm1VertLD1Down_04;
+dwArm1Ld1Down.05:=bArm1VertLD1Down_05;
+dwArm1Ld1Down.06:=bArm1VertLD1Down_06;
+dwArm1Ld1Down.07:=bArm1VertLD1Down_07;
+dwArm1Ld1Down.08:=bArm1VertLD1Down_08;
+dwArm1Ld1Down.09:=bArm1VertLD1Down_09;
+dwArm1Ld1Down.10:=bArm1VertLD1Down_10;
+dwArm1Ld1Down.11:=bArm1VertLD1Down_11;
+dwArm1Ld1Down.12:=bArm1VertLD1Down_12;
+dwArm1Ld1Down.13:=bArm1VertLD1Down_13;
+dwArm1Ld1Down.14:=bArm1VertLD1Down_14;
+dwArm1Ld1Down.15:=bArm1VertLD1Down_15;
+dwArm1Ld1Down.16:=bArm1VertLD1Down_16;
+dwArm1Ld1Down.17:=bArm1VertLD1Down_17;
+dwArm1Ld1Down.18:=bArm1VertLD1Down_18;
+dwArm1Ld1Down.19:=bArm1VertLD1Down_19;
+dwArm1Ld1Down.20:=bArm1VertLD1Down_20;
+dwArm1Ld1Down.21:=bArm1VertLD1Down_21;
+dwArm1Ld1Down.22:=bArm1VertLD1Down_22;
+dwArm1Ld1Down.23:=bArm1VertLD1Down_23;
+dwArm1Ld1Down.24:=bArm1VertLD1Down_24;
+dwArm1Ld1Down.25:=bArm1VertLD1Down_25;
+dwArm1Ld1Down.26:=bArm1VertLD1Down_26;
+dwArm1Ld1Down.27:=bArm1VertLD1Down_27;
+dwArm1Ld1Down.28:=bArm1VertLD1Down_28;
+dwArm1Ld1Down.29:=bArm1VertLD1Down_29;
+dwArm1Ld1Down.30:=bArm1VertLD1Down_30;
+
+//Uld down
+dwArm1Uld1Down.00:=bArm1VertULD1Down_00;
+dwArm1Uld1Down.01:=bArm1VertULD1Down_01;
+dwArm1Uld1Down.02:=bArm1VertULD1Down_02;
+dwArm1Uld1Down.03:=bArm1VertULD1Down_03;
+dwArm1Uld1Down.04:=bArm1VertULD1Down_04;
+dwArm1Uld1Down.05:=bArm1VertULD1Down_05;
+dwArm1Uld1Down.06:=bArm1VertULD1Down_06;
+dwArm1Uld1Down.07:=bArm1VertULD1Down_07;
+dwArm1Uld1Down.08:=bArm1VertULD1Down_08;
+dwArm1Uld1Down.09:=bArm1VertULD1Down_09;
+dwArm1Uld1Down.10:=bArm1VertULD1Down_10;
+dwArm1Uld1Down.11:=bArm1VertULD1Down_11;
+dwArm1Uld1Down.12:=bArm1VertULD1Down_12;
+dwArm1Uld1Down.13:=bArm1VertULD1Down_13;
+dwArm1Uld1Down.14:=bArm1VertULD1Down_14;
+dwArm1Uld1Down.15:=bArm1VertULD1Down_15;
+dwArm1Uld1Down.16:=bArm1VertULD1Down_16;
+dwArm1Uld1Down.17:=bArm1VertULD1Down_17;
+dwArm1Uld1Down.18:=bArm1VertULD1Down_18;
+dwArm1Uld1Down.19:=bArm1VertULD1Down_19;
+dwArm1Uld1Down.20:=bArm1VertULD1Down_20;
+dwArm1Uld1Down.21:=bArm1VertULD1Down_21;
+dwArm1Uld1Down.22:=bArm1VertULD1Down_22;
+dwArm1Uld1Down.23:=bArm1VertULD1Down_23;
+dwArm1Uld1Down.24:=bArm1VertULD1Down_24;
+dwArm1Uld1Down.25:=bArm1VertULD1Down_25;
+dwArm1Uld1Down.26:=bArm1VertULD1Down_26;
+dwArm1Uld1Down.27:=bArm1VertULD1Down_27;
+dwArm1Uld1Down.28:=bArm1VertULD1Down_28;
+dwArm1Uld1Down.29:=bArm1VertULD1Down_29;
+dwArm1Uld1Down.30:=bArm1VertULD1Down_30;
+
+//Stn 1 Down
+dwArm1VertStn1Down.00:=bArm1VertStn1Down_00;
+dwArm1VertStn1Down.01:=bArm1VertStn1Down_01;
+dwArm1VertStn1Down.02:=bArm1VertStn1Down_02;
+dwArm1VertStn1Down.03:=bArm1VertStn1Down_03;
+dwArm1VertStn1Down.04:=bArm1VertStn1Down_04;
+dwArm1VertStn1Down.05:=bArm1VertStn1Down_05;
+dwArm1VertStn1Down.06:=bArm1VertStn1Down_06;
+dwArm1VertStn1Down.07:=bArm1VertStn1Down_07;
+dwArm1VertStn1Down.08:=bArm1VertStn1Down_08;
+dwArm1VertStn1Down.09:=bArm1VertStn1Down_09;
+dwArm1VertStn1Down.10:=bArm1VertStn1Down_10;
+dwArm1VertStn1Down.11:=bArm1VertStn1Down_11;
+dwArm1VertStn1Down.12:=bArm1VertStn1Down_12;
+dwArm1VertStn1Down.13:=bArm1VertStn1Down_13;
+dwArm1VertStn1Down.14:=bArm1VertStn1Down_14;
+dwArm1VertStn1Down.15:=bArm1VertStn1Down_15;
+dwArm1VertStn1Down.16:=bArm1VertStn1Down_16;
+dwArm1VertStn1Down.17:=bArm1VertStn1Down_17;
+dwArm1VertStn1Down.18:=bArm1VertStn1Down_18;
+dwArm1VertStn1Down.19:=bArm1VertStn1Down_19;
+dwArm1VertStn1Down.20:=bArm1VertStn1Down_20;
+dwArm1VertStn1Down.21:=bArm1VertStn1Down_21;
+dwArm1VertStn1Down.22:=bArm1VertStn1Down_22;
+dwArm1VertStn1Down.23:=bArm1VertStn1Down_23;
+dwArm1VertStn1Down.24:=bArm1VertStn1Down_24;
+dwArm1VertStn1Down.25:=bArm1VertStn1Down_25;
+dwArm1VertStn1Down.26:=bArm1VertStn1Down_26;
+dwArm1VertStn1Down.27:=bArm1VertStn1Down_27;
+dwArm1VertStn1Down.28:=bArm1VertStn1Down_28;
+dwArm1VertStn1Down.29:=bArm1VertStn1Down_29;
+dwArm1VertStn1Down.30:=bArm1VertStn1Down_30;
+
+
+//Stn 2 Down
+dwArm1VertStn2Down.00:=bArm1VertStn2Down_00;
+dwArm1VertStn2Down.01:=bArm1VertStn2Down_01;
+dwArm1VertStn2Down.02:=bArm1VertStn2Down_02;
+dwArm1VertStn2Down.03:=bArm1VertStn2Down_03;
+dwArm1VertStn2Down.04:=bArm1VertStn2Down_04;
+dwArm1VertStn2Down.05:=bArm1VertStn2Down_05;
+dwArm1VertStn2Down.06:=bArm1VertStn2Down_06;
+dwArm1VertStn2Down.07:=bArm1VertStn2Down_07;
+dwArm1VertStn2Down.08:=bArm1VertStn2Down_08;
+dwArm1VertStn2Down.09:=bArm1VertStn2Down_09;
+dwArm1VertStn2Down.10:=bArm1VertStn2Down_10;
+dwArm1VertStn2Down.11:=bArm1VertStn2Down_11;
+dwArm1VertStn2Down.12:=bArm1VertStn2Down_12;
+dwArm1VertStn2Down.13:=bArm1VertStn2Down_13;
+dwArm1VertStn2Down.14:=bArm1VertStn2Down_14;
+dwArm1VertStn2Down.15:=bArm1VertStn2Down_15;
+dwArm1VertStn2Down.16:=bArm1VertStn2Down_16;
+dwArm1VertStn2Down.17:=bArm1VertStn2Down_17;
+dwArm1VertStn2Down.18:=bArm1VertStn2Down_18;
+dwArm1VertStn2Down.19:=bArm1VertStn2Down_19;
+dwArm1VertStn2Down.20:=bArm1VertStn2Down_20;
+dwArm1VertStn2Down.21:=bArm1VertStn2Down_21;
+dwArm1VertStn2Down.22:=bArm1VertStn2Down_22;
+dwArm1VertStn2Down.23:=bArm1VertStn2Down_23;
+dwArm1VertStn2Down.24:=bArm1VertStn2Down_24;
+dwArm1VertStn2Down.25:=bArm1VertStn2Down_25;
+dwArm1VertStn2Down.26:=bArm1VertStn2Down_26;
+dwArm1VertStn2Down.27:=bArm1VertStn2Down_27;
+dwArm1VertStn2Down.28:=bArm1VertStn2Down_28;
+dwArm1VertStn2Down.29:=bArm1VertStn2Down_29;
+dwArm1VertStn2Down.30:=bArm1VertStn2Down_30;
+
+//Stn 3 Down
+dwArm1VertStn3Down.00:=bArm1VertStn3Down_00;
+dwArm1VertStn3Down.01:=bArm1VertStn3Down_01;
+dwArm1VertStn3Down.02:=bArm1VertStn3Down_02;
+dwArm1VertStn3Down.03:=bArm1VertStn3Down_03;
+dwArm1VertStn3Down.04:=bArm1VertStn3Down_04;
+dwArm1VertStn3Down.05:=bArm1VertStn3Down_05;
+dwArm1VertStn3Down.06:=bArm1VertStn3Down_06;
+dwArm1VertStn3Down.07:=bArm1VertStn3Down_07;
+dwArm1VertStn3Down.08:=bArm1VertStn3Down_08;
+dwArm1VertStn3Down.09:=bArm1VertStn3Down_09;
+dwArm1VertStn3Down.10:=bArm1VertStn3Down_10;
+dwArm1VertStn3Down.11:=bArm1VertStn3Down_11;
+dwArm1VertStn3Down.12:=bArm1VertStn3Down_12;
+dwArm1VertStn3Down.13:=bArm1VertStn3Down_13;
+dwArm1VertStn3Down.14:=bArm1VertStn3Down_14;
+dwArm1VertStn3Down.15:=bArm1VertStn3Down_15;
+dwArm1VertStn3Down.16:=bArm1VertStn3Down_16;
+dwArm1VertStn3Down.17:=bArm1VertStn3Down_17;
+dwArm1VertStn3Down.18:=bArm1VertStn3Down_18;
+dwArm1VertStn3Down.19:=bArm1VertStn3Down_19;
+dwArm1VertStn3Down.20:=bArm1VertStn3Down_20;
+dwArm1VertStn3Down.21:=bArm1VertStn3Down_21;
+dwArm1VertStn3Down.22:=bArm1VertStn3Down_22;
+dwArm1VertStn3Down.23:=bArm1VertStn3Down_23;
+dwArm1VertStn3Down.24:=bArm1VertStn3Down_24;
+dwArm1VertStn3Down.25:=bArm1VertStn3Down_25;
+dwArm1VertStn3Down.26:=bArm1VertStn3Down_26;
+dwArm1VertStn3Down.27:=bArm1VertStn3Down_27;
+dwArm1VertStn3Down.28:=bArm1VertStn3Down_28;
+dwArm1VertStn3Down.29:=bArm1VertStn3Down_29;
+dwArm1VertStn3Down.30:=bArm1VertStn3Down_30;
+
+//Stn 4 Down
+dwArm1VertStn4Down.00:=bArm1VertStn4Down_00;
+dwArm1VertStn4Down.01:=bArm1VertStn4Down_01;
+dwArm1VertStn4Down.02:=bArm1VertStn4Down_02;
+dwArm1VertStn4Down.03:=bArm1VertStn4Down_03;
+dwArm1VertStn4Down.04:=bArm1VertStn4Down_04;
+dwArm1VertStn4Down.05:=bArm1VertStn4Down_05;
+dwArm1VertStn4Down.06:=bArm1VertStn4Down_06;
+dwArm1VertStn4Down.07:=bArm1VertStn4Down_07;
+dwArm1VertStn4Down.08:=bArm1VertStn4Down_08;
+dwArm1VertStn4Down.09:=bArm1VertStn4Down_09;
+dwArm1VertStn4Down.10:=bArm1VertStn4Down_10;
+dwArm1VertStn4Down.11:=bArm1VertStn4Down_11;
+dwArm1VertStn4Down.12:=bArm1VertStn4Down_12;
+dwArm1VertStn4Down.13:=bArm1VertStn4Down_13;
+dwArm1VertStn4Down.14:=bArm1VertStn4Down_14;
+dwArm1VertStn4Down.15:=bArm1VertStn4Down_15;
+dwArm1VertStn4Down.16:=bArm1VertStn4Down_16;
+dwArm1VertStn4Down.17:=bArm1VertStn4Down_17;
+dwArm1VertStn4Down.18:=bArm1VertStn4Down_18;
+dwArm1VertStn4Down.19:=bArm1VertStn4Down_19;
+dwArm1VertStn4Down.20:=bArm1VertStn4Down_20;
+dwArm1VertStn4Down.21:=bArm1VertStn4Down_21;
+dwArm1VertStn4Down.22:=bArm1VertStn4Down_22;
+dwArm1VertStn4Down.23:=bArm1VertStn4Down_23;
+dwArm1VertStn4Down.24:=bArm1VertStn4Down_24;
+dwArm1VertStn4Down.25:=bArm1VertStn4Down_25;
+dwArm1VertStn4Down.26:=bArm1VertStn4Down_26;
+dwArm1VertStn4Down.27:=bArm1VertStn4Down_27;
+dwArm1VertStn4Down.28:=bArm1VertStn4Down_28;
+dwArm1VertStn4Down.29:=bArm1VertStn4Down_29;
+dwArm1VertStn4Down.30:=bArm1VertStn4Down_30;
+
+//Stn 5 Down
+dwArm1VertStn5Down.00:=bArm1VertStn5Down_00;
+dwArm1VertStn5Down.01:=bArm1VertStn5Down_01;
+dwArm1VertStn5Down.02:=bArm1VertStn5Down_02;
+dwArm1VertStn5Down.03:=bArm1VertStn5Down_03;
+dwArm1VertStn5Down.04:=bArm1VertStn5Down_04;
+dwArm1VertStn5Down.05:=bArm1VertStn5Down_05;
+dwArm1VertStn5Down.06:=bArm1VertStn5Down_06;
+dwArm1VertStn5Down.07:=bArm1VertStn5Down_07;
+dwArm1VertStn5Down.08:=bArm1VertStn5Down_08;
+dwArm1VertStn5Down.09:=bArm1VertStn5Down_09;
+dwArm1VertStn5Down.10:=bArm1VertStn5Down_10;
+dwArm1VertStn5Down.11:=bArm1VertStn5Down_11;
+dwArm1VertStn5Down.12:=bArm1VertStn5Down_12;
+dwArm1VertStn5Down.13:=bArm1VertStn5Down_13;
+dwArm1VertStn5Down.14:=bArm1VertStn5Down_14;
+dwArm1VertStn5Down.15:=bArm1VertStn5Down_15;
+dwArm1VertStn5Down.16:=bArm1VertStn5Down_16;
+dwArm1VertStn5Down.17:=bArm1VertStn5Down_17;
+dwArm1VertStn5Down.18:=bArm1VertStn5Down_18;
+dwArm1VertStn5Down.19:=bArm1VertStn5Down_19;
+dwArm1VertStn5Down.20:=bArm1VertStn5Down_20;
+dwArm1VertStn5Down.21:=bArm1VertStn5Down_21;
+dwArm1VertStn5Down.22:=bArm1VertStn5Down_22;
+dwArm1VertStn5Down.23:=bArm1VertStn5Down_23;
+dwArm1VertStn5Down.24:=bArm1VertStn5Down_24;
+dwArm1VertStn5Down.25:=bArm1VertStn5Down_25;
+dwArm1VertStn5Down.26:=bArm1VertStn5Down_26;
+dwArm1VertStn5Down.27:=bArm1VertStn5Down_27;
+dwArm1VertStn5Down.28:=bArm1VertStn5Down_28;
+dwArm1VertStn5Down.29:=bArm1VertStn5Down_29;
+dwArm1VertStn5Down.30:=bArm1VertStn5Down_30;
+
+//Stn 6 Down
+dwArm1VertStn6Down.00:=bArm1VertStn6Down_00;
+dwArm1VertStn6Down.01:=bArm1VertStn6Down_01;
+dwArm1VertStn6Down.02:=bArm1VertStn6Down_02;
+dwArm1VertStn6Down.03:=bArm1VertStn6Down_03;
+dwArm1VertStn6Down.04:=bArm1VertStn6Down_04;
+dwArm1VertStn6Down.05:=bArm1VertStn6Down_05;
+dwArm1VertStn6Down.06:=bArm1VertStn6Down_06;
+dwArm1VertStn6Down.07:=bArm1VertStn6Down_07;
+dwArm1VertStn6Down.08:=bArm1VertStn6Down_08;
+dwArm1VertStn6Down.09:=bArm1VertStn6Down_09;
+dwArm1VertStn6Down.10:=bArm1VertStn6Down_10;
+dwArm1VertStn6Down.11:=bArm1VertStn6Down_11;
+dwArm1VertStn6Down.12:=bArm1VertStn6Down_12;
+dwArm1VertStn6Down.13:=bArm1VertStn6Down_13;
+dwArm1VertStn6Down.14:=bArm1VertStn6Down_14;
+dwArm1VertStn6Down.15:=bArm1VertStn6Down_15;
+dwArm1VertStn6Down.16:=bArm1VertStn6Down_16;
+dwArm1VertStn6Down.17:=bArm1VertStn6Down_17;
+dwArm1VertStn6Down.18:=bArm1VertStn6Down_18;
+dwArm1VertStn6Down.19:=bArm1VertStn6Down_19;
+dwArm1VertStn6Down.20:=bArm1VertStn6Down_20;
+dwArm1VertStn6Down.21:=bArm1VertStn6Down_21;
+dwArm1VertStn6Down.22:=bArm1VertStn6Down_22;
+dwArm1VertStn6Down.23:=bArm1VertStn6Down_23;
+dwArm1VertStn6Down.24:=bArm1VertStn6Down_24;
+dwArm1VertStn6Down.25:=bArm1VertStn6Down_25;
+dwArm1VertStn6Down.26:=bArm1VertStn6Down_26;
+dwArm1VertStn6Down.27:=bArm1VertStn6Down_27;
+dwArm1VertStn6Down.28:=bArm1VertStn6Down_28;
+dwArm1VertStn6Down.29:=bArm1VertStn6Down_29;
+dwArm1VertStn6Down.30:=bArm1VertStn6Down_30;
+
+//Stn 7 Down
+dwArm1VertStn7Down.00:=bArm1VertStn7Down_00;
+dwArm1VertStn7Down.01:=bArm1VertStn7Down_01;
+dwArm1VertStn7Down.02:=bArm1VertStn7Down_02;
+dwArm1VertStn7Down.03:=bArm1VertStn7Down_03;
+dwArm1VertStn7Down.04:=bArm1VertStn7Down_04;
+dwArm1VertStn7Down.05:=bArm1VertStn7Down_05;
+dwArm1VertStn7Down.06:=bArm1VertStn7Down_06;
+dwArm1VertStn7Down.07:=bArm1VertStn7Down_07;
+dwArm1VertStn7Down.08:=bArm1VertStn7Down_08;
+dwArm1VertStn7Down.09:=bArm1VertStn7Down_09;
+dwArm1VertStn7Down.10:=bArm1VertStn7Down_10;
+dwArm1VertStn7Down.11:=bArm1VertStn7Down_11;
+dwArm1VertStn7Down.12:=bArm1VertStn7Down_12;
+dwArm1VertStn7Down.13:=bArm1VertStn7Down_13;
+dwArm1VertStn7Down.14:=bArm1VertStn7Down_14;
+dwArm1VertStn7Down.15:=bArm1VertStn7Down_15;
+dwArm1VertStn7Down.16:=bArm1VertStn7Down_16;
+dwArm1VertStn7Down.17:=bArm1VertStn7Down_17;
+dwArm1VertStn7Down.18:=bArm1VertStn7Down_18;
+dwArm1VertStn7Down.19:=bArm1VertStn7Down_19;
+dwArm1VertStn7Down.20:=bArm1VertStn7Down_20;
+dwArm1VertStn7Down.21:=bArm1VertStn7Down_21;
+dwArm1VertStn7Down.22:=bArm1VertStn7Down_22;
+dwArm1VertStn7Down.23:=bArm1VertStn7Down_23;
+dwArm1VertStn7Down.24:=bArm1VertStn7Down_24;
+dwArm1VertStn7Down.25:=bArm1VertStn7Down_25;
+dwArm1VertStn7Down.26:=bArm1VertStn7Down_26;
+dwArm1VertStn7Down.27:=bArm1VertStn7Down_27;
+dwArm1VertStn7Down.28:=bArm1VertStn7Down_28;
+dwArm1VertStn7Down.29:=bArm1VertStn7Down_29;
+dwArm1VertStn7Down.30:=bArm1VertStn7Down_30;
+
+//Stn 8 Down
+dwArm1VertStn8Down.00:=bArm1VertStn8Down_00;
+dwArm1VertStn8Down.01:=bArm1VertStn8Down_01;
+dwArm1VertStn8Down.02:=bArm1VertStn8Down_02;
+dwArm1VertStn8Down.03:=bArm1VertStn8Down_03;
+dwArm1VertStn8Down.04:=bArm1VertStn8Down_04;
+dwArm1VertStn8Down.05:=bArm1VertStn8Down_05;
+dwArm1VertStn8Down.06:=bArm1VertStn8Down_06;
+dwArm1VertStn8Down.07:=bArm1VertStn8Down_07;
+dwArm1VertStn8Down.08:=bArm1VertStn8Down_08;
+dwArm1VertStn8Down.09:=bArm1VertStn8Down_09;
+dwArm1VertStn8Down.10:=bArm1VertStn8Down_10;
+dwArm1VertStn8Down.11:=bArm1VertStn8Down_11;
+dwArm1VertStn8Down.12:=bArm1VertStn8Down_12;
+dwArm1VertStn8Down.13:=bArm1VertStn8Down_13;
+dwArm1VertStn8Down.14:=bArm1VertStn8Down_14;
+dwArm1VertStn8Down.15:=bArm1VertStn8Down_15;
+dwArm1VertStn8Down.16:=bArm1VertStn8Down_16;
+dwArm1VertStn8Down.17:=bArm1VertStn8Down_17;
+dwArm1VertStn8Down.18:=bArm1VertStn8Down_18;
+dwArm1VertStn8Down.19:=bArm1VertStn8Down_19;
+dwArm1VertStn8Down.20:=bArm1VertStn8Down_20;
+dwArm1VertStn8Down.21:=bArm1VertStn8Down_21;
+dwArm1VertStn8Down.22:=bArm1VertStn8Down_22;
+dwArm1VertStn8Down.23:=bArm1VertStn8Down_23;
+dwArm1VertStn8Down.24:=bArm1VertStn8Down_24;
+dwArm1VertStn8Down.25:=bArm1VertStn8Down_25;
+dwArm1VertStn8Down.26:=bArm1VertStn8Down_26;
+dwArm1VertStn8Down.27:=bArm1VertStn8Down_27;
+dwArm1VertStn8Down.28:=bArm1VertStn8Down_28;
+dwArm1VertStn8Down.29:=bArm1VertStn8Down_29;
+dwArm1VertStn8Down.30:=bArm1VertStn8Down_30;
+
+//Stn 9 Down
+dwArm1VertStn9Down.00:=bArm1VertStn9Down_00;
+dwArm1VertStn9Down.01:=bArm1VertStn9Down_01;
+dwArm1VertStn9Down.02:=bArm1VertStn9Down_02;
+dwArm1VertStn9Down.03:=bArm1VertStn9Down_03;
+dwArm1VertStn9Down.04:=bArm1VertStn9Down_04;
+dwArm1VertStn9Down.05:=bArm1VertStn9Down_05;
+dwArm1VertStn9Down.06:=bArm1VertStn9Down_06;
+dwArm1VertStn9Down.07:=bArm1VertStn9Down_07;
+dwArm1VertStn9Down.08:=bArm1VertStn9Down_08;
+dwArm1VertStn9Down.09:=bArm1VertStn9Down_09;
+dwArm1VertStn9Down.10:=bArm1VertStn9Down_10;
+dwArm1VertStn9Down.11:=bArm1VertStn9Down_11;
+dwArm1VertStn9Down.12:=bArm1VertStn9Down_12;
+dwArm1VertStn9Down.13:=bArm1VertStn9Down_13;
+dwArm1VertStn9Down.14:=bArm1VertStn9Down_14;
+dwArm1VertStn9Down.15:=bArm1VertStn9Down_15;
+dwArm1VertStn9Down.16:=bArm1VertStn9Down_16;
+dwArm1VertStn9Down.17:=bArm1VertStn9Down_17;
+dwArm1VertStn9Down.18:=bArm1VertStn9Down_18;
+dwArm1VertStn9Down.19:=bArm1VertStn9Down_19;
+dwArm1VertStn9Down.20:=bArm1VertStn9Down_20;
+dwArm1VertStn9Down.21:=bArm1VertStn9Down_21;
+dwArm1VertStn9Down.22:=bArm1VertStn9Down_22;
+dwArm1VertStn9Down.23:=bArm1VertStn9Down_23;
+dwArm1VertStn9Down.24:=bArm1VertStn9Down_24;
+dwArm1VertStn9Down.25:=bArm1VertStn9Down_25;
+dwArm1VertStn9Down.26:=bArm1VertStn9Down_26;
+dwArm1VertStn9Down.27:=bArm1VertStn9Down_27;
+dwArm1VertStn9Down.28:=bArm1VertStn9Down_28;
+dwArm1VertStn9Down.29:=bArm1VertStn9Down_29;
+dwArm1VertStn9Down.30:=bArm1VertStn9Down_30;
+
+//Stn 10 Down
+dwArm1VertStn10Down.00:=bArm1VertStn10Down_00;
+dwArm1VertStn10Down.01:=bArm1VertStn10Down_01;
+dwArm1VertStn10Down.02:=bArm1VertStn10Down_02;
+dwArm1VertStn10Down.03:=bArm1VertStn10Down_03;
+dwArm1VertStn10Down.04:=bArm1VertStn10Down_04;
+dwArm1VertStn10Down.05:=bArm1VertStn10Down_05;
+dwArm1VertStn10Down.06:=bArm1VertStn10Down_06;
+dwArm1VertStn10Down.07:=bArm1VertStn10Down_07;
+dwArm1VertStn10Down.08:=bArm1VertStn10Down_08;
+dwArm1VertStn10Down.09:=bArm1VertStn10Down_09;
+dwArm1VertStn10Down.10:=bArm1VertStn10Down_10;
+dwArm1VertStn10Down.11:=bArm1VertStn10Down_11;
+dwArm1VertStn10Down.12:=bArm1VertStn10Down_12;
+dwArm1VertStn10Down.13:=bArm1VertStn10Down_13;
+dwArm1VertStn10Down.14:=bArm1VertStn10Down_14;
+dwArm1VertStn10Down.15:=bArm1VertStn10Down_15;
+dwArm1VertStn10Down.16:=bArm1VertStn10Down_16;
+dwArm1VertStn10Down.17:=bArm1VertStn10Down_17;
+dwArm1VertStn10Down.18:=bArm1VertStn10Down_18;
+dwArm1VertStn10Down.19:=bArm1VertStn10Down_19;
+dwArm1VertStn10Down.20:=bArm1VertStn10Down_20;
+dwArm1VertStn10Down.21:=bArm1VertStn10Down_21;
+dwArm1VertStn10Down.22:=bArm1VertStn10Down_22;
+dwArm1VertStn10Down.23:=bArm1VertStn10Down_23;
+dwArm1VertStn10Down.24:=bArm1VertStn10Down_24;
+dwArm1VertStn10Down.25:=bArm1VertStn10Down_25;
+dwArm1VertStn10Down.26:=bArm1VertStn10Down_26;
+dwArm1VertStn10Down.27:=bArm1VertStn10Down_27;
+dwArm1VertStn10Down.28:=bArm1VertStn10Down_28;
+dwArm1VertStn10Down.29:=bArm1VertStn10Down_29;
+dwArm1VertStn10Down.30:=bArm1VertStn10Down_30;
+
+//Stn 11 Down
+dwArm1VertStn11Down.00:=bArm1VertStn11Down_00;
+dwArm1VertStn11Down.01:=bArm1VertStn11Down_01;
+dwArm1VertStn11Down.02:=bArm1VertStn11Down_02;
+dwArm1VertStn11Down.03:=bArm1VertStn11Down_03;
+dwArm1VertStn11Down.04:=bArm1VertStn11Down_04;
+dwArm1VertStn11Down.05:=bArm1VertStn11Down_05;
+dwArm1VertStn11Down.06:=bArm1VertStn11Down_06;
+dwArm1VertStn11Down.07:=bArm1VertStn11Down_07;
+dwArm1VertStn11Down.08:=bArm1VertStn11Down_08;
+dwArm1VertStn11Down.09:=bArm1VertStn11Down_09;
+dwArm1VertStn11Down.10:=bArm1VertStn11Down_10;
+dwArm1VertStn11Down.11:=bArm1VertStn11Down_11;
+dwArm1VertStn11Down.12:=bArm1VertStn11Down_12;
+dwArm1VertStn11Down.13:=bArm1VertStn11Down_13;
+dwArm1VertStn11Down.14:=bArm1VertStn11Down_14;
+dwArm1VertStn11Down.15:=bArm1VertStn11Down_15;
+dwArm1VertStn11Down.16:=bArm1VertStn11Down_16;
+dwArm1VertStn11Down.17:=bArm1VertStn11Down_17;
+dwArm1VertStn11Down.18:=bArm1VertStn11Down_18;
+dwArm1VertStn11Down.19:=bArm1VertStn11Down_19;
+dwArm1VertStn11Down.20:=bArm1VertStn11Down_20;
+dwArm1VertStn11Down.21:=bArm1VertStn11Down_21;
+dwArm1VertStn11Down.22:=bArm1VertStn11Down_22;
+dwArm1VertStn11Down.23:=bArm1VertStn11Down_23;
+dwArm1VertStn11Down.24:=bArm1VertStn11Down_24;
+dwArm1VertStn11Down.25:=bArm1VertStn11Down_25;
+dwArm1VertStn11Down.26:=bArm1VertStn11Down_26;
+dwArm1VertStn11Down.27:=bArm1VertStn11Down_27;
+dwArm1VertStn11Down.28:=bArm1VertStn11Down_28;
+dwArm1VertStn11Down.29:=bArm1VertStn11Down_29;
+dwArm1VertStn11Down.30:=bArm1VertStn11Down_30;
+
+//Stn 12 Down
+dwArm1VertStn12Down.00:=bArm1VertStn12Down_00;
+dwArm1VertStn12Down.01:=bArm1VertStn12Down_01;
+dwArm1VertStn12Down.02:=bArm1VertStn12Down_02;
+dwArm1VertStn12Down.03:=bArm1VertStn12Down_03;
+dwArm1VertStn12Down.04:=bArm1VertStn12Down_04;
+dwArm1VertStn12Down.05:=bArm1VertStn12Down_05;
+dwArm1VertStn12Down.06:=bArm1VertStn12Down_06;
+dwArm1VertStn12Down.07:=bArm1VertStn12Down_07;
+dwArm1VertStn12Down.08:=bArm1VertStn12Down_08;
+dwArm1VertStn12Down.09:=bArm1VertStn12Down_09;
+dwArm1VertStn12Down.10:=bArm1VertStn12Down_10;
+dwArm1VertStn12Down.11:=bArm1VertStn12Down_11;
+dwArm1VertStn12Down.12:=bArm1VertStn12Down_12;
+dwArm1VertStn12Down.13:=bArm1VertStn12Down_13;
+dwArm1VertStn12Down.14:=bArm1VertStn12Down_14;
+dwArm1VertStn12Down.15:=bArm1VertStn12Down_15;
+dwArm1VertStn12Down.16:=bArm1VertStn12Down_16;
+dwArm1VertStn12Down.17:=bArm1VertStn12Down_17;
+dwArm1VertStn12Down.18:=bArm1VertStn12Down_18;
+dwArm1VertStn12Down.19:=bArm1VertStn12Down_19;
+dwArm1VertStn12Down.20:=bArm1VertStn12Down_20;
+dwArm1VertStn12Down.21:=bArm1VertStn12Down_21;
+dwArm1VertStn12Down.22:=bArm1VertStn12Down_22;
+dwArm1VertStn12Down.23:=bArm1VertStn12Down_23;
+dwArm1VertStn12Down.24:=bArm1VertStn12Down_24;
+dwArm1VertStn12Down.25:=bArm1VertStn12Down_25;
+dwArm1VertStn12Down.26:=bArm1VertStn12Down_26;
+dwArm1VertStn12Down.27:=bArm1VertStn12Down_27;
+dwArm1VertStn12Down.28:=bArm1VertStn12Down_28;
+dwArm1VertStn12Down.29:=bArm1VertStn12Down_29;
+dwArm1VertStn12Down.30:=bArm1VertStn12Down_30;
+
+//Stn 9 Mid Down
+dwArm1VertStn9SpSlanted.00:=bArm1VertStn9SpSlanted_00;
+dwArm1VertStn9SpSlanted.01:=bArm1VertStn9SpSlanted_01;
+dwArm1VertStn9SpSlanted.02:=bArm1VertStn9SpSlanted_02;
+dwArm1VertStn9SpSlanted.03:=bArm1VertStn9SpSlanted_03;
+dwArm1VertStn9SpSlanted.04:=bArm1VertStn9SpSlanted_04;
+dwArm1VertStn9SpSlanted.05:=bArm1VertStn9SpSlanted_05;
+dwArm1VertStn9SpSlanted.06:=bArm1VertStn9SpSlanted_06;
+dwArm1VertStn9SpSlanted.07:=bArm1VertStn9SpSlanted_07;
+dwArm1VertStn9SpSlanted.08:=bArm1VertStn9SpSlanted_08;
+dwArm1VertStn9SpSlanted.09:=bArm1VertStn9SpSlanted_09;
+dwArm1VertStn9SpSlanted.10:=bArm1VertStn9SpSlanted_10;
+dwArm1VertStn9SpSlanted.11:=bArm1VertStn9SpSlanted_11;
+dwArm1VertStn9SpSlanted.12:=bArm1VertStn9SpSlanted_12;
+dwArm1VertStn9SpSlanted.13:=bArm1VertStn9SpSlanted_13;
+dwArm1VertStn9SpSlanted.14:=bArm1VertStn9SpSlanted_14;
+dwArm1VertStn9SpSlanted.15:=bArm1VertStn9SpSlanted_15;
+dwArm1VertStn9SpSlanted.16:=bArm1VertStn9SpSlanted_16;
+dwArm1VertStn9SpSlanted.17:=bArm1VertStn9SpSlanted_17;
+dwArm1VertStn9SpSlanted.18:=bArm1VertStn9SpSlanted_18;
+dwArm1VertStn9SpSlanted.19:=bArm1VertStn9SpSlanted_19;
+dwArm1VertStn9SpSlanted.20:=bArm1VertStn9SpSlanted_20;
+dwArm1VertStn9SpSlanted.21:=bArm1VertStn9SpSlanted_21;
+dwArm1VertStn9SpSlanted.22:=bArm1VertStn9SpSlanted_22;
+dwArm1VertStn9SpSlanted.23:=bArm1VertStn9SpSlanted_23;
+dwArm1VertStn9SpSlanted.24:=bArm1VertStn9SpSlanted_24;
+dwArm1VertStn9SpSlanted.25:=bArm1VertStn9SpSlanted_25;
+dwArm1VertStn9SpSlanted.26:=bArm1VertStn9SpSlanted_26;
+dwArm1VertStn9SpSlanted.27:=bArm1VertStn9SpSlanted_27;
+dwArm1VertStn9SpSlanted.28:=bArm1VertStn9SpSlanted_28;
+dwArm1VertStn9SpSlanted.29:=bArm1VertStn9SpSlanted_29;
+dwArm1VertStn9SpSlanted.30:=bArm1VertStn9SpSlanted_30;]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN_Arm_Mapping">
+      <LineId Id="103" Count="0" />
+      <LineId Id="5" Count="2" />
+      <LineId Id="76" Count="26" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="104" Count="29" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="1661" Count="0" />
+      <LineId Id="1660" Count="0" />
+      <LineId Id="1662" Count="0" />
+      <LineId Id="1664" Count="29" />
+      <LineId Id="1759" Count="0" />
+      <LineId Id="1761" Count="0" />
+      <LineId Id="1695" Count="0" />
+      <LineId Id="1694" Count="0" />
+      <LineId Id="1697" Count="29" />
+      <LineId Id="1758" Count="0" />
+      <LineId Id="1798" Count="0" />
+      <LineId Id="1829" Count="29" />
+      <LineId Id="1828" Count="0" />
+      <LineId Id="1760" Count="0" />
+      <LineId Id="1696" Count="0" />
+      <LineId Id="1663" Count="0" />
+      <LineId Id="1728" Count="29" />
+      <LineId Id="1727" Count="0" />
+      <LineId Id="1766" Count="30" />
+      <LineId Id="1765" Count="0" />
+      <LineId Id="164" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="134" Count="29" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="1862" Count="0" />
+      <LineId Id="211" Count="0" />
+      <LineId Id="165" Count="0" />
+      <LineId Id="180" Count="29" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="212" Count="31" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="275" Count="1" />
+      <LineId Id="244" Count="30" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="308" Count="0" />
+      <LineId Id="277" Count="30" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="309" Count="0" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="329" Count="29" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="310" Count="1" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="360" Count="29" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="312" Count="1" />
+      <LineId Id="172" Count="0" />
+      <LineId Id="392" Count="29" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="314" Count="1" />
+      <LineId Id="173" Count="0" />
+      <LineId Id="424" Count="29" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="316" Count="1" />
+      <LineId Id="174" Count="0" />
+      <LineId Id="456" Count="29" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="318" Count="1" />
+      <LineId Id="175" Count="0" />
+      <LineId Id="487" Count="29" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="320" Count="1" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="518" Count="29" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="322" Count="1" />
+      <LineId Id="177" Count="0" />
+      <LineId Id="549" Count="30" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="324" Count="1" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="581" Count="29" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="327" Count="0" />
+      <LineId Id="326" Count="0" />
+      <LineId Id="179" Count="0" />
+      <LineId Id="612" Count="29" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="643" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="672" Count="29" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="1866" Count="0" />
+      <LineId Id="644" Count="0" />
+      <LineId Id="642" Count="0" />
+      <LineId Id="703" Count="29" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="646" Count="0" />
+      <LineId Id="733" Count="0" />
+      <LineId Id="765" Count="29" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="648" Count="0" />
+      <LineId Id="647" Count="0" />
+      <LineId Id="796" Count="29" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="650" Count="0" />
+      <LineId Id="649" Count="0" />
+      <LineId Id="827" Count="29" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="652" Count="0" />
+      <LineId Id="651" Count="0" />
+      <LineId Id="858" Count="29" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="654" Count="0" />
+      <LineId Id="653" Count="0" />
+      <LineId Id="889" Count="29" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="656" Count="0" />
+      <LineId Id="655" Count="0" />
+      <LineId Id="920" Count="29" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="658" Count="0" />
+      <LineId Id="657" Count="0" />
+      <LineId Id="951" Count="29" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="660" Count="0" />
+      <LineId Id="659" Count="0" />
+      <LineId Id="982" Count="29" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="662" Count="0" />
+      <LineId Id="1013" Count="0" />
+      <LineId Id="1043" Count="0" />
+      <LineId Id="1014" Count="28" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="1012" Count="0" />
+      <LineId Id="664" Count="0" />
+      <LineId Id="663" Count="0" />
+      <LineId Id="1045" Count="29" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="666" Count="0" />
+      <LineId Id="665" Count="0" />
+      <LineId Id="1076" Count="29" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="668" Count="0" />
+      <LineId Id="667" Count="0" />
+      <LineId Id="1107" Count="29" />
+      <LineId Id="51" Count="2" />
+      <LineId Id="1138" Count="29" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="669" Count="1" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="1175" Count="29" />
+      <LineId Id="54" Count="0" />
+      <LineId Id="1205" Count="0" />
+      <LineId Id="1168" Count="0" />
+      <LineId Id="1244" Count="29" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="1206" Count="0" />
+      <LineId Id="1169" Count="0" />
+      <LineId Id="1275" Count="29" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="1207" Count="1" />
+      <LineId Id="1170" Count="0" />
+      <LineId Id="1306" Count="29" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="1209" Count="0" />
+      <LineId Id="1171" Count="0" />
+      <LineId Id="1337" Count="29" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="1210" Count="0" />
+      <LineId Id="1172" Count="0" />
+      <LineId Id="1368" Count="29" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="1211" Count="0" />
+      <LineId Id="1173" Count="0" />
+      <LineId Id="1399" Count="29" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="1429" Count="0" />
+      <LineId Id="1212" Count="0" />
+      <LineId Id="1437" Count="29" />
+      <LineId Id="62" Count="0" />
+      <LineId Id="1467" Count="0" />
+      <LineId Id="1430" Count="0" />
+      <LineId Id="1469" Count="29" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="1499" Count="0" />
+      <LineId Id="1431" Count="0" />
+      <LineId Id="1501" Count="29" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="1531" Count="0" />
+      <LineId Id="1432" Count="0" />
+      <LineId Id="1533" Count="29" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="1564" Count="0" />
+      <LineId Id="1433" Count="0" />
+      <LineId Id="1566" Count="29" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="1596" Count="0" />
+      <LineId Id="1434" Count="0" />
+      <LineId Id="1598" Count="29" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="1628" Count="1" />
+      <LineId Id="1659" Count="0" />
+      <LineId Id="1630" Count="28" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="1901" Count="0" />
+      <LineId Id="1870" Count="30" />
+      <LineId Id="24" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_Arm_NoPersistent" Id="{c0f37c01-25c6-4cc5-af62-a422648b1062}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+	DSInverter									: DS_Inverter;
+
+	ARDSStnInterlock							: ARRAY [0..iArmQty] OF DSV3_StnInterlock;
+	bArm1LdUpInterlockOK						: BOOL;
+	bArm2LdUpInterlockOK						: BOOL;
+
+	ARiVertHomeStep								: ARRAY [0..iArmQty] OF INT;
+	ARiHorzHomeStep							: ARRAY [0..iArmQty] OF INT;
+
+	bArmJogEnable								: BOOL;
+	bArmHomeResetbit 							: BOOL;
+
+	ARbVert_IASC_Out_HomeInProgress 			: ARRAY [0..iArmQty] OF BOOL;
+	ARbHorz_IASC_Out_HomeInProgress 			: ARRAY [0..iArmQty] OF BOOL;
+	ARbVert_IASC_Out_PosInProgress 				: ARRAY [0..iArmQty] OF BOOL;
+	ARbHorz_IASC_Out_PosInProgress 				: ARRAY [0..iArmQty] OF BOOL;
+	ARbVert_IASC_Out_JogInProgress 				: ARRAY [0..iArmQty] OF BOOL;
+	ARbHorz_IASC_Out_JogInProgress 				: ARRAY [0..iArmQty] OF BOOL;
+
+	AR2bArmHorzStnBeforeEnable					: ARRAY [0..iArmQty,0..iStnQty] OF BOOL; (*Slow Pull Interlocking with Arm Movement*)
+	AR2bArmHorzStnAfterEnable					: ARRAY [0..iArmQty,0..iStnQty] OF BOOL; (*Slow Pull Interlocking with Arm Movement*)
+
+(*Value Key in*)
+
+	ARrArmVertJogTargetSpdHz					: ARRAY [0..iArmQty] OF REAL;
+	ARrArmHorzJogTargetSpdHz					: ARRAY [0..iArmQty] OF REAL;
+
+(*Display Value*)
+
+	ARlrVertPositionMM 							: ARRAY [0..iArmQty] OF LREAL;
+	ARlrHorzPositionMM 							: ARRAY [0..iArmQty] OF LREAL;
+	ARlrSlowPullPositionMM						: ARRAY [0..iArmSlowPullQty] OF LREAL;
+
+	ARrVert_TS_TargetHzDisplay					: ARRAY [0..iArmQty] OF REAL;
+	ARrHorz_TS_TargetHzDisplay					: ARRAY [0..iArmQty] OF REAL;
+
+(*Output Signal*)
+
+	ARbArmHorzHomeDone 						: ARRAY [0..iArmQty] OF BOOL;
+
+	ARbArmVertHomeDone 						: ARRAY [0..iArmQty] OF BOOL;
+
+	ARbArmSlowPullHomeDone					: ARRAY [0..iArmSlowPullQty] OF BOOL;
+	ARbArmVertHomingBusy						: ARRAY [0..iArmQty] OF BOOL;
+	ARbArmHorzHomingBusy						: ARRAY [0..iArmQty] OF BOOL;
+
+	ARbArmVertMoveBusy							: ARRAY [0..iArmQty] OF BOOL;
+	ARbArmHorzMoveBusy						: ARRAY [0..iArmQty] OF BOOL;
+	ARbArmVertMoveDone						: ARRAY [0..iArmQty] OF BOOL;
+	ARbArmHorzMoveDone						: ARRAY [0..iArmQty] OF BOOL;
+
+	ARdwVertPos_In_PositioningEn					: ARRAY [0..iArmQty] OF DWORD;
+	ARdwHorzPos_In_PositioningEn					: ARRAY [0..iArmQty] OF DWORD;
+	ARdwVert4StepsPos_In_PositioningEn			: ARRAY [0..iArmQty] OF DWORD;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  Station Info xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	bLoadingCallArmEN							: BOOL;
+	bManualArmHome							: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Jog Control Variable xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*============================================================================*)
+
+	ARbArmHorzJogFwd	 						: ARRAY [0..iArmQty] OF BOOL;
+	ARbArmHorzJogRwd 							: ARRAY [0..iArmQty] OF BOOL;
+
+	ARbArmVertJogFwd 							: ARRAY [0..iArmQty] OF BOOL;
+	ARbArmVertJogRwd							: ARRAY [0..iArmQty] OF BOOL;
+
+	ARbArmSlowPullJogUp 						: ARRAY [0..iArmSlowPullQty] OF BOOL;
+	ARbArmSlowPullJogDown 						: ARRAY [0..iArmSlowPullQty] OF BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxx Arm MovePosition Control Variable xxxxxxxxxxxxxxxxxxxxxxxx*)
+(*============================================================================*)
+
+	AR3s_Horz1Step_bTargetPosSt 				: ARRAY [0..3, 0..iStnQty, 0..12] OF BOOL;
+	AR3s_Vert1Step_bTargetPosSt 					: ARRAY [0..3, 0..iStnQty, 0..12] OF BOOL;
+	AR3s_Vert4Steps_bTargetPosSt 				: ARRAY [0..3, 0..iStnQty, 0..12] OF BOOL;
+	AR3s_Empty_bTargetPosSt 					: ARRAY [0..3, 0..iStnQty, 0..12] OF BOOL;
+
+	AR3s_Arm2Horz1Step_bTargetPosSt 			: ARRAY [0..3, 0..iStnQty, 0..12] OF BOOL;
+	AR3s_Arm2Vert1Step_bTargetPosSt 			: ARRAY [0..3, 0..iStnQty, 0..12] OF BOOL;
+	AR3s_Arm2Vert4Steps_bTargetPosSt 			: ARRAY [0..3, 0..iStnQty, 0..12] OF BOOL;
+	AR3s_Arm2Empty_bTargetPosSt 				: ARRAY [0..3, 0..iStnQty, 0..12] OF BOOL;
+
+	ARrVertHomeTargetSpdHz_OUT				: ARRAY [0..iArmQty] OF REAL;
+	ARrHorzHomeTargetSpdHz_OUT				: ARRAY [0..iArmQty] OF REAL;
+
+	ARlrVertGen_InOut_TargetPos					: ARRAY [0..iArmQty] OF LREAL;
+	ARlrHorzGen_InOut_TargetPos					: ARRAY [0..iArmQty] OF LREAL;
+
+	ARrVertPos_Out_TargetSpdHz					: ARRAY [0..iArmQty] OF REAL;
+	ARrHorzPos_Out_TargetSpdHz					: ARRAY [0..iArmQty] OF REAL;
+
+	wArmSlowPullPosNum							: WORD;
+	wArmSlowPullPosStart							: WORD;
+	wArmSlowPullUpAgitation						: WORD;
+	wArmSlowPullDownAgitation					: WORD;
+
+
+(*To be Rearrange the Bit*)
+	bArmSlowPullDownCFM						: BOOL;
+	bArmSlowPullUpCFM							: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxx Arm 1 & 2 Horizontal Moving Interlock Bit xxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARbArm1StnHorzMoveEn						: ARRAY [1..iStnQty] OF BOOL;
+	ARbArm2StnHorzMoveEn						: ARRAY [1..iStnQty] OF BOOL;
+
+	bLifterError								: BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Axis definition xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*============================================================================*)
+
+	ARArmVertAxis								: ARRAY [0..iArmQty] OF Axis_ref;
+	ARArmHorzAxis								: ARRAY [0..iArmQty] OF Axis_ref;
+	ARArmLifterAxis								: ARRAY [0..iArmSlowPullQty] OF Axis_ref;
+
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ArmHorzZoneConfirm xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*============================================================================*)
+
+	ARiArmCurrentHorzZoneNoDisplay 				: ARRAY [0..iArmQty] OF INT;
+
+	ARbLdHorzZoneConfirmDisplay 					: ARRAY [0..iLdStnQty] OF BOOL;
+	ARbArm1HorzStnZoneConfirmDisplay 			: ARRAY [1..iStnQty] OF BOOL;
+	ARbArm2HorzStnZoneConfirmDisplay 			: ARRAY [1..iStnQty] OF BOOL;
+	ARbUldHorzZoneConfirmDisplay 				: ARRAY [0..iUldStnQty] OF BOOL;
+
+
+
+END_VAR
+
+
+
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

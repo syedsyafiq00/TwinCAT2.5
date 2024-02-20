@@ -1,0 +1,260 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="ClangsonicUSModbusCtrl" Id="{9c59b222-c309-4704-8338-d909a6992556}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM ClangsonicUSModbusCtrl
+VAR PERSISTENT
+	fbV2ClangsonicUltrasonic		: fbV2_ClangsonicUltrasonic;
+	fbV2ClangsonicUltrasonic2		: fbV2_ClangsonicUltrasonic;
+END_VAR
+VAR
+
+	iTimeout_Sec					: INT := 2;
+	bEnStart						: BOOL;
+	iStepReadOut				: INT;
+	iCounterReadOut				: INT;
+
+	iTimeout_Sec2				: INT := 2;
+	bEnStart2					: BOOL;
+	iStepReadOut2				: INT;
+	iCounterReadOut2				: INT;
+
+	bModbusError					: MODBUS_ERRORS;
+	bClangsonicModbusErrorFlag		: BOOL;
+	bClangsonicModbusErrorFlagRE	: R_TRIG;
+	iCounterErrorClang				: INT;
+	bTimerEn						: Ton;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[;
+(*
+iTimeout_Sec := 2;
+iTimeout_Sec2 := 2;
+
+fbV2ClangsonicUltrasonic	(
+	bStart:= PowerOnDelay.Q OR bEnStart,
+	iClangStepDelaySVns:= iClangStepDelaySVns,
+	iTimeout_Sec:= iTimeout_Sec,
+	DSClangsonicGenerator:= DSClangsonicGenerator,
+	bModbusReadBusy=> bClang_ModbusReadBusy ,
+	bModbusWriteBusy=> bClang_ModbusWriteBusy,
+	bModbusReadError=> bClang_ModbusReadError,
+	bModbusWriteError=> bClang_ModbusWriteError,
+	ErrorId_Read=> ErrorId_Read,
+	ErrorId_Write=> ErrorId_Write,
+	iStep=> iStepReadOut ,
+	iAddCounter=> iCounterReadOut );
+
+fbV2ClangsonicUltrasonic2	(
+	bStart:= PowerOnDelay.Q OR bEnStart2,
+	iClangStepDelaySVns:= iClangStepDelaySVns2,
+	iTimeout_Sec:= iTimeout_Sec2,
+	DSClangsonicGenerator:= DSClangsonicGenerator2,
+	bModbusReadBusy=> bClang_ModbusReadBusy2,
+	bModbusWriteBusy=> bClang_ModbusWriteBusy2,
+	bModbusReadError=> bClang_ModbusReadError2,
+	bModbusWriteError=> bClang_ModbusWriteError2,
+	ErrorId_Read=> ErrorId_Read2,
+	ErrorId_Write=> ErrorId_Write2,
+	iStep=> iStepReadOut2,
+	iAddCounter=> iCounterReadOut2 );
+
+(*
+Stn1 - 2
+Stn2 - 4
+Stn3 - 6
+Ultrasonic Modbus Reading*)
+
+IF (*ErrorId_Read > 0 OR *)( bModbusError = 16#0025 OR (*bModbusError*)ErrorId_Read = MODBUSERROR_NO_RESPONSE ) THEN
+bClangsonicModbusErrorFlag := TRUE;
+ELSE
+bClangsonicModbusErrorFlag := FALSE;
+END_IF
+
+bClangsonicModbusErrorFlagRE(CLK:=bClangsonicModbusErrorFlag , Q=> );
+
+bTimerEn(IN:= NOT bTimerEn.Q , PT:= t#30s , Q=> , ET=> );
+
+IF bClangsonicModbusErrorFlagRE.Q THEN
+iCounterErrorClang := iCounterErrorClang + 1;
+END_IF
+
+IF bTimerEn.Q THEN
+iCounterErrorClang := 0;
+END_IF
+
+
+DSClangsonicGenerator.wModbusData[11].0;
+DSClangsonicGenerator.wModbusData[11].1;
+DSClangsonicGenerator.wModbusData[11].2;
+DSClangsonicGenerator.wModbusData[11].3;
+DSClangsonicGenerator.wModbusData[11].4;
+
+DSClangsonicGenerator.wModbusData[1]; 		DSClangsonicGenerator.B_UnitID[1]; 			DSClangsonicGenerator.wModbusRegisterAddr[1]; 		DSClangsonicGenerator.iRWRef[1];
+DSClangsonicGenerator.wModbusData[2]; 		DSClangsonicGenerator.B_UnitID[2]; 			DSClangsonicGenerator.wModbusRegisterAddr[2]; 		DSClangsonicGenerator.iRWRef[2];
+DSClangsonicGenerator.wModbusData[3]; 		DSClangsonicGenerator.B_UnitID[3]; 			DSClangsonicGenerator.wModbusRegisterAddr[3]; 		DSClangsonicGenerator.iRWRef[3];
+DSClangsonicGenerator.wModbusData[4]; 		DSClangsonicGenerator.B_UnitID[4]; 			DSClangsonicGenerator.wModbusRegisterAddr[4]; 		DSClangsonicGenerator.iRWRef[4];
+DSClangsonicGenerator.wModbusData[5]; 		DSClangsonicGenerator.B_UnitID[5]; 			DSClangsonicGenerator.wModbusRegisterAddr[5]; 		DSClangsonicGenerator.iRWRef[5];
+DSClangsonicGenerator.wModbusData[6]; 		DSClangsonicGenerator.B_UnitID[6]; 			DSClangsonicGenerator.wModbusRegisterAddr[6]; 		DSClangsonicGenerator.iRWRef[6];
+DSClangsonicGenerator.wModbusData[7]; 		DSClangsonicGenerator.B_UnitID[7]; 			DSClangsonicGenerator.wModbusRegisterAddr[7]; 		DSClangsonicGenerator.iRWRef[7];
+DSClangsonicGenerator.wModbusData[8]; 		DSClangsonicGenerator.B_UnitID[8]; 			DSClangsonicGenerator.wModbusRegisterAddr[8]; 		DSClangsonicGenerator.iRWRef[8];
+DSClangsonicGenerator.wModbusData[9]; 		DSClangsonicGenerator.B_UnitID[9]; 			DSClangsonicGenerator.wModbusRegisterAddr[9]; 		DSClangsonicGenerator.iRWRef[9];
+DSClangsonicGenerator.wModbusData[10]; 		DSClangsonicGenerator.B_UnitID[10]; 		DSClangsonicGenerator.wModbusRegisterAddr[10]; 		DSClangsonicGenerator.iRWRef[10];
+DSClangsonicGenerator.wModbusData[11]; 		DSClangsonicGenerator.B_UnitID[11]; 		DSClangsonicGenerator.wModbusRegisterAddr[11]; 		DSClangsonicGenerator.iRWRef[11];
+
+
+(*Stn1B Ultrasonic Modbus Reading*)
+DSClangsonicGenerator.wModbusData[12]; 		DSClangsonicGenerator.B_UnitID[12]; 		DSClangsonicGenerator.wModbusRegisterAddr[12]; 		DSClangsonicGenerator.iRWRef[12];
+DSClangsonicGenerator.wModbusData[13]; 		DSClangsonicGenerator.B_UnitID[13]; 		DSClangsonicGenerator.wModbusRegisterAddr[13]; 		DSClangsonicGenerator.iRWRef[13];
+DSClangsonicGenerator.wModbusData[14]; 		DSClangsonicGenerator.B_UnitID[14]; 		DSClangsonicGenerator.wModbusRegisterAddr[14]; 		DSClangsonicGenerator.iRWRef[14];
+DSClangsonicGenerator.wModbusData[15]; 		DSClangsonicGenerator.B_UnitID[15]; 		DSClangsonicGenerator.wModbusRegisterAddr[15]; 		DSClangsonicGenerator.iRWRef[15];
+DSClangsonicGenerator.wModbusData[16]; 		DSClangsonicGenerator.B_UnitID[16]; 		DSClangsonicGenerator.wModbusRegisterAddr[16]; 		DSClangsonicGenerator.iRWRef[16];
+DSClangsonicGenerator.wModbusData[17]; 		DSClangsonicGenerator.B_UnitID[17]; 		DSClangsonicGenerator.wModbusRegisterAddr[17]; 		DSClangsonicGenerator.iRWRef[17];
+DSClangsonicGenerator.wModbusData[18]; 		DSClangsonicGenerator.B_UnitID[18]; 		DSClangsonicGenerator.wModbusRegisterAddr[18]; 		DSClangsonicGenerator.iRWRef[18];
+DSClangsonicGenerator.wModbusData[19]; 		DSClangsonicGenerator.B_UnitID[19]; 		DSClangsonicGenerator.wModbusRegisterAddr[19]; 		DSClangsonicGenerator.iRWRef[19];
+DSClangsonicGenerator.wModbusData[20]; 		DSClangsonicGenerator.B_UnitID[20]; 		DSClangsonicGenerator.wModbusRegisterAddr[20]; 		DSClangsonicGenerator.iRWRef[20];
+DSClangsonicGenerator.wModbusData[21]; 		DSClangsonicGenerator.B_UnitID[21]; 		DSClangsonicGenerator.wModbusRegisterAddr[21]; 		DSClangsonicGenerator.iRWRef[21];
+DSClangsonicGenerator.wModbusData[22]; 		DSClangsonicGenerator.B_UnitID[22]; 		DSClangsonicGenerator.wModbusRegisterAddr[22]; 		DSClangsonicGenerator.iRWRef[22];
+(*
+(*Stn2A Ultrasonic Modbus Reading*)
+DSClangsonicGenerator.wModbusData[23]; 		DSClangsonicGenerator.B_UnitID[23]; 		DSClangsonicGenerator.wModbusRegisterAddr[23]; 		DSClangsonicGenerator.iRWRef[23];
+DSClangsonicGenerator.wModbusData[24]; 		DSClangsonicGenerator.B_UnitID[24]; 		DSClangsonicGenerator.wModbusRegisterAddr[24]; 		DSClangsonicGenerator.iRWRef[24];
+DSClangsonicGenerator.wModbusData[25]; 		DSClangsonicGenerator.B_UnitID[25]; 		DSClangsonicGenerator.wModbusRegisterAddr[25]; 		DSClangsonicGenerator.iRWRef[25];
+DSClangsonicGenerator.wModbusData[26]; 		DSClangsonicGenerator.B_UnitID[26]; 		DSClangsonicGenerator.wModbusRegisterAddr[26]; 		DSClangsonicGenerator.iRWRef[26];
+DSClangsonicGenerator.wModbusData[27]; 		DSClangsonicGenerator.B_UnitID[27]; 		DSClangsonicGenerator.wModbusRegisterAddr[27]; 		DSClangsonicGenerator.iRWRef[27];
+DSClangsonicGenerator.wModbusData[28]; 		DSClangsonicGenerator.B_UnitID[28]; 		DSClangsonicGenerator.wModbusRegisterAddr[28]; 		DSClangsonicGenerator.iRWRef[28];
+DSClangsonicGenerator.wModbusData[29]; 		DSClangsonicGenerator.B_UnitID[29]; 		DSClangsonicGenerator.wModbusRegisterAddr[29]; 		DSClangsonicGenerator.iRWRef[29];
+DSClangsonicGenerator.wModbusData[30]; 		DSClangsonicGenerator.B_UnitID[30]; 		DSClangsonicGenerator.wModbusRegisterAddr[30]; 		DSClangsonicGenerator.iRWRef[30];
+DSClangsonicGenerator.wModbusData[31]; 		DSClangsonicGenerator.B_UnitID[31]; 		DSClangsonicGenerator.wModbusRegisterAddr[31]; 		DSClangsonicGenerator.iRWRef[31];
+DSClangsonicGenerator.wModbusData[32]; 		DSClangsonicGenerator.B_UnitID[32]; 		DSClangsonicGenerator.wModbusRegisterAddr[32]; 		DSClangsonicGenerator.iRWRef[32];
+DSClangsonicGenerator.wModbusData[33]; 		DSClangsonicGenerator.B_UnitID[33]; 		DSClangsonicGenerator.wModbusRegisterAddr[33]; 		DSClangsonicGenerator.iRWRef[33];
+
+(*Stn2B Ultrasonic Modbus Reading*)
+DSClangsonicGenerator.wModbusData[34];		DSClangsonicGenerator.B_UnitID[34];		DSClangsonicGenerator.wModbusRegisterAddr[34];		DSClangsonicGenerator.iRWRef[34];
+DSClangsonicGenerator.wModbusData[35];		DSClangsonicGenerator.B_UnitID[35];		DSClangsonicGenerator.wModbusRegisterAddr[35];		DSClangsonicGenerator.iRWRef[35];
+DSClangsonicGenerator.wModbusData[36];		DSClangsonicGenerator.B_UnitID[36];		DSClangsonicGenerator.wModbusRegisterAddr[36];		DSClangsonicGenerator.iRWRef[36];
+DSClangsonicGenerator.wModbusData[37];		DSClangsonicGenerator.B_UnitID[37];		DSClangsonicGenerator.wModbusRegisterAddr[37];		DSClangsonicGenerator.iRWRef[37];
+DSClangsonicGenerator.wModbusData[38];		DSClangsonicGenerator.B_UnitID[38];		DSClangsonicGenerator.wModbusRegisterAddr[38];		DSClangsonicGenerator.iRWRef[38];
+DSClangsonicGenerator.wModbusData[39];		DSClangsonicGenerator.B_UnitID[39];		DSClangsonicGenerator.wModbusRegisterAddr[39];		DSClangsonicGenerator.iRWRef[39];
+DSClangsonicGenerator.wModbusData[40];		DSClangsonicGenerator.B_UnitID[40];		DSClangsonicGenerator.wModbusRegisterAddr[40];		DSClangsonicGenerator.iRWRef[40];
+DSClangsonicGenerator.wModbusData[41];		DSClangsonicGenerator.B_UnitID[41];		DSClangsonicGenerator.wModbusRegisterAddr[41];		DSClangsonicGenerator.iRWRef[41];
+DSClangsonicGenerator.wModbusData[42];		DSClangsonicGenerator.B_UnitID[42];		DSClangsonicGenerator.wModbusRegisterAddr[42];		DSClangsonicGenerator.iRWRef[42];
+DSClangsonicGenerator.wModbusData[43];		DSClangsonicGenerator.B_UnitID[43];		DSClangsonicGenerator.wModbusRegisterAddr[43];		DSClangsonicGenerator.iRWRef[43];
+DSClangsonicGenerator.wModbusData[44];		DSClangsonicGenerator.B_UnitID[44];		DSClangsonicGenerator.wModbusRegisterAddr[44];		DSClangsonicGenerator.iRWRef[44];
+
+(*Stn3A Ultrasonic Modbus Reading*)
+DSClangsonicGenerator.wModbusData[45];		DSClangsonicGenerator.B_UnitID[45];		DSClangsonicGenerator.wModbusRegisterAddr[45];		DSClangsonicGenerator.iRWRef[45];
+DSClangsonicGenerator.wModbusData[46];		DSClangsonicGenerator.B_UnitID[46];		DSClangsonicGenerator.wModbusRegisterAddr[46];		DSClangsonicGenerator.iRWRef[46];
+DSClangsonicGenerator.wModbusData[47];		DSClangsonicGenerator.B_UnitID[47];		DSClangsonicGenerator.wModbusRegisterAddr[47];		DSClangsonicGenerator.iRWRef[47];
+DSClangsonicGenerator.wModbusData[48];		DSClangsonicGenerator.B_UnitID[48];		DSClangsonicGenerator.wModbusRegisterAddr[48];		DSClangsonicGenerator.iRWRef[48];
+DSClangsonicGenerator.wModbusData[49];		DSClangsonicGenerator.B_UnitID[49];		DSClangsonicGenerator.wModbusRegisterAddr[49];		DSClangsonicGenerator.iRWRef[49];			
+DSClangsonicGenerator.wModbusData[50];		DSClangsonicGenerator.B_UnitID[50];		DSClangsonicGenerator.wModbusRegisterAddr[50];		DSClangsonicGenerator.iRWRef[50];
+DSClangsonicGenerator.wModbusData[51];		DSClangsonicGenerator.B_UnitID[51];		DSClangsonicGenerator.wModbusRegisterAddr[51];		DSClangsonicGenerator.iRWRef[51];			
+DSClangsonicGenerator.wModbusData[52];		DSClangsonicGenerator.B_UnitID[52];		DSClangsonicGenerator.wModbusRegisterAddr[52];		DSClangsonicGenerator.iRWRef[52];
+DSClangsonicGenerator.wModbusData[53];		DSClangsonicGenerator.B_UnitID[53];		DSClangsonicGenerator.wModbusRegisterAddr[53];		DSClangsonicGenerator.iRWRef[53];
+DSClangsonicGenerator.wModbusData[54];		DSClangsonicGenerator.B_UnitID[54];		DSClangsonicGenerator.wModbusRegisterAddr[54];		DSClangsonicGenerator.iRWRef[54];			
+DSClangsonicGenerator.wModbusData[55];		DSClangsonicGenerator.B_UnitID[55];		DSClangsonicGenerator.wModbusRegisterAddr[55];		DSClangsonicGenerator.iRWRef[55];
+
+(*Stn3B Ultrasonic Modbus Reading*)
+DSClangsonicGenerator.wModbusData[56];		DSClangsonicGenerator.B_UnitID[56];		DSClangsonicGenerator.wModbusRegisterAddr[56];		DSClangsonicGenerator.iRWRef[56];
+DSClangsonicGenerator.wModbusData[57];		DSClangsonicGenerator.B_UnitID[57];		DSClangsonicGenerator.wModbusRegisterAddr[57];		DSClangsonicGenerator.iRWRef[57];
+DSClangsonicGenerator.wModbusData[58];		DSClangsonicGenerator.B_UnitID[58];		DSClangsonicGenerator.wModbusRegisterAddr[58];		DSClangsonicGenerator.iRWRef[58];
+DSClangsonicGenerator.wModbusData[59];		DSClangsonicGenerator.B_UnitID[59];		DSClangsonicGenerator.wModbusRegisterAddr[59];		DSClangsonicGenerator.iRWRef[59];
+DSClangsonicGenerator.wModbusData[60];		DSClangsonicGenerator.B_UnitID[60];		DSClangsonicGenerator.wModbusRegisterAddr[60];		DSClangsonicGenerator.iRWRef[60];
+DSClangsonicGenerator.wModbusData[61];		DSClangsonicGenerator.B_UnitID[61];		DSClangsonicGenerator.wModbusRegisterAddr[61];		DSClangsonicGenerator.iRWRef[61];
+DSClangsonicGenerator.wModbusData[62];		DSClangsonicGenerator.B_UnitID[62];		DSClangsonicGenerator.wModbusRegisterAddr[62];		DSClangsonicGenerator.iRWRef[62];
+DSClangsonicGenerator.wModbusData[63];		DSClangsonicGenerator.B_UnitID[63];		DSClangsonicGenerator.wModbusRegisterAddr[63];		DSClangsonicGenerator.iRWRef[63];
+DSClangsonicGenerator.wModbusData[64];		DSClangsonicGenerator.B_UnitID[64];		DSClangsonicGenerator.wModbusRegisterAddr[64];		DSClangsonicGenerator.iRWRef[64];
+DSClangsonicGenerator.wModbusData[65];		DSClangsonicGenerator.B_UnitID[65];		DSClangsonicGenerator.wModbusRegisterAddr[65];		DSClangsonicGenerator.iRWRef[65];
+DSClangsonicGenerator.wModbusData[66];		DSClangsonicGenerator.B_UnitID[66];		DSClangsonicGenerator.wModbusRegisterAddr[66];		DSClangsonicGenerator.iRWRef[66];
+
+
+
+(*Stn5A Ultrasonic Modbus Reading*)
+DSClangsonicGenerator2.wModbusData[1]; 		DSClangsonicGenerator2.B_UnitID[1]; 		DSClangsonicGenerator2.wModbusRegisterAddr[1]; 		DSClangsonicGenerator2.iRWRef[1];
+DSClangsonicGenerator2.wModbusData[2];		DSClangsonicGenerator2.B_UnitID[2];		DSClangsonicGenerator2.wModbusRegisterAddr[2];		DSClangsonicGenerator2.iRWRef[2];
+DSClangsonicGenerator2.wModbusData[3];		DSClangsonicGenerator2.B_UnitID[3];		DSClangsonicGenerator2.wModbusRegisterAddr[3];		DSClangsonicGenerator2.iRWRef[3];			
+DSClangsonicGenerator2.wModbusData[4];		DSClangsonicGenerator2.B_UnitID[4];		DSClangsonicGenerator2.wModbusRegisterAddr[4];		DSClangsonicGenerator2.iRWRef[4];
+DSClangsonicGenerator2.wModbusData[5];		DSClangsonicGenerator2.B_UnitID[5];		DSClangsonicGenerator2.wModbusRegisterAddr[5];		DSClangsonicGenerator2.iRWRef[5];			
+DSClangsonicGenerator2.wModbusData[6];		DSClangsonicGenerator2.B_UnitID[6];		DSClangsonicGenerator2.wModbusRegisterAddr[6];		DSClangsonicGenerator2.iRWRef[6];
+DSClangsonicGenerator2.wModbusData[7];		DSClangsonicGenerator2.B_UnitID[7];		DSClangsonicGenerator2.wModbusRegisterAddr[7];		DSClangsonicGenerator2.iRWRef[7];			
+DSClangsonicGenerator2.wModbusData[8];		DSClangsonicGenerator2.B_UnitID[8];		DSClangsonicGenerator2.wModbusRegisterAddr[8];		DSClangsonicGenerator2.iRWRef[8];			
+DSClangsonicGenerator2.wModbusData[9];		DSClangsonicGenerator2.B_UnitID[9];		DSClangsonicGenerator2.wModbusRegisterAddr[9];		DSClangsonicGenerator2.iRWRef[9];
+DSClangsonicGenerator2.wModbusData[10];		DSClangsonicGenerator2.B_UnitID[10];		DSClangsonicGenerator2.wModbusRegisterAddr[10];		DSClangsonicGenerator2.iRWRef[10];			
+DSClangsonicGenerator2.wModbusData[11];		DSClangsonicGenerator2.B_UnitID[11];		DSClangsonicGenerator2.wModbusRegisterAddr[11];		DSClangsonicGenerator2.iRWRef[11];
+
+(*Stn5B Ultrasonic Modbus Reading*)
+DSClangsonicGenerator2.wModbusData[12];		DSClangsonicGenerator2.B_UnitID[12];		DSClangsonicGenerator2.wModbusRegisterAddr[12];		DSClangsonicGenerator2.iRWRef[12];			
+DSClangsonicGenerator2.wModbusData[13];		DSClangsonicGenerator2.B_UnitID[13];		DSClangsonicGenerator2.wModbusRegisterAddr[13];		DSClangsonicGenerator2.iRWRef[13];			
+DSClangsonicGenerator2.wModbusData[14];		DSClangsonicGenerator2.B_UnitID[14];		DSClangsonicGenerator2.wModbusRegisterAddr[14];		DSClangsonicGenerator2.iRWRef[14];
+DSClangsonicGenerator2.wModbusData[15];		DSClangsonicGenerator2.B_UnitID[15];		DSClangsonicGenerator2.wModbusRegisterAddr[15];		DSClangsonicGenerator2.iRWRef[15];			
+DSClangsonicGenerator2.wModbusData[16];		DSClangsonicGenerator2.B_UnitID[16];		DSClangsonicGenerator2.wModbusRegisterAddr[16];		DSClangsonicGenerator2.iRWRef[16];			
+DSClangsonicGenerator2.wModbusData[17];		DSClangsonicGenerator2.B_UnitID[17];		DSClangsonicGenerator2.wModbusRegisterAddr[17];		DSClangsonicGenerator2.iRWRef[17];
+DSClangsonicGenerator2.wModbusData[18];		DSClangsonicGenerator2.B_UnitID[18];		DSClangsonicGenerator2.wModbusRegisterAddr[18];		DSClangsonicGenerator2.iRWRef[18];
+DSClangsonicGenerator2.wModbusData[19];		DSClangsonicGenerator2.B_UnitID[19];		DSClangsonicGenerator2.wModbusRegisterAddr[19];		DSClangsonicGenerator2.iRWRef[19];
+DSClangsonicGenerator2.wModbusData[20];		DSClangsonicGenerator2.B_UnitID[20];		DSClangsonicGenerator2.wModbusRegisterAddr[20];		DSClangsonicGenerator2.iRWRef[20];
+DSClangsonicGenerator2.wModbusData[21];		DSClangsonicGenerator2.B_UnitID[21];		DSClangsonicGenerator2.wModbusRegisterAddr[21];		DSClangsonicGenerator2.iRWRef[21];
+DSClangsonicGenerator2.wModbusData[22];		DSClangsonicGenerator2.B_UnitID[22];		DSClangsonicGenerator2.wModbusRegisterAddr[22];		DSClangsonicGenerator2.iRWRef[22];
+
+(*Stn6A Ultrasonic Modbus Reading*)
+DSClangsonicGenerator2.wModbusData[23];		DSClangsonicGenerator2.B_UnitID[23];		DSClangsonicGenerator2.wModbusRegisterAddr[23];		DSClangsonicGenerator2.iRWRef[23];
+DSClangsonicGenerator2.wModbusData[24];		DSClangsonicGenerator2.B_UnitID[24];		DSClangsonicGenerator2.wModbusRegisterAddr[24];		DSClangsonicGenerator2.iRWRef[24];
+DSClangsonicGenerator2.wModbusData[25];		DSClangsonicGenerator2.B_UnitID[25];		DSClangsonicGenerator2.wModbusRegisterAddr[25];		DSClangsonicGenerator2.iRWRef[25];
+DSClangsonicGenerator2.wModbusData[26];		DSClangsonicGenerator2.B_UnitID[26];		DSClangsonicGenerator2.wModbusRegisterAddr[26];		DSClangsonicGenerator2.iRWRef[26];			
+DSClangsonicGenerator2.wModbusData[27];		DSClangsonicGenerator2.B_UnitID[27];		DSClangsonicGenerator2.wModbusRegisterAddr[27];		DSClangsonicGenerator2.iRWRef[27];			
+DSClangsonicGenerator2.wModbusData[28];		DSClangsonicGenerator2.B_UnitID[28];		DSClangsonicGenerator2.wModbusRegisterAddr[28];		DSClangsonicGenerator2.iRWRef[28];
+DSClangsonicGenerator2.wModbusData[29];		DSClangsonicGenerator2.B_UnitID[29];		DSClangsonicGenerator2.wModbusRegisterAddr[29];		DSClangsonicGenerator2.iRWRef[29];			
+DSClangsonicGenerator2.wModbusData[30];		DSClangsonicGenerator2.B_UnitID[30];		DSClangsonicGenerator2.wModbusRegisterAddr[30];		DSClangsonicGenerator2.iRWRef[30];
+DSClangsonicGenerator2.wModbusData[31];		DSClangsonicGenerator2.B_UnitID[31];		DSClangsonicGenerator2.wModbusRegisterAddr[31];		DSClangsonicGenerator2.iRWRef[31];
+DSClangsonicGenerator2.wModbusData[32];		DSClangsonicGenerator2.B_UnitID[32];		DSClangsonicGenerator2.wModbusRegisterAddr[32];		DSClangsonicGenerator2.iRWRef[32];			
+DSClangsonicGenerator2.wModbusData[33];		DSClangsonicGenerator2.B_UnitID[33];		DSClangsonicGenerator2.wModbusRegisterAddr[33];		DSClangsonicGenerator2.iRWRef[33];
+
+(*Stn6B Ultrasonic Modbus Reading*)
+DSClangsonicGenerator2.wModbusData[34];		DSClangsonicGenerator2.B_UnitID[34];		DSClangsonicGenerator2.wModbusRegisterAddr[34];		DSClangsonicGenerator2.iRWRef[34];
+DSClangsonicGenerator2.wModbusData[35];		DSClangsonicGenerator2.B_UnitID[35];		DSClangsonicGenerator2.wModbusRegisterAddr[35];		DSClangsonicGenerator2.iRWRef[35];			
+DSClangsonicGenerator2.wModbusData[36];		DSClangsonicGenerator2.B_UnitID[36];		DSClangsonicGenerator2.wModbusRegisterAddr[36];		DSClangsonicGenerator2.iRWRef[36];			
+DSClangsonicGenerator2.wModbusData[37];		DSClangsonicGenerator2.B_UnitID[37];		DSClangsonicGenerator2.wModbusRegisterAddr[37];		DSClangsonicGenerator2.iRWRef[37];
+DSClangsonicGenerator2.wModbusData[38];		DSClangsonicGenerator2.B_UnitID[38];		DSClangsonicGenerator2.wModbusRegisterAddr[38];		DSClangsonicGenerator2.iRWRef[38];			
+DSClangsonicGenerator2.wModbusData[39];		DSClangsonicGenerator2.B_UnitID[39];		DSClangsonicGenerator2.wModbusRegisterAddr[39];		DSClangsonicGenerator2.iRWRef[39];
+DSClangsonicGenerator2.wModbusData[40];		DSClangsonicGenerator2.B_UnitID[40];		DSClangsonicGenerator2.wModbusRegisterAddr[40];		DSClangsonicGenerator2.iRWRef[40];
+DSClangsonicGenerator2.wModbusData[41];		DSClangsonicGenerator2.B_UnitID[41];		DSClangsonicGenerator2.wModbusRegisterAddr[41];		DSClangsonicGenerator2.iRWRef[41];			
+DSClangsonicGenerator2.wModbusData[42];		DSClangsonicGenerator2.B_UnitID[42];		DSClangsonicGenerator2.wModbusRegisterAddr[42];		DSClangsonicGenerator2.iRWRef[42];			
+DSClangsonicGenerator2.wModbusData[43];		DSClangsonicGenerator2.B_UnitID[43];		DSClangsonicGenerator2.wModbusRegisterAddr[43];		DSClangsonicGenerator2.iRWRef[43];			
+DSClangsonicGenerator2.wModbusData[44];		DSClangsonicGenerator2.B_UnitID[44];		DSClangsonicGenerator2.wModbusRegisterAddr[44];		DSClangsonicGenerator2.iRWRef[44];
+
+(*Stn7A Ultrasonic Modbus Reading*)
+DSClangsonicGenerator2.wModbusData[45];		DSClangsonicGenerator2.B_UnitID[45];		DSClangsonicGenerator2.wModbusRegisterAddr[45];		DSClangsonicGenerator2.iRWRef[45];			
+DSClangsonicGenerator2.wModbusData[46];		DSClangsonicGenerator2.B_UnitID[46];		DSClangsonicGenerator2.wModbusRegisterAddr[46];		DSClangsonicGenerator2.iRWRef[46];
+DSClangsonicGenerator2.wModbusData[47];		DSClangsonicGenerator2.B_UnitID[47];		DSClangsonicGenerator2.wModbusRegisterAddr[47];		DSClangsonicGenerator2.iRWRef[47];
+DSClangsonicGenerator2.wModbusData[48];		DSClangsonicGenerator2.B_UnitID[48];		DSClangsonicGenerator2.wModbusRegisterAddr[48];		DSClangsonicGenerator2.iRWRef[48];			
+DSClangsonicGenerator2.wModbusData[49];		DSClangsonicGenerator2.B_UnitID[49];		DSClangsonicGenerator2.wModbusRegisterAddr[49];		DSClangsonicGenerator2.iRWRef[49];			
+DSClangsonicGenerator2.wModbusData[50];		DSClangsonicGenerator2.B_UnitID[50];		DSClangsonicGenerator2.wModbusRegisterAddr[50];		DSClangsonicGenerator2.iRWRef[50];			
+DSClangsonicGenerator2.wModbusData[51];		DSClangsonicGenerator2.B_UnitID[51];		DSClangsonicGenerator2.wModbusRegisterAddr[51];		DSClangsonicGenerator2.iRWRef[51];			
+DSClangsonicGenerator2.wModbusData[52];		DSClangsonicGenerator2.B_UnitID[52];		DSClangsonicGenerator2.wModbusRegisterAddr[52];		DSClangsonicGenerator2.iRWRef[52];
+DSClangsonicGenerator2.wModbusData[53];		DSClangsonicGenerator2.B_UnitID[53];		DSClangsonicGenerator2.wModbusRegisterAddr[53];		DSClangsonicGenerator2.iRWRef[53];			
+DSClangsonicGenerator2.wModbusData[54];		DSClangsonicGenerator2.B_UnitID[54];		DSClangsonicGenerator2.wModbusRegisterAddr[54];		DSClangsonicGenerator2.iRWRef[54];
+DSClangsonicGenerator2.wModbusData[55];		DSClangsonicGenerator2.B_UnitID[55];		DSClangsonicGenerator2.wModbusRegisterAddr[55];		DSClangsonicGenerator2.iRWRef[55];
+
+(*Stn7B Ultrasonic Modbus Reading*)
+DSClangsonicGenerator2.wModbusData[56];		DSClangsonicGenerator2.B_UnitID[56];		DSClangsonicGenerator2.wModbusRegisterAddr[56];		DSClangsonicGenerator2.iRWRef[56];
+DSClangsonicGenerator2.wModbusData[57];		DSClangsonicGenerator2.B_UnitID[57];		DSClangsonicGenerator2.wModbusRegisterAddr[57];		DSClangsonicGenerator2.iRWRef[57];
+DSClangsonicGenerator2.wModbusData[58];		DSClangsonicGenerator2.B_UnitID[58];		DSClangsonicGenerator2.wModbusRegisterAddr[58];		DSClangsonicGenerator2.iRWRef[58];
+DSClangsonicGenerator2.wModbusData[59];		DSClangsonicGenerator2.B_UnitID[59];		DSClangsonicGenerator2.wModbusRegisterAddr[59];		DSClangsonicGenerator2.iRWRef[59];
+DSClangsonicGenerator2.wModbusData[60];		DSClangsonicGenerator2.B_UnitID[60];		DSClangsonicGenerator2.wModbusRegisterAddr[60];		DSClangsonicGenerator2.iRWRef[60];			
+DSClangsonicGenerator2.wModbusData[61];		DSClangsonicGenerator2.B_UnitID[61];		DSClangsonicGenerator2.wModbusRegisterAddr[61];		DSClangsonicGenerator2.iRWRef[61];
+DSClangsonicGenerator2.wModbusData[62];		DSClangsonicGenerator2.B_UnitID[62];		DSClangsonicGenerator2.wModbusRegisterAddr[62];		DSClangsonicGenerator2.iRWRef[62];			
+DSClangsonicGenerator2.wModbusData[63];		DSClangsonicGenerator2.B_UnitID[63];		DSClangsonicGenerator2.wModbusRegisterAddr[63];		DSClangsonicGenerator2.iRWRef[63];			
+DSClangsonicGenerator2.wModbusData[64];		DSClangsonicGenerator2.B_UnitID[64];		DSClangsonicGenerator2.wModbusRegisterAddr[64];		DSClangsonicGenerator2.iRWRef[64];
+DSClangsonicGenerator2.wModbusData[65];		DSClangsonicGenerator2.B_UnitID[65];		DSClangsonicGenerator2.wModbusRegisterAddr[65];		DSClangsonicGenerator2.iRWRef[65];			
+DSClangsonicGenerator2.wModbusData[66];		DSClangsonicGenerator2.B_UnitID[66];		DSClangsonicGenerator2.wModbusRegisterAddr[66];		DSClangsonicGenerator2.iRWRef[66];
+
+*)
+*)]]></ST>
+    </Implementation>
+    <LineIds Name="ClangsonicUSModbusCtrl">
+      <LineId Id="268" Count="1" />
+      <LineId Id="24" Count="220" />
+      <LineId Id="270" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

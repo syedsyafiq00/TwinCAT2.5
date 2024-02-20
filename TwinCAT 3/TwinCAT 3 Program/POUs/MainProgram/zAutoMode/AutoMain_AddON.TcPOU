@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="AutoMain_AddON" Id="{4b473277-04bf-46d0-bd46-871fc1cc726b}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM AutoMain_AddON
+VAR
+
+	MainOnOffStartRE			:R_TRIG;
+	PreparationStartRE		:R_TRIG;
+	OriginStartRE				:R_TRIG;
+	AutoModeRE				:R_TRIG;
+
+	MainOnOffDelayOffTON	: TON;
+	PreparationStartTON		: TON;
+	OriginStartTON			:TON;
+	AutoModeTON			:TON;
+
+	bTest1	:BOOL;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*To start the Main On OFF Bit*)
+MainOnOffStartRE(CLK:= bMainOnOffBuff, Q=> );
+IF MainOnOffStartRE.Q THEN
+	bMainOnOff :=TRUE;
+	bTest1:=TRUE;
+END_IF
+
+(*To Reset Main On Off bit*)
+MainOnOffDelayOffTON(IN:=(bMainonOff OR bTest1) AND  bMainOnOffBuff, PT:=t#5s , Q=> , ET=> );
+IF MainOnOffDelayOffTON.Q THEN
+	bMainOnOff:=FALSE;
+	bTest1:=FALSE;
+END_IF
+
+
+
+(*To start the Auto Preparation PB  Bit*)
+PreparationStartRE(CLK:= bAutoPreparationPbBuff, Q=> );
+IF PreparationStartRE.Q THEN
+	bAutoPreparationPb  :=TRUE;
+END_IF
+
+(*To Reset Auto Preparation PB bit*)
+PreparationStartTON(IN:= bAutoPreparationPb AND  bAutoPreparationPbBuff, PT:=t#5s , Q=> , ET=> );
+IF PreparationStartTON.Q THEN
+	bAutoPreparationPb:=FALSE;
+END_IF
+
+
+
+
+(*To start the Auto Origin PB  Bit*)
+OriginStartRE(CLK:= bAutoOriginPbBuff, Q=> );
+IF OriginStartRE.Q THEN
+	bAutoOriginPb  :=TRUE;
+END_IF
+
+(*To Reset Auto Origin PB bit*)
+OriginStartTON(IN:= bAutoOriginPbBuff AND  bAutoOriginPB, PT:=t#5s , Q=> , ET=> );
+IF OriginStartTON.Q THEN
+	bAutoOriginPB:=FALSE;
+END_IF
+
+
+
+
+(*To start the bAutoStartPb Bit*)
+AutoModeRE(CLK:= bAutoStartPbBuff, Q=> );
+IF AutoModeRE.Q THEN
+	bAutoStartPb  :=TRUE;
+END_IF
+
+(*To Reset bAutoStartPb bit*)
+AutoModeTON(IN:= bAutoStartPbBuff AND  bAutoStartPb, PT:=t#5s , Q=> , ET=> );
+IF AutoModeTON.Q THEN
+	bAutoStartPb:=FALSE;
+END_IF
+
+
+(*
+
+	bMainOnOffBuff						:BOOL; (*Add on For Main On Off delay Off-20181112*)
+	bAutoPreparationPbBuff      				: BOOL;
+	bAutoOriginPbBuff						: BOOL;
+	bAutoStartPbBuff						: BOOL;
+
+	bMainOnOff							: BOOL;
+	bAutoPreparationPb      				: BOOL;
+	bAutoPreparationInt	      				: BOOL;
+	bAutoPreparationDone					: BOOL;
+	bAutoOriginPb						: BOOL;
+	bAutoOriginDone						: BOOL;
+	bAutoStartPb							: BOOL;
+
+*)]]></ST>
+    </Implementation>
+    <LineIds Name="AutoMain_AddON">
+      <LineId Id="16" Count="74" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

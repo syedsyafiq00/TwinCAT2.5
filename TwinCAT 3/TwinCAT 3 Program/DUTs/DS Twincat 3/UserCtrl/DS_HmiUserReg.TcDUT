@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_HmiUserReg" Id="{0b9d919c-c99e-48d9-b17d-d4ce88991962}">
+    <Declaration><![CDATA[TYPE DS_HmiUserReg :
+STRUCT 
+	ARsOperatorIdentifier	: ARRAY [0..20+1] OF STRING;	// Celestica Requirement	
+	AReActorType			: ARRAY [0..20+1] OF eActor;	// Celestica Requirement
+	ARsLastName				: ARRAY [0..20+1] OF STRING;
+	ARsFirstName 			: ARRAY [0..20+1] OF STRING;
+	ARsLoginName			: ARRAY [0..20+1] OF STRING;	// Same as Username
+	ARbUserStatus			: ARRAY [0..20+1] OF BOOL; 	// 0 = Deactivated/Disable, 1 = Active User
+	
+	ARiUserGroupID			: ARRAY [0..20+1] OF INT; 	// Define in HMI TF1800
+	ARwsUserGroupName		: ARRAY [0..20+1] OF WSTRING; 	// Define in HMI TF1800
+	ARsPw					: ARRAY [0..20+1] OF STRING;
+	
+	iQtyUserReg				: INT := 20;
+
+END_STRUCT
+
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

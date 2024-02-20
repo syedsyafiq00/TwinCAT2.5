@@ -1,0 +1,1065 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="HMIValueKeyInCtrl" Id="{2e628051-8c45-4407-a31a-c36538ec4c5a}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM HMIValueKeyInCtrl
+VAR
+	PowerOnDelayRE: R_TRIG;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*OFF When using Indusoft HMI*)
+
+(*xxxxxxxxxxxx 1st Visu Shown When Boot Up xxxxxxxxxxxx*)
+
+PowerOnDelayRE(CLK:=PowerOnDelay.Q , Q=> );
+
+IF PowerOnDelayRE.Q THEN
+VisuElems.CurrentVisu := 'ZMAIN_PAGE' ;
+END_IF
+
+
+(*xxxxxxxxxxxx Station Process Time Display Monitoring - Pull out from Function Block xxxxxxxxxxxx*) (*Display ONLY*)
+ARDsStnSeqProcessCtrl[1].In_AR5iCallTotalTimeRecipeNo[5] := DSStnBasketInfo[1].iStationSeqenceRecipeNo;
+ARDsStnSeqProcessCtrl[2].In_AR5iCallTotalTimeRecipeNo[5] := DSStnBasketInfo[2].iStationSeqenceRecipeNo;
+ARDsStnSeqProcessCtrl[3].In_AR5iCallTotalTimeRecipeNo[5] := DSStnBasketInfo[3].iStationSeqenceRecipeNo;
+ARDsStnSeqProcessCtrl[4].In_AR5iCallTotalTimeRecipeNo[5] := DSStnBasketInfo[4].iStationSeqenceRecipeNo;
+ARDsStnSeqProcessCtrl[5].In_AR5iCallTotalTimeRecipeNo[5] := DSStnBasketInfo[5].iStationSeqenceRecipeNo;
+ARDsStnSeqProcessCtrl[6].In_AR5iCallTotalTimeRecipeNo[5] := DSStnBasketInfo[6].iStationSeqenceRecipeNo;
+ARDsStnSeqProcessCtrl[7].In_AR5iCallTotalTimeRecipeNo[5] := DSStnBasketInfo[7].iStationSeqenceRecipeNo;
+ARDsStnSeqProcessCtrl[8].In_AR5iCallTotalTimeRecipeNo[5] := DSStnBasketInfo[8].iStationSeqenceRecipeNo;
+ARDsStnSeqProcessCtrl[9].In_AR5iCallTotalTimeRecipeNo[5] := DSStnBasketInfo[9].iStationSeqenceRecipeNo;
+ARDsStnSeqProcessCtrl[10].In_AR5iCallTotalTimeRecipeNo[5] := DSStnBasketInfo[10].iStationSeqenceRecipeNo;
+ARDsStnSeqProcessCtrl[11].In_AR5iCallTotalTimeRecipeNo[5] := DSStnBasketInfo[11].iStationSeqenceRecipeNo;
+ARDsStnSeqProcessCtrl[12].In_AR5iCallTotalTimeRecipeNo[5] := DSStnBasketInfo[12].iStationSeqenceRecipeNo;
+
+ARDsStnSeqProcessCtrl[1].Out_AR5iCalledTotalProcessTimeSV[5];
+ARDsStnSeqProcessCtrl[2].Out_AR5iCalledTotalProcessTimeSV[5];
+ARDsStnSeqProcessCtrl[3].Out_AR5iCalledTotalProcessTimeSV[5];
+ARDsStnSeqProcessCtrl[4].Out_AR5iCalledTotalProcessTimeSV[5];
+ARDsStnSeqProcessCtrl[5].Out_AR5iCalledTotalProcessTimeSV[5];
+ARDsStnSeqProcessCtrl[6].Out_AR5iCalledTotalProcessTimeSV[5];
+ARDsStnSeqProcessCtrl[7].Out_AR5iCalledTotalProcessTimeSV[5];
+ARDsStnSeqProcessCtrl[8].Out_AR5iCalledTotalProcessTimeSV[5];
+ARDsStnSeqProcessCtrl[9].Out_AR5iCalledTotalProcessTimeSV[5];
+ARDsStnSeqProcessCtrl[10].Out_AR5iCalledTotalProcessTimeSV[5];
+ARDsStnSeqProcessCtrl[11].Out_AR5iCalledTotalProcessTimeSV[5];
+ARDsStnSeqProcessCtrl[12].Out_AR5iCalledTotalProcessTimeSV[5];
+
+
+(*xxxxxxxxxxxx Temperature Ctrl xxxxxxxxxxxx*)
+
+(*Station Temp Ctrl*)
+	ARrStnTempHYSsv[1]; 			ARrStnTempHALsv[1]; 				ARrStnTempSV[1]; 			ARrStnTempRDYsv[1]; 			ARrStnTemp1stLimitSv[1];				ARrStnTemp2ndLimitSv[1];				ARiStnPreparationTempSv[1];
+	ARrStnTempHYSsv[2]; 			ARrStnTempHALsv[2]; 				ARrStnTempSV[2]; 			ARrStnTempRDYsv[2];				ARrStnTemp1stLimitSv[2];				ARrStnTemp2ndLimitSv[2];				ARiStnPreparationTempSv[2];
+	ARrStnTempHYSsv[3]; 			ARrStnTempHALsv[3]; 				ARrStnTempSV[3]; 			ARrStnTempRDYsv[3];				ARrStnTemp1stLimitSv[3];				ARrStnTemp2ndLimitSv[3];				ARiStnPreparationTempSv[3];
+	ARrStnTempHYSsv[4]; 			ARrStnTempHALsv[4]; 				ARrStnTempSV[4]; 			ARrStnTempRDYsv[4];				ARrStnTemp1stLimitSv[4];				ARrStnTemp2ndLimitSv[4];				ARiStnPreparationTempSv[4];
+	ARrStnTempHYSsv[5]; 			ARrStnTempHALsv[5]; 				ARrStnTempSV[5]; 			ARrStnTempRDYsv[5];				ARrStnTemp1stLimitSv[5];				ARrStnTemp2ndLimitSv[5];				ARiStnPreparationTempSv[5];
+	ARrStnTempHYSsv[6]; 			ARrStnTempHALsv[6]; 				ARrStnTempSV[6]; 			ARrStnTempRDYsv[6];				ARrStnTemp1stLimitSv[6];				ARrStnTemp2ndLimitSv[6];				ARiStnPreparationTempSv[6];
+	ARrStnTempHYSsv[7]; 			ARrStnTempHALsv[7]; 				ARrStnTempSV[7]; 			ARrStnTempRDYsv[7];				ARrStnTemp1stLimitSv[7];				ARrStnTemp2ndLimitSv[7];				ARiStnPreparationTempSv[7];
+	ARrStnTempHYSsv[8]; 			ARrStnTempHALsv[8]; 				ARrStnTempSV[8]; 			ARrStnTempRDYsv[8];				ARrStnTemp1stLimitSv[8];				ARrStnTemp2ndLimitSv[8];				ARiStnPreparationTempSv[8];
+	ARrStnTempHYSsv[9]; 			ARrStnTempHALsv[9]; 				ARrStnTempSV[9]; 			ARrStnTempRDYsv[9];				ARrStnTemp1stLimitSv[9];				ARrStnTemp2ndLimitSv[9];				ARiStnPreparationTempSv[9];
+	ARrStnTempHYSsv[10]; 			ARrStnTempHALsv[10]; 			ARrStnTempSV[10]; 			ARrStnTempRDYsv[10];			ARrStnTemp1stLimitSv[10];				ARrStnTemp2ndLimitSv[10];			ARiStnPreparationTempSv[10];
+	ARrStnTempHYSsv[11]; 			ARrStnTempHALsv[11]; 			ARrStnTempSV[11]; 			ARrStnTempRDYsv[11];			ARrStnTemp1stLimitSv[11];				ARrStnTemp2ndLimitSv[11];			ARiStnPreparationTempSv[11];
+	ARrStnTempHYSsv[12]; 			ARrStnTempHALsv[12]; 			ARrStnTempSV[12]; 			ARrStnTempRDYsv[12];			ARrStnTemp1stLimitSv[12];				ARrStnTemp2ndLimitSv[12];			ARiStnPreparationTempSv[12];
+
+(*Stn WaterJacket Temp Ctrl*)
+	ARrStnWaterJacketTempHYSsv[4]; 	ARrStnWaterJacketTempHALsv[4]; 	ARrStnWaterJacketTempSV[4]; 	ARrStnWaterJacketTempRDYsv[4]; 	ARrStnWaterJacketTemp1stLimitSv[4]; 	ARrStnWaterJacketTemp2ndLimitSv[4]; 	ARiStnWaterJacketPreparationTempSv[4];
+	ARrStnWaterJacketTempHYSsv[5]; 	ARrStnWaterJacketTempHALsv[5]; 	ARrStnWaterJacketTempSV[5]; 	ARrStnWaterJacketTempRDYsv[5]; 	ARrStnWaterJacketTemp1stLimitSv[5]; 	ARrStnWaterJacketTemp2ndLimitSv[5]; 	ARiStnWaterJacketPreparationTempSv[5];
+
+(*Stn Sub Tank Temp Ctrl*)
+	ARrStnSubTankTempHYSsv[1]; 			ARrStnSubTankTempHALsv[1]; 				ARrStnSubTankTempSV[1]; 			ARrStnSubTankTempRDYsv[1]; 			ARrStnSubTankTemp1stLimitSv[1];				ARrStnSubTankTemp2ndLimitSv[1];				ARiStnSubTankPreparationTempSv[1];
+	ARrStnSubTankTempHYSsv[2]; 			ARrStnSubTankTempHALsv[2]; 				ARrStnSubTankTempSV[2]; 			ARrStnSubTankTempRDYsv[2];				ARrStnSubTankTemp1stLimitSv[2];				ARrStnSubTankTemp2ndLimitSv[2];				ARiStnSubTankPreparationTempSv[2];
+	ARrStnSubTankTempHYSsv[3]; 			ARrStnSubTankTempHALsv[3]; 				ARrStnSubTankTempSV[3]; 			ARrStnSubTankTempRDYsv[3];				ARrStnSubTankTemp1stLimitSv[3];				ARrStnSubTankTemp2ndLimitSv[3];				ARiStnSubTankPreparationTempSv[3];
+	ARrStnSubTankTempHYSsv[4]; 			ARrStnSubTankTempHALsv[4]; 				ARrStnSubTankTempSV[4]; 			ARrStnSubTankTempRDYsv[4];				ARrStnSubTankTemp1stLimitSv[4];				ARrStnSubTankTemp2ndLimitSv[4];				ARiStnSubTankPreparationTempSv[4];
+
+(*JRS Inline Heater Temp Ctrl*)
+	rJRSInlineHeaterTempHYSsv;
+	rJRSInlineHeaterTempHALsv;
+	rJRSInlineHeaterTempSV;
+	rJRSInlineHeaterTempRDYsv;
+	rJRSInlineHeaterTemp1stLimitSv;
+	rJRSInlineHeaterTemp2ndLimitSv;
+	iJRSInlineHeaterPreparationTempSv	;
+
+(*Inc Temp Ctrl*)
+	rIncTempHYSsv;
+	rIncTempHALsv;
+	rIncTempSV;
+	rIncTempRDYsv;
+	rIncTemp1stLimitSv;
+	rIncTemp2ndLimitSv;
+	iIncPreparationTempSv;
+
+(*Oil Separator Temp Ctrl*)
+	rOilSeparatorTempHYSsv;
+	rOilSeparatorTempHALsv;
+	rOilSeparatorTempSV;
+	rOilSeparatorTempRDYsv;
+	rOilSeparatorTemp1stLimitSv;
+	rOilSeparatorTemp2ndLimitSv;
+	iOilSeparatorPreparationTempSv;
+
+
+(*xxxxxxxxxxxx Conductivity Setting  xxxxxxxxxxxx*)
+
+(*1st/2nd Limit - Use this as the setting when the tank is using DI water/Normal water*)
+	ARrStnConductivity1stLimitSv[1]; 			ARrStnConductivity2ndLimitSv[1];
+	ARrStnConductivity1stLimitSv[2]; 			ARrStnConductivity2ndLimitSv[2];
+	ARrStnConductivity1stLimitSv[3]; 			ARrStnConductivity2ndLimitSv[3];
+	ARrStnConductivity1stLimitSv[4]; 			ARrStnConductivity2ndLimitSv[4];
+	ARrStnConductivity1stLimitSv[5]; 			ARrStnConductivity2ndLimitSv[5];
+	ARrStnConductivity1stLimitSv[6]; 			ARrStnConductivity2ndLimitSv[6];
+	ARrStnConductivity1stLimitSv[7]; 			ARrStnConductivity2ndLimitSv[7];
+	ARrStnConductivity1stLimitSv[8]; 			ARrStnConductivity2ndLimitSv[8];
+	ARrStnConductivity1stLimitSv[9]; 			ARrStnConductivity2ndLimitSv[9];
+	ARrStnConductivity1stLimitSv[10]; 		ARrStnConductivity2ndLimitSv[10];
+	ARrStnConductivity1stLimitSv[11]; 		ARrStnConductivity2ndLimitSv[11];
+	ARrStnConductivity1stLimitSv[12]; 		ARrStnConductivity2ndLimitSv[12];
+
+(*Low/High - Use this as the setting when the tank is using Chemical/Detergent*)
+	ARrStnLowConductivitySv[1]; 			ARrStnHighConductivitySv[1];
+	ARrStnLowConductivitySv[2]; 			ARrStnHighConductivitySv[2];
+	ARrStnLowConductivitySv[3]; 			ARrStnHighConductivitySv[3];
+	ARrStnLowConductivitySv[4]; 			ARrStnHighConductivitySv[4];
+	ARrStnLowConductivitySv[5]; 			ARrStnHighConductivitySv[5];
+	ARrStnLowConductivitySv[6]; 			ARrStnHighConductivitySv[6];
+	ARrStnLowConductivitySv[7]; 			ARrStnHighConductivitySv[7];
+	ARrStnLowConductivitySv[8]; 			ARrStnHighConductivitySv[8];
+	ARrStnLowConductivitySv[9]; 			ARrStnHighConductivitySv[9];
+	ARrStnLowConductivitySv[10]; 			ARrStnHighConductivitySv[10];
+	ARrStnLowConductivitySv[11]; 			ARrStnHighConductivitySv[11];
+	ARrStnLowConductivitySv[12]; 			ARrStnHighConductivitySv[12];
+
+
+(*xxxxxxxxxxxx Resistivity Setting  xxxxxxxxxxxx*)
+
+(*1st/2nd Limit - Use this as the setting when the tank is using DI water/Normal water*)
+(*	ARrStnResistivity1stLimitSv[1]; 			ARrStnResistivity2ndLimitSv[1];
+	ARrStnResistivity1stLimitSv[2]; 			ARrStnResistivity2ndLimitSv[2];
+	ARrStnResistivity1stLimitSv[3]; 			ARrStnResistivity2ndLimitSv[3];
+	ARrStnResistivity1stLimitSv[4]; 			ARrStnResistivity2ndLimitSv[4];
+	ARrStnResistivity1stLimitSv[5]; 			ARrStnResistivity2ndLimitSv[5];
+	ARrStnResistivity1stLimitSv[6]; 			ARrStnResistivity2ndLimitSv[6];
+	ARrStnResistivity1stLimitSv[7]; 			ARrStnResistivity2ndLimitSv[7];
+	ARrStnResistivity1stLimitSv[8]; 			ARrStnResistivity2ndLimitSv[8];
+	ARrStnResistivity1stLimitSv[9]; 			ARrStnResistivity2ndLimitSv[9];
+	ARrStnResistivity1stLimitSv[10]; 			ARrStnResistivity2ndLimitSv[10];
+	ARrStnResistivity1stLimitSv[11]; 			ARrStnResistivity2ndLimitSv[11];
+	ARrStnResistivity1stLimitSv[12]; 			ARrStnResistivity2ndLimitSv[12];
+
+(*Low/High - Use this as the setting when the tank is using Chemical/Detergent*)
+	ARrStnLowResistivitySv[1]; 				ARrStnHighResistivitySv[1];
+	ARrStnLowResistivitySv[2]; 				ARrStnHighResistivitySv[2];
+	ARrStnLowResistivitySv[3]; 				ARrStnHighResistivitySv[3];
+	ARrStnLowResistivitySv[4]; 				ARrStnHighResistivitySv[4];
+	ARrStnLowResistivitySv[5]; 				ARrStnHighResistivitySv[5];
+	ARrStnLowResistivitySv[6]; 				ARrStnHighResistivitySv[6];
+	ARrStnLowResistivitySv[7]; 				ARrStnHighResistivitySv[7];
+	ARrStnLowResistivitySv[8]; 				ARrStnHighResistivitySv[8];
+	ARrStnLowResistivitySv[9]; 				ARrStnHighResistivitySv[9];
+	ARrStnLowResistivitySv[10]; 			ARrStnHighResistivitySv[10];
+	ARrStnLowResistivitySv[11]; 			ARrStnHighResistivitySv[11];
+	ARrStnLowResistivitySv[12]; 			ARrStnHighResistivitySv[12];
+
+
+(*xxxxxxxxxxxx PH Setting  xxxxxxxxxxxx*)
+
+(*Low/High*)
+	ARrStnLowPhSv[1]; 					ARrStnHighPhSv[1];
+	ARrStnLowPhSv[2]; 					ARrStnHighPhSv[2];
+	ARrStnLowPhSv[3]; 					ARrStnHighPhSv[3];
+	ARrStnLowPhSv[4]; 					ARrStnHighPhSv[4];
+	ARrStnLowPhSv[5]; 					ARrStnHighPhSv[5];
+	ARrStnLowPhSv[6]; 					ARrStnHighPhSv[6];
+	ARrStnLowPhSv[7]; 					ARrStnHighPhSv[7];
+	ARrStnLowPhSv[8]; 					ARrStnHighPhSv[8];
+	ARrStnLowPhSv[9]; 					ARrStnHighPhSv[9];
+	ARrStnLowPhSv[10]; 					ARrStnHighPhSv[10];
+	ARrStnLowPhSv[11]; 					ARrStnHighPhSv[11];
+	ARrStnLowPhSv[12]; 					ARrStnHighPhSv[12];
+*)
+
+(*xxxxxxxxxxxx Filter Pressure Setting  xxxxxxxxxxxx*)
+
+(*1st/2nd Limit*)
+	ARrStnFilterPressure1stLimitSv[1]; 		ARrStnFilterPressure2ndLimitSv[1];
+	ARrStnFilterPressure1stLimitSv[2]; 		ARrStnFilterPressure2ndLimitSv[2];
+	ARrStnFilterPressure1stLimitSv[3]; 		ARrStnFilterPressure2ndLimitSv[3];
+	ARrStnFilterPressure1stLimitSv[4]; 		ARrStnFilterPressure2ndLimitSv[4];
+	ARrStnFilterPressure1stLimitSv[5]; 		ARrStnFilterPressure2ndLimitSv[5];
+	ARrStnFilterPressure1stLimitSv[6]; 		ARrStnFilterPressure2ndLimitSv[6];
+	ARrStnFilterPressure1stLimitSv[7]; 		ARrStnFilterPressure2ndLimitSv[7];
+	ARrStnFilterPressure1stLimitSv[8]; 		ARrStnFilterPressure2ndLimitSv[8];
+	ARrStnFilterPressure1stLimitSv[9]; 		ARrStnFilterPressure2ndLimitSv[9];
+	ARrStnFilterPressure1stLimitSv[10]; 		ARrStnFilterPressure2ndLimitSv[10];
+	ARrStnFilterPressure1stLimitSv[11]; 		ARrStnFilterPressure2ndLimitSv[11];
+	ARrStnFilterPressure1stLimitSv[12]; 		ARrStnFilterPressure2ndLimitSv[12];
+
+
+(*xxxxxxxxxxxx Flow Switch Setting  xxxxxxxxxxxx*)
+
+(*1st/2nd Limit*)
+	ARrStnFlowSwitch1stLimitSv[1]; 			ARrStnFlowSwitch2ndLimitSv[1];
+	ARrStnFlowSwitch1stLimitSv[2]; 			ARrStnFlowSwitch2ndLimitSv[2];
+	ARrStnFlowSwitch1stLimitSv[3]; 			ARrStnFlowSwitch2ndLimitSv[3];
+	ARrStnFlowSwitch1stLimitSv[4]; 			ARrStnFlowSwitch2ndLimitSv[4];
+	ARrStnFlowSwitch1stLimitSv[5]; 			ARrStnFlowSwitch2ndLimitSv[5];
+	ARrStnFlowSwitch1stLimitSv[6]; 			ARrStnFlowSwitch2ndLimitSv[6];
+	ARrStnFlowSwitch1stLimitSv[7]; 			ARrStnFlowSwitch2ndLimitSv[7];
+	ARrStnFlowSwitch1stLimitSv[8]; 			ARrStnFlowSwitch2ndLimitSv[8];
+	ARrStnFlowSwitch1stLimitSv[9]; 			ARrStnFlowSwitch2ndLimitSv[9];
+	ARrStnFlowSwitch1stLimitSv[10]; 		ARrStnFlowSwitch2ndLimitSv[10];
+	ARrStnFlowSwitch1stLimitSv[11]; 		ARrStnFlowSwitch2ndLimitSv[11];
+	ARrStnFlowSwitch1stLimitSv[12]; 		ARrStnFlowSwitch2ndLimitSv[12];
+
+
+(*xxxxxxxxxxxx Weber/Clangsonic Ultrasonic Power Setting - Manual Mode xxxxxxxxxxxx*)
+
+(*Side Ultrasonic*)
+	ARiStnManualUSSideAsv[1]; 			ARiStnManualUSSideBsv[1]; 			ARiStnManualUSSideCsv[1]; 			ARiStnManualUSSideDsv[1];
+	ARiStnManualUSSideAsv[2]; 			ARiStnManualUSSideBsv[2]; 			ARiStnManualUSSideCsv[2]; 			ARiStnManualUSSideDsv[2];
+	ARiStnManualUSSideAsv[3]; 			ARiStnManualUSSideBsv[3]; 			ARiStnManualUSSideCsv[3]; 			ARiStnManualUSSideDsv[3];
+	ARiStnManualUSSideAsv[4]; 			ARiStnManualUSSideBsv[4]; 			ARiStnManualUSSideCsv[4]; 			ARiStnManualUSSideDsv[4];
+	ARiStnManualUSSideAsv[5]; 			ARiStnManualUSSideBsv[5]; 			ARiStnManualUSSideCsv[5]; 			ARiStnManualUSSideDsv[5];
+	ARiStnManualUSSideAsv[6]; 			ARiStnManualUSSideBsv[6]; 			ARiStnManualUSSideCsv[6]; 			ARiStnManualUSSideDsv[6];
+	ARiStnManualUSSideAsv[7]; 			ARiStnManualUSSideBsv[7]; 			ARiStnManualUSSideCsv[7]; 			ARiStnManualUSSideDsv[7];
+	ARiStnManualUSSideAsv[8]; 			ARiStnManualUSSideBsv[8]; 			ARiStnManualUSSideCsv[8]; 			ARiStnManualUSSideDsv[8];
+	ARiStnManualUSSideAsv[9]; 			ARiStnManualUSSideBsv[9]; 			ARiStnManualUSSideCsv[9]; 			ARiStnManualUSSideDsv[9];
+	ARiStnManualUSSideAsv[10]; 			ARiStnManualUSSideBsv[10]; 			ARiStnManualUSSideCsv[10]; 			ARiStnManualUSSideDsv[10];
+	ARiStnManualUSSideAsv[11]; 			ARiStnManualUSSideBsv[11]; 			ARiStnManualUSSideCsv[11]; 			ARiStnManualUSSideDsv[11];
+	ARiStnManualUSSideAsv[12]; 			ARiStnManualUSSideBsv[12]; 			ARiStnManualUSSideCsv[12]; 			ARiStnManualUSSideDsv[12];
+
+(*Bottom Ultrasonic*)
+	ARiStnManualUSBtmAsv[1]; 			ARiStnManualUSBtmBsv[1]; 			ARiStnManualUSBtmCsv[1]; 			ARiStnManualUSBtmDsv[1];
+	ARiStnManualUSBtmAsv[2]; 			ARiStnManualUSBtmBsv[2]; 			ARiStnManualUSBtmCsv[2]; 			ARiStnManualUSBtmDsv[2];
+	ARiStnManualUSBtmAsv[3]; 			ARiStnManualUSBtmBsv[3]; 			ARiStnManualUSBtmCsv[3]; 			ARiStnManualUSBtmDsv[3];
+	ARiStnManualUSBtmAsv[4]; 			ARiStnManualUSBtmBsv[4]; 			ARiStnManualUSBtmCsv[4]; 			ARiStnManualUSBtmDsv[4];
+	ARiStnManualUSBtmAsv[5]; 			ARiStnManualUSBtmBsv[5]; 			ARiStnManualUSBtmCsv[5]; 			ARiStnManualUSBtmDsv[5];
+	ARiStnManualUSBtmAsv[6]; 			ARiStnManualUSBtmBsv[6]; 			ARiStnManualUSBtmCsv[6]; 			ARiStnManualUSBtmDsv[6];
+	ARiStnManualUSBtmAsv[7]; 			ARiStnManualUSBtmBsv[7]; 			ARiStnManualUSBtmCsv[7]; 			ARiStnManualUSBtmDsv[7];
+	ARiStnManualUSBtmAsv[8]; 			ARiStnManualUSBtmBsv[8]; 			ARiStnManualUSBtmCsv[8]; 			ARiStnManualUSBtmDsv[8];
+	ARiStnManualUSBtmAsv[9]; 			ARiStnManualUSBtmBsv[9]; 			ARiStnManualUSBtmCsv[9]; 			ARiStnManualUSBtmDsv[9];
+	ARiStnManualUSBtmAsv[10]; 			ARiStnManualUSBtmBsv[10]; 			ARiStnManualUSBtmCsv[10]; 			ARiStnManualUSBtmDsv[10];
+	ARiStnManualUSBtmAsv[11]; 			ARiStnManualUSBtmBsv[11]; 			ARiStnManualUSBtmCsv[11]; 			ARiStnManualUSBtmDsv[11];
+	ARiStnManualUSBtmAsv[12]; 			ARiStnManualUSBtmBsv[12]; 			ARiStnManualUSBtmCsv[12]; 			ARiStnManualUSBtmDsv[12];
+
+
+(*xxxxxxxxxxxx Vacuum Setting  xxxxxxxxxxxx*)
+
+(*Stn Vacuum High/Low Level*)
+(*	ARrStnHighVacuumLevelSV[1]; 			ARrStnLowVacuumLevelSV[1];
+	ARrStnHighVacuumLevelSV[2]; 			ARrStnLowVacuumLevelSV[2];
+	ARrStnHighVacuumLevelSV[3]; 			ARrStnLowVacuumLevelSV[3];
+	ARrStnHighVacuumLevelSV[4]; 			ARrStnLowVacuumLevelSV[4];
+	ARrStnHighVacuumLevelSV[5]; 			ARrStnLowVacuumLevelSV[5];
+	ARrStnHighVacuumLevelSV[6]; 			ARrStnLowVacuumLevelSV[6];
+	ARrStnHighVacuumLevelSV[7]; 			ARrStnLowVacuumLevelSV[7];
+	ARrStnHighVacuumLevelSV[8]; 			ARrStnLowVacuumLevelSV[8];
+	ARrStnHighVacuumLevelSV[9]; 			ARrStnLowVacuumLevelSV[9];
+	ARrStnHighVacuumLevelSV[10]; 		ARrStnLowVacuumLevelSV[10];
+	ARrStnHighVacuumLevelSV[11]; 		ARrStnLowVacuumLevelSV[11];
+	ARrStnHighVacuumLevelSV[12]; 		ARrStnLowVacuumLevelSV[12];
+
+(*Stn Sub Vacuum High/Low Level*)
+	ARrStnSubHighVacuumLevelSV[1]; 		ARrStnSubLowVacuumLevelSV[1];
+	ARrStnSubHighVacuumLevelSV[2]; 		ARrStnSubLowVacuumLevelSV[2];
+	ARrStnSubHighVacuumLevelSV[3]; 		ARrStnSubLowVacuumLevelSV[3];
+	ARrStnSubHighVacuumLevelSV[4]; 		ARrStnSubLowVacuumLevelSV[4];
+	ARrStnSubHighVacuumLevelSV[5]; 		ARrStnSubLowVacuumLevelSV[5];
+	ARrStnSubHighVacuumLevelSV[6]; 		ARrStnSubLowVacuumLevelSV[6];
+	ARrStnSubHighVacuumLevelSV[7]; 		ARrStnSubLowVacuumLevelSV[7];
+	ARrStnSubHighVacuumLevelSV[8]; 		ARrStnSubLowVacuumLevelSV[8];
+	ARrStnSubHighVacuumLevelSV[9]; 		ARrStnSubLowVacuumLevelSV[9];
+	ARrStnSubHighVacuumLevelSV[10]; 		ARrStnSubLowVacuumLevelSV[10];
+	ARrStnSubHighVacuumLevelSV[11]; 		ARrStnSubLowVacuumLevelSV[11];
+	ARrStnSubHighVacuumLevelSV[12]; 		ARrStnSubLowVacuumLevelSV[12];
+
+(*DC/CC Vacuum High/Low Level*)
+	rDCHighVacuumLevelSV; 				ARrCCHighVacuumLevelSV[4];		ARrCCHighVacuumLevelSV[5];
+	rDCLowVacuumLevelSV; 				ARrCCLowVacuumLevelSV[4];		ARrCCLowVacuumLevelSV[5];
+
+(*Rev Vacuum High/Low Level*)
+	ARrRevHighVacuumLevelSV[1]; 		ARrRevLowVacuumLevelSV[1];
+	ARrRevHighVacuumLevelSV[2]; 		ARrRevLowVacuumLevelSV[2];
+	ARrRevHighVacuumLevelSV[3]; 		ARrRevLowVacuumLevelSV[3];
+	ARrRevHighVacuumLevelSV[4]; 		ARrRevLowVacuumLevelSV[4];
+	ARrRevHighVacuumLevelSV[5]; 		ARrRevLowVacuumLevelSV[5];
+	ARrRevHighVacuumLevelSV[6]; 		ARrRevLowVacuumLevelSV[6];
+	ARrRevHighVacuumLevelSV[7]; 		ARrRevLowVacuumLevelSV[7];
+	ARrRevHighVacuumLevelSV[8]; 		ARrRevLowVacuumLevelSV[8];
+	ARrRevHighVacuumLevelSV[9]; 		ARrRevLowVacuumLevelSV[9];
+	ARrRevHighVacuumLevelSV[10]; 		ARrRevLowVacuumLevelSV[10];
+	ARrRevHighVacuumLevelSV[11]; 		ARrRevLowVacuumLevelSV[11];
+	ARrRevHighVacuumLevelSV[12]; 		ARrRevLowVacuumLevelSV[12];
+
+(*Stn Vacuum MaxRead SV*)
+	ARlrStnVacuumMaxReadSV[1];
+	ARlrStnVacuumMaxReadSV[2];
+	ARlrStnVacuumMaxReadSV[3];
+	ARlrStnVacuumMaxReadSV[4];
+	ARlrStnVacuumMaxReadSV[5];
+	ARlrStnVacuumMaxReadSV[6];
+	ARlrStnVacuumMaxReadSV[7];
+	ARlrStnVacuumMaxReadSV[8];
+	ARlrStnVacuumMaxReadSV[9];
+	ARlrStnVacuumMaxReadSV[10];
+	ARlrStnVacuumMaxReadSV[11];
+	ARlrStnVacuumMaxReadSV[12];
+
+(*Stn Sub Vacuum MaxRead SV*)
+	ARlrStnSubVacuumMaxReadSV[1];
+	ARlrStnSubVacuumMaxReadSV[2];
+	ARlrStnSubVacuumMaxReadSV[3];
+	ARlrStnSubVacuumMaxReadSV[4];
+	ARlrStnSubVacuumMaxReadSV[5];
+	ARlrStnSubVacuumMaxReadSV[6];
+	ARlrStnSubVacuumMaxReadSV[7];
+	ARlrStnSubVacuumMaxReadSV[8];
+	ARlrStnSubVacuumMaxReadSV[9];
+	ARlrStnSubVacuumMaxReadSV[10];
+	ARlrStnSubVacuumMaxReadSV[11];
+	ARlrStnSubVacuumMaxReadSV[12];
+
+(*DC/CC Vacuum MaxRead SV*)
+	lrDCVacuumMaxReadSV;
+	ARlrCCVacuumMaxReadSV[4];
+	ARlrCCVacuumMaxReadSV[5];
+
+(*Rev Vacuum MaxRead SV*)
+	ARlrRevVacuumMaxReadSV[1];
+	ARlrRevVacuumMaxReadSV[2];
+	ARlrRevVacuumMaxReadSV[3];
+	ARlrRevVacuumMaxReadSV[4];
+	ARlrRevVacuumMaxReadSV[5];
+	ARlrRevVacuumMaxReadSV[6];
+	ARlrRevVacuumMaxReadSV[7];
+	ARlrRevVacuumMaxReadSV[8];
+	ARlrRevVacuumMaxReadSV[9];
+	ARlrRevVacuumMaxReadSV[10];
+	ARlrRevVacuumMaxReadSV[11];
+	ARlrRevVacuumMaxReadSV[12];
+
+*)
+(*Stn Agitation DelayOffTimer SV*)
+	iStnAgitation1DelayOffTimerSV_min;
+
+
+(*xxxxxxxxxxxx Arm & Loading & Unloading Station ID xxxxxxxxxxxx*)
+	ARiLdStnID[1]																	:= 79;
+	ARiUldStnID[1]																	:= 81;
+	(*ARiUldStnID[2];*)
+
+	ARiArmID[1]																		:= 91;
+	ARiArmID[2]																		:= 92;
+
+	DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.iLdGroupNo 				:= 1;
+	DSA1fbPnpSequenceMemoryStore.DsA1inPnpSequenceMemory.iUldGroupNo 			:= 1;
+
+	LdDSStationSSERStore.DsStationSequenceRecipeMemory.AR10iStationSubProNo[1]              := 1;
+	LdDSStationSSURStore.DsSubRecipeMemory.bStCon19ExternalActivation				:= TRUE;
+
+
+(*xxxxxxxxxxxx Arm Horz Zone Confirm Variable Ctrl xxxxxxxxxxxx*)
+
+(*ARM 1*)
+	ARlrArmHorzStartPoint[1]															:= 0;
+	ARlrArmHorzEndPoint[1]															:= 10000;
+
+	ARiArm1HorzListing[1]																:= 79; (*AR50*)
+	ARiArm1HorzListing[2]																:= 1; (*AR50*)
+	ARiArm1HorzListing[3]																:= 2; (*AR50*)
+	ARiArm1HorzListing[4]																:= 3; (*AR50*)
+	ARiArm1HorzListing[5]																:= 4; (*AR50*)
+	ARiArm1HorzListing[6]																:= 5; (*AR50*)
+	ARiArm1HorzListing[7]																:= 6; (*AR50*)
+	ARiArm1HorzListing[8]																:= 7; (*AR50*)
+	ARiArm1HorzListing[9]																:= 8; (*AR50*)
+	ARiArm1HorzListing[10]															:= 9; (*AR50*)
+	ARiArm1HorzListing[11]															:= 10; (*AR50*)
+	ARiArm1HorzListing[12]															:= 81; (*AR50*)
+	ARiArm1HorzListing[13]															:= 0; (*AR50*)
+	ARiArm1HorzListing[14]															:= 0; (*AR50*)
+	ARiArm1HorzListing[15]															:= 0; (*AR50*)
+
+(*
+(*ARM 2*)
+	ARlrArmHorzStartPoint[2]															:= 0;
+	ARlrArmHorzEndPoint[2]															:= 10000;
+
+	ARiArm2HorzListing[1]																:= 81; (*AR50*)
+	ARiArm2HorzListing[2]																:= 10; (*AR50*)
+	ARiArm2HorzListing[3]																:= 9; (*AR50*)
+	ARiArm2HorzListing[4]																:= 8; (*AR50*)
+	ARiArm2HorzListing[5]																:= 7; (*AR50*)
+	ARiArm2HorzListing[6]																:= 6; (*AR50*)
+	ARiArm2HorzListing[7]																:= 0; (*AR50*)
+	ARiArm2HorzListing[8]																:= 0; (*AR50*)
+	ARiArm2HorzListing[9]																:= 0; (*AR50*)
+	ARiArm2HorzListing[10]															:= 0; (*AR50*)
+	ARiArm2HorzListing[11]															:= 0; (*AR50*)
+	ARiArm2HorzListing[12]															:= 0; (*AR50*)
+	ARiArm2HorzListing[13]															:= 0; (*AR50*)
+	ARiArm2HorzListing[14]															:= 0; (*AR50*)
+	ARiArm2HorzListing[15]															:= 0; (*AR50*)
+*)
+
+(*ARM 1*)
+(*Station Hook, Unhook, Top, Bottom Position - from Beckhoff HMI*)
+	Arm1HookPos[19]; (*Loading*)		Arm1UnHookPos[19]; 			Arm1TopPos[19]; 			Arm1BottomPos[19];
+	Arm1HookPos[20]; (*Unloading*)		Arm1UnHookPos[20]; 			Arm1TopPos[20]; 			Arm1BottomPos[20];
+	Arm1HookPos[1]; (*Station*)			Arm1UnHookPos[1]; 			Arm1TopPos[1]; 				Arm1BottomPos[1];
+	Arm1HookPos[2];						Arm1UnHookPos[2]; 			Arm1TopPos[2]; 				Arm1BottomPos[2];
+	Arm1HookPos[3];						Arm1UnHookPos[3]; 			Arm1TopPos[3]; 				Arm1BottomPos[3];
+	Arm1HookPos[4];						Arm1UnHookPos[4]; 			Arm1TopPos[4]; 				Arm1BottomPos[4];
+	Arm1HookPos[5]; 					Arm1UnHookPos[5]; 			Arm1TopPos[5]; 				Arm1BottomPos[5];
+	Arm1HookPos[6]; 					Arm1UnHookPos[6]; 			Arm1TopPos[6]; 				Arm1BottomPos[6];
+	Arm1HookPos[7]; 					Arm1UnHookPos[7]; 			Arm1TopPos[7]; 				Arm1BottomPos[7];
+	Arm1HookPos[8]; 					Arm1UnHookPos[8]; 			Arm1TopPos[8]; 				Arm1BottomPos[8];
+	Arm1HookPos[9]; 					Arm1UnHookPos[9]; 			Arm1TopPos[9]; 				Arm1BottomPos[9];
+	Arm1HookPos[10]; 					Arm1UnHookPos[10]; 			Arm1TopPos[10]; 			Arm1BottomPos[10];
+	Arm1HookPos[11]; 					Arm1UnHookPos[11]; 			Arm1TopPos[11]; 			Arm1BottomPos[11];
+	Arm1HookPos[12]; 					Arm1UnHookPos[12]; 			Arm1TopPos[12]; 			Arm1BottomPos[12];
+
+(*ARM 2*)
+(*Station Hook, Unhook, Top, Bottom Position - from Beckhoff HMI*)
+	Arm2HookPos[19]; (*Loading*)		Arm2UnHookPos[19]; 			Arm2TopPos[19]; 			Arm2BottomPos[19];
+	Arm2HookPos[20]; (*Unloading*)		Arm2UnHookPos[20]; 			Arm2TopPos[20]; 			Arm2BottomPos[20];
+	Arm2HookPos[1]; (*Station*)			Arm2UnHookPos[1]; 			Arm2TopPos[1]; 				Arm2BottomPos[1];
+	Arm2HookPos[2];						Arm2UnHookPos[2]; 			Arm2TopPos[2]; 				Arm2BottomPos[2];
+	Arm2HookPos[3];						Arm2UnHookPos[3]; 			Arm2TopPos[3]; 				Arm2BottomPos[3];
+	Arm2HookPos[4];						Arm2UnHookPos[4]; 			Arm2TopPos[4]; 				Arm2BottomPos[4];
+	Arm2HookPos[5]; 					Arm2UnHookPos[5]; 			Arm2TopPos[5]; 				Arm2BottomPos[5];
+	Arm2HookPos[6]; 					Arm2UnHookPos[6]; 			Arm2TopPos[6]; 				Arm2BottomPos[6];
+	Arm2HookPos[7]; 					Arm2UnHookPos[7]; 			Arm2TopPos[7]; 				Arm2BottomPos[7];
+	Arm2HookPos[8]; 					Arm2UnHookPos[8]; 			Arm2TopPos[8]; 				Arm2BottomPos[8];
+	Arm2HookPos[9]; 					Arm2UnHookPos[9]; 			Arm2TopPos[9]; 				Arm2BottomPos[9];
+	Arm2HookPos[10]; 					Arm2UnHookPos[10]; 			Arm2TopPos[10]; 			Arm2BottomPos[10];
+	Arm2HookPos[11]; 					Arm2UnHookPos[11]; 			Arm2TopPos[11]; 			Arm2BottomPos[11];
+	Arm2HookPos[12]; 					Arm2UnHookPos[12]; 			Arm2TopPos[12]; 			Arm2BottomPos[12];
+
+
+(*Station Hook Postion*)
+(*ARM 1*)
+	ARDSArmCtrl[1].AR3slrPosition[2,1,8];
+
+	ARDSArmCtrl[1].AR3slrPosition[3,1,8];
+	(*ARDSArmCtrl[1].AR3slrPosition[3,1,8];*)
+
+	ARDSArmCtrl[1].AR3slrPosition[1,1,8];
+	ARDSArmCtrl[1].AR3slrPosition[1,2,8];
+	ARDSArmCtrl[1].AR3slrPosition[1,3,8];
+	ARDSArmCtrl[1].AR3slrPosition[1,4,8];
+	ARDSArmCtrl[1].AR3slrPosition[1,5,8];
+	ARDSArmCtrl[1].AR3slrPosition[1,6,8];
+	ARDSArmCtrl[1].AR3slrPosition[1,7,8];
+	ARDSArmCtrl[1].AR3slrPosition[1,8,8];
+	ARDSArmCtrl[1].AR3slrPosition[1,9,8];
+	ARDSArmCtrl[1].AR3slrPosition[1,10,8];
+	ARDSArmCtrl[1].AR3slrPosition[1,11,8];
+	ARDSArmCtrl[1].AR3slrPosition[1,12,8];
+
+(*On when using beckhoff HMI, Off when using Indusoft*)
+(*ARM 1*)
+
+	ARDSArmCtrl[1].AR3slrPosition[2,1,8]													:= Arm1HookPos[19];
+
+	ARDSArmCtrl[1].AR3slrPosition[3,1,8]													:= Arm1HookPos[20];
+	(*ARDSArmCtrl[1].AR3slrPosition[3,1,8];*)
+
+	ARDSArmCtrl[1].AR3slrPosition[1,1,8]													:= Arm1HookPos[1];
+	ARDSArmCtrl[1].AR3slrPosition[1,2,8]													:= Arm1HookPos[2];
+	ARDSArmCtrl[1].AR3slrPosition[1,3,8]													:= Arm1HookPos[3];
+	ARDSArmCtrl[1].AR3slrPosition[1,4,8]													:= Arm1HookPos[4];
+	ARDSArmCtrl[1].AR3slrPosition[1,5,8]													:= Arm1HookPos[5];
+	ARDSArmCtrl[1].AR3slrPosition[1,6,8]													:= Arm1HookPos[6];
+	ARDSArmCtrl[1].AR3slrPosition[1,7,8]													:= Arm1HookPos[7];
+	ARDSArmCtrl[1].AR3slrPosition[1,8,8]													:= Arm1HookPos[8];
+	ARDSArmCtrl[1].AR3slrPosition[1,9,8]													:= Arm1HookPos[9];
+	ARDSArmCtrl[1].AR3slrPosition[1,10,8]													:= Arm1HookPos[10];
+	ARDSArmCtrl[1].AR3slrPosition[1,11,8]													:= Arm1HookPos[11];
+	ARDSArmCtrl[1].AR3slrPosition[1,12,8]													:= Arm1HookPos[12];
+(*
+(*ARM 2*)
+	ARDSArmCtrl[2].AR3slrPosition[2,1,8];
+
+	ARDSArmCtrl[2].AR3slrPosition[3,1,8];
+	(*ARDSArmCtrl[2].AR3slrPosition[3,1,8];*)
+
+	ARDSArmCtrl[2].AR3slrPosition[1,1,8];
+	ARDSArmCtrl[2].AR3slrPosition[1,2,8];
+	ARDSArmCtrl[2].AR3slrPosition[1,3,8];
+	ARDSArmCtrl[2].AR3slrPosition[1,4,8];
+	ARDSArmCtrl[2].AR3slrPosition[1,5,8];
+	ARDSArmCtrl[2].AR3slrPosition[1,6,8];
+	ARDSArmCtrl[2].AR3slrPosition[1,7,8];
+	ARDSArmCtrl[2].AR3slrPosition[1,8,8];
+	ARDSArmCtrl[2].AR3slrPosition[1,9,8];
+	ARDSArmCtrl[2].AR3slrPosition[1,10,8];
+	ARDSArmCtrl[2].AR3slrPosition[1,11,8];
+	ARDSArmCtrl[2].AR3slrPosition[1,12,8];
+
+(*On when using beckhoff HMI, Off when using Indusoft*)
+(*ARM 2*)
+	ARDSArmCtrl[2].AR3slrPosition[2,1,8]													:= Arm2HookPos[19];
+
+	ARDSArmCtrl[2].AR3slrPosition[3,1,8]													:= Arm2HookPos[20];
+	(*ARDSArmCtrl[2].AR3slrPosition[3,1,8];*)
+
+	ARDSArmCtrl[2].AR3slrPosition[1,1,8]													:= Arm2HookPos[1];
+	ARDSArmCtrl[2].AR3slrPosition[1,2,8]													:= Arm2HookPos[2];
+	ARDSArmCtrl[2].AR3slrPosition[1,3,8]													:= Arm2HookPos[3];
+	ARDSArmCtrl[2].AR3slrPosition[1,4,8]													:= Arm2HookPos[4];
+	ARDSArmCtrl[2].AR3slrPosition[1,5,8]													:= Arm2HookPos[5];
+	ARDSArmCtrl[2].AR3slrPosition[1,6,8]													:= Arm2HookPos[6];
+	ARDSArmCtrl[2].AR3slrPosition[1,7,8]													:= Arm2HookPos[7];
+	ARDSArmCtrl[2].AR3slrPosition[1,8,8]													:= Arm2HookPos[8];
+	ARDSArmCtrl[2].AR3slrPosition[1,9,8]													:= Arm2HookPos[9];
+	ARDSArmCtrl[2].AR3slrPosition[1,10,8]												:= Arm2HookPos[10];
+	ARDSArmCtrl[2].AR3slrPosition[1,11,8]												:= Arm2HookPos[11];
+	ARDSArmCtrl[2].AR3slrPosition[1,12,8]												:= Arm2HookPos[12];
+*)
+(*Station Unhook Postion*)
+(*ARM 1*)
+	ARDSArmCtrl[1].AR3slrPosition[2,1,7];
+
+	ARDSArmCtrl[1].AR3slrPosition[3,1,7];
+	(*ARDSArmCtrl[1].AR3slrPosition[3,2,7];*)
+
+	ARDSArmCtrl[1].AR3slrPosition[1,1,7];
+	ARDSArmCtrl[1].AR3slrPosition[1,2,7];
+	ARDSArmCtrl[1].AR3slrPosition[1,3,7];
+	ARDSArmCtrl[1].AR3slrPosition[1,4,7];
+	ARDSArmCtrl[1].AR3slrPosition[1,5,7];
+	ARDSArmCtrl[1].AR3slrPosition[1,6,7];
+	ARDSArmCtrl[1].AR3slrPosition[1,7,7];
+	ARDSArmCtrl[1].AR3slrPosition[1,8,7];
+	ARDSArmCtrl[1].AR3slrPosition[1,9,7];
+	ARDSArmCtrl[1].AR3slrPosition[1,10,7];
+	ARDSArmCtrl[1].AR3slrPosition[1,11,7];
+	ARDSArmCtrl[1].AR3slrPosition[1,12,7];
+
+(*On when using beckhoff HMI, Off when using Indusoft*)
+(*ARM 1*)
+	ARDSArmCtrl[1].AR3slrPosition[2,1,7]													:= Arm1UnHookPos[19];
+
+	ARDSArmCtrl[1].AR3slrPosition[3,1,7]													:= Arm1UnHookPos[20];
+	(*ARDSArmCtrl[1].AR3slrPosition[3,2,7];*)
+
+	ARDSArmCtrl[1].AR3slrPosition[1,1,7]													:= Arm1UnHookPos[1];
+	ARDSArmCtrl[1].AR3slrPosition[1,2,7]													:= Arm1UnHookPos[2];
+	ARDSArmCtrl[1].AR3slrPosition[1,3,7]													:= Arm1UnHookPos[3];
+	ARDSArmCtrl[1].AR3slrPosition[1,4,7]													:= Arm1UnHookPos[4];
+	ARDSArmCtrl[1].AR3slrPosition[1,5,7]													:= Arm1UnHookPos[5];
+	ARDSArmCtrl[1].AR3slrPosition[1,6,7]													:= Arm1UnHookPos[6];
+	ARDSArmCtrl[1].AR3slrPosition[1,7,7]													:= Arm1UnHookPos[7];
+	ARDSArmCtrl[1].AR3slrPosition[1,8,7]													:= Arm1UnHookPos[8];
+	ARDSArmCtrl[1].AR3slrPosition[1,9,7]													:= Arm1UnHookPos[9];
+	ARDSArmCtrl[1].AR3slrPosition[1,10,7]												:= Arm1UnHookPos[10];
+	ARDSArmCtrl[1].AR3slrPosition[1,11,7]												:= Arm1UnHookPos[11];
+	ARDSArmCtrl[1].AR3slrPosition[1,12,7]												:= Arm1UnHookPos[12];
+(*
+(*ARM 2*)
+	ARDSArmCtrl[2].AR3slrPosition[2,1,7];
+
+	ARDSArmCtrl[2].AR3slrPosition[3,1,7];
+	(*ARDSArmCtrl[2].AR3slrPosition[3,2,7];*)
+
+	ARDSArmCtrl[2].AR3slrPosition[1,1,7];
+	ARDSArmCtrl[2].AR3slrPosition[1,2,7];
+	ARDSArmCtrl[2].AR3slrPosition[1,3,7];
+	ARDSArmCtrl[2].AR3slrPosition[1,4,7];
+	ARDSArmCtrl[2].AR3slrPosition[1,5,7];
+	ARDSArmCtrl[2].AR3slrPosition[1,6,7];
+	ARDSArmCtrl[2].AR3slrPosition[1,7,7];
+	ARDSArmCtrl[2].AR3slrPosition[1,8,7];
+	ARDSArmCtrl[2].AR3slrPosition[1,9,7];
+	ARDSArmCtrl[2].AR3slrPosition[1,10,7];
+	ARDSArmCtrl[2].AR3slrPosition[1,11,7];
+	ARDSArmCtrl[2].AR3slrPosition[1,12,7];
+
+(*On when using beckhoff HMI, Off when using Indusoft*)
+(*ARM 2*)
+	ARDSArmCtrl[2].AR3slrPosition[2,1,7]													:= Arm2UnHookPos[19];
+
+	ARDSArmCtrl[2].AR3slrPosition[3,1,7]													:= Arm2UnHookPos[20];
+	(*ARDSArmCtrl[2].AR3slrPosition[3,2,7];*)
+
+	ARDSArmCtrl[2].AR3slrPosition[1,1,7]													:= Arm2UnHookPos[1];
+	ARDSArmCtrl[2].AR3slrPosition[1,2,7]													:= Arm2UnHookPos[2];
+	ARDSArmCtrl[2].AR3slrPosition[1,3,7]													:= Arm2UnHookPos[3];
+	ARDSArmCtrl[2].AR3slrPosition[1,4,7]													:= Arm2UnHookPos[4];
+	ARDSArmCtrl[2].AR3slrPosition[1,5,7]													:= Arm2UnHookPos[5];
+	ARDSArmCtrl[2].AR3slrPosition[1,6,7]													:= Arm2UnHookPos[6];
+	ARDSArmCtrl[2].AR3slrPosition[1,7,7]													:= Arm2UnHookPos[7];
+	ARDSArmCtrl[2].AR3slrPosition[1,8,7]													:= Arm2UnHookPos[8];
+	ARDSArmCtrl[2].AR3slrPosition[1,9,7]													:= Arm2UnHookPos[9];
+	ARDSArmCtrl[2].AR3slrPosition[1,10,7]													:= Arm2UnHookPos[10];
+	ARDSArmCtrl[2].AR3slrPosition[1,11,7]													:= Arm2UnHookPos[11];
+	ARDSArmCtrl[2].AR3slrPosition[1,12,7]													:= Arm2UnHookPos[12];
+*)
+(*Station Up Postion*)
+(*ARM 1*)
+	ARDSArmCtrl[1].AR3slrPosition[2,1,1];
+
+	ARDSArmCtrl[1].AR3slrPosition[3,1,1];
+	(*ARDSArmCtrl[1].AR3slrPosition[3,2,1];*)
+
+	ARDSArmCtrl[1].AR3slrPosition[1,1,1];
+	ARDSArmCtrl[1].AR3slrPosition[1,2,1];
+	ARDSArmCtrl[1].AR3slrPosition[1,3,1];
+	ARDSArmCtrl[1].AR3slrPosition[1,4,1];
+	ARDSArmCtrl[1].AR3slrPosition[1,5,1];
+	ARDSArmCtrl[1].AR3slrPosition[1,6,1];
+	ARDSArmCtrl[1].AR3slrPosition[1,7,1];
+	ARDSArmCtrl[1].AR3slrPosition[1,8,1];
+	ARDSArmCtrl[1].AR3slrPosition[1,9,1];
+	ARDSArmCtrl[1].AR3slrPosition[1,10,1];
+	ARDSArmCtrl[1].AR3slrPosition[1,11,1];
+	ARDSArmCtrl[1].AR3slrPosition[1,12,1];
+
+(*ARM 1*)
+	ARDSArmCtrl[1].AR3slrPosition[2,1,1] 												:= Arm1TopPos[19];
+
+	ARDSArmCtrl[1].AR3slrPosition[3,1,1] 												:= Arm1TopPos[20];
+	(*ARDSArmCtrl[1].AR3slrPosition[3,2,1];*)
+
+	ARDSArmCtrl[1].AR3slrPosition[1,1,1] 												:= Arm1TopPos[1];
+	ARDSArmCtrl[1].AR3slrPosition[1,2,1] 												:= Arm1TopPos[2];
+	ARDSArmCtrl[1].AR3slrPosition[1,3,1] 											 	:= Arm1TopPos[3];
+	ARDSArmCtrl[1].AR3slrPosition[1,4,1] 												:= Arm1TopPos[4];
+	ARDSArmCtrl[1].AR3slrPosition[1,5,1] 												:= Arm1TopPos[5];
+	ARDSArmCtrl[1].AR3slrPosition[1,6,1] 												:= Arm1TopPos[6];
+	ARDSArmCtrl[1].AR3slrPosition[1,7,1] 												:= Arm1TopPos[7];
+	ARDSArmCtrl[1].AR3slrPosition[1,8,1] 												:= Arm1TopPos[8];
+	ARDSArmCtrl[1].AR3slrPosition[1,9,1] 												:= Arm1TopPos[9];
+	ARDSArmCtrl[1].AR3slrPosition[1,10,1] 												:= Arm1TopPos[10];
+	ARDSArmCtrl[1].AR3slrPosition[1,11,1] 												:= Arm1TopPos[11];
+	ARDSArmCtrl[1].AR3slrPosition[1,12,1] 												:= Arm1TopPos[12];
+(*
+(*ARM 2*)
+	ARDSArmCtrl[2].AR3slrPosition[2,1,1];
+
+	ARDSArmCtrl[2].AR3slrPosition[3,1,1];
+	(*ARDSArmCtrl[2].AR3slrPosition[3,2,1];*)
+
+	ARDSArmCtrl[2].AR3slrPosition[1,1,1];
+	ARDSArmCtrl[2].AR3slrPosition[1,2,1];
+	ARDSArmCtrl[2].AR3slrPosition[1,3,1];
+	ARDSArmCtrl[2].AR3slrPosition[1,4,1];
+	ARDSArmCtrl[2].AR3slrPosition[1,5,1];
+	ARDSArmCtrl[2].AR3slrPosition[1,6,1];
+	ARDSArmCtrl[2].AR3slrPosition[1,7,1];
+	ARDSArmCtrl[2].AR3slrPosition[1,8,1];
+	ARDSArmCtrl[2].AR3slrPosition[1,9,1];
+	ARDSArmCtrl[2].AR3slrPosition[1,10,1];
+	ARDSArmCtrl[2].AR3slrPosition[1,11,1];
+	ARDSArmCtrl[2].AR3slrPosition[1,12,1];
+
+(*ARM 2*)
+	ARDSArmCtrl[2].AR3slrPosition[2,1,1] 												:= Arm2TopPos[19];
+
+	ARDSArmCtrl[2].AR3slrPosition[3,1,1] 												:= Arm2TopPos[20];
+	(*ARDSArmCtrl[2].AR3slrPosition[3,2,1];*)
+
+	ARDSArmCtrl[2].AR3slrPosition[1,1,1] 												:= Arm2TopPos[1];
+	ARDSArmCtrl[2].AR3slrPosition[1,2,1] 												:= Arm2TopPos[2];
+	ARDSArmCtrl[2].AR3slrPosition[1,3,1] 											 	:= Arm2TopPos[3];
+	ARDSArmCtrl[2].AR3slrPosition[1,4,1] 												:= Arm2TopPos[4];
+	ARDSArmCtrl[2].AR3slrPosition[1,5,1] 												:= Arm2TopPos[5];
+	ARDSArmCtrl[2].AR3slrPosition[1,6,1] 												:= Arm2TopPos[6];
+	ARDSArmCtrl[2].AR3slrPosition[1,7,1] 												:= Arm2TopPos[7];
+	ARDSArmCtrl[2].AR3slrPosition[1,8,1] 												:= Arm2TopPos[8];
+	ARDSArmCtrl[2].AR3slrPosition[1,9,1] 												:= Arm2TopPos[9];
+	ARDSArmCtrl[2].AR3slrPosition[1,10,1] 												:= Arm2TopPos[10];
+	ARDSArmCtrl[2].AR3slrPosition[1,11,1] 												:= Arm2TopPos[11];
+	ARDSArmCtrl[2].AR3slrPosition[1,12,1] 												:= Arm2TopPos[12];
+
+	Arm2TopPos[6] := Arm1TopPos[6];
+*)
+(*Station Down Postion*)
+(*ARM 1*)
+	ARDSArmCtrl[1].AR3slrPosition[2,1,6];
+
+	ARDSArmCtrl[1].AR3slrPosition[3,1,6];
+	(*ARDSArmCtrl[1].AR3slrPosition[3,2,6];*)
+
+	ARDSArmCtrl[1].AR3slrPosition[1,1,6];
+	ARDSArmCtrl[1].AR3slrPosition[1,2,6];
+	ARDSArmCtrl[1].AR3slrPosition[1,3,6];
+	ARDSArmCtrl[1].AR3slrPosition[1,4,6];
+	ARDSArmCtrl[1].AR3slrPosition[1,5,6];
+	ARDSArmCtrl[1].AR3slrPosition[1,6,6];
+	ARDSArmCtrl[1].AR3slrPosition[1,7,6];
+	ARDSArmCtrl[1].AR3slrPosition[1,8,6];
+	ARDSArmCtrl[1].AR3slrPosition[1,9,6];
+	ARDSArmCtrl[1].AR3slrPosition[1,10,6];
+	ARDSArmCtrl[1].AR3slrPosition[1,11,6];
+	ARDSArmCtrl[1].AR3slrPosition[1,12,6];
+
+	ARDSArmCtrl[1].AR3slrPosition[1,9,2];
+
+(*ARM 1*)
+	ARDSArmCtrl[1].AR3slrPosition[2,1,6] 												:= Arm1BottomPos[19];
+
+	ARDSArmCtrl[1].AR3slrPosition[3,1,6] 												:= Arm1BottomPos[20];
+	(*ARDSArmCtrl[1].AR3slrPosition[3,2,6];*)
+
+	ARDSArmCtrl[1].AR3slrPosition[1,1,6] 												:= Arm1BottomPos[1];
+	ARDSArmCtrl[1].AR3slrPosition[1,2,6] 												:= Arm1BottomPos[2];
+	ARDSArmCtrl[1].AR3slrPosition[1,3,6] 												:= Arm1BottomPos[3];
+	ARDSArmCtrl[1].AR3slrPosition[1,4,6] 												:= Arm1BottomPos[4];
+	ARDSArmCtrl[1].AR3slrPosition[1,5,6] 												:= Arm1BottomPos[5];
+	ARDSArmCtrl[1].AR3slrPosition[1,6,6] 												:= Arm1BottomPos[6];
+	ARDSArmCtrl[1].AR3slrPosition[1,7,6] 												:= Arm1BottomPos[7];
+	ARDSArmCtrl[1].AR3slrPosition[1,8,6] 												:= Arm1BottomPos[8];
+	ARDSArmCtrl[1].AR3slrPosition[1,9,6]												:= Arm1BottomPos[9];
+	ARDSArmCtrl[1].AR3slrPosition[1,10,6]												:= Arm1BottomPos[10];
+	ARDSArmCtrl[1].AR3slrPosition[1,11,6]												:= Arm1BottomPos[11];
+	ARDSArmCtrl[1].AR3slrPosition[1,12,6]												:= Arm1BottomPos[12];
+
+	ARDSArmCtrl[1].AR3slrPosition[1,9,2]												:=Arm1MidPos[9]; (*Arm - Slow Pull Up Position*)
+(*
+(*ARM 2*)
+	ARDSArmCtrl[2].AR3slrPosition[2,1,6];
+
+	ARDSArmCtrl[2].AR3slrPosition[3,1,6];
+	(*ARDSArmCtrl[2].AR3slrPosition[3,2,6];*)
+
+	ARDSArmCtrl[2].AR3slrPosition[1,1,6];
+	ARDSArmCtrl[2].AR3slrPosition[1,2,6];
+	ARDSArmCtrl[2].AR3slrPosition[1,3,6];
+	ARDSArmCtrl[2].AR3slrPosition[1,4,6];
+	ARDSArmCtrl[2].AR3slrPosition[1,5,6];
+	ARDSArmCtrl[2].AR3slrPosition[1,6,6];
+	ARDSArmCtrl[2].AR3slrPosition[1,7,6];
+	ARDSArmCtrl[2].AR3slrPosition[1,8,6];
+	ARDSArmCtrl[2].AR3slrPosition[1,9,6];
+	ARDSArmCtrl[2].AR3slrPosition[1,10,6];
+	ARDSArmCtrl[2].AR3slrPosition[1,11,6];
+	ARDSArmCtrl[2].AR3slrPosition[1,12,6];
+
+	ARDSArmCtrl[2].AR3slrPosition[1,8,2]; (*Arm - Slow Pull Up Position*)
+
+(*ARM 2*)
+	ARDSArmCtrl[2].AR3slrPosition[2,1,6] 												:= Arm2BottomPos[19];
+
+	ARDSArmCtrl[2].AR3slrPosition[3,1,6] 												:= Arm2BottomPos[20];
+	(*ARDSArmCtrl[2].AR3slrPosition[3,2,6];*)
+
+	ARDSArmCtrl[2].AR3slrPosition[1,1,6] 												:= Arm2BottomPos[1];
+	ARDSArmCtrl[2].AR3slrPosition[1,2,6] 												:= Arm2BottomPos[2];
+	ARDSArmCtrl[2].AR3slrPosition[1,3,6] 												:= Arm2BottomPos[3];
+	ARDSArmCtrl[2].AR3slrPosition[1,4,6] 												:= Arm2BottomPos[4];
+	ARDSArmCtrl[2].AR3slrPosition[1,5,6] 												:= Arm2BottomPos[5];
+	ARDSArmCtrl[2].AR3slrPosition[1,6,6] 												:= Arm2BottomPos[6];
+	ARDSArmCtrl[2].AR3slrPosition[1,7,6] 												:= Arm2BottomPos[7];
+	ARDSArmCtrl[2].AR3slrPosition[1,8,6] 												:= Arm2BottomPos[8];
+	ARDSArmCtrl[2].AR3slrPosition[1,9,6]												:= Arm2BottomPos[9];
+	ARDSArmCtrl[2].AR3slrPosition[1,10,6]												:= Arm2BottomPos[10];
+	ARDSArmCtrl[2].AR3slrPosition[1,11,6]												:= Arm2BottomPos[11];
+	ARDSArmCtrl[2].AR3slrPosition[1,12,6]												:= Arm2BottomPos[12];
+
+	ARDSArmCtrl[2].AR3slrPosition[1,8,2];
+
+	Arm2BottomPos[6] := Arm1BottomPos[6];
+*)
+
+(*Loading & Unloading Station & Station Centre-Hook Position - for fbV2_FBPArmHorzZoneConfirm*)
+
+(*ARM 1*)
+	ARlrLdHorzCentrePoint[1] 															:= ARDSArmCtrl[1].AR3slrPosition[2,1,8];
+
+	ARlrUldHorzCentrePoint[1] 															:= ARDSArmCtrl[1].AR3slrPosition[3,1,8];
+	(*ARlrUldHorzCentrePoint[2] 														:= ARDSArmCtrl[1].AR3slrPosition[3,2,8];*)
+
+	ARlrStnHorzCentrePoint[1] 															:= ARDSArmCtrl[1].AR3slrPosition[1,1,8];
+	ARlrStnHorzCentrePoint[2] 															:= ARDSArmCtrl[1].AR3slrPosition[1,2,8];
+	ARlrStnHorzCentrePoint[3] 															:= ARDSArmCtrl[1].AR3slrPosition[1,3,8];
+	ARlrStnHorzCentrePoint[4] 															:= ARDSArmCtrl[1].AR3slrPosition[1,4,8];
+	ARlrStnHorzCentrePoint[5] 															:= ARDSArmCtrl[1].AR3slrPosition[1,5,8];
+	ARlrStnHorzCentrePoint[6] 															:= ARDSArmCtrl[1].AR3slrPosition[1,6,8];
+	ARlrStnHorzCentrePoint[7] 															:= ARDSArmCtrl[1].AR3slrPosition[1,7,8];
+	ARlrStnHorzCentrePoint[8] 															:= ARDSArmCtrl[1].AR3slrPosition[1,8,8];
+	ARlrStnHorzCentrePoint[9] 															:= ARDSArmCtrl[1].AR3slrPosition[1,9,8];
+	ARlrStnHorzCentrePoint[10] 															:= ARDSArmCtrl[1].AR3slrPosition[1,10,8];
+	ARlrStnHorzCentrePoint[11] 															:= ARDSArmCtrl[1].AR3slrPosition[1,11,8];
+	ARlrStnHorzCentrePoint[12] 															:= ARDSArmCtrl[1].AR3slrPosition[1,12,8];
+
+(*ARM 2*)
+	ARlrArm2LdHorzCentrePoint[1] 														:= ARDSArmCtrl[2].AR3slrPosition[2,1,8];
+
+	ARlrArm2UldHorzCentrePoint[1] 														:= ARDSArmCtrl[2].AR3slrPosition[3,1,8];
+	(*ARlrArm2UldHorzCentrePoint[2] 													:= ARDSArmCtrl[2].AR3slrPosition[3,2,8];*)
+
+	ARlrArm2StnHorzCentrePoint[1] 														:= ARDSArmCtrl[2].AR3slrPosition[1,1,8];
+	ARlrArm2StnHorzCentrePoint[2] 														:= ARDSArmCtrl[2].AR3slrPosition[1,2,8];
+	ARlrArm2StnHorzCentrePoint[3] 														:= ARDSArmCtrl[2].AR3slrPosition[1,3,8];
+	ARlrArm2StnHorzCentrePoint[4] 														:= ARDSArmCtrl[2].AR3slrPosition[1,4,8];
+	ARlrArm2StnHorzCentrePoint[5] 														:= ARDSArmCtrl[2].AR3slrPosition[1,5,8];
+	ARlrArm2StnHorzCentrePoint[6] 														:= ARDSArmCtrl[2].AR3slrPosition[1,6,8];
+	ARlrArm2StnHorzCentrePoint[7] 														:= ARDSArmCtrl[2].AR3slrPosition[1,7,8];
+	ARlrArm2StnHorzCentrePoint[8] 														:= ARDSArmCtrl[2].AR3slrPosition[1,8,8];
+	ARlrArm2StnHorzCentrePoint[9] 														:= ARDSArmCtrl[2].AR3slrPosition[1,9,8];
+	ARlrArm2StnHorzCentrePoint[10] 														:= ARDSArmCtrl[2].AR3slrPosition[1,10,8];
+	ARlrArm2StnHorzCentrePoint[11] 														:= ARDSArmCtrl[2].AR3slrPosition[1,11,8];
+	ARlrArm2StnHorzCentrePoint[12]														:= ARDSArmCtrl[2].AR3slrPosition[1,12,8];
+
+
+(*xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Inverter with Encoder Ctrl xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*Inverter Encoder &  HzToRaw Ratio Variable Ctrl*)
+	ARlrVertRatioPulseToMM[1]														(*:= 40.01775*);
+	ARlrHorzRatioPulseToMM[1]														(*:= 40.64147*);
+
+	ARiVertCounterValueResetTime_Sec[1];
+	ARiHorzCounterValueResetTime_Sec[1];
+
+	ARrVertGen_In_HzToRawRatio[1]													:= 327.67;
+	ARrHorzGen_In_HzToRawRatio[1]													:= 327.67;
+
+(*Arm Positioning Variable Ctrl*)
+	ARlrArmVertFix_PosCfmTolerance[1]													(*:= 2*);
+	ARlrArmVertFix_2ndSpdRange[1]													(*:= 100*);
+
+	ARlrArmHorzFix_PosCfmTolerance[1]												(*:= 3*);
+	ARlrArmHorzFix_2ndSpdRange[1]													(*:= 115*);
+
+(*Arm Pos Variable Ctrl*)
+	ARrVertPos_In_TargetSpdHz[1]														(*:= 50*);
+	ARrVertPos_In_2ndSpdHz[1]														(*:= 5*);
+
+	ARrHorzPos_In_TargetSpdHz[1]														(*:= 10*);
+	ARrHorzPos_In_2ndSpdHz[1]														(*:= 3*);
+
+
+(*xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Servo Ctrl xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*Arm Home Variable Ctrl*)
+(*ARM 1*) (*servo drive- mm/sec*)
+	ARrArmVertHome1stPercent[1]														:= 50;
+	ARrArmVertHome2ndPercent[1]														:= 5;
+	ARrVertHomeDccDelayTimeSec[1]													:= 0.1;
+
+	ARrArmVertHome1stPercentAcc[1]													:= 1500;
+	ARrArmVertHome1stPercentDcc[1]													:= 1500;
+	ARrArmVertHome2ndPercentAcc[1]													:= 1500;
+	ARrArmVertHome2ndPercentDcc[1]													:= 1500;
+
+	ARrArmHorzHome1stPercent[1]														:= 70;
+	ARrArmHorzHome2ndPercent[1]														:= 5;
+	ARrHorzHomeDccDelayTimeSec[1]													:= 0.1;
+
+	ARrArmHorzHome1stPercentAcc[1]													:= 1500;
+	ARrArmHorzHome1stPercentDcc[1]													:= 1500;
+	ARrArmHorzHome2ndPercentAcc[1]													:= 1500;
+	ARrArmHorzHome2ndPercentDcc[1]													:= 1500;
+
+(*ARM 2*)
+	ARrArmVertHome1stPercent[2]														:= 50;
+	ARrArmVertHome2ndPercent[2]														:= 5;
+	ARrVertHomeDccDelayTimeSec[2]													:= 0.1;
+
+	ARrArmVertHome1stPercentAcc[2]													:= 1500;
+	ARrArmVertHome1stPercentDcc[2]													:= 1500;
+	ARrArmVertHome2ndPercentAcc[2]													:= 1500;
+	ARrArmVertHome2ndPercentDcc[2]													:= 1500;
+
+	ARrArmHorzHome1stPercent[2]														:= 70;
+	ARrArmHorzHome2ndPercent[2]														:= 5;
+	ARrHorzHomeDccDelayTimeSec[2]													:= 0.1;
+
+	ARrArmHorzHome1stPercentAcc[2]													:= 1500;
+	ARrArmHorzHome1stPercentDcc[2]													:= 1500;
+	ARrArmHorzHome2ndPercentAcc[2]													:= 1500;
+	ARrArmHorzHome2ndPercentDcc[2]													:= 1500;
+
+(*Slow Pull*)
+	DSHomingSetting.lrArmLifterHomeVelo												:= 5;
+	DSHomingSetting.lrArmLifterHomeAcc												:= 200;
+	DSHomingSetting.lrArmLifterHomeDcc												:= 200;
+
+	DSHomingSetting.lrArmLifter2HomeVelo											:= 3;
+	DSHomingSetting.lrArmLifter2HomeAcc												:= 200;
+	DSHomingSetting.lrArmLifter2HomeDcc												:= 200;
+
+
+(*Arm Jog Variable Ctrl*)
+(*ARM 1*) (*servo drive - mm/sec*)
+	ARrArmVertJogPercent[1]; 		ARrArmHorzJogPercent[1];
+	ARrArmVertJogAcc[1]; 			ARrArmHorzJogAcc[1];
+	ARrArmVertJogDcc[1]; 			ARrArmHorzJogDcc[1];
+
+(*ARM 2*)
+	ARrArmVertJogPercent[2]; 		ARrArmHorzJogPercent[2];
+	ARrArmVertJogAcc[2]; 			ARrArmHorzJogAcc[2];
+	ARrArmVertJogDcc[2]; 			ARrArmHorzJogDcc[2];
+
+(*Slow Pull*)
+	ARlrArmSlowPullJogVelo[1];
+	ARlrArmSlowPullJogAcc[1];
+	ARlrArmSlowPullJogDcc[1];
+
+
+(*Arm Pos Variable Ctrl*)
+(*ARM 1*)
+	ARlrVertPos_In_HighSpeed[1]; 		ARlrHorzPos_In_HighSpeed[1];
+	ARlrVertPos_In_Acc[1]; 			ARlrHorzPos_In_Acc[1];
+	ARlrVertPos_In_Dcc[1]; 			ARlrHorzPos_In_Dcc[1];
+
+(*ARM 2*)
+	ARlrVertPos_In_HighSpeed[2]; 		ARlrHorzPos_In_HighSpeed[2];
+	ARlrVertPos_In_Acc[2]; 			ARlrHorzPos_In_Acc[2];
+	ARlrVertPos_In_Dcc[2]; 			ARlrHorzPos_In_Dcc[2];
+
+(*Slow Pull*)
+	DS_ArmLifterPosition.lrSlowPullDownVelo;
+	DS_ArmLifterPosition.lrSlowPullDownAcc;
+	DS_ArmLifterPosition.lrSlowPullDownDcc;
+
+	DS_ArmLifterPosition.lrSlowPullDown2ndVelo											:= 3;
+	DS_ArmLifterPosition.lrSlowPullDown2ndAcc											:= 200;
+	DS_ArmLifterPosition.lrSlowPullDown2ndDcc											:= 200;
+
+	DS_ArmLifterPosition.lrSlowPullUpVelo;
+	DS_ArmLifterPosition.lrSlowPullUpAcc;
+	DS_ArmLifterPosition.lrSlowPullUpDcc;
+
+	DS_ArmLifterPosition.lrSlowPullUp2ndVelo											:= 3;
+	DS_ArmLifterPosition.lrSlowPullUp2ndAcc												:= 200;
+	DS_ArmLifterPosition.lrSlowPullUp2ndDcc												:= 200;
+
+
+(*Station Tolerance Time Variable Ctrl - Overtime to determine BAD Basket*)
+
+(*ARM 1*) (*normally set with 60sec*)
+	ARiStnToleranceTimeSV[1];
+	ARiStnToleranceTimeSV[2];
+	ARiStnToleranceTimeSV[3];
+	ARiStnToleranceTimeSV[4];
+	ARiStnToleranceTimeSV[5];
+	ARiStnToleranceTimeSV[6];
+	ARiStnToleranceTimeSV[7];
+	ARiStnToleranceTimeSV[8];
+	ARiStnToleranceTimeSV[9];
+	ARiStnToleranceTimeSV[10];
+	ARiStnToleranceTimeSV[11];
+	ARiStnToleranceTimeSV[12];
+
+(*ARM 1 alarm - arm overrtime alarm*) (*normally set 30sec*)
+	ARiArmToleranceTimeSV[1];
+
+(*ARM 2*)
+	ARiArmToleranceTimeSV[2];
+
+
+(*Station Dipping Time Variable Ctrl - AutoMode Pnp Dipping Time*)
+	ARiStnDippingTimeSV[1];
+	ARiStnDippingTimeSV[2];
+	ARiStnDippingTimeSV[3];
+	ARiStnDippingTimeSV[4];
+	ARiStnDippingTimeSV[5];
+	ARiStnDippingTimeSV[6];
+	ARiStnDippingTimeSV[7];
+	ARiStnDippingTimeSV[8];
+	ARiStnDippingTimeSV[9];
+	ARiStnDippingTimeSV[10];
+	ARiStnDippingTimeSV[11];
+	ARiStnDippingTimeSV[12];
+
+
+(*Station Top Up Delay Off Time Variable Ctrl*)
+	ARiStnTopUpDelayOffTimeSV[1];
+	ARiStnTopUpDelayOffTimeSV[2];
+	ARiStnTopUpDelayOffTimeSV[3];
+	ARiStnTopUpDelayOffTimeSV[4];
+	ARiStnTopUpDelayOffTimeSV[5];
+	ARiStnTopUpDelayOffTimeSV[6];
+	ARiStnTopUpDelayOffTimeSV[7];
+	ARiStnTopUpDelayOffTimeSV[8];
+	ARiStnTopUpDelayOffTimeSV[9];
+	ARiStnTopUpDelayOffTimeSV[10];
+	ARiStnTopUpDelayOffTimeSV[11];
+	ARiStnTopUpDelayOffTimeSV[12];
+
+	ARiStnSubTankTopUpDelayOffTimeSV[1];
+	ARiStnSubTankTopUpDelayOffTimeSV[2];
+	ARiStnSubTankTopUpDelayOffTimeSV[3];
+	ARiStnSubTankTopUpDelayOffTimeSV[4];
+	ARiStnSubTankTopUpDelayOffTimeSV[5];
+	ARiStnSubTankTopUpDelayOffTimeSV[6];
+	ARiStnSubTankTopUpDelayOffTimeSV[7];
+	ARiStnSubTankTopUpDelayOffTimeSV[8];
+	ARiStnSubTankTopUpDelayOffTimeSV[9];
+	ARiStnSubTankTopUpDelayOffTimeSV[10];
+	ARiStnSubTankTopUpDelayOffTimeSV[11];
+	ARiStnSubTankTopUpDelayOffTimeSV[12];
+
+
+(*Arm Mishook Sensor Detect Zone Variable Ctrl*)
+(*ARM 1*) (*normally set 200 - non-detection area., from bottom *)
+	ARlrArmDetectZoneRange[1];
+	ARlrArmDetectZoneRange[2];
+	ARlrArmDetectZoneRange[3];
+	ARlrArmDetectZoneRange[4];
+	ARlrArmDetectZoneRange[5];
+	ARlrArmDetectZoneRange[6];
+	ARlrArmDetectZoneRange[7];
+	ARlrArmDetectZoneRange[8];
+	ARlrArmDetectZoneRange[9];
+	ARlrArmDetectZoneRange[10];
+	ARlrArmDetectZoneRange[11];
+	ARlrArmDetectZoneRange[12];
+
+(*if set more than the bottom position value, will not monitor this misshook function*)
+	ARiArmDeactDetectZoneRange[1];
+
+(*	ARlrArmStnDetectZoneRange[2,10] := 300;*)
+
+(*ARM 2*)
+	ARiArmDeactDetectZoneRange[2];
+
+
+(*Station Call Arm Time Variable Ctrl*)
+
+	tAllStnArmTake;
+
+
+(*Unloading Buzzer Time Variable Ctrl*)
+
+	diUnloadingTimer;
+
+
+(*Alternate Station Variable Ctrl*)
+
+	ARbAlternateStnEn [1] ;
+	ARbAlternateStnEn [2] ;
+
+	AR2siAlternateStn 	[1,1]	;
+	AR2siAlternateStn 	[1,2]	;
+(*
+	AR2siAlternateStn 	[2,1]	:= 9;
+	AR2siAlternateStn 	[2,2]	:= 10;
+*)
+
+	ARbBusyLinkUpStnEn [1] ;
+	ARbBusyLinkUpStnEn [2] ;
+
+	AR2siStnBusyLinkUpStn [1,1];
+	AR2siStnBusyLinkUpStn [1,2];
+	AR2siStnBusyLinkUpStn [2,1];
+	AR2siStnBusyLinkUpStn [2,2];
+
+
+(*Machine Shut Down Operation Variable Ctrl*)
+
+	bMcShutDownDisable ; (*TRUE - Disable Mc Shut Down Function*)
+	bTimeOptimizeDisable (*:= TRUE*); (*TRUE - Enable Time Optimize Function*)
+
+	wShutDownYear;
+	wShutDownMonth;
+	wShutDownDay;
+
+//	bWeberFbErrorReset := TRUE;]]></ST>
+    </Implementation>
+    <LineIds Name="HMIValueKeyInCtrl">
+      <LineId Id="4" Count="1050" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

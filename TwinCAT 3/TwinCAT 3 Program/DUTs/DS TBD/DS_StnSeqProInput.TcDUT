@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_StnSeqProInput" Id="{4ce1376a-1479-4d60-babd-0d8dbeb8c000}">
+    <Declaration><![CDATA[TYPE DS_StnSeqProInput : (*Full Occupied Byte = 200*)
+
+STRUCT
+	bProLowLiquidLevel_NC : BOOL; (* Byte "n" *)
+	bProRegLiquidLevel_NO : BOOL; (* Byte "n+1" *)
+	bProHighLiquidLevel_NO : BOOL; (* Byte "n+1" *)
+
+	bSubLowLiquidLevel_NC : BOOL; (* Byte "n" *)
+	bSubRegLiquidLevel_NO : BOOL; (* Byte "n+1" *)
+	bSubHighLiquidLevel_NO : BOOL; (* Byte "n+1" *)
+
+	bLowVacuumLevel_NO : BOOL; (* Byte "n+2" *)
+	bRegVacuumLevel_NO : BOOL; (* Byte "n+3" *)
+	bLowPressureLevel_NO : BOOL; (* Byte "n+4" *)
+	bRegPressureLevel_NO : BOOL; (* Byte "n+5" *)
+	bExternalActivation_NO : BOOL; (* Byte "n+6" *)
+	sReservedBool : STRING(50); (* Byte "n+7~n+99" *)
+
+	iVacuumLevelPV : INT; (* Byte "n+100, n+101" *)
+	iPressureLevelPV : INT; (* Byte "n+102, n+103" *)
+	iProTankTempLevelPV : INT; (* Byte "n+104, n+105" *)
+	iSubTankTempLevelPV : INT; (* Byte "n+106, n+107" *)
+
+	iSlowPullUpPos : INT; (*Used when the station with Slow Pull*)
+	iSlowPullDownPos : INT; (*Used when the station with Slow Pull*)
+
+	sReservedInt : STRING(50); (* Byte "n+108~n+199" *)
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

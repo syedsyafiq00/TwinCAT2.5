@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_CsvActionType" Id="{f9f75152-f483-4d10-ac9a-e12cc5de009b}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+{attribute 'strict'}
+{attribute 'to_String'}
+TYPE E_CsvActionType :
+(
+	eCsvNewFile_CarrierReport 	:= 1,
+	eCsvLogData_CarrierReport	:= 2,
+	eCsvGenerate_CarrierReport	:= 3,
+	eCsvNewFile_EventLog 		:= 4,
+	eCsvLogData_EventLog		:= 5,
+	eCsvGenerate_EventLog		:= 6
+	
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_LocalSystemTime" Id="{6ed0afa6-58bb-4569-a1d7-d24bc481f95c}">
+    <Declaration><![CDATA[TYPE DS_LocalSystemTime :
+STRUCT
+
+dtCurrentDateTime			: DT; 		  // Newly Added DT#2023-02-20-15:49:44
+sCurrentDateTime			: STRING(30); // Newly Added 2023-02-20-15:49:44
+sCurrentDate_General		: STRING(255); // Newly Added YYYYMMDD
+sCurrentTime24Hr_General	: STRING(50); // Newly Added HH:MM:SS	
+sCurrentDT24Hr_General		: STRING(50);
+sCurrentDT12Hr				: STRING(50);
+sCurrentDT24Hr				: STRING(50);
+sDayOfWeek					: STRING(10);
+sYear						: STRING(10);
+sMonth						: STRING(10);
+sDay						: STRING(10);
+s24Hour						: STRING(10);
+s12Hour						: STRING(10);
+sMin						: STRING(10);
+sSec						: STRING(10);
+s12HrSign					: STRING(10);
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

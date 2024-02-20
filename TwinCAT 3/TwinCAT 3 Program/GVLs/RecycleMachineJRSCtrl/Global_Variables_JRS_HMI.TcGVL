@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_JRS_HMI" Id="{eb91f7ed-62d4-4d2e-b81d-61ec3b1e60a3}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+(*JRS_HMI Function*)
+
+	JrsHmiPage:INT;
+	bChillerManualPageOn:BOOL;
+	bChillerAutoPageOn:BOOL;
+	bManulBoilPageOn:BOOL;
+
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

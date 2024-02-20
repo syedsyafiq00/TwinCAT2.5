@@ -1,0 +1,524 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbProminentDosingCtrl" Id="{bf699aaf-cb1a-48f4-a3d4-58ba76ebe718}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbProminentDosingCtrl
+VAR_INPUT PERSISTENT
+	bEnable : BOOL;
+	bProcessTankLowLevelSensor : BOOL;
+	bProcessTankTopUpLevelSensor : BOOL;
+	bProcessTankRegularLevelSensor : BOOL;
+	bDosingChemicalContainerLowLevelAlarm : BOOL; (*New*)
+	bBasketAvailablilitySignal : BOOL;
+	bPumpFeedbackSignal : BOOL;
+	bErrorReset	: BOOL;
+	bDeactivatedMode : BOOL;
+
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+	iPulseOnTime_ms : INT; (*250*)
+	iPulseOffTime_ms : INT; (*250*)
+	iPumpFeedbackPulseInputFilter_ms : INT; (*30*)
+	iPumpHealthCheckPulseSV : INT; (*10*)
+	bDrainST		: BOOL;
+	bManualDosingST : BOOL;
+	bFirstFillST		: BOOL;
+	bAutoDosingST	: BOOL;
+
+	DSProminentDosingHMI : DS_ProminentDosingHMI;
+END_VAR
+
+VAR_OUTPUT
+	bFirstFillDone	: BOOL;
+	bAutoDosingDone : BOOL;
+	bManualDosingDone : BOOL;
+	bFirstFillInProgress : BOOL;
+	bAutoDosingInProgress : BOOL;
+	bManualDosingInProgress : BOOL;
+
+	bPumpHealthCheckPulseError : BOOL;
+	bDosingPumpOnOff : BOOL;
+	bDrainValveOnOff : BOOL;
+	bDITopUpValveOnOff : BOOL;
+
+	bFirstFillDosingValveOnOff: BOOL; (*New Added by Lee - For Foxconn Project, Open Valve For Dosing Pump*)
+	bAutoDosingValveOnOff: BOOL; (*New Added by Lee - For Foxconn Project, Open Valve For Dosing Pump*)
+	bManualDosingValveOnOff: BOOL; (*New Added by Lee - For Foxconn Project, Open Valve For Dosing Pump*)
+	bCalibrateDosingValveOnOff: BOOL; (*New Added by Lee - For Foxconn Project, Open Valve For Dosing Pump*)
+
+END_VAR
+
+
+VAR_OUTPUT PERSISTENT
+	iHealthCheckPulsePV: INT;
+END_VAR
+
+VAR PERSISTENT
+	lrInternalTotalizer_ml : LREAL;
+
+	diInternalTotalizer_ml : DINT;
+
+END_VAR
+
+
+VAR
+	bResetRemainedDosingVolumeIndicator: BOOL;
+	tResetRemainedDosingVolumeIndicator: TON;
+	bResetDosingTotalizerIndicator: BOOL;
+	tResetDosingTotalizerIndicator: TON;
+	bDosingEn: BOOL;
+	tDosingPulseOnTimer: TON;
+	tDosingPulseOffTimer: TON;
+	tPumpFeedbackSignal: TON;
+
+
+
+	bFirstFillHR: BOOL;
+	bManualDosingHR: BOOL;
+	bCalibrateHR: BOOL;
+	bAutoDosingHR: BOOL;
+	bFirstFillDosingSt: BOOL;
+
+	bResetDosingTotalizerPBRE				: R_TRIG;
+	In_bResetRemainedDosingVolumePBRE		: R_TRIG;
+
+	bDosingPulse_RE				: R_TRIG;
+	bCalibrateHR_RE				: R_TRIG;
+	bManualDosingHR_RE		: R_TRIG;
+	bFirstFillHR_RE				: R_TRIG;
+	bAutoDosingHR_RE			: R_TRIG;
+	bFirstFillDosingSt_RE			: R_TRIG;
+	bBasketAvailablilitySignal_RE	: R_TRIG;
+	tPumpFeedbackSignal_RE		: R_TRIG;
+	bAutoDosingDone_RE			: R_TRIG;
+	bDrainHR_RE				: R_TRIG;
+
+
+	bBasketAvailablilitySignal_FE	: F_TRIG;
+	bCalibrateHR_FE				: F_TRIG;
+	bManualDosingHR_FE			: F_TRIG;
+	bFirstFillHR_FE				: F_TRIG;
+	bAutoDosingHR_FE			: F_TRIG;
+
+
+	bDrainHR: BOOL;
+
+	diBufferInternalTotalizer_ml: DINT;
+	diBufferDosingTotalizer_Litre: DINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Timer Declaration*)
+tDosingPulseOnTimer(IN:=bEnable AND bDosingEN AND NOT tDosingPulseOffTimer.Q , PT:=INT_TO_TIME(iPulseOnTime_ms) , Q=> , ET=> );
+tDosingPulseOffTimer(IN:=bEnable AND tDosingPulseOnTimer.Q  , PT:=INT_TO_TIME(iPulseOnTime_ms) , Q=> , ET=> );
+tPumpFeedbackSignal(IN:=bEnable AND bPumpFeedbackSignal  , PT:=INT_TO_TIME(iPumpFeedbackPulseInputFilter_ms) , Q=> , ET=> );
+
+(*Max Min Limit*)
+
+IF  DSProminentDosingHMI.In_iCalibrateFeed_Pulse > 999 THEN DSProminentDosingHMI.In_iCalibrateFeed_Pulse := 999; ELSIF DSProminentDosingHMI.In_iCalibrateFeed_Pulse < 10 THEN DSProminentDosingHMI.In_iCalibrateFeed_Pulse := 10; END_IF
+IF  DSProminentDosingHMI.In_iCalibrateTotalVolumeResult_ml > 9999 THEN DSProminentDosingHMI.In_iCalibrateTotalVolumeResult_ml := 9999; ELSIF DSProminentDosingHMI.In_iCalibrateTotalVolumeResult_ml < 1 THEN DSProminentDosingHMI.In_iCalibrateTotalVolumeResult_ml := 1; END_IF
+IF  DSProminentDosingHMI.in_iFirstFillDosing_ml > 32767 THEN DSProminentDosingHMI.in_iFirstFillDosing_ml := 32767; ELSIF DSProminentDosingHMI.in_iFirstFillDosing_ml < 1 THEN DSProminentDosingHMI.in_iFirstFillDosing_ml := 1; END_IF
+IF  DSProminentDosingHMI.In_iManualDosingVolume_ml > 32767 THEN DSProminentDosingHMI.In_iManualDosingVolume_ml := 32767; ELSIF DSProminentDosingHMI.In_iManualDosingVolume_ml < 1 THEN DSProminentDosingHMI.In_iManualDosingVolume_ml := 1; END_IF
+IF  DSProminentDosingHMI.In_iNoOfBasketBetweenAutoDosing > 999 THEN DSProminentDosingHMI.In_iNoOfBasketBetweenAutoDosing := 999; ELSIF DSProminentDosingHMI.In_iNoOfBasketBetweenAutoDosing < 1 THEN DSProminentDosingHMI.In_iNoOfBasketBetweenAutoDosing := 1; END_IF
+IF  DSProminentDosingHMI.In_iVolumePerBasket_ml > 9999 THEN DSProminentDosingHMI.In_iVolumePerBasket_ml := 9999; ELSIF DSProminentDosingHMI.In_iVolumePerBasket_ml < 1 THEN DSProminentDosingHMI.In_iVolumePerBasket_ml := 1; END_IF
+IF  DSProminentDosingHMI.In_rVolumePerPulse_ml > 1000 THEN DSProminentDosingHMI.In_rVolumePerPulse_ml := 1000; ELSIF DSProminentDosingHMI.In_rVolumePerPulse_ml < 0.1 THEN DSProminentDosingHMI.In_rVolumePerPulse_ml := 0.1; END_IF
+
+IF  iPulseOnTime_ms > 5000 THEN iPulseOnTime_ms := 5000; ELSIF iPulseOnTime_ms < 250 THEN iPulseOnTime_ms := 250; END_IF
+IF  iPulseOffTime_ms > 5000 THEN iPulseOffTime_ms := 5000; ELSIF iPulseOffTime_ms < 250 THEN iPulseOffTime_ms := 250; END_IF
+IF  iPumpFeedbackPulseInputFilter_ms > 2000 THEN iPumpFeedbackPulseInputFilter_ms := 2000; ELSIF iPumpFeedbackPulseInputFilter_ms < 30 THEN iPumpFeedbackPulseInputFilter_ms := 30; END_IF
+IF  iPumpHealthCheckPulseSV > 1000 THEN iPumpHealthCheckPulseSV := 1000; ELSIF iPumpHealthCheckPulseSV < 10 THEN iPumpHealthCheckPulseSV := 10; END_IF
+
+(*Reset 0 when low level *)
+
+IF NOT bProcessTankLowLevelSensor THEN
+DSProminentDosingHMI.Out_iBasketQtyBeforeAutoDosingPV := 0;
+END_IF
+
+
+(*Start Process Condition*)
+
+	(*Drain HR*)
+	IF bEnable AND NOT bDeactivatedMode AND bDrainST THEN
+	bDrainHR := TRUE;
+	ELSE
+	bDrainHR := FALSE;
+	END_IF
+
+
+	(*Calibrate HR*)
+	IF bEnable AND NOT bDeactivatedMode AND DSProminentDosingHMI.In_bCalibratePB AND NOT bDrainHR THEN
+	bCalibrateHR := TRUE;
+	ELSE
+	bCalibrateHR := FALSE;
+	END_IF
+
+
+	(*Manual Dosing HR*)
+	IF bEnable AND NOT bDeactivatedMode AND bManualDosingST AND NOT bCalibrateHR AND NOT bDrainHR THEN
+	bManualDosingHR := TRUE;
+	ELSE
+	bManualDosingHR := FALSE;
+	END_IF
+
+
+	(*First Fill HR*)
+	IF bEnable AND NOT bDeactivatedMode AND bFirstFillST AND NOT bProcessTankLowLevelSensor AND NOT bProcessTankTopUpLevelSensor AND NOT bProcessTankRegularLevelSensor AND NOT bManualDosingHR AND NOT bCalibrateHR AND NOT bDrainHR THEN
+	bFirstFillHR := TRUE;
+	END_IF
+
+	IF NOT bFirstFillST OR bManualDosingHR OR bCalibrateHR OR bDrainHR THEN
+	bFirstFillHR := FALSE;
+	END_IF
+
+
+	(*Auto Dosing HR*)
+	IF bEnable AND NOT bDeactivatedMode AND bAutoDosingST AND NOT bFirstFillHR AND NOT bManualDosingHR AND NOT bCalibrateHR AND NOT bDrainHR THEN
+	bAutoDosingHR := TRUE;
+	ELSE
+	bAutoDosingHR := FALSE;
+	END_IF
+
+
+
+
+(*R_TRIG and F_TRIG*)
+bDosingPulse_RE				(CLK:=bDosingPumpOnOff , Q=> );
+bDrainHR_RE				(CLK:=bDrainHR , Q=> );
+bCalibrateHR_RE				(CLK:=bCalibrateHR , Q=> );
+bManualDosingHR_RE		(CLK:=bManualDosingHR , Q=> );
+bFirstFillHR_RE				(CLK:=bFirstFillHR , Q=> );
+bAutoDosingHR_RE			(CLK:=bAutoDosingHR AND DSProminentDosingHMI.Out_iBasketQtyBeforeAutoDosingPV >= DSProminentDosingHMI.In_iNoOfBasketBetweenAutoDosing , Q=> );
+bFirstFillDosingSt_RE			(CLK:=bFirstFillDosingSt , Q=> );
+bBasketAvailablilitySignal_RE	(CLK:=bBasketAvailablilitySignal , Q=> );
+tPumpFeedbackSignal_RE		(CLK:=tPumpFeedbackSignal.Q , Q=> );
+bAutoDosingDone_RE			(CLK:=bAutoDosingDone , Q=> );
+
+bBasketAvailablilitySignal_FE	(CLK:=bBasketAvailablilitySignal , Q=> );
+bCalibrateHR_FE				(CLK:=bCalibrateHR , Q=> );
+bManualDosingHR_FE			(CLK:=bManualDosingHR , Q=> );
+bFirstFillHR_FE				(CLK:=bFirstFillHR , Q=> );
+bAutoDosingHR_FE			(CLK:=bAutoDosingHR  , Q=> );
+
+
+
+
+
+(*
+(*Control Min / Max*)
+IF DSProminentDosingHMI.In_rVolumePerPulse_ml <= 1 THEN
+DSProminentDosingHMI.In_rVolumePerPulse_ml := 1;
+END_IF
+*)
+(*Reset to "Remaining" to  "0" When Function Stop*)
+IF NOT bEnable OR bCalibrateHR_FE.Q OR bManualDosingHR_FE.Q OR bFirstFillHR_FE.Q OR bAutoDosingHR_FE.Q THEN
+DSProminentDosingHMI.Out_rRemainedDosingVolume_ml := 0;
+END_IF
+
+
+IF bEnable AND NOT bDeactivatedMode THEN
+
+	(*Dosing Pump Control*)
+	IF NOT bDrainHR AND NOT bDosingChemicalContainerLowLevelAlarm AND DSProminentDosingHMI.Out_rRemainedDosingVolume_ml > 0 THEN
+		bDosingEn := TRUE;
+	ELSE
+		bDosingEn := FALSE;
+	END_IF
+
+	IF bEnable AND bDosingEN AND NOT tDosingPulseOnTimer.Q THEN
+	bDosingPumpOnOff := TRUE;
+	ELSE
+	bDosingPumpOnOff := FALSE;
+	END_IF
+
+	IF bDosingEN AND tPumpFeedbackSignal_RE.Q THEN
+		IF DSProminentDosingHMI.Out_rRemainedDosingVolume_ml >= DSProminentDosingHMI.In_rVolumePerPulse_ml THEN
+		DSProminentDosingHMI.Out_rRemainedDosingVolume_ml := DSProminentDosingHMI.Out_rRemainedDosingVolume_ml - DSProminentDosingHMI.In_rVolumePerPulse_ml;
+		lrInternalTotalizer_ml := lrInternalTotalizer_ml + DSProminentDosingHMI.In_rVolumePerPulse_ml; (*Totalizer*)
+		ELSE
+		lrInternalTotalizer_ml := lrInternalTotalizer_ml + DSProminentDosingHMI.Out_rRemainedDosingVolume_ml; (*Totalizer*)
+		DSProminentDosingHMI.Out_rRemainedDosingVolume_ml := 0;
+		END_IF
+	END_IF
+
+	(*Dosing Pump Pulse Signal Health Check*)
+	IF bDosingEN THEN
+
+		IF bDosingPulse_RE.Q THEN
+		iHealthCheckPulsePV := iHealthCheckPulsePV + 1;
+		END_IF
+
+		IF tPumpFeedbackSignal_RE.Q AND iHealthCheckPulsePV > 1THEN
+		iHealthCheckPulsePV := iHealthCheckPulsePV - 1;
+		END_IF
+
+		IF iHealthCheckPulsePV >= iPumpHealthCheckPulseSV THEN
+		bPumpHealthCheckPulseError := TRUE;
+		END_IF
+
+	ELSE
+
+		iHealthCheckPulsePV := 0;
+
+	END_IF
+
+
+	(*Totalizer Control*)
+
+	IF lrInternalTotalizer_ml/1000 > 0 THEN
+		diBufferInternalTotalizer_ml := LREAL_TO_DINT(lrInternalTotalizer_ml) ;
+		diBufferDosingTotalizer_Litre := (diBufferInternalTotalizer_ml/1000);
+		DSProminentDosingHMI.Out_iDosingTotalizer_Litre := DINT_TO_INT(diBufferDosingTotalizer_Litre) ;
+	ELSE
+		DSProminentDosingHMI.Out_iDosingTotalizer_Litre := 0 ;
+	END_IF
+
+(*
+	IF lrInternalTotalizer_ml/1000 > 0 THEN
+		DSProminentDosingHMI.Out_iDosingTotalizer_Litre := LREAL_TO_INT(lrInternalTotalizer_ml/1000) ;
+	ELSE
+		DSProminentDosingHMI.Out_iDosingTotalizer_Litre := 0 ;
+	END_IF
+*)
+
+	IF (lrInternalTotalizer_ml - (INT_TO_REAL(DSProminentDosingHMI.Out_iDosingTotalizer_Litre)*1000)) > 0 THEN
+		DSProminentDosingHMI.Out_iDosingTotalizer_ml := LREAL_TO_INT(lrInternalTotalizer_ml - (INT_TO_REAL(DSProminentDosingHMI.Out_iDosingTotalizer_Litre)*1000)) ;
+	ELSE
+		DSProminentDosingHMI.Out_iDosingTotalizer_ml := 0;
+	END_IF
+
+
+	(*Drain Control*)
+	IF bDrainHR THEN
+	bDrainValveOnOff := TRUE;
+	DSProminentDosingHMI.Out_rRemainedDosingVolume_ml := 0;
+	ELSE
+	bDrainValveOnOff := FALSE;
+	END_IF
+
+
+	(*Calibration Control*)
+	IF bCalibrateHR THEN
+
+		IF bCalibrateHR_RE.Q THEN
+
+			IF DSProminentDosingHMI.In_iCalibrateFeed_Pulse > 0 AND DSProminentDosingHMI.In_rVolumePerPulse_ml > 0 THEN
+			DSProminentDosingHMI.Out_rRemainedDosingVolume_ml 		:= 0;
+			DSProminentDosingHMI.Out_rRemainedDosingVolume_ml 		:= DSProminentDosingHMI.In_iCalibrateFeed_Pulse * DSProminentDosingHMI.In_rVolumePerPulse_ml ;
+			END_IF
+
+		DSProminentDosingHMI.In_iCalibrateTotalVolumeResult_ml		:= 0;
+
+		END_IF
+
+		IF DSProminentDosingHMI.Out_rRemainedDosingVolume_ml > 0 THEN
+		DSProminentDosingHMI.Out_bCalibrateInProgress := TRUE;
+		DSProminentDosingHMI.Out_bCalibrateDone := FALSE;
+		bCalibrateDosingValveOnOff := TRUE; (*New Added - For Foxconn Project, Open Valve For Dosing Pump*)
+		ELSE
+		DSProminentDosingHMI.Out_bCalibrateInProgress := FALSE;
+		DSProminentDosingHMI.Out_bCalibrateDone := TRUE;
+		bCalibrateDosingValveOnOff := FALSE; (*New Added - For Foxconn Project, Open Valve For Dosing Pump*)
+		END_IF
+
+		IF DSProminentDosingHMI.Out_bCalibrateDone THEN
+			IF DSProminentDosingHMI.In_iCalibrateTotalVolumeResult_ml > 0 AND DSProminentDosingHMI.In_iCalibrateFeed_Pulse > 0 THEN
+			DSProminentDosingHMI.In_rVolumePerPulse_ml := INT_TO_REAL(DSProminentDosingHMI.In_iCalibrateTotalVolumeResult_ml) / INT_TO_REAL(DSProminentDosingHMI.In_iCalibrateFeed_Pulse);
+			ELSE
+			DSProminentDosingHMI.In_rVolumePerPulse_ml := 0;
+			END_IF
+		END_IF
+
+	ELSE
+
+		DSProminentDosingHMI.Out_bCalibrateInProgress := FALSE;
+		DSProminentDosingHMI.Out_bCalibrateDone := FALSE;
+		bCalibrateDosingValveOnOff := FALSE; (*New Added - For Foxconn Project, Open Valve For Dosing Pump*)
+	END_IF
+
+
+	(*Manual Dosing Control*)
+	IF bManualDosingHR THEN
+
+		IF bManualDosingHR_RE.Q THEN
+			DSProminentDosingHMI.Out_rRemainedDosingVolume_ml := DSProminentDosingHMI.Out_rRemainedDosingVolume_ml + DSProminentDosingHMI.In_iManualDosingVolume_ml;
+		END_IF
+
+		IF DSProminentDosingHMI.Out_rRemainedDosingVolume_ml > 0 THEN
+		bManualDosingInProgress := TRUE;
+		bManualDosingDone := FALSE;
+		bManualDosingValveOnOff := TRUE; (*New Added - For Foxconn Project, Open Valve For Dosing Pump*)
+		ELSE
+		bManualDosingInProgress := FALSE;
+		bManualDosingDone := TRUE;
+		bManualDosingValveOnOff := FALSE; (*New Added - For Foxconn Project, Open Valve For Dosing Pump*)
+		END_IF
+
+	ELSE
+		bManualDosingInProgress := FALSE;
+		bManualDosingDone := FALSE;
+		bManualDosingValveOnOff := FALSE; (*New Added - For Foxconn Project, Open Valve For Dosing Pump*)
+	END_IF
+
+
+	(*First Fill Control*)
+	IF bFirstFillHR THEN
+
+		IF bProcessTankLowLevelSensor THEN
+		bFirstFillDosingST := TRUE;
+		bFirstFillDosingValveOnOff := TRUE; (*New Added - For Foxconn Project, Open Valve For Dosing Pump*)
+		END_IF
+
+		IF bFirstFillDosingSt_RE.Q THEN
+			DSProminentDosingHMI.Out_rRemainedDosingVolume_ml := DSProminentDosingHMI.Out_rRemainedDosingVolume_ml + DSProminentDosingHMI.in_iFirstFillDosing_ml;
+		END_IF
+
+		IF DSProminentDosingHMI.Out_rRemainedDosingVolume_ml <= 0 THEN
+		bFirstFillDosingValveOnOff := FALSE; (*New Added - For Foxconn Project, Open Valve For Dosing Pump*)
+		END_IF
+
+		IF (NOT bProcessTankLowLevelSensor OR NOT bProcessTankTopUpLevelSensor OR NOT bProcessTankRegularLevelSensor) AND DSProminentDosingHMI.Out_rRemainedDosingVolume_ml <= 0 THEN
+		bDITopUpValveOnOff := TRUE;
+		ELSE
+		bDITopUpValveOnOff := FALSE;
+		END_IF
+
+		IF DSProminentDosingHMI.Out_rRemainedDosingVolume_ml > 0 OR NOT bProcessTankLowLevelSensor OR NOT bProcessTankTopUpLevelSensor OR NOT bProcessTankRegularLevelSensor  THEN
+		bFirstFillInProgress := TRUE;
+		bFirstFillDone := FALSE;
+		ELSE
+		bFirstFillInProgress := FALSE;
+		bFirstFillDone := TRUE;
+		bDITopUpValveOnOff := FALSE;
+		bFirstFillDosingValveOnOff := FALSE; (*New Added - For Foxconn Project, Open Valve For Dosing Pump*)
+		END_IF
+
+	ELSE
+		bFirstFillDosingST := FALSE;
+		bFirstFillInProgress := FALSE;
+		bFirstFillDone := FALSE;
+		bDITopUpValveOnOff := FALSE;
+		bFirstFillDosingValveOnOff := FALSE; (*New Added - For Foxconn Project, Open Valve For Dosing Pump*)
+	END_IF
+
+
+	(*Auto Dosing Control*)
+	IF bAutoDosingHR THEN
+
+		(*Monitor Qty of basket passing on this station*)
+		IF bBasketAvailablilitySignal_FE.Q (*bBasketAvailablilitySignal_RE.Q*) THEN
+		DSProminentDosingHMI.Out_iBasketQtyBeforeAutoDosingPV := DSProminentDosingHMI.Out_iBasketQtyBeforeAutoDosingPV+1;
+		END_IF
+
+		IF bAutoDosingDone_RE.Q THEN
+		DSProminentDosingHMI.Out_iBasketQtyBeforeAutoDosingPV := 0;
+		END_IF
+
+
+		(*Dosing Start*)
+		IF bAutoDosingHR_RE.Q THEN
+			IF DSProminentDosingHMI.In_iVolumePerBasket_ml > 0 AND DSProminentDosingHMI.In_iNoOfBasketBetweenAutoDosing > 0 THEN
+			DSProminentDosingHMI.Out_rRemainedDosingVolume_ml := DSProminentDosingHMI.Out_rRemainedDosingVolume_ml + (DSProminentDosingHMI.In_iVolumePerBasket_ml * DSProminentDosingHMI.In_iNoOfBasketBetweenAutoDosing);
+			ELSE
+			DSProminentDosingHMI.Out_rRemainedDosingVolume_ml := 0;
+			END_IF
+		END_IF
+
+		IF DSProminentDosingHMI.Out_rRemainedDosingVolume_ml > 0 THEN
+		bAutoDosingInProgress := TRUE;
+		bAutoDosingDone := FALSE;
+		bAutoDosingValveOnOff := TRUE; (*New Added - For Foxconn Project, Open Valve For Dosing Pump*)
+		ELSE
+		bAutoDosingInProgress := FALSE;
+		bAutoDosingDone := TRUE;
+		bAutoDosingValveOnOff := FALSE; (*New Added - For Foxconn Project, Open Valve For Dosing Pump*)
+		END_IF
+
+	ELSE
+		bAutoDosingInProgress := FALSE;
+		bAutoDosingDone := FALSE;
+		bAutoDosingValveOnOff := FALSE; (*New Added - For Foxconn Project, Open Valve For Dosing Pump*)
+	END_IF
+
+END_IF
+
+
+
+
+(*RemainedDosingVolume reset*)
+In_bResetRemainedDosingVolumePBRE(CLK:=DSProminentDosingHMI.In_bResetRemainedDosingVolumePB , Q=> );
+IF In_bResetRemainedDosingVolumePBRE.Q  THEN
+DSProminentDosingHMI.Out_bResetRemainedDosingVolumeIndicator := TRUE;
+DSProminentDosingHMI.Out_rRemainedDosingVolume_ml := 0;
+DSProminentDosingHMI.In_bCalibratePB := FALSE;
+END_IF
+
+tResetRemainedDosingVolumeIndicator(IN:=DSProminentDosingHMI.Out_bResetRemainedDosingVolumeIndicator , PT:= , Q=> , ET=> );
+IF tResetRemainedDosingVolumeIndicator.Q THEN
+DSProminentDosingHMI.Out_bResetRemainedDosingVolumeIndicator := FALSE;
+END_IF
+
+
+(*Dosing Totalizer reset*)
+bResetDosingTotalizerPBRE(CLK:=DSProminentDosingHMI.In_bResetDosingTotalizerPB , Q=> );
+IF bResetDosingTotalizerPBRE.Q  THEN
+DSProminentDosingHMI.Out_bResetDosingTotalizerIndicator := TRUE;
+DSProminentDosingHMI.Out_iDosingTotalizer_ml := 0;
+DSProminentDosingHMI.Out_iDosingTotalizer_Litre := 0;
+lrInternalTotalizer_ml := 0;
+END_IF
+
+tResetDosingTotalizerIndicator(IN:=DSProminentDosingHMI.Out_bResetDosingTotalizerIndicator , PT:= , Q=> , ET=> );
+IF tResetDosingTotalizerIndicator.Q THEN
+DSProminentDosingHMI.Out_bResetDosingTotalizerIndicator := FALSE;
+END_IF
+
+(*Alarm Reset*)
+IF bErrorReset THEN
+bPumpHealthCheckPulseError := FALSE;
+END_IF
+
+(*Master Reset*)
+IF NOT bEnable OR bPumpHealthCheckPulseError THEN
+
+	DSProminentDosingHMI.Out_bResetRemainedDosingVolumeIndicator := FALSE;
+	DSProminentDosingHMI.Out_bResetDosingTotalizerIndicator := FALSE;
+
+	bDosingPumpOnOff := FALSE;
+	bDrainValveOnOff := FALSE;
+	bDITopUpValveOnOff := FALSE;
+
+	bDosingEn := FALSE;
+	DSProminentDosingHMI.Out_bCalibrateInProgress := FALSE;
+	DSProminentDosingHMI.Out_bCalibrateDone := FALSE;
+
+	bManualDosingInProgress := FALSE;
+	bManualDosingDone := FALSE;
+
+	bFirstFillDosingSt := FALSE;
+	bFirstFillInProgress := FALSE;
+	bFirstFillDone := FALSE;
+
+	bAutoDosingInProgress := FALSE;
+	bAutoDosingDone := FALSE;
+
+	bDrainST := FALSE;
+	bManualDosingST := FALSE;
+	bFirstFillST := FALSE;
+	bAutoDosingST := FALSE;
+	DSProminentDosingHMI.In_bCalibratePB := FALSE;
+
+	bFirstFillDosingValveOnOff := FALSE; (*New Added - For Foxconn Project, Open Valve For Dosing Pump*)
+	bAutoDosingValveOnOff := FALSE; (*New Added - For Foxconn Project, Open Valve For Dosing Pump*)
+	bManualDosingValveOnOff := FALSE; (*New Added - For Foxconn Project, Open Valve For Dosing Pump*)
+	bCalibrateDosingValveOnOff := FALSE; (*New Added - For Foxconn Project, Open Valve For Dosing Pump*)
+
+END_IF
+
+
+(*Message Status*)
+DSProminentDosingHMI.Out_sStatusMessage;]]></ST>
+    </Implementation>
+    <LineIds Name="fbProminentDosingCtrl">
+      <LineId Id="105" Count="408" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

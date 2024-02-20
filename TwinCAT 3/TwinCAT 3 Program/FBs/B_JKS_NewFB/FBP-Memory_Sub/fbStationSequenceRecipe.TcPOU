@@ -1,0 +1,290 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbStationSequenceRecipe" Id="{5ff148b6-feb7-46a8-ac73-8f1ad27947b0}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbStationSequenceRecipe
+
+VAR_INPUT
+	bSavePB : BOOL;
+	bLoadPB : BOOL;
+	bCopyPB : BOOL;
+(*	iCopyFromSubRecipeNo : INT;*)
+	iCopyToSubRecipeNo : INT;
+END_VAR
+
+
+VAR_IN_OUT PERSISTENT
+
+	iStationSequenceRecipeNo: INT; (* 10 sets of Station Sequence Recipe *)
+	sStationSequenceRecipeDescription : STRING(50); (* Description of Station Sequence Recipe - Naming*)
+	DsInStationSequenceRecipeMemory : DS_StationSequenceRecipeMemory;
+(*	AR10iStationSubProNo : ARRAY [0..10] OF INT; (* 10 units of SubProcessProgramNo / Steps *)
+	AR10iCycle : ARRAY [0..10] OF INT; (* 10 units of Integer to Store the Cycle needed on the specified Steps. at least "1" *)
+	AR10iRepeatFromStepNo : ARRAY [0..10] OF INT; (* 10 units of Integer to when Cycle repeat, it will repeat from Which Steps  *)
+*)
+
+
+
+
+	Call_iStationSequenceRecipe : INT;
+	bCallPB: BOOL;
+(*	bCallPBEnable : BOOL;*)
+(*	ScrMapCall_iStationSequenceRecipe : INT;*)
+
+
+
+
+END_VAR
+VAR_OUTPUT
+	bSaveInd: BOOL;
+	bLoadInd: BOOL;
+	bCallCompleted : BOOL;
+	bInvalidCallStationSequenceNoHold: BOOL;
+	bInvalidCallStationSequenceNoPulse: BOOL;
+(*	bInvalidScrMapCallStationSequenceNo : BOOL;*)
+	Call_sSequenceRecipeDescription : STRING(50);
+	Call_DsStationSequenceRecipeMemory : DS_StationSequenceRecipeMemory;
+
+(*	Call_AR10iStationSubProNo : ARRAY [0..10] OF INT;
+	Call_AR10iCycle : ARRAY [0..10] OF INT;
+	Call_AR10iRepeatFromStepNo : ARRAY [0..10] OF INT;
+*)
+(*	ScrMapCall_sSequenceRecipeDescription : STRING(50);
+	ScrMapCall_AR10iStationSubProNo : ARRAY [0..10] OF INT;
+	ScrMapCall_AR10iCycle : ARRAY [0..10] OF INT;
+	ScrMapCall_AR10iRepeatFromStepNo : ARRAY [0..10] OF INT;*)
+
+
+
+
+
+END_VAR
+VAR
+	SaveIndHr: BOOL;
+	LoadIndHr: BOOL;
+
+	SaveTimerDelay: TON;
+	LoadTimerDelay: TON;
+	SelfCheckTimer: TON;
+	bLoadEn: BOOL;
+	SelfCheckloopSequenceRecipe: BOOL;
+	PreviousNoSequenceRecipe: INT;
+
+	LoadDF : R_TRIG;
+	LoadENDF : R_TRIG;
+
+	SaveDF: R_TRIG;
+	CallIntervalTimer: TON;
+	CallIntervalDIFU: R_TRIG;
+
+	bCallCompletedHR: BOOL;
+	bCallCompletedHRRE: R_TRIG;
+	CallCompletedTimer: TON;
+	CallSelfCheckTimer : TON;
+	CallSelfCheckloop : BOOL;
+
+	CallSelfCheckRE: R_TRIG;
+	CallStep: INT;
+	CallSelfCheckHR: BOOL;
+	bCallPBRE: R_TRIG;
+
+	LoadFL: INT;
+	SaveFL: INT;
+	PreviousStationRequenceRecipeCallNo: INT;
+	CallSFL: INT;
+	febInvalidCallStationSequenceNo: F_TRIG;
+
+
+
+	rebInvalidCallStationSequenceNo: R_TRIG;
+	tInvalidCallStationSequenceNoPulseTimer: TON;
+	CopyDF: R_TRIG;
+END_VAR
+
+VAR PERSISTENT
+
+	ARDsStorageStationSequenceRecipeMemory : ARRAY [1..iStationSequenceRecipeArrayQty] OF DS_StationSequenceRecipeMemory;
+	ARsStorageStationSequenceRecipeDescription: ARRAY [0..iStationSequenceRecipeArrayQty] OF STRING(50);
+
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF iStationSequenceRecipeNo < 1 THEN
+iStationSequenceRecipeNo := 1;
+END_IF
+
+IF iStationSequenceRecipeNo > iStationSequenceRecipeArrayQty THEN
+iStationSequenceRecipeNo := iStationSequenceRecipeArrayQty;
+END_IF
+
+(*Add New*)
+ARsStorageStationSequenceRecipeDescription[0] := '- - - End Step - - -';
+
+
+(*Load and Save Indicator*)
+IF bSavePB THEN
+SaveIndHr := TRUE;
+END_IF
+
+SaveTimerDelay(IN:=SaveIndHr, PT := T#1s, Q=>, ET=>);
+IF SaveTimerDelay.Q THEN
+SaveIndHr := FALSE;
+END_IF
+
+IF SaveIndHr AND NOT SaveTimerDelay.Q THEN
+bSaveInd := TRUE;
+ELSE
+bSaveInd := FALSE;
+END_IF
+
+IF bLoadPB THEN
+LoadIndHr := TRUE;
+END_IF
+
+LoadTimerDelay(IN:=LoadIndHr, PT := T#1s, Q=>, ET=>);
+IF loadtimerdelay.Q THEN
+LoadIndHr := FALSE;
+END_IF
+
+IF loadIndHr AND NOT LoadTimerDelay.Q THEN
+bLoadInd := TRUE;
+ELSE
+bLoadInd := FALSE;
+END_IF
+
+IF iStationSequenceRecipeNo <> PreviousNoSequenceRecipe THEN
+bLoadEn := TRUE;
+ELSE
+bLoadEn := FALSE;
+END_IF
+
+
+(* Load Recipe *)
+
+LoadDF(CLK:=bLoadPB,Q=>);
+LoadENDF(CLK:=bLoadEn,Q=>);
+
+IF LoadDF.Q OR LoadENDF.Q THEN
+
+DsInStationSequenceRecipeMemory := ARDsStorageStationSequenceRecipeMemory[iStationSequenceRecipeNo];
+sStationSequenceRecipeDescription := ARsStorageStationSequenceRecipeDescription[iStationSequenceRecipeNo];
+PreviousNoSequenceRecipe := iStationSequenceRecipeNo  ;
+
+END_IF
+
+
+(* Save Recipe *)
+
+SaveDF(CLK:=bSavePB,Q=>);
+
+IF SaveDF.Q THEN
+
+ARDsStorageStationSequenceRecipeMemory[iStationSequenceRecipeNo] := DsInStationSequenceRecipeMemory;
+ARsStorageStationSequenceRecipeDescription[iStationSequenceRecipeNo] := sStationSequenceRecipeDescription;
+
+END_IF
+
+
+(*Copy Recipe*)
+
+CopyDF(CLK:=bCopyPB,Q=>);
+
+IF CopyDF.Q THEN
+
+ARDsStorageStationSequenceRecipeMemory[iCopyToSubRecipeNo] := ARDsStorageStationSequenceRecipeMemory[iStationSequenceRecipeNo];
+ARsStorageStationSequenceRecipeDescription[iCopyToSubRecipeNo] := ARsStorageStationSequenceRecipeDescription[iStationSequenceRecipeNo];
+
+END_IF
+
+
+
+
+(* Call Recipe *)
+(* ---- Call Recipe Complete Flag ---*)
+
+(*
+CallCompletedTimer(IN:=bCallCompleted , PT:=t#0.5s , Q=> , ET=> );
+*)
+IF (*CallCompletedTimer.Q*) NOT bCallPB THEN
+bCallCompleted := FALSE;
+END_IF
+(*
+CallSelfCheckRE(CLK:=PreviousStationRequenceRecipeCallNo <> Call_iStationSequenceRecipe , Q=> );
+
+IF CallSelfCheckRE.Q THEN
+CallSelfCheckHR := TRUE;
+END_IF
+*)
+bCallPBRE(CLK:=bCallPB , Q=> );
+
+IF (Call_iStationSequenceRecipe <= 0 OR Call_iStationSequenceRecipe > iStationSequenceRecipeArrayQty) AND bCallPB THEN
+bInvalidCallStationSequenceNoHold := TRUE;
+ELSE
+bInvalidCallStationSequenceNoHold := FALSE;
+END_IF
+
+
+rebInvalidCallStationSequenceNo(CLK:= bCallPB AND bInvalidCallStationSequenceNoHold  , Q=> );
+
+IF rebInvalidCallStationSequenceNo.Q THEN
+bInvalidCallStationSequenceNoPulse := TRUE;
+END_IF
+
+tInvalidCallStationSequenceNoPulseTimer(IN:=bInvalidCallStationSequenceNoPulse , PT:=t#0.5s , Q=> , ET=> );
+
+IF tInvalidCallStationSequenceNoPulseTimer.Q OR NOT bCallPB THEN
+bInvalidCallStationSequenceNoPulse := FALSE;
+END_IF
+(*
+febInvalidCallStationSequenceNo(CLK:=bInvalidCallStationSequenceNoHold  , Q=> );
+*)
+IF bCallPBRE.Q AND NOT bInvalidCallStationSequenceNoHold (*OR febInvalidCallStationSequenceNo.Q*) THEN
+bCallCompleted := FALSE;
+CallStep:= 1;
+END_IF
+
+
+CASE CallStep OF
+
+1:
+
+Call_DsStationSequenceRecipeMemory := ARDsStorageStationSequenceRecipeMemory[Call_iStationSequenceRecipe];
+Call_sSequenceRecipeDescription := ARsStorageStationSequenceRecipeDescription[Call_iStationSequenceRecipe];
+
+(*IF NOT bCallPBEnable AND CallSelfCheckHR THEN
+CallStep := 10;
+ELSIF NOT bCallPBEnable AND NOT CallSelfCheckHR THEN
+CallStep := 99;*)
+
+
+(*IF bCallPBEnable THEN*)
+CallStep := 11;
+
+
+10:
+bCallCompleted := TRUE;
+CallSelfCheckHR := FALSE;
+PreviousStationRequenceRecipeCallNo := Call_iStationSequenceRecipe;
+CallStep := 99;
+
+11:
+
+(*IF bCallPBEnable AND bCallPB THEN*)
+bCallCompleted := TRUE;
+(*ELSE
+bCallCompleted := FALSE;*)
+CallStep := 99;
+
+
+
+99:
+(*
+bCallCompleted := FALSE;
+*)
+;
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="fbStationSequenceRecipe">
+      <LineId Id="106" Count="173" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

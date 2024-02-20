@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FBV4_PID" Id="{63c949b4-2db5-486d-a829-2c33b4596709}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FBV4_PID
+VAR_INPUT
+	fSetpointValue				: LREAL				; 	(*this is your set point value*)
+	fActualValue				: LREAL				;
+	bReset						: BOOL				;
+	fCtrlCycleTime				: LREAL :=0.01		;
+	fMinOutput					: LREAL				;
+	fMaxOutput					: LREAL				;	
+	iAnalogOutputMin			: INT;
+	iAnalogOutputMax			: INT;	
+	PID_fKp						: LREAL := 1.0		;
+	PID_tTn						: LREAL := 1.0		;
+	PID_tTv						: LREAL := 0.03		;
+	PID_tTd						: LREAL := 0.04		;
+END_VAR
+VAR_OUTPUT
+	nErrorStatus				: E_CTRL_ERRORCODES;
+	fOutputValue				: LREAL;
+	iAnalogOutput				: INT;		
+END_VAR
+VAR
+	fbBasicPID 					: FB_BasicPID;
+	fRawOut 					: LREAL;	
+	lrDiff						: LREAL;
+	lrPrevious					: LREAL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+fbBasicPID(
+	fSetpointValue:= fSetpointValue, 
+	fActualValue:= fActualValue, 
+	bReset:= bReset, 
+	fCtrlCycleTime:= fCtrlCycleTime, 
+	fKp:= PID_fKp, 
+	fTn:= PID_tTn, 
+	fTv:= PID_tTv, 
+	fTd:= PID_tTd, 
+	fCtrlOutput=> fRawOut, 
+	nErrorStatus=> nErrorStatus
+);
+
+lrDiff := fRawOut - lrPrevious;
+lrPrevious := fRawOut ;
+
+IF	fOutputValue + lrDiff > fMinOutput AND  fOutputValue + lrDiff < fMaxOutput THEN
+	fOutputValue := fOutputValue + lrDiff;
+ELSIF lrDiff > fMaxOutput THEN
+	fOutputValue := fMaxOutput;		
+ELSIF lrDiff < fMinOutput THEN
+	fOutputValue := fMinOutput;	
+END_IF
+
+IF (fMaxOutput-fMinOutput) <> 0 THEN
+	iAnalogOutput := LREAL_TO_INT((INT_TO_LREAL(iAnalogOutputMax-iAnalogOutputMin)/(fMaxOutput-fMinOutput))*fOutputValue);
+ELSE
+	iAnalogOutput := 0;
+END_IF
+
+
+
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="FBV4_PID">
+      <LineId Id="60" Count="0" />
+      <LineId Id="3" Count="29" />
+      <LineId Id="61" Count="1" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

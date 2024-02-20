@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="stWritePersistentData" Id="{2aba5576-727e-4c5b-b622-1bc6fae03ad9}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM stWritePersistentData
+VAR
+	AutoSaveTimer: TON;
+	AutoSaveTimerRE: R_TRIG;
+	tBackupDelayOnTimer: TON;
+	BusyFE: F_TRIG;
+	SaveDelayTimer: TON;
+	SaveHR: BOOL;
+	SaveDelayTimerRE: R_TRIG;
+	fbWritePersistentData: FB_WritePersistentData;
+	bManualWriteExecute: BOOL;
+	bWritePDBusy: BOOL;
+	bWritePDErr: BOOL;
+	tAutoSaveTimerPV: TIME;
+	tBackupDelayOffTimer: TON;
+	bInternalPersistentBackup: BOOL;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF bRecipeSavePb THEN
+SaveHR := TRUE;
+END_IF
+
+AutoSaveTimer(IN:=NOT AutoSaveTimer.Q , PT:=t#10m , Q=> , ET=>tAutoSaveTimerPV );
+AutoSaveTimerRE(CLK:=AutoSaveTimer.Q , Q=> );
+
+SaveDelayTimer(IN:=SaveHR , PT:=T#2S , Q=> , ET=> );
+SaveDelayTimerRE(CLK:=SaveDelayTimer.Q , Q=> );
+
+IF SaveHR AND SaveDelayTimer.Q THEN
+SaveHR := FALSE;
+END_IF
+
+
+fbWritePersistentData(
+	NETID:= '' (*'5.38.239.218.1.1'*),
+	PORT:=851 ,
+	START:=AutoSaveTimerRE.Q OR SaveDelayTimerRE.Q OR bManualWriteExecute ,
+	TMOUT:=t#10s ,
+	MODE:=SPDM_VAR_BOOST ,
+	BUSY=>bWritePDBusy ,
+	ERR=>bWritePDErr ,
+	ERRID=> );
+
+(*Dr Yoges Data persistence backup*)
+BusyFE(CLK:=bWritePDBusy , Q=> );
+
+IF BusyFE.Q THEN
+	bInternalPersistentBackup:=TRUE;
+END_IF
+
+
+tBackupDelayOnTimer(IN:=bInternalPersistentBackup , PT:=t#3s , Q=> , ET=> );
+tBackupDelayOffTimer(IN:=tBackupDelayOnTimer.Q , PT:=t#0.5s , Q=> , ET=> );
+
+IF tBackupDelayOnTimer.Q AND NOT tBackupDelayOffTimer.Q THEN
+	silent_backup:=TRUE;
+END_IF
+
+IF tBackupDelayOffTimer.Q THEN
+	silent_backup:=FALSE;
+	bInternalPersistentBackup:=FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="stWritePersistentData">
+      <LineId Id="18" Count="43" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

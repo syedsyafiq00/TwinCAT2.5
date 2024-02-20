@@ -1,0 +1,982 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB3_EventModule" Id="{893ee855-6cad-4d5e-987f-f20ec2ba2550}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB3_EventModule 
+VAR_INPUT
+
+
+
+	bEN								: BOOL;
+	bEventRstPBPhysicalInput		: BOOL; // Mapped with Physical Event Reset Push Button Input signal
+	bBuzzerRstPBPhysicalInput		: BOOL; // Mapped with Physical Buzzer Reset Push Button Input signal
+	bAcknowdgePBPhysicalInput		: BOOL; // Mapped with Physical Acknowledge Push Button Input signal
+	bEventRstPB						: REFERENCE TO BOOL; // Mapped with Global variable (Lib-General) with the same name
+	bBuzzerRstPB					: REFERENCE TO BOOL; // Mapped with Global variable (Lib-General) with the same name
+	bAcknowledgePB					: REFERENCE TO BOOL; // Mapped with Global variable (Lib-General) with the same name
+	bAcknowledgeEnable				: BOOL; // TRUE if the EVENT Acknowledge Action will take place (by USER)
+	bPowerUpDelayFlag				: BOOL;
+	eHmiLanguage					: E_HmiLanguage; (*English:=1, Mandarin:=2, German:=3, French:=4, Portuguese:=5*)
+	bActiveEventDisplay_ScrollUp	: BOOL;
+	bActiveEventDisplay_ScrollDown	: BOOL;
+	bHistoryEventDisplay_ScrollUp	: BOOL;
+	bHistoryEventDisplay_ScrollDown	: BOOL;
+	
+	sCurrentDateAndTimeUser24hr		: STRING(50);
+
+END_VAR
+VAR_IN_OUT
+
+END_VAR
+VAR_OUTPUT
+	bCautionEventOccuredFlag 	: BOOL;
+	bWarningEventOccuredFlag 	: BOOL;
+	bErrorEventOccuredFlag 		: BOOL;
+	iActiveCautionEventCount	: INT;
+	iActiveWarningEventCount 	: INT;
+	iActiveErrorEventCount	 	: int;
+	bBuzzerOutput				: BOOL;
+END_VAR
+VAR
+
+	bStart								: BOOL; // After Power Up Delay
+	bENRE								: R_TRIG;
+	bAcknowledgeRE						: R_TRIG;
+	iMFL								: INT;
+	iFL									: INT;
+	iSFL								: INT;
+	ARbVirtualEventInputSignal			: ARRAY [1..C_iEventQty] OF BOOL;
+	ARbEventOutputRE					: ARRAY [1..C_iEventQty] OF R_TRIG;
+	ARbEventOutputFE					: ARRAY [1..C_iEventQty] OF F_TRIG;
+	iActiveEventDisplayScrollShiftID 	: INT;
+	iHistoryEventDisplayScrollShiftID	: INT;
+
+	bActiveEventDisplay_ScrollUpRE 		: R_TRIG;
+	bActiveEventDisplay_ScrollDownRE 	: R_TRIG;
+	bActiveScrollIntervalTimerRE		: R_TRIG;
+	tmActiveScrollRepeatTimer			: TON;
+	tmActiveScrollIntervalTimer			: TON;
+	iActiveScrollDelayTime				: INT;
+
+	bHistoryEventDisplay_ScrollUpRE 	: R_TRIG;
+	bHistoryEventDisplay_ScrollDownRE 	: R_TRIG;
+	bHistoryScrollIntervalTimerRE		: R_TRIG;
+	tmHistoryScrollRepeatTimer			: TON;
+	tmHistoryScrollIntervalTimer		: TON;
+	iHistoryScrollDelayTime				: INT;
+
+	eHmiLanguagePrevious				: E_HmiLanguage;
+	
+	bEventRstPBPhysicalInputRE			: R_TRIG;
+	bBuzzerRstPBPhysicalInputRE			: R_TRIG;
+	bAcknowdgePBPhysicalInputRE			: R_TRIG;
+
+	bEventRstPBPhysicalInputFE			: F_TRIG;
+	bBuzzerRstPBPhysicalInputFE			: F_TRIG;
+	bAcknowdgePBPhysicalInputFE			: F_TRIG;
+
+	bEventRstPBFE						: F_TRIG;
+	bBuzzerRstPBFE						: F_TRIG;
+	bAcknowdgePBFE						: F_TRIG;	
+//	bBool: ARRAY [1..10] OF BOOL;
+	
+	bStartRE							: R_TRIG;
+END_VAR
+
+
+
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Generate RisingEdge
+bENRE				(CLK	:= bEN AND (2000 < TO_INT(DSLocalSystemTimeML.sYear)) 	, Q=> );
+bAcknowledgeRE		(CLK	:= bAcknowledgePB 										, Q=> );
+bStartRE			(CLK	:= bStart 												, Q=> ); // Add by ckk
+
+	// Update HMI Display if the language changed
+	IF eHmiLanguagePrevious <> eHmiLanguage THEN
+
+		// Keep current language selection
+		eHmiLanguagePrevious := eHmiLanguage;		
+
+
+		// Language changed detected -> Both Active and History Display need to be update as well	
+		mtActiveEventDisplayUpdate(iActiveEventDisplayScrollShiftID);
+		mtHistoryEventDisplayUpdate(iHistoryEventDisplayScrollShiftID);
+
+
+	END_IF
+
+ 
+	// Trigger Power Up Delay
+	IF bEN AND NOT bStart THEN
+
+		IF bPowerUpDelayFlag THEN
+			bStart := TRUE;
+		END_IF
+
+	ELSIF NOT bEN THEN
+		bStart := FALSE;
+	END_IF
+	
+(*	IF bStartRE.Q THEN
+		acCaptureEventType();						(* ACTION *)	
+	END_IF
+*)	
+	// Initialised the Active Event State by clearing all event before scanning start & Capture Event Type from AR2dsEventDescriptionCausedRemedy to ARdsEvent
+	IF bENRE.Q THEN
+		acEventControl_Initialised();				(* ACTION *)
+		acCaptureEventType();						(* ACTION *)	
+		acEventHistoryRecoveredTimeInitialised();	(* ACTION *)
+	END_IF
+	
+	// Event Scanning Started ***Non-Stop as long as the FB is operating***
+	IF bStart THEN
+		acEventControl_Scanning();					(* ACTION *)
+		acBuzzerOutputControl();					(* ACTION *)
+		acPhysicalInputSignalCtrl();				(* ACTION *)		
+	END_IF
+		
+
+	IF bStart THEN
+
+		// Active Scroll ID Control - To utilised in Active Event Display
+		bActiveEventDisplay_ScrollUpRE		(CLK := bActiveEventDisplay_ScrollUp);
+		bActiveEventDisplay_ScrollDownRE	(CLK := bActiveEventDisplay_ScrollDown);
+		IF bActiveEventDisplay_ScrollUp OR bActiveEventDisplay_ScrollDown THEN
+			acActiveScrollShiftIDControl();			(* ACTION *)
+		ELSE
+			// Reset Scroll delay to default value
+			iActiveScrollDelayTime := 1000;
+		END_IF
+
+
+		// History Scroll ID Control - To utilised in History Event Display
+		bHistoryEventDisplay_ScrollUpRE		(CLK := bHistoryEventDisplay_ScrollUp);
+		bHistoryEventDisplay_ScrollDownRE	(CLK := bHistoryEventDisplay_ScrollDown);
+		IF bHistoryEventDisplay_ScrollUp OR bHistoryEventDisplay_ScrollDown THEN
+			acHistoryScrollShiftIDControl();		(* ACTION *)
+		ELSE
+			// Reset Scroll delay to default value
+			iHistoryScrollDelayTime := 1000;
+		END_IF
+
+		
+		IF bBuzzerRstPB THEN
+			mtBuzzerReset();
+		END_IF
+		
+		IF bEventRstPB THEN
+			mtEventReset();
+		END_IF
+		
+		IF bAcknowledgeEnable AND bAcknowledgeRE.Q THEN
+			mtHistoryEventLoggedAcknowledgedTime();
+		END_IF
+		
+		
+		
+	END_IF
+
+
+	]]></ST>
+    </Implementation>
+    <Action Name="acActiveScrollShiftIDControl" Id="{776737c3-eb3c-407a-80e5-5dc1071002af}">
+      <Implementation>
+        <ST><![CDATA[
+		tmActiveScrollRepeatTimer				(IN  := bActiveEventDisplay_ScrollUp OR bActiveEventDisplay_ScrollDown, PT:=T#2S);
+		tmActiveScrollIntervalTimer				(IN  := tmActiveScrollRepeatTimer.Q AND NOT tmActiveScrollIntervalTimer.Q, PT:=TO_TIME(iActiveScrollDelayTime));
+		bActiveScrollIntervalTimerRE			(CLK := tmActiveScrollIntervalTimer.Q);
+		
+			// Managed Scroll Delay Time (Long press to reduce the delay time so that the scrolling will speed up
+			IF (bActiveEventDisplay_ScrollUp OR bActiveEventDisplay_ScrollDown) AND bActiveScrollIntervalTimerRE.Q THEN
+					IF iActiveScrollDelayTime > 100 THEN	
+						iActiveScrollDelayTime := iActiveScrollDelayTime - 100;
+					END_IF			
+			END_IF
+			
+			IF bActiveEventDisplay_ScrollUp AND NOT bActiveEventDisplay_ScrollDown THEN
+		
+				// Scroll ID - Up Action
+				IF bActiveEventDisplay_ScrollUpRE.Q OR bActiveScrollIntervalTimerRE.Q THEN
+					IF iActiveEventDisplayScrollShiftID >= 1 THEN
+						iActiveEventDisplayScrollShiftID := iActiveEventDisplayScrollShiftID -1;	// Value can go to lowest "0"
+		
+						// Update Display	
+						mtActiveEventDisplayUpdate(iActiveEventDisplayScrollShiftID);
+		
+					END_IF
+				END_IF
+				
+			ELSIF NOT bActiveEventDisplay_ScrollUp AND bActiveEventDisplay_ScrollDown THEN	
+		
+				// Scroll ID - Down Action
+				IF bActiveEventDisplay_ScrollDownRE.Q OR bActiveScrollIntervalTimerRE.Q THEN
+					IF (iActiveEventDisplayScrollShiftID + C_iEventActiveDisplayQty) < C_iEventActiveLogQty THEN // To ensure Scroll to the lowest display section and not exceed the LogQty
+						iActiveEventDisplayScrollShiftID := iActiveEventDisplayScrollShiftID +1;
+		
+						// Update Display	
+						mtActiveEventDisplayUpdate(iActiveEventDisplayScrollShiftID);
+		
+					END_IF
+				END_IF
+		
+		
+			END_IF
+	
+	
+	
+	
+	
+	]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="acBuzzerOutputControl" Id="{34e8dee9-8bd6-461f-bed7-a496babb8cff}">
+      <Implementation>
+        <ST><![CDATA[		// Buzzer Control - Trigger Buzzer Output
+
+		bBuzzerOutput := FALSE;
+
+		iFL := 1;
+		
+			FOR iFL := 1 TO C_iEventQty DO
+		
+		
+				IF ARdsEventCtrl[iFL].bEventOutput AND NOT ARdsEventCtrl[iFL].bEventBuzzerStop THEN
+					bBuzzerOutput := TRUE;
+					iFL := C_iEventQty +1;
+				END_IF
+		
+			END_FOR]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="acCaptureEventType" Id="{e0885769-00d6-43e5-a1b9-f0164b034388}">
+      <Implementation>
+        <ST><![CDATA[
+
+
+// if sEventType is empty or non-recognised wording, it will automatically label it as "ERROR" event type
+iFL := 1;
+
+	FOR iFL := 1 TO C_iEventQty DO
+
+		IF AR2dsEventDescriptionCausedRemedy[1][iFL].sEventType = 'Error' THEN 
+			ARdsEventCtrl[iFL].eEventType := 2;
+		ELSIF AR2dsEventDescriptionCausedRemedy[1][iFL].sEventType = 'Warning' THEN 
+			ARdsEventCtrl[iFL].eEventType := 1;
+		ELSIF AR2dsEventDescriptionCausedRemedy[1][iFL].sEventType = 'Caution' THEN 
+			ARdsEventCtrl[iFL].eEventType := 0;
+		ELSE
+			ARdsEventCtrl[iFL].eEventType := 2;			
+		END_IF
+		
+	END_FOR
+	
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="acEventControl_Initialised" Id="{995a5b73-b4cc-4c90-bd27-ad5e386e5621}">
+      <Implementation>
+        <ST><![CDATA[
+
+iFL := 1;
+		
+	FOR iFL := 1 TO C_iEventQty DO
+		ARdsEventCtrl[iFL].bEventOutput		:= FALSE;
+		ARdsEventCtrl[iFL].iDelayTimeEV		:= 0;
+		ARdsEventCtrl[iFL].bEventBuzzerStop	:= FALSE;		
+	END_FOR]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="acEventControl_Scanning" Id="{a81073d2-80de-41e4-b84c-fb74f7131c28}">
+      <Implementation>
+        <ST><![CDATA[// Reset to get ready for status update
+	bCautionEventOccuredFlag 	:= FALSE;
+	bWarningEventOccuredFlag 	:= FALSE;
+	bErrorEventOccuredFlag 		:= FALSE;
+	iActiveCautionEventCount	:= 0;
+	iActiveWarningEventCount 	:= 0;
+	iActiveErrorEventCount	 	:= 0;
+
+
+
+// Event Controlling - signal react as output after timer count up
+iMFL := 1;
+
+	FOR iMFL := 1 TO C_iEventQty DO
+
+		// To generate Virtual Input follow condition
+		IF (ARdsEventCtrl[iMFL].bTest_InvertedInputEn AND NOT ARdsEventCtrl[iMFL].bSignalInput)  
+		OR (NOT ARdsEventCtrl[iMFL].bTest_InvertedInputEn AND ARdsEventCtrl[iMFL].bSignalInput) THEN 
+			ARbVirtualEventInputSignal[iMFL] := TRUE;	
+		ELSE
+			ARbVirtualEventInputSignal[iMFL] := FALSE;				
+		END_IF
+		
+		// Action via Virtual Input
+		IF ARbVirtualEventInputSignal[iMFL] THEN
+
+			IF (ARdsEventCtrl[iMFL].iDelayTimeSV > ARdsEventCtrl[iMFL].iDelayTimeEV) AND bClockPulse_1Sec THEN
+				ARdsEventCtrl[iMFL].iDelayTimeEV := ARdsEventCtrl[iMFL].iDelayTimeEV +1;
+			ELSIF (ARdsEventCtrl[iMFL].iDelayTimeSV <= ARdsEventCtrl[iMFL].iDelayTimeEV) THEN
+				ARdsEventCtrl[iMFL].bEventOutput := TRUE;
+			END_IF
+
+		ELSIF NOT ARbVirtualEventInputSignal[iMFL] THEN
+
+			IF ARdsEventCtrl[iMFL].bHoldingDisable THEN
+				ARdsEventCtrl[iMFL].bEventOutput 		:= FALSE;
+				ARdsEventCtrl[iMFL].bEventBuzzerStop 	:= FALSE;
+			END_IF
+
+				ARdsEventCtrl[iMFL].iDelayTimeEV		:= 0;
+	
+		END_IF
+
+		// Generate RisingEdge and FailingEdge for every bEventOutput
+		ARbEventOutputRE[iMFL](CLK:=ARdsEventCtrl[iMFL].bEventOutput , Q=> );	
+		ARbEventOutputFE[iMFL](CLK:=ARdsEventCtrl[iMFL].bEventOutput , Q=> );	
+
+		// RisingEdge Triggered -> Event Occurred -> Event Log
+		IF ARbEventOutputRE[iMFL].Q THEN
+			mtActiveEventToLogWithOccurredTime(iEventID_ToLog := iMFL);
+ 			mtHistoryEventToLogWithOccurredTime(iEventID_ToLog := iMFL);
+
+		END_IF
+	
+		// FallingEdge Triggered -> Event Recovered -> Event Log
+		IF ARbEventOutputFE[iMFL].Q THEN
+			mtActiveEventRecovered(iEventID_ToClear := iMFL);
+ 			mtHistoryEventLoggedRecoveredTime(iEventID_ToLog := iMFL);
+
+		END_IF
+
+		// Event Occurred Flag and Count
+		IF ARdsEventCtrl[iMFL].bEventOutput THEN
+			IF ARdsEventCtrl[iMFL].eEventType = 0 THEN
+				bCautionEventOccuredFlag := TRUE;
+				iActiveCautionEventCount := iActiveCautionEventCount +1;
+			ELSIF ARdsEventCtrl[iMFL].eEventType = 1 THEN
+				bWarningEventOccuredFlag := TRUE;
+				iActiveWarningEventCount := iActiveWarningEventCount +1;
+			ELSIF ARdsEventCtrl[iMFL].eEventType = 2 THEN
+				bErrorEventOccuredFlag := TRUE;
+				iActiveErrorEventCount := iActiveErrorEventCount +1;
+			END_IF
+	
+		END_IF
+		
+		// Activate bEventBuzzerStop for "Caution" Event Type Only
+		IF ARdsEventCtrl[iMFL].eEventType = 0 THEN
+				ARdsEventCtrl[iMFL].bEventBuzzerStop := TRUE;				
+		END_IF
+	
+	END_FOR
+
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="acEventHistoryRecoveredTimeInitialised" Id="{9a0b23f2-f3c2-4011-a7d0-7b12b2ee1456}">
+      <Implementation>
+        <ST><![CDATA[
+		iFL := 1;
+
+			// Log Event Recovered Time	to ARdsEventHistoryLog	
+			FOR iFL := 1 TO C_iEventHistoryLogQty DO
+
+				IF ARdsEventHistoryLog[iFL].iEventID <> 0 AND ARdsEventHistoryLog[iFL].sTimeAndDate_Recovered = '' THEN								
+					ARdsEventHistoryLog[iFL].sTimeAndDate_Recovered												:= sCurrentDateAndTimeUser24hr;
+
+					// If Acknowledge is not Enable, the Acknowledged time will captured follow Recovered time
+					IF NOT bAcknowledgeEnable THEN
+						ARdsEventHistoryLog[iFL].sTimeAndDate_Acknowledged										:= sCurrentDateAndTimeUser24hr;
+					END_IF
+				
+					// Event Log to MRB (Memory Ring Buffer)				
+					FNbCsvEventLogToBuffer(	dsEventHistoryToLog		:= ARdsEventHistoryLog[iFL],
+											sDateToLogFIlename		:= DSLocalSystemTimeML.sCurrentDate_General, 
+											eCsvActionType			:= eCsvLogData_EventLog, 
+											udiCsvMRBCount			=> udiCsvMRBCount, 
+											udiCsvMRBUsagePercent	=> udiCsvMRBUsagePercent, 
+											bError					=> );
+
+				END_IF
+
+			END_FOR
+
+		
+(*
+		// After Acknowledged info update -> Display need to be update as well	
+		mtHistoryEventDisplayUpdate(iHistoryEventDisplayScrollShiftID);
+*)
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="acHistoryScrollShiftIDControl" Id="{801908cb-8b32-41ed-ba83-b01d0c016964}">
+      <Implementation>
+        <ST><![CDATA[
+		tmHistoryScrollRepeatTimer			(IN  := bHistoryEventDisplay_ScrollUp OR bHistoryEventDisplay_ScrollDown, PT:=T#2S);
+		tmHistoryScrollIntervalTimer		(IN  := tmHistoryScrollRepeatTimer.Q AND NOT tmHistoryScrollIntervalTimer.Q, PT:=TO_TIME(iHistoryScrollDelayTime));
+		bHistoryScrollIntervalTimerRE		(CLK := tmHistoryScrollIntervalTimer.Q);
+		
+			// Managed Scroll Delay Time (Long press to reduce the delay time so that the scrolling will speed up
+			IF (bHistoryEventDisplay_ScrollUp OR bHistoryEventDisplay_ScrollDown) AND bHistoryScrollIntervalTimerRE.Q THEN
+					IF iHistoryScrollDelayTime > 100 THEN	
+						iHistoryScrollDelayTime := iHistoryScrollDelayTime - 100;
+					END_IF			
+			END_IF
+			
+			IF bHistoryEventDisplay_ScrollUp AND NOT bHistoryEventDisplay_ScrollDown THEN
+		
+				// Scroll ID - Up Action
+				IF bHistoryEventDisplay_ScrollUpRE.Q OR bHistoryScrollIntervalTimerRE.Q THEN
+					IF iHistoryEventDisplayScrollShiftID >= 1 THEN
+						iHistoryEventDisplayScrollShiftID := iHistoryEventDisplayScrollShiftID -1;	// Value can go to lowest "0"
+		
+						// Update Display	
+						mtHistoryEventDisplayUpdate(iHistoryEventDisplayScrollShiftID);
+		
+					END_IF
+				END_IF
+				
+			ELSIF NOT bHistoryEventDisplay_ScrollUp AND bHistoryEventDisplay_ScrollDown THEN	
+		
+				// Scroll ID - Down Action
+				IF bHistoryEventDisplay_ScrollDownRE.Q OR bHistoryScrollIntervalTimerRE.Q THEN
+					IF (iHistoryEventDisplayScrollShiftID + C_iEventHistoryDisplayQty) < C_iEventHistoryLogQty THEN // To ensure Scroll to the lowest display section and not exceed the LogQty
+						iHistoryEventDisplayScrollShiftID := iHistoryEventDisplayScrollShiftID +1;
+		
+						// Update Display	
+						mtHistoryEventDisplayUpdate(iHistoryEventDisplayScrollShiftID);
+		
+					END_IF
+				END_IF
+		
+		
+			END_IF
+
+	
+	
+	
+	
+	
+	]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="acPhysicalInputSignalCtrl" Id="{e4222ee6-54d0-4894-992a-6d12f10e3f68}">
+      <Implementation>
+        <ST><![CDATA[
+// R_TRIG and F_TRIG	
+	bEventRstPBPhysicalInputRE	(CLK:=bEventRstPBPhysicalInput 	, Q=> );
+	bBuzzerRstPBPhysicalInputRE	(CLK:=bBuzzerRstPBPhysicalInput , Q=> );
+	bAcknowdgePBPhysicalInputRE	(CLK:=bAcknowdgePBPhysicalInput , Q=> );
+	
+	bEventRstPBPhysicalInputFE	(CLK:=bEventRstPBPhysicalInput 	, Q=> );
+	bBuzzerRstPBPhysicalInputFE	(CLK:=bBuzzerRstPBPhysicalInput , Q=> );
+	bAcknowdgePBPhysicalInputFE	(CLK:=bAcknowdgePBPhysicalInput , Q=> );
+	
+	bEventRstPBFE				(CLK:=bEventRstPB 				, Q=> );
+	bBuzzerRstPBFE				(CLK:=bBuzzerRstPB 				, Q=> );
+	bAcknowdgePBFE				(CLK:=bAcknowledgePB 			, Q=> );
+
+	
+// EventRstPB
+	IF bEventRstPBPhysicalInputRE.Q
+	OR bEventRstPBFE.Q AND bEventRstPBPhysicalInput THEN
+		bEventRstPB := TRUE;
+	END_IF
+
+	IF bEventRstPBPhysicalInputFE.Q THEN
+		bEventRstPB := FALSE;
+	END_IF
+	
+// BuzzerRstPB
+	IF bBuzzerRstPBPhysicalInputRE.Q
+	OR bBuzzerRstPBFE.Q AND bBuzzerRstPBPhysicalInput THEN
+		bBuzzerRstPB := TRUE;
+	END_IF
+
+	IF bBuzzerRstPBPhysicalInputFE.Q THEN
+		bBuzzerRstPB := FALSE;
+	END_IF
+	
+// AcknowledgePB
+	IF bAcknowdgePBPhysicalInputRE.Q
+	OR bAcknowdgePBFE.Q AND bAcknowdgePBPhysicalInput THEN
+		bAcknowledgePB := TRUE;
+	END_IF
+
+	IF bAcknowdgePBPhysicalInputFE.Q THEN
+		bAcknowledgePB := FALSE;
+	END_IF
+	]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="mtActiveEventDisplayUpdate" Id="{3fe050c1-5398-4a8f-ac59-c7fb9930d4d0}">
+      <Declaration><![CDATA[METHOD PRIVATE mtActiveEventDisplayUpdate
+VAR_INPUT
+	iActiveEventDisplayShiftID 	: INT;
+END_VAR
+
+VAR
+	iCurrentEventID				: INT;
+	iFL 						: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+		iFL := 1;
+
+
+			FOR iFL := 1 TO C_iEventActiveDisplayQty DO 
+				
+				// Create Temporary Variable to easy the reference view
+				iCurrentEventID												:= ARdsEventActiveLog[iFL+iActiveEventDisplayShiftID].iEventID; 
+
+				IF iCurrentEventID >= 1 AND iCurrentEventID <= C_iEventQty THEN						
+					// Generate View/Display				
+					ARdsEventActiveDisplay[iFL].iEventID						:= iCurrentEventID;
+					ARdsEventActiveDisplay[iFL].sEventCode						:= AR2dsEventDescriptionCausedRemedy[eHmiLanguage][iCurrentEventID].sEventCode;
+					ARdsEventActiveDisplay[iFL].sEventType						:= AR2dsEventDescriptionCausedRemedy[eHmiLanguage][iCurrentEventID].sEventType;
+					ARdsEventActiveDisplay[iFL].sLocation						:= AR2dsEventDescriptionCausedRemedy[eHmiLanguage][iCurrentEventID].sLocation;
+					ARdsEventActiveDisplay[iFL].sSubLocation					:= AR2dsEventDescriptionCausedRemedy[eHmiLanguage][iCurrentEventID].sSubLocation;
+					
+					ARdsEventActiveDisplay[iFL].sDescription					:= AR2dsEventDescriptionCausedRemedy[eHmiLanguage][iCurrentEventID].sDescription;
+					ARdsEventActiveDisplay[iFL].sCaused							:= AR2dsEventDescriptionCausedRemedy[eHmiLanguage][iCurrentEventID].sCaused;
+					ARdsEventActiveDisplay[iFL].sRemedy							:= AR2dsEventDescriptionCausedRemedy[eHmiLanguage][iCurrentEventID].sRemedy;
+					
+					ARdsEventActiveDisplay[iFL].sTimeAndDate_Occurred			:= ARdsEventActiveLog[iFL+iActiveEventDisplayShiftID].sTimeAndDate_Occurred;
+
+
+				ELSE
+					// Load Empty data since the EventID is 0		
+					ARdsEventActiveDisplay[iFL] := DSEventActiveDisplayEmpty;
+					ARdsEventActiveLog[iFL] := dsEventActiveLogEmpty;
+				END_IF
+			END_FOR
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="mtActiveEventRecovered" Id="{6802e745-c237-4b32-8b65-8db0c374d0ad}">
+      <Declaration><![CDATA[METHOD PRIVATE mtActiveEventRecovered
+VAR_INPUT
+	iEventID_ToClear 	: INT;
+END_VAR
+
+VAR
+	iFL					: INT;
+	iSFL				: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[		iFL := 1;
+
+			FOR iFL := 1 TO C_iEventActiveLogQty DO
+
+				IF ARdsEventActiveLog[iFL].iEventID <> 0 THEN			
+
+					IF ARdsEventActiveLog[iFL].iEventID = iEventID_ToClear THEN								
+						// Found and Clear the specified Event
+						ARdsEventActiveLog[iFL] := DSEventActiveLogEmpty;
+
+						//Shift bottom event to replaced the clear row
+						iSFL := 1;	
+							FOR iSFL := 1 TO C_iEventActiveLogQty DO
+								IF iFL+iSFL <= C_iEventActiveLogQty THEN
+									IF ARdsEventActiveLog[iFL+iSFL].iEventID <> 0 THEN
+										ARdsEventActiveLog[iFL+iSFL-1] := ARdsEventActiveLog[iFL+iSFL];
+									ELSE
+										ARdsEventActiveLog[iFL+iSFL-1] := DSEventActiveLogEmpty;
+										
+									END_IF
+								ELSE					
+									ARdsEventActiveLog[C_iEventActiveLogQty].iEventID := 0;
+									iSFL := C_iEventActiveLogQty +1;									
+								END_IF
+							END_FOR
+
+						// Found one matched Event ID And Done -> Stop the FL since the Found Event Log has been clear 
+						iFL := C_iEventActiveLogQty +1;		
+
+					END_IF
+
+				ELSE
+					iFL := C_iEventActiveLogQty +1;
+				END_IF
+				
+			END_FOR
+
+		// After Acknowledged info update -> Display need to be update as well	
+			mtActiveEventDisplayUpdate(iActiveEventDisplayScrollShiftID);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="mtActiveEventToLogWithOccurredTime" Id="{8ee6c70f-3c4b-4548-bfe5-6d684169d049}">
+      <Declaration><![CDATA[// mtActiveEventToLog TRUE = Complete without Error, mtActiveEventToLog FALSE = Active Log is overflowed 
+METHOD PRIVATE mtActiveEventToLogWithOccurredTime : BOOL
+VAR_INPUT
+	iEventID_ToLog 	: INT;
+END_VAR
+
+VAR
+	iFL 			: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[		// Prepare for completion (if no error, this signal (mtActiveEventToLog) will stay ON
+		mtActiveEventToLogWithOccurredTime := TRUE;	
+
+		// Check if overflow on the active log quantity  
+		IF ARdsEventActiveLog[C_iEventActiveLogQty].iEventID <> 0 THEN
+
+			// Trigger Error due to overflow in active log quantity
+			mtActiveEventToLogWithOccurredTime := FALSE;	
+
+		ELSE
+
+
+			iFL := 1;
+
+			FOR iFL := 1 TO C_iEventActiveLogQty DO
+
+				IF iFL >= 1 AND iFL < C_iEventActiveLogQty THEN		
+					
+						// Shift one index to free up [1] to log latest Event
+						IF ARdsEventActiveLog[C_iEventActiveLogQty-iFL].iEventID <> 0 THEN			
+							ARdsEventActiveLog[C_iEventActiveLogQty-iFL+1] := ARdsEventActiveLog[C_iEventActiveLogQty-iFL];		
+						END_IF
+	
+				END_IF
+
+			END_FOR
+
+
+			// Log Latest Event and Occurred Time
+			IF mtActiveEventToLogWithOccurredTime THEN
+				ARdsEventActiveLog[1].iEventID 				:= iEventID_ToLog;				
+				ARdsEventActiveLog[1].sTimeAndDate_Occurred	:= sCurrentDateAndTimeUser24hr;
+			END_IF
+				
+			// After Acknowledged info update -> Display need to be update as well	
+				mtActiveEventDisplayUpdate(iActiveEventDisplayScrollShiftID);
+			
+		END_IF			
+			
+			
+			]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="mtBuzzerReset" Id="{b9b24d1d-8bbb-4f46-9ac5-170d8d7308cd}">
+      <Declaration><![CDATA[METHOD PRIVATE mtBuzzerReset
+
+VAR
+	iFL				: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+		// Buzzer Control - Stop Buzzer Condition
+
+		iFL := 1;
+		
+			FOR iFL := 1 TO C_iEventQty DO
+				
+				IF ARdsEventCtrl[iFL].bEventOutput THEN
+					IF  (ARdsEventCtrl[iFL].eEventType = 1 OR ARdsEventCtrl[iFL].eEventType = 2) THEN
+						ARdsEventCtrl[iFL].bEventBuzzerStop := TRUE;
+					END_IF
+				END_IF
+				
+			END_FOR
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="mtEventReset" Id="{423f378c-2d96-475e-816b-ac344c380c7d}">
+      <Declaration><![CDATA[METHOD PRIVATE mtEventReset
+VAR_INPUT
+END_VAR
+
+VAR
+	iFL				: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+		// Event Reset
+
+		iFL := 1;
+		
+			FOR iFL := 1 TO C_iEventQty DO
+				
+				IF NOT ARbVirtualEventInputSignal[iFL] THEN
+					ARdsEventCtrl[iFL].bEventOutput 		:= FALSE;
+					ARdsEventCtrl[iFL].bEventBuzzerStop 	:= FALSE;
+				END_IF
+				
+			END_FOR
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="mtHistoryEventDisplayUpdate" Id="{43b9b307-8ee3-46c7-b46d-5d9821dfe870}">
+      <Declaration><![CDATA[METHOD PRIVATE mtHistoryEventDisplayUpdate
+VAR_INPUT
+	iHistoryEventDisplayShiftID 	: INT;
+END_VAR
+
+VAR
+	iCurrentEventID					: INT;
+	iFL								: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+		iFL := 1;
+
+
+			FOR iFL := 1 TO C_iEventHistoryDisplayQty DO 
+				
+				// Create Temporary Variable to easy the reference view
+				iCurrentEventID												:= ARdsEventHistoryLog[iFL+iHistoryEventDisplayShiftID].iEventID; 
+
+				IF iCurrentEventID >= 1 AND iCurrentEventID <= C_iEventQty THEN					
+					// Generate View/Display				
+					ARdsEventHistoryDisplay[iFL].iEventID						:= iCurrentEventID;
+					ARdsEventHistoryDisplay[iFL].sEventCode					:= AR2dsEventDescriptionCausedRemedy[eHmiLanguage][iCurrentEventID].sEventCode;
+					ARdsEventHistoryDisplay[iFL].sEventType					:= AR2dsEventDescriptionCausedRemedy[eHmiLanguage][iCurrentEventID].sEventType;
+					ARdsEventHistoryDisplay[iFL].sLocation					:= AR2dsEventDescriptionCausedRemedy[eHmiLanguage][iCurrentEventID].sLocation;
+					ARdsEventHistoryDisplay[iFL].sSubLocation					:= AR2dsEventDescriptionCausedRemedy[eHmiLanguage][iCurrentEventID].sSubLocation;
+					
+					ARdsEventHistoryDisplay[iFL].sDescription					:= AR2dsEventDescriptionCausedRemedy[eHmiLanguage][iCurrentEventID].sDescription;
+					ARdsEventHistoryDisplay[iFL].sCaused						:= AR2dsEventDescriptionCausedRemedy[eHmiLanguage][iCurrentEventID].sCaused;
+					ARdsEventHistoryDisplay[iFL].sRemedy						:= AR2dsEventDescriptionCausedRemedy[eHmiLanguage][iCurrentEventID].sRemedy;
+					
+					ARdsEventHistoryDisplay[iFL].sTimeAndDate_Occurred		:= ARdsEventHistoryLog[iFL+iHistoryEventDisplayShiftID].sTimeAndDate_Occurred;
+					ARdsEventHistoryDisplay[iFL].sTimeAndDate_Acknowledged	:= ARdsEventHistoryLog[iFL+iHistoryEventDisplayShiftID].sTimeAndDate_Acknowledged;
+					ARdsEventHistoryDisplay[iFL].sTimeAndDate_Recovered		:= ARdsEventHistoryLog[iFL+iHistoryEventDisplayShiftID].sTimeAndDate_Recovered;
+
+				ELSE
+					// Load Empty data since the EventID is 0		
+					ARdsEventHistoryDisplay[iFL] := DSEventHistoryDisplayEmpty;
+					ARdsEventHistoryLog[iFL] := dsEventHistoryLogEmpty;
+				END_IF
+			END_FOR
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="mtHistoryEventLoggedAcknowledgedTime" Id="{0367e352-6469-43a7-a08a-58cff2bc080d}">
+      <Declaration><![CDATA[METHOD PRIVATE mtHistoryEventLoggedAcknowledgedTime
+VAR_INPUT
+END_VAR
+
+VAR
+	iFL				: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[		iFL := 1;
+
+			// Log Event Acknowledged Time		
+			FOR iFL := 1 TO C_iEventHistoryLogQty DO
+
+				IF ARdsEventHistoryLog[iFL].iEventID <> 0 AND ARdsEventHistoryLog[iFL].sTimeAndDate_Acknowledged = '' THEN								
+					ARdsEventHistoryLog[iFL].sTimeAndDate_Acknowledged 	:= sCurrentDateAndTimeUser24hr;
+				END_IF
+
+			END_FOR
+
+
+
+		// After Acknowledged info update -> Display need to be update as well	
+			mtHistoryEventDisplayUpdate(iHistoryEventDisplayScrollShiftID);
+			]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="mtHistoryEventLoggedRecoveredTime" Id="{ded83d89-e6db-457f-a76d-29253c2296a7}">
+      <Declaration><![CDATA[METHOD PRIVATE mtHistoryEventLoggedRecoveredTime
+VAR_INPUT
+	iEventID_ToLog : INT;
+END_VAR
+
+VAR
+	iFL				: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[		iFL := 1;
+
+			// Log Event Recovered Time	to ARdsEventHistoryLog	
+			FOR iFL := 1 TO C_iEventHistoryLogQty DO
+
+				IF ARdsEventHistoryLog[iFL].iEventID = iEventID_ToLog AND ARdsEventHistoryLog[iFL].sTimeAndDate_Recovered = '' THEN								
+					ARdsEventHistoryLog[iFL].sTimeAndDate_Recovered												:= sCurrentDateAndTimeUser24hr;
+
+					// If Acknowledge is not Enable, the Acknowledged time will captured follow Recovered time
+					IF NOT bAcknowledgeEnable THEN
+						ARdsEventHistoryLog[iFL].sTimeAndDate_Acknowledged											:= sCurrentDateAndTimeUser24hr;
+					END_IF
+
+					// Event Log to MRB (Memory Ring Buffer)				
+					FNbCsvEventLogToBuffer(	dsEventHistoryToLog		:= ARdsEventHistoryLog[iFL],
+											sDateToLogFIlename		:= DSLocalSystemTimeML.sCurrentDate_General, 
+											eCsvActionType			:= eCsvLogData_EventLog, 
+											udiCsvMRBCount			=> udiCsvMRBCount, 
+											udiCsvMRBUsagePercent	=> udiCsvMRBUsagePercent, 
+											bError					=> );
+				
+				END_IF
+
+
+			END_FOR
+
+			
+
+		// After Acknowledged info update -> Display need to be update as well	
+			mtHistoryEventDisplayUpdate(iHistoryEventDisplayScrollShiftID);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="mtHistoryEventToLogWithOccurredTime" Id="{418e98e1-1e4a-44fe-8496-aefded011a82}">
+      <Declaration><![CDATA[METHOD PRIVATE mtHistoryEventToLogWithOccurredTime
+VAR_INPUT
+	iEventID_ToLog 	: INT;
+END_VAR
+
+VAR
+	iFL				: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[		// Log Event - History Log + Occurred Time Log 
+		iFL := 1;
+
+			// Shift one index to free up [1] to log latest Event		
+			FOR iFL := 1 TO C_iEventHistoryLogQty DO
+
+				IF iFL >= 1 AND iFL < C_iEventHistoryLogQty THEN								
+					ARdsEventHistoryLog[C_iEventHistoryLogQty-iFL+1]			:= ARdsEventHistoryLog[C_iEventHistoryLogQty-iFL];
+				END_IF
+			END_FOR
+
+		// Log Latest Event and Occurred Time
+		ARdsEventHistoryLog[1].iEventID					:= iEventID_ToLog;
+		ARdsEventHistoryLog[1].sTimeAndDate_Occurred		:= sCurrentDateAndTimeUser24hr;
+		ARdsEventHistoryLog[1].sTimeAndDate_Acknowledged	:= '';
+		ARdsEventHistoryLog[1].sTimeAndDate_Recovered		:= '';
+
+
+		// After Acknowledged info update -> Display need to be update as well	
+			mtHistoryEventDisplayUpdate(iHistoryEventDisplayScrollShiftID);
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB3_EventModule">
+      <LineId Id="3" Count="2" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="8" Count="1" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="274" Count="4" />
+      <LineId Id="273" Count="0" />
+      <LineId Id="16" Count="4" />
+      <LineId Id="269" Count="0" />
+      <LineId Id="265" Count="3" />
+      <LineId Id="22" Count="2" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="173" Count="2" />
+      <LineId Id="172" Count="0" />
+      <LineId Id="26" Count="55" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_EventModule.acActiveScrollShiftIDControl">
+      <LineId Id="2" Count="44" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_EventModule.acBuzzerOutputControl">
+      <LineId Id="2" Count="13" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_EventModule.acCaptureEventType">
+      <LineId Id="2" Count="19" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_EventModule.acEventControl_Initialised">
+      <LineId Id="2" Count="7" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_EventModule.acEventControl_Scanning">
+      <LineId Id="2" Count="83" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_EventModule.acEventHistoryRecoveredTimeInitialised">
+      <LineId Id="2" Count="8" />
+      <LineId Id="93" Count="4" />
+      <LineId Id="85" Count="7" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="39" Count="3" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_EventModule.acHistoryScrollShiftIDControl">
+      <LineId Id="2" Count="45" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_EventModule.acPhysicalInputSignalCtrl">
+      <LineId Id="2" Count="43" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_EventModule.mtActiveEventDisplayUpdate">
+      <LineId Id="3" Count="26" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="30" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_EventModule.mtActiveEventRecovered">
+      <LineId Id="3" Count="38" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_EventModule.mtActiveEventToLogWithOccurredTime">
+      <LineId Id="3" Count="39" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_EventModule.mtBuzzerReset">
+      <LineId Id="3" Count="13" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_EventModule.mtEventReset">
+      <LineId Id="3" Count="13" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_EventModule.mtHistoryEventDisplayUpdate">
+      <LineId Id="3" Count="27" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="31" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_EventModule.mtHistoryEventLoggedAcknowledgedTime">
+      <LineId Id="3" Count="11" />
+      <LineId Id="28" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_EventModule.mtHistoryEventLoggedRecoveredTime">
+      <LineId Id="3" Count="6" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="80" Count="4" />
+      <LineId Id="73" Count="6" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="68" Count="1" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="41" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_EventModule.mtHistoryEventToLogWithOccurredTime">
+      <LineId Id="3" Count="16" />
+      <LineId Id="29" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,353 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbWeberMultiFreqCtrl" Id="{221d50a0-8cad-42f4-802e-d697734baebc}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbWeberMultiFreqCtrl
+VAR_INPUT
+
+	bErrorReset : BOOL;
+	b2550NewFirmware : BOOL;
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+	DSWeberGenerator : ARRAY [1..iUSGeneratorQty] OF DS_WeberGenerator;
+	iStepDelaySVns: INT;
+END_VAR
+
+VAR_OUTPUT
+	bFSel1OnOff :  BOOL;
+	bFSel2OnOff :  BOOL;
+
+END_VAR
+
+VAR PERSISTENT
+	ARbFreqChangeTriggerEn : ARRAY [1..iUSGeneratorQty] OF BOOL; (*Internally activate by monitor the changes of set point*)
+(*	ARiPowerAnalogInput AT %I* : ARRAY [1..iUSGeneratorQty] OF INT; (*Link to Terminal*)
+	ARiPowerAnalogOutput AT %Q* : ARRAY [1..iUSGeneratorQty] OF INT; (*Link to Terminal*)
+*)
+(**)	bFreqSwitchingPBRE: ARRAY [1..iUSGeneratorQty] OF R_TRIG;
+	ARbFreqChangeMonitoringEn : ARRAY [1..iUSGeneratorQty] OF BOOL; (*Enable monitor the changes of set point*)
+	ARiCurrentFreq: ARRAY [1..iUSGeneratorQty] OF INT;
+	iFreqChangeStep: INT;
+	iFreqChangeTriggerSet: INT;
+	ARbFreqChangeTriggerEnRE: ARRAY [1..iUSGeneratorQty] OF R_TRIG;
+	tStep1DelayTimer: TON;
+	tStep2DelayTimer: TON;
+	tStep3DelayTimer: TON;
+	tStep0DelayTimer: TON;
+	iGenFL: INT;
+	iFreqChangeFL: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Ultrasonic Start/Stop Ctrl*)
+tStep0DelayTimer(IN:=iFreqChangeStep = 0 , PT:=INT_TO_TIME(iStepDelaySVns) , Q=> , ET=> );
+
+iGenFL := 1;
+
+	FOR iGenFL := 1 TO iUSGeneratorQty DO
+
+				(*Min Control - Default*)
+				IF DSWeberGenerator[iGenFL].IN_lrPowerToAnalogRatio <= 0 THEN
+				DSWeberGenerator[iGenFL].IN_lrPowerToAnalogRatio := 327.67;
+				END_IF
+
+				(*Ultrasonic Start/Stop Ctrl*)
+				IF tStep0DelayTimer.Q THEN
+					IF DSWeberGenerator[iGenFL].IN_bUltrasonicStartEn THEN
+					DSWeberGenerator[iGenFL].OUT_bUltrasonicOnOff := TRUE;
+					ELSE
+					DSWeberGenerator[iGenFL].OUT_bUltrasonicOnOff := FALSE;
+					END_IF
+
+				END_IF
+
+
+				(*MultiFreq Ctrl - Change Freq via Digital Output Control*)
+
+				(*Monitoring Start/Stop Control*)
+				IF DSWeberGenerator[iGenFL].IN_bMultiFreqEn THEN
+					IF DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.bFreqRange2550En AND NOT DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.bFreqRange4080120En THEN
+						IF DSWeberGenerator[iGenFL].IN_iFreqSetPoint = 25 OR DSWeberGenerator[iGenFL].IN_iFreqSetPoint = 50 THEN
+						ARbFreqChangeMonitoringEn[iGenFL] := TRUE;
+						END_IF
+					ELSIF NOT DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.bFreqRange2550En AND DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.bFreqRange4080120En THEN
+						IF DSWeberGenerator[iGenFL].IN_iFreqSetPoint = 40 OR DSWeberGenerator[iGenFL].IN_iFreqSetPoint = 80 OR DSWeberGenerator[iGenFL].IN_iFreqSetPoint = 132 THEN
+						ARbFreqChangeMonitoringEn[iGenFL] := TRUE;
+						END_IF
+					ELSE
+						ARbFreqChangeMonitoringEn[iGenFL] := FALSE;
+					END_IF
+				ELSE
+						ARbFreqChangeMonitoringEn[iGenFL] := FALSE;
+				END_IF
+
+				IF ARbFreqChangeMonitoringEn[iGenFL] THEN
+
+					IF DSWeberGenerator[iGenFL].IN_iFreqSetPoint <> ARiCurrentFreq[iGenFL] THEN
+						ARbFreqChangeTriggerEn[iGenFL] := TRUE;
+					END_IF
+
+				ELSE
+					ARbFreqChangeTriggerEn[iGenFL] := FALSE;
+				END_IF
+
+
+				(*Analog Output*)
+				IF DSWeberGenerator[iGenFL].IN_lrAnalogOutputFineTuneRatio <= 0 THEN
+				DSWeberGenerator[iGenFL].IN_lrAnalogOutputFineTuneRatio := 1;
+				END_IF
+
+				IF DSWeberGenerator[iGenFL].IN_iTargetPowerPercentSetPoint <= 0 THEN
+				DSWeberGenerator[iGenFL].OUT_iPowerAnalogOutput := 0;
+				ELSIF DSWeberGenerator[iGenFL].IN_lrPowerToAnalogRatio <= 0 THEN
+				DSWeberGenerator[iGenFL].OUT_iPowerAnalogOutput := 0;
+				ELSIF (INT_TO_LREAL(DSWeberGenerator[iGenFL].IN_iTargetPowerPercentSetPoint) * DSWeberGenerator[iGenFL].IN_lrPowerToAnalogRatio) * DSWeberGenerator[iGenFL].IN_lrAnalogOutputFineTuneRatio <=32767 THEN
+					DSWeberGenerator[iGenFL].OUT_iPowerAnalogOutput := LREAL_TO_INT(INT_TO_LREAL(DSWeberGenerator[iGenFL].IN_iTargetPowerPercentSetPoint) * DSWeberGenerator[iGenFL].IN_lrPowerToAnalogRatio * DSWeberGenerator[iGenFL].IN_lrAnalogOutputFineTuneRatio);
+				ELSIF (INT_TO_LREAL(DSWeberGenerator[iGenFL].IN_iTargetPowerPercentSetPoint) * DSWeberGenerator[iGenFL].IN_lrPowerToAnalogRatio * DSWeberGenerator[iGenFL].IN_lrAnalogOutputFineTuneRatio) >32767 THEN
+					DSWeberGenerator[iGenFL].OUT_iPowerAnalogOutput := 32767;
+
+				ELSE
+				DSWeberGenerator[iGenFL].OUT_iPowerAnalogOutput := 0;
+				END_IF
+
+
+				(*ActualPowerPercentageDisplay*)
+
+				IF DSWeberGenerator[iGenFL].IN_lrAnalogInputFineTuneRatio <= 0 THEN
+				DSWeberGenerator[iGenFL].IN_lrAnalogInputFineTuneRatio := 1;
+				END_IF
+
+				IF DSWeberGenerator[iGenFL].IN_iPowerAnalogInput <= 0 THEN
+				DSWeberGenerator[iGenFL].OUT_iActualPowerPercentDisplay := 0;
+				ELSIF DSWeberGenerator[iGenFL].IN_lrPowerToAnalogRatio <= 0 THEN
+				DSWeberGenerator[iGenFL].OUT_iActualPowerPercentDisplay := 0;
+				ELSIF ((INT_TO_LREAL(DSWeberGenerator[iGenFL].IN_iPowerAnalogInput) / DSWeberGenerator[iGenFL].IN_lrPowerToAnalogRatio) )* DSWeberGenerator[iGenFL].IN_lrAnalogInputFineTuneRatio <=100 THEN
+					DSWeberGenerator[iGenFL].OUT_iActualPowerPercentDisplay := LREAL_TO_INT((INT_TO_LREAL(DSWeberGenerator[iGenFL].IN_iPowerAnalogInput) / DSWeberGenerator[iGenFL].IN_lrPowerToAnalogRatio) * DSWeberGenerator[iGenFL].IN_lrAnalogInputFineTuneRatio);
+				ELSIF ((INT_TO_LREAL(DSWeberGenerator[iGenFL].IN_iPowerAnalogInput) / DSWeberGenerator[iGenFL].IN_lrPowerToAnalogRatio) )* DSWeberGenerator[iGenFL].IN_lrAnalogInputFineTuneRatio >100 THEN
+					DSWeberGenerator[iGenFL].OUT_iActualPowerPercentDisplay := 100;
+
+				ELSE
+				DSWeberGenerator[iGenFL].OUT_iPowerAnalogOutput := 0;
+				END_IF
+
+				(*TS - FreqSwitchingPushButtonControl*)
+				bFreqSwitchingPBRE[iGenFL](CLK:=DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.bFreqSwitchingPB_TS , Q=> );
+
+				IF NOT DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.bFreqRange2550En AND NOT DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.bFreqRange4080120En THEN
+				DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS := 0;
+				ELSIF DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.bFreqRange2550En AND DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.bFreqRange4080120En THEN
+				DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS := 0;
+
+
+				ELSIF DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.bFreqRange2550En AND NOT DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.bFreqRange4080120En THEN
+
+					IF DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS <> 25 AND DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS <> 50 THEN
+					DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS := 25;
+					END_IF
+
+					IF bFreqSwitchingPBRE[iGenFL].Q THEN
+						IF DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS = 25 THEN
+						DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS := 50;
+						ELSIF DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS = 50 THEN
+						DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS := 25;
+						END_IF
+					END_IF
+
+
+				ELSIF NOT DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.bFreqRange2550En AND DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.bFreqRange4080120En THEN
+
+					IF DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS <> 40 AND DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS <> 80 AND DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS <> 132  THEN
+					DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS := 40;
+					END_IF
+
+					IF bFreqSwitchingPBRE[iGenFL].Q AND NOT DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.bDisableMultiFreq80kHz THEN
+						IF DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS = 40 THEN
+						DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS := 80;
+						ELSIF DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS = 80 THEN
+						DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS := 132;
+						ELSIF DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS = 132 THEN
+						DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS := 40;
+						END_IF
+
+					ELSIF bFreqSwitchingPBRE[iGenFL].Q AND DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.bDisableMultiFreq80kHz THEN
+						IF DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS = 40 THEN
+						DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS := 132;
+						ELSIF DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS = 132 THEN
+						DSWeberGenerator[iGenFL].DSWeberMulFreqSwitching.iFreqOutput_TS := 40;
+						END_IF
+
+					END_IF
+
+				END_IF
+
+	END_FOR
+
+
+
+(*Seperate FL to control*)
+
+IF iFreqChangeStep = 0 THEN
+iFreqChangeFL := 1;
+	FOR iFreqChangeFL := 1 TO iUSGeneratorQty DO
+
+		IF ARbFreqChangeTriggerEn[iFreqChangeFL] THEN
+		iFreqChangeStep := 1;
+		iFreqChangeTriggerSet := iFreqChangeFL;
+		iFreqChangeFL := iUSGeneratorQty +1;
+		END_IF
+	END_FOR
+END_IF
+
+(*******************************************************************************************)
+
+
+
+
+
+
+(*Freq Change Start*)
+
+IF iStepDelaySVns < 300 THEN
+iStepDelaySVns := 300;
+END_IF
+
+
+(*Freq Change Sequence Start*)
+tStep1DelayTimer(IN:=iFreqChangeStep=1 , PT:=INT_TO_TIME(iStepDelaySVns) , Q=> , ET=> );
+tStep2DelayTimer(IN:=iFreqChangeStep=2 , PT:=INT_TO_TIME(iStepDelaySVns) , Q=> , ET=> );
+tStep3DelayTimer(IN:=iFreqChangeStep=3 , PT:=INT_TO_TIME(iStepDelaySVns) , Q=> , ET=> );
+
+CASE iFreqChangeStep OF
+0:
+	bFSel1OnOff := FALSE;
+	bFSel2OnOff := FALSE;
+
+
+1:
+DSWeberGenerator[iFreqChangeTriggerSet].OUT_bUltrasonicOnOff := FALSE;
+
+IF DSWeberGenerator[iFreqChangeTriggerSet].DSWeberMulFreqSwitching.bFreqRange2550En AND NOT b2550NewFirmware THEN
+
+	IF DSWeberGenerator[iFreqChangeTriggerSet].IN_iFreqSetPoint = 25 THEN
+	bFSel1OnOff := TRUE;
+	bFSel2OnOff := FALSE;
+	ELSIF DSWeberGenerator[iFreqChangeTriggerSet].IN_iFreqSetPoint = 50 THEN
+	bFSel1OnOff := FALSE;
+	bFSel2OnOff := TRUE;
+	ELSIF DSWeberGenerator[iFreqChangeTriggerSet].IN_iFreqSetPoint = 0 THEN
+	bFSel1OnOff := FALSE;
+	bFSel2OnOff := FALSE;
+	ELSE
+	bFSel1OnOff := FALSE;
+	bFSel2OnOff := FALSE;
+	iFreqChangeStep := 4;
+	END_IF
+
+ELSIF DSWeberGenerator[iFreqChangeTriggerSet].DSWeberMulFreqSwitching.bFreqRange2550En AND b2550NewFirmware THEN
+
+	IF DSWeberGenerator[iFreqChangeTriggerSet].IN_iFreqSetPoint = 25 THEN
+	bFSel1OnOff := TRUE;
+	bFSel2OnOff := TRUE;
+	ELSIF DSWeberGenerator[iFreqChangeTriggerSet].IN_iFreqSetPoint = 50 THEN
+	bFSel1OnOff := FALSE;
+	bFSel2OnOff := TRUE;
+	ELSIF DSWeberGenerator[iFreqChangeTriggerSet].IN_iFreqSetPoint = 0 THEN
+	bFSel1OnOff := FALSE;
+	bFSel2OnOff := FALSE;
+	ELSE
+	bFSel1OnOff := FALSE;
+	bFSel2OnOff := FALSE;
+	iFreqChangeStep := 4;
+	END_IF
+
+END_IF
+
+IF DSWeberGenerator[iFreqChangeTriggerSet].DSWeberMulFreqSwitching.bFreqRange4080120En THEN
+
+	IF NOT DSWeberGenerator[iFreqChangeTriggerSet].DSWeberMulFreqSwitching.bDisableMultiFreq80kHz THEN
+
+			IF DSWeberGenerator[iFreqChangeTriggerSet].IN_iFreqSetPoint = 40 THEN
+			bFSel1OnOff := TRUE;
+			bFSel2OnOff := TRUE;
+			ELSIF DSWeberGenerator[iFreqChangeTriggerSet].IN_iFreqSetPoint = 80 THEN
+			bFSel1OnOff := FALSE;
+			bFSel2OnOff := TRUE;
+			ELSIF DSWeberGenerator[iFreqChangeTriggerSet].IN_iFreqSetPoint = 132 THEN
+			bFSel1OnOff := TRUE;
+			bFSel2OnOff := FALSE;
+			ELSIF DSWeberGenerator[iFreqChangeTriggerSet].IN_iFreqSetPoint = 0 THEN
+			bFSel1OnOff := FALSE;
+			bFSel2OnOff := FALSE;
+			ELSE
+			bFSel1OnOff := FALSE;
+			bFSel2OnOff := FALSE;
+			iFreqChangeStep := 4;
+			END_IF
+	ELSE
+
+			IF DSWeberGenerator[iFreqChangeTriggerSet].IN_iFreqSetPoint = 40 THEN
+			bFSel1OnOff := TRUE;
+			bFSel2OnOff := FALSE;
+			ELSIF DSWeberGenerator[iFreqChangeTriggerSet].IN_iFreqSetPoint = 132 THEN
+			bFSel1OnOff := FALSE;
+			bFSel2OnOff := TRUE;
+			ELSIF DSWeberGenerator[iFreqChangeTriggerSet].IN_iFreqSetPoint = 0 THEN
+			bFSel1OnOff := FALSE;
+			bFSel2OnOff := FALSE;
+			ELSE
+			bFSel1OnOff := FALSE;
+			bFSel2OnOff := FALSE;
+			iFreqChangeStep := 4;
+			END_IF
+	END_IF
+
+
+
+END_IF
+
+
+IF tStep1DelayTimer.Q THEN
+iFreqChangeStep := 2;
+END_IF
+
+2:
+IF DSWeberGenerator[iFreqChangeTriggerSet].IN_iFreqSetPoint <> 0 THEN
+DSWeberGenerator[iFreqChangeTriggerSet].OUT_bUltrasonicOnOff := TRUE;
+ELSE
+DSWeberGenerator[iFreqChangeTriggerSet].OUT_bUltrasonicOnOff := FALSE;
+END_IF
+
+IF tStep2DelayTimer.Q THEN
+iFreqChangeStep := 3;
+END_IF
+
+3:
+DSWeberGenerator[iFreqChangeTriggerSet].OUT_bUltrasonicOnOff := FALSE;
+bFSel1OnOff := FALSE;
+bFSel2OnOff := FALSE;
+
+IF tStep3DelayTimer.Q THEN
+iFreqChangeStep := 0;
+ARbFreqChangeTriggerEn[iFreqChangeTriggerSet] := FALSE;
+ARiCurrentFreq[iFreqChangeTriggerSet] := DSWeberGenerator[iFreqChangeTriggerSet].IN_iFreqSetPoint;
+END_IF
+
+4: (*Error*)
+DSWeberGenerator[iFreqChangeTriggerSet].OUT_bFreqSetPointError := TRUE;
+iFreqChangeStep := 5;
+
+
+5: (*Error - Waiting Reset*)
+IF bErrorReset THEN
+DSWeberGenerator[iFreqChangeTriggerSet].OUT_bFreqSetPointError := FALSE;
+iFreqChangeStep := 0;
+ARbFreqChangeTriggerEn[iFreqChangeTriggerSet] := FALSE;
+ARiCurrentFreq[iFreqChangeTriggerSet] := DSWeberGenerator[iFreqChangeTriggerSet].IN_iFreqSetPoint;
+END_IF
+
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="fbWeberMultiFreqCtrl">
+      <LineId Id="36" Count="306" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

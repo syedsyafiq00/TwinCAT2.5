@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbFBPVertArmPosConfirm" Id="{0d737a53-f4cd-4b9e-8904-9cc4bbd6ff8c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbFBPVertArmPosConfirm
+VAR_INPUT
+	bEnable 						: BOOL;
+(*	iLdStnID						: INT;
+	iUldStnID						: INT;
+*)	lrCurrentVertActualPos 		: LREAL; (*From Encoder Reading*)
+	iCurrentHorzZoneNo 			: INT; (*From fbFBPArmZoneConfirm Output*)
+	DSLdZonePosOut 			: DSA32_StationZonePosOut; (*From fbGnrProductRecipeMemory Output*)
+	ARDSStationZonePosOut 	: ARRAY [0..iStnQty] OF DSA32_StationZonePosOut; (*From fbGnrProductRecipeMemory Output*)
+	DSUldZonePosOut 			: DSA32_StationZonePosOut; (*From fbGnrProductRecipeMemory Output*)
+
+
+
+END_VAR
+VAR_OUTPUT
+	bVertTopTravelPosConfirm 	: BOOL;
+	bVertMidTravelPosConfirm 	: BOOL;
+	bVertDownPosConfirm 		: BOOL;
+
+
+END_VAR
+VAR
+	DSBufferZonePosOut : DSA32_StationZonePosOut;
+	DSEmptyZonePosOut : DSA32_StationZonePosOut;
+	iBufferFL: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Pos Confirm Checking Start*)
+IF bEnable THEN
+
+	(*Find Station DS and Push to buffer*)
+	IF iCurrentHorzZoneNo = iLdStnID THEN
+		DSBufferZonePosOut := DSLdZonePosOut;
+	ELSIF iCurrentHorzZoneNo = iUldStnID THEN
+		DSBufferZonePosOut := DSUldZonePosOut;
+	ELSIF iCurrentHorzZoneNo > 0 THEN
+		iBufferFL := 1;
+			FOR iBufferFL := 1 TO iStnQty DO
+				IF iBufferFL >= 1 AND iBufferFL <= iStnQty THEN
+					IF iCurrentHorzZoneNo = iBufferFL THEN
+					DSBufferZonePosOut := ARDSStationZonePosOut[iBufferFL];
+					END_IF
+				END_IF
+			END_FOR
+	ELSE
+		DSBufferZonePosOut := DSEmptyZonePosOut;
+	END_IF
+
+(*Generate Bit*)
+
+	IF DSBufferZonePosOut.lrZone1StartPos > 1 AND DSBufferZonePosOut.lrZone1StartPos = lrCurrentVertActualPos THEN
+	bVertTopTravelPosConfirm := TRUE;
+	ELSE
+	bVertTopTravelPosConfirm := FALSE;
+	END_IF
+
+	IF DSBufferZonePosOut.lrMidPos > 1 AND DSBufferZonePosOut.lrMidPos = lrCurrentVertActualPos THEN
+	bVertMidTravelPosConfirm := TRUE;
+	ELSE
+	bVertMidTravelPosConfirm := FALSE;
+	END_IF
+
+	IF DSBufferZonePosOut.lrZone4EndPos > 1 AND DSBufferZonePosOut.lrZone4EndPos = lrCurrentVertActualPos THEN
+	bVertDownPosConfirm := TRUE;
+	ELSE
+	bVertDownPosConfirm := FALSE;
+	END_IF
+
+
+
+
+END_IF
+
+
+
+
+
+(*Reset*)
+IF NOT bEnable OR iCurrentHorzZoneNo <= 0 THEN
+	bVertTopTravelPosConfirm 	:= FALSE;
+	bVertMidTravelPosConfirm 	:= FALSE;
+	bVertDownPosConfirm 		:= FALSE;
+	DSBufferZonePosOut := DSEmptyZonePosOut;
+
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbFBPVertArmPosConfirm">
+      <LineId Id="26" Count="57" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

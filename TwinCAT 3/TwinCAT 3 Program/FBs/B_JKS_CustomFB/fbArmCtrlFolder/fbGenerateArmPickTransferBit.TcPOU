@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbGenerateArmPickTransferBit" Id="{85ca6071-b06f-4fc7-a7a0-5c6d3763656b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbGenerateArmPickTransferBit
+VAR_INPUT
+	iPickStationNo : INT;
+	iTransferStationNo : INT;
+	bArmBusy	: BOOL;
+END_VAR
+VAR_OUTPUT
+	bArmPickLd : BOOL;
+	bArmPickUld : BOOL;
+	ARbArmPickStn : ARRAY [1..iStnQty] OF BOOL;
+	bArmTransferLd : BOOL;
+	bArmTransferUld : BOOL;
+	ARbArmTransferStn : ARRAY [1..iStnQty] OF BOOL;
+
+END_VAR
+VAR
+	iPickStnFL: INT;
+	iClearPickStnFL: INT;
+	iTransferStnFL: INT;
+	iClearTransferStnFL: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF bArmBusy AND iPickStationNo = iLdStnID THEN
+bArmPickLd := TRUE;
+ELSIF bArmBusy AND  iPickStationNo = iUldStnID THEN
+bArmPickUld := TRUE;
+ELSIF bArmBusy AND  iPickStationNo >= 1 AND iPickStationNo <= iStnQty THEN
+iPickStnFL := 1;
+	FOR iPickStnFL := 1 TO iStnQty DO
+		IF iPickStnFL >= 1 AND iPickStnFL <= iStnQty THEN
+			IF iPickStationNo = iPickStnFL THEN
+				ARbArmPickStn[iPickStnFL] := TRUE;
+			END_IF
+		END_IF
+	END_FOR
+ELSE
+bArmPickLd := FALSE;
+bArmPickUld := FALSE;
+iClearPickStnFL := 1;
+	FOR iClearPickStnFL := 1 TO iStnQty DO
+		IF iClearPickStnFL >= 1 AND iClearPickStnFL <= iStnQty THEN
+				ARbArmPickStn[iClearPickStnFL] := FALSE;
+		END_IF
+	END_FOR
+END_IF
+
+IF bArmBusy AND  iTransferStationNo = iLdStnID THEN
+bArmTransferLd := TRUE;
+ELSIF bArmBusy AND iTransferStationNo = iUldStnID THEN
+bArmTransferUld := TRUE;
+ELSIF bArmBusy AND iTransferStationNo >= 1 AND iTransferStationNo <= iStnQty THEN
+iTransferStnFL := 1;
+	FOR iTransferStnFL := 1 TO iStnQty DO
+		IF iTransferStnFL >= 1 AND iTransferStnFL <= iStnQty THEN
+			IF iTransferStationNo = iTransferStnFL THEN
+				ARbArmTransferStn[iTransferStnFL] := TRUE;
+			END_IF
+		END_IF
+	END_FOR
+ELSE
+bArmTransferLd := FALSE;
+bArmTransferUld := FALSE;
+iClearTransferStnFL := 1;
+	FOR iClearTransferStnFL := 1 TO iStnQty DO
+		IF iClearTransferStnFL >= 1 AND iClearTransferStnFL <= iStnQty THEN
+				ARbArmTransferStn[iClearTransferStnFL] := FALSE;
+		END_IF
+	END_FOR
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbGenerateArmPickTransferBit">
+      <LineId Id="21" Count="46" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

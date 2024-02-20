@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="En_TimeInterval" Id="{5e6cac5a-6b87-4bdd-95b3-70598e977089}">
+    <Declaration><![CDATA[TYPE En_TimeInterval :
+(
+	Interval_1s:=12,
+	Interval_5s:=13,
+	Interval_10s:=0,
+	Interval_20s:=1,
+	Interval_30s:=2,
+	Interval_1min:=3,
+	Interval_2min:=4,
+	Interval_5min:=5,
+	Interval_10min:=6,
+	Interval_15min:=7,
+	Interval_20min:=8,
+	Interval_30min:=9,
+	Interval_1h:=10,
+	Interval_2h:=11
+
+);
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

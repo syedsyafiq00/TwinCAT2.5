@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="GVL_UserCtrl" Id="{211a2c85-7e61-4ef5-8ef8-fdae3c8cfbba}">
+    <Declaration><![CDATA[
+VAR_GLOBAL
+	
+// HMI CONTROL
+
+	bUserNameLoginPageOn	: BOOL;
+	bUserNameEditPageOn	: BOOL;
+	bPageConfirmPageOn: BOOL;
+//		
+
+	bAutoModeLock : BOOL;
+
+	userpassword:ARRAY [1..5] OF STRING;
+	username:ARRAY [1..5] OF WSTRING;
+	sUserGroupName:ARRAY [1..5] OF WSTRING;
+	userlogin : ARRAY [1..5] OF BOOL;
+		
+	sActiveUserGroupname: WSTRING;
+	
+	bUserGroupPageON: BOOL;
+	bUserPageCreateON :BOOL;
+	bUserPageEditON	: BOOL;
+	iCurrentUserGroupID :INT;
+	sCurrentPwField: STRING;
+	sNewPwField: STRING;
+	sConfirmPwField: STRING;
+	sPwField: STRING;
+		
+	// LKT Test
+	
+	fbHmiTF1800_UserlevelManagement : FB3_HmiTF1800_UserlevelManagement;
+	
+		//For F HmiTF1800
+		
+			// Input
+			bLoginPB 					: BOOL;
+			bLogoutPB 					: BOOL;
+			iLoginNameId 				: INT; // The LoginName selection in HMI during User Login Pop-up Screen, the choosen user will translated as Array ID No and pass here.
+			sPasswordField 				: STRING; // Similar to Var In/Out so that i can clear the password if login failed
+			
+			iUM_SelectedLoginNameId	 	: INT;		// User Management - Selected Login Name ID (Array No)
+		
+			sUM_CurrentPassword			: STRING;	// User Management - Current Password (For password change only)
+			sUM_NewPassword				: STRING;	// User Management - New Password (For password change or new user registration)
+			sUM_ConfirmPassword			: STRING;	// User Management - New Password (For password change or new user registration)
+		
+			sUM_NewUserLoginName		: STRING;	// User Management - New User Login Name
+			sUM_NewUserGroupId			: INT;		// User Management - Select from UserGroupList
+		
+			sUM_NewUserOperatorIdentifier	: STRING;
+			sUM_NewUserActorType			: eActor;
+			sUM_NewUserLastName				: STRING;
+			sUM_NewUserFirstName			: STRING;
+			
+			bUM_CreatePB				: BOOL;		// User Management - Button for New User creation
+			bUM_EditPB					: BOOL;		// User Management - Button for Edit User
+			bUM_DeletePB				: BOOL;		// User Management - Button for Delete User
+			bUM_EnablePB				: BOOL; 	// to Enable selected User
+			bUM_DisablePB				: BOOL; 	// to Temporary Disable selected User
+			bUM_ConfirmPB				: BOOL;		// for Edit, Delete and Disable used. click to save
+			bUM_ReturnPB				: BOOL;		// for Edit, Delete and Disable used, click to return without save.
+			
+			//Output
+			dsHmiUserStatus_Active		: DS_HmiUserStatus;
+			dsHmiUserStatus_Login		: DS_HmiUserStatus;
+			dsHmiUserStatus_Logout		: DS_HmiUserStatus;
+			
+			wsActiveUserGroupName		: WSTRING;
+			sMessage					: STRING;
+
+			
+
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

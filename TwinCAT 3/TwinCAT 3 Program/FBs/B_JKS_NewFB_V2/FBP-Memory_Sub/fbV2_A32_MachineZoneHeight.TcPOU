@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_A32_MachineZoneHeight" Id="{a09df521-0ce3-47d1-ba43-d263f65e9fb0}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_A32_MachineZoneHeight
+
+VAR_IN_OUT PERSISTENT
+
+	ARDSLdZoneHeight : ARRAY [0..iLdStnQty] OF DSA32_StationZoneHeight;
+	ARDSStationZoneHeight : ARRAY [0..iStnQty] OF DSA32_StationZoneHeight;
+	ARDSUldZoneHeight : ARRAY [0..iUldStnQty] OF DSA32_StationZoneHeight;
+
+
+END_VAR
+VAR_OUTPUT
+	ARDSLdZonePosOut : ARRAY [0..iLdStnQty] OF DSA32_StationZonePosOut;
+	ARDSStationZonePosOut : ARRAY [0..iStnQty] OF DSA32_StationZonePosOut;
+	ARDSUldZonePosOut : ARRAY [0..iUldStnQty] OF DSA32_StationZonePosOut;
+
+END_VAR
+VAR PERSISTENT
+
+	ARfbLdStationZoneHeight : ARRAY [0..iLdStnQty] OF fbA32_StationZoneHeight;
+	ARfbStationZoneHeight : ARRAY [0..iStnQty] OF fbA32_StationZoneHeight;
+	ARfbUldStationZoneHeight : ARRAY [0..iUldStnQty] OF fbA32_StationZoneHeight;
+
+END_VAR
+VAR
+	Loop: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Loading*)
+
+Loop := 1;
+IF Loop >= 1 THEN
+	FOR Loop := 1 TO iLdStnQty DO
+		(*Loading*)
+		IF Loop >= 1 AND Loop <= iLdStnQty THEN
+		ARfbLdStationZoneHeight[Loop](DSStationZoneHeight:=ARDSLdZoneHeight[Loop] , DSStationZonePosOut=>ARDSLdZonePosOut[Loop] );
+		END_IF
+	END_FOR
+END_IF
+
+Loop := 1;
+IF Loop >= 1 THEN
+	FOR Loop := 1 TO iStnQty DO
+		(*Station Qty*)
+		IF Loop >= 1 AND Loop <= iStnQty THEN
+		ARfbStationZoneHeight[Loop](DSStationZoneHeight:=ARDSStationZoneHeight[Loop] , DSStationZonePosOut=>ARDSStationZonePosOut[Loop] );
+		END_IF
+	END_FOR
+END_IF
+
+Loop := 1;
+IF Loop >= 1 THEN
+	FOR Loop := 1 TO iUldStnQty DO
+		(*Unloading*)
+		IF Loop >= 1 AND Loop <= iUldStnQty THEN
+		ARfbUldStationZoneHeight[Loop](DSStationZoneHeight:=ARDSUldZoneHeight[Loop] , DSStationZonePosOut=>ARDSUldZonePosOut[Loop] );
+		END_IF
+	END_FOR
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_A32_MachineZoneHeight">
+      <LineId Id="26" Count="30" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

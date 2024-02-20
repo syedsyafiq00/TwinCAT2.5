@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSV3_JRS_Input" Id="{69fc9373-8894-4fe9-86e4-e9cb7d875cc8}">
+    <Declaration><![CDATA[TYPE DSV3_JRS_Input :
+
+STRUCT
+
+(*Channel 0*)
+	b000_00_FreshHCTankCircPumpTOR 											: BOOL;
+	b000_01_CircTankCircPumpTOR 												: BOOL;
+	b000_02_ThermalOilPumpTOR													: BOOL;
+	b000_03_ThermalOilLevelSensor												: BOOL;
+	b000_04_ThermalOilTempCtrlHighTempAlarmSignal								: BOOL;
+	b000_05_ThermalOilTempCtrlReadySignal										: BOOL;
+	b000_06_ThermalOilTempCtrlOnOffSignal 										: BOOL;
+	b000_07_TopDistillatorTempCtrlHighTempAlarmSignal								: BOOL;
+	b000_08_TopDistillatorTempCtrlReadySignal										: BOOL;
+	b000_09_TopDistillatorTempCtrlOnOffSignal 										: BOOL;
+	b000_10_RecycleStartStopPB			 										: BOOL;
+	b000_11_EStopPB															: BOOL;
+
+(*Channel 1*)
+	b001_00_PhaseSequenceRelayAlarm											: BOOL;
+	b001_01_ThermalOilUpThermostat 												: BOOL;
+	b001_02_SludgeTankLevelSensor												: BOOL;
+	b001_03_FreshHCTankLevelSensor												: BOOL;
+	b001_04_VacuumNotAchieveSignal												: BOOL;
+	b001_05_IncomingCDAPressureSwitch											: BOOL;
+	b001_06_CoolingWaterFlowSwitch	 											: BOOL;
+	b001_07_CircularTankLevelSensor												: BOOL;
+	b001_08_BottomDistillatorTempCtrlHighTempAlarmSignal							: BOOL;
+	b001_09_BottomDistillatorTempCtrlReadySignal									: BOOL;
+	b001_10_BottomDistillatorTempCtrlOnOffSignal 									: BOOL;
+	b001_11_ThermalOilDownThermostat											: BOOL;
+	b001_12_ThermalOilMidThermostat												: BOOL; (*New Added- Lee, 190109*)
+
+(*Channel 2*)
+	b002_00_VaporGenerationTempCtrlHighTempAlarmSignal							: BOOL;
+	b002_01_VaporGenerationTempCtrlReadySignal									: BOOL;
+	b002_02_VaporGenerationTempCtrlOnOffSignal									: BOOL;
+	b002_03_WasteCollectionTankLevelSensor										: BOOL;
+	b002_04_VaporGenerationTankLowLevelSensor									: BOOL;
+	b002_05_HCPurgingAV														: BOOL;
+	b002_06_MainMachineWasteCollectTankLowLevelSignal							: BOOL;
+	b002_07_MainMachineWasteCollectTankHighLevelSignal							: BOOL;
+	b002_08_FromMainMachineSignal3												: BOOL;
+	b002_09_FromMainMachineSignal4												: BOOL;
+	b002_10_FromMainMachineSignal5												: BOOL;
+	b002_11_ReservedAlarmSignal													: BOOL;
+
+(*Channel 3*)
+	b003_00_ChillerSelectorOnOff													: BOOL;
+	b003_01_ColdWaterTankLowLevelSensor										: BOOL;
+	b003_02_SludgeTankPresentSensor												: BOOL;
+	b003_03_ColdWaterTankTempCtrlHighTempAlarmSignal							: BOOL;
+	b003_04_ColdWaterTankTempCtrlReadySignal									: BOOL;
+	b003_05_ColdWaterTankTempCtrlOnOffSignal										: BOOL;
+	b003_06_ChillerPumpTOR														: BOOL;
+	b003_07_ChillerFlowSwitch														: BOOL;
+	b003_08_ChillerInterlockRelay													: BOOL;
+	b003_09_ReservedAlarmSignal													: BOOL;
+	b003_10_ReservedAlarmSignal													: BOOL;
+	b003_11_ReservedAlarmSignal													: BOOL;
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

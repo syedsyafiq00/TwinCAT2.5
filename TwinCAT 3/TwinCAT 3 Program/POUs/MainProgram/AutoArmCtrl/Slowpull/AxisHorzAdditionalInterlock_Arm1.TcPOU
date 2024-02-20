@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="AxisHorzAdditionalInterlock_Arm1" Id="{7ae36aa1-d36b-47c3-b289-01d83fb1faf2}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM AxisHorzAdditionalInterlock_Arm1
+VAR
+	lrArmStn9AfterHorzZone: ARRAY [1..iArmQty] OF LREAL;
+	lrArmStn9BeforeHorzZone: ARRAY [1..iArmQty] OF LREAL;
+
+END_VAR
+
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*xxxxxxxxxxx ARM 1 xxxxxxxxxxx*)
+
+lrArmStn9BeforeHorzZone[1] 	:= ((ARDSArmCtrl[1].AR3slrPosition[1,10,8] - ARDSArmCtrl[1].AR3slrPosition[1,9,8])/2) + ARDSArmCtrl[1].AR3slrPosition[1,9,8];
+lrArmStn9AfterHorzZone[1] 	:= ((ARDSArmCtrl[1].AR3slrPosition[1,9,8] - ARDSArmCtrl[1].AR3slrPosition[1,8,8])/2) + ARDSArmCtrl[1].AR3slrPosition[1,8,8];
+
+IF ARbArmHorzHomeDone[1] AND DSArm1HorzConfig.lrGen_Out_CurrentPos < lrArmStn9BeforeHorzZone[1] THEN
+AR2bArmHorzStnBeforeEnable[1,9] := TRUE;
+ELSE
+AR2bArmHorzStnBeforeEnable[1,9] := FALSE;
+END_IF
+
+IF ARbArmHorzHomeDone[1] AND DSArm1HorzConfig.lrGen_Out_CurrentPos > lrArmStn9AfterHorzZone[1] THEN
+AR2bArmHorzStnAfterEnable[1,9] := TRUE;
+ELSE
+AR2bArmHorzStnAfterEnable[1,9] := FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="AxisHorzAdditionalInterlock_Arm1">
+      <LineId Id="9" Count="15" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

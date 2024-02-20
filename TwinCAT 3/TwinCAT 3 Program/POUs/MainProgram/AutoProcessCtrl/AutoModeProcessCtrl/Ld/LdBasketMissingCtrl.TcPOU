@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="LdBasketMissingCtrl" Id="{dd20cc51-d541-47d8-8dee-e4c807a1ac23}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM LdBasketMissingCtrl
+VAR
+
+	tBasketMissingResetDelayOffTimer		: TON;
+	tTriggerArmUpDelayTimer				: TON;
+	bSHR								: ARRAY [1..10] OF BOOL;
+	bSHRReset							: BOOL;
+	bAutoStartPbRE						: R_TRIG;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF bAutoStartPB AND NOT ARbDI[eX14003_LoadingConveyorSensor_Pick] AND bLoadingCallArmEN AND ARbPnPbusy[1] AND iArm1PnpStep >= 1 AND iArm1PnpStep < 4 THEN
+bBasketMissingReset := TRUE;
+END_IF
+
+tBasketMissingResetDelayOffTimer(IN:=bAutoStartPB AND bBasketMissingReset AND ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1], PT:=t#1s , Q=> , ET=> );
+tTriggerArmUpDelayTimer(IN:=bAutoStartPB AND bBasketMissingReset, PT:=t#5s , Q=> , ET=> );
+
+IF tBasketMissingResetDelayOffTimer.Q OR NOT bAutoOriginPb THEN
+bBasketMissingReset := FALSE;
+END_IF
+
+
+IF tTriggerArmUpDelayTimer.Q AND NOT ARbPnPbusy[1] AND NOT ARDSArmCtrl[1].AR3sbPositionCfm[2,1,1] THEN
+bArm1VertLD1Up_29 := TRUE;
+ELSE
+bArm1VertLD1Up_29 := FALSE;
+END_IF
+
+
+IF bBasketMissingReset THEN bSHR[1] := TRUE; END_IF
+IF LdPrcs.bManualProgramReset THEN bSHR[2] := TRUE; END_IF
+IF NOT bAutoStartPb THEN bSHR[3] := TRUE; END_IF
+IF LdPrcs.bFailedToWriteHolding THEN bSHR[4] := TRUE; END_IF
+
+bAutoStartPbRE(CLK:=bAutoStartPb , Q=> );
+IF bSHRReset OR bAutoStartPbRE.Q THEN
+bSHR[1] := FALSE;
+bSHR[2] := FALSE;
+bSHR[3] := FALSE;
+bSHR[4] := FALSE;
+END_IF
+
+IF bAutoStartPbRE.Q THEN
+bAutoStartPbInt := TRUE;
+END_IF
+
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="LdBasketMissingCtrl">
+      <LineId Id="10" Count="37" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

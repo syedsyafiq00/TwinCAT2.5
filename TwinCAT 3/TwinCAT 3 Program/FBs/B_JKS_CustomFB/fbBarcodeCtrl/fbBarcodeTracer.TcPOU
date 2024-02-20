@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbBarcodeTracer" Id="{638e3e37-d7c2-4a0c-b64f-6f29cf9fed6f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbBarcodeTracer
+VAR_INPUT
+	bTracerST : BOOL;
+	sTargetBarcode : STRING;
+	AR99sBarCodeRaw : ARRAY [0..iProductRecipeArrayQty] OF STRING;
+	AR99sBarcodeDescrip	: ARRAY [0..iProductRecipeArrayQty] OF STRING;
+
+
+END_VAR
+VAR_OUTPUT
+
+	bBarcodeTraceSuccess : BOOL;
+	bBarcodeTraceFail : BOOL;
+	iBarcodeInRecipeNo : INT;
+	sBarcodeInDescrip	: STRING;
+END_VAR
+VAR
+	i: INT;
+	TracerRE : R_TRIG;
+
+	sBuffer: STRING;
+	STEP: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[TracerRE(CLK:=bTracerST,Q=>);
+
+IF NOT bTracerST THEN
+	bBarcodeTraceSuccess := FALSE;
+	bBarcodeTraceFail := FALSE;
+	iBarcodeInRecipeNo := 0;
+	i := 1;
+END_IF
+
+IF bTracerST AND sTargetBarcode <> '' (*AND sTargetBarcode <> sBuffer*) THEN
+
+		(*sBuffer := sTargetBarcode;*)
+		FOR i := 1 TO 99 DO
+
+		IF sTargetBarcode = AR99sBarCodeRaw[i] THEN
+		sBarcodeInDescrip := AR99sBarcodeDescrip[i];
+		iBarcodeInRecipeNo := i;
+		bBarcodeTraceSuccess := TRUE;
+		(*bBarcodeTraceFail := FALSE;*)
+		i := 100;
+		(*ELSE
+		bBarcodeTraceFail := TRUE;
+		bBarcodeTraceSuccess := FALSE;*)
+		END_IF
+
+		END_FOR
+
+END_IF
+IF (i > 99 AND bTracerST AND NOT bBarcodeTraceSuccess) (*OR (sTargetBarcode = '')*) THEN
+bBarcodeTraceFail := TRUE;
+ELSE
+bBarcodeTraceFail := FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbBarcodeTracer">
+      <LineId Id="23" Count="32" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

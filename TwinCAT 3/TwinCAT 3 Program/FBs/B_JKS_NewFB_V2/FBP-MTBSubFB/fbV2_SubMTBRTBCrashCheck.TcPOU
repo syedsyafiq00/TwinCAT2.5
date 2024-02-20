@@ -1,0 +1,220 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_SubMTBRTBCrashCheck" Id="{51df249e-b857-435b-bd12-c2e03bb6161d}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_SubMTBRTBCrashCheck
+VAR_INPUT
+	bEn										: BOOL;
+	bReset									: BOOL;
+	bBusyLinkMasterCheck					: BOOL;
+	bBusyLinkSlaveCheck						: BOOL;
+	iCurrentMasterFreeBlockStart 				: INT; 	(*MD1*)		(*Array "1"*)
+	iCurrentMasterFreeBlockEnd 				: INT;	(*MD2*)		(*Array "2"*)
+(*	iNextMasterFreeBlockStart 					: INT; 	(*MD3*)
+	iNextMasterFreeBlockEnd 					: INT;	(*MD4*)
+*)	iCurrentRecipeBusyBlockStart 				: INT;	(*RD1*)		(*Array "1"*)
+	iCurrentRecipeBusyBlockEnd 				: INT;	(*RD2*)		(*Array "2"*)
+	iCurrentRecipeBusyTime					: INT;				(*Array "5"*)
+	iCurrentRecipeBusyBlockMinTime			: INT;				(*Array "6"*)
+	iCurrentRecipeBusyBlockMaxTime			: INT;				(*Array "7"*)
+	iCurrentRecipeBusyLinkMasterSlaveAdd		: INT;				(*Array "9"*)
+	iCurrentShiftAllowedTime					: INT; 	(*Determine by Previous Station Remained Tolerance Time VS Crashed Time Whichever Lower*)
+
+END_VAR
+VAR_IN_OUT
+	iMTB_NATime							: INT;
+END_VAR
+
+VAR_OUTPUT
+
+(**)	bMTB_ShiftBlockRequestFlag	: BOOL; (*Current Master Time Block Empty or Not Suitable for Scanning Used, Out of range*)
+(**)	bRTB_ShiftBlockRequestFlag	: BOOL; (*Current Recipe Time Block Empty*)
+(**)	bSpacingOK 					: BOOL;
+(**)	bNoCrashFound				: BOOL;
+(**)	iNextShiftAllowedTime			: INT;	(*Determine Balance Time for Next Block Shifting Based on Remained Tolerance Time VS Crashed Time whichever lower*)
+
+(**)	bSpacingNG 					: BOOL;
+	bCrashFound 				: BOOL;
+
+(**)	bMTB_ShiftTimeRequestFlag 	: BOOL;
+(**)	iMTB_ShiftTime	 			: INT;
+
+(**)	bRTB_ShiftTimeRequestFlag 	: BOOL;
+(**)	iRTB_ShiftTime	 			: INT;
+
+	bBusyLinkMasterSkipFlag		: BOOL;
+	bBusyLinkSlaveSkipFlag		: BOOL;
+
+	bError						: BOOL;
+
+
+END_VAR
+VAR
+
+	bEnFE: F_TRIG;
+	iCurrentRecipeBusyBlockTolerance	: INT;
+
+	iExtTime: INT;
+	bResetRE: R_TRIG;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[bResetRE(CLK:=bReset , Q=> );
+
+IF bResetRE.Q THEN
+	bMTB_ShiftBlockRequestFlag	:= FALSE;
+	bRTB_ShiftBlockRequestFlag	:= FALSE;
+
+	bSpacingOK 					:= FALSE;
+	bNoCrashFound				:= FALSE;
+	iNextShiftAllowedTime 			:= 0;
+
+	bSpacingNG 					:= FALSE;
+	bCrashFound 				:= FALSE;
+
+	bMTB_ShiftTimeRequestFlag 	:= FALSE;
+	iMTB_ShiftTime	 			:= 0;
+
+	bRTB_ShiftTimeRequestFlag 	:= FALSE;
+	iRTB_ShiftTime	 			:= 0;
+
+	bBusyLinkMasterSkipFlag		:= FALSE;
+	bBusyLinkSlaveSkipFlag		:= FALSE;
+	bError						:= FALSE;
+
+END_IF
+
+
+IF bEn THEN
+
+(*Initialised*)
+	bMTB_ShiftBlockRequestFlag	:= FALSE;
+	bRTB_ShiftBlockRequestFlag	:= FALSE;
+
+	bSpacingOK 					:= FALSE;
+	bNoCrashFound				:= FALSE;
+	iNextShiftAllowedTime 			:= 0;
+
+	bSpacingNG 					:= FALSE;
+	bCrashFound 				:= FALSE;
+
+	bMTB_ShiftTimeRequestFlag 	:= FALSE;
+	iMTB_ShiftTime	 			:= 0;
+
+	bRTB_ShiftTimeRequestFlag 	:= FALSE;
+	iRTB_ShiftTime	 			:= 0;
+
+	bBusyLinkMasterSkipFlag		:= FALSE;
+	bBusyLinkSlaveSkipFlag		:= FALSE;
+	bError						:= FALSE;
+
+
+
+(*Checking / Scanning Start*)
+
+	(*Check BusyLink Master And Slave Operation*)
+	IF bBusyLinkMasterCheck AND iCurrentRecipeBusyLinkMasterSlaveAdd > 99 THEN
+		bBusyLinkSlaveSkipFlag := TRUE;
+	ELSIF bBusyLinkSlaveCheck AND iCurrentRecipeBusyLinkMasterSlaveAdd <100 THEN
+		bBusyLinkMasterSkipFlag := TRUE;
+
+	(*RTB Empty / Error Block - Cannot Scan*)
+	ELSIF (iCurrentRecipeBusyBlockEnd (*RD2*)  <= 0)									(*Empty Block*)
+		OR (iCurrentRecipeBusyBlockStart (*RD1*) >= iCurrentRecipeBusyBlockEnd (*RD2*))	(*Error Block*)
+		THEN
+
+		bRTB_ShiftBlockRequestFlag	:= TRUE;
+		bError						:= TRUE;
+
+
+	(*MTB Empty / Error - Cannot Scan*)
+
+	ELSIF (iCurrentMasterFreeBlockEnd (*MD2*)  <= 0)									(*Empty Block*)
+		OR( (iCurrentMasterFreeBlockStart (*MD1*) ) - (iCurrentMasterFreeBlockEnd (*MD2*))) > 1		(*Error Block*)
+		(*OR (iCurrentMasterFreeBlockEnd (*MD2*) <= iCurrentRecipeBusyBlockStart (*RD1*))		(*Not Suitable Block*)*)
+		THEN
+
+		bMTB_ShiftBlockRequestFlag	:= TRUE;
+		bError						:= TRUE;
+
+
+	(*MTB Not Suitable Block - Cannot Scan*)
+
+	ELSIF (iCurrentMasterFreeBlockEnd (*MD2*) <= iCurrentRecipeBusyBlockStart (*RD1*))		(*Not Suitable Block*)
+		THEN
+
+		bMTB_ShiftBlockRequestFlag	:= TRUE;
+
+	ELSE
+	
+		(*Check is Spacing OK or NG*)
+		IF (iCurrentMasterFreeBlockEnd (*MD2*) - iCurrentMasterFreeBlockStart (*MD1*)+1) >= (iCurrentRecipeBusyBlockEnd (*RD2*) - iCurrentRecipeBusyBlockStart (*RD1*)+1) THEN
+			bSpacingOK := TRUE;
+		ELSE
+			bSpacingNG := TRUE;
+		END_IF
+	
+		(*Spacing OK & RTB Able to Fill into MTB without issue*)
+		IF bSpacingOK
+			AND (iCurrentMasterFreeBlockStart (*MD1*) <= iCurrentRecipeBusyBlockStart (*RD1*) AND iCurrentMasterFreeBlockEnd (*MD2*) >= iCurrentRecipeBusyBlockEnd (*RD2*))
+			THEN
+			bNoCrashFound 				:= TRUE;
+			bRTB_ShiftBlockRequestFlag	:= TRUE;
+
+				IF iMTB_NATime >  (iCurrentMasterFreeBlockEnd (*MD2*) - iCurrentRecipeBusyBlockEnd (*RD2*)) THEN
+					iMTB_NATime := (iCurrentMasterFreeBlockEnd (*MD2*) - iCurrentRecipeBusyBlockEnd (*RD2*));
+				END_IF
+
+				IF (iCurrentRecipeBusyBlockMaxTime - iCurrentRecipeBusyBlockMinTime) <= 0 THEN
+	
+					IF iCurrentShiftAllowedTime >= (iCurrentMasterFreeBlockEnd (*MD2*) - iCurrentRecipeBusyBlockEnd (*RD2*)) THEN
+					iNextShiftAllowedTime := (iCurrentMasterFreeBlockEnd (*MD2*) - iCurrentRecipeBusyBlockEnd (*RD2*));
+					ELSE
+					iNextShiftAllowedTime := iCurrentShiftAllowedTime;
+					END_IF
+		
+				ELSE
+		
+					iExtTime := ((iCurrentRecipeBusyBlockEnd (*RD2*) - iCurrentRecipeBusyBlockStart (*RD1*)+1) - iCurrentRecipeBusyTime);
+		
+					IF ((iCurrentRecipeBusyBlockMaxTime - iCurrentRecipeBusyBlockMinTime) - iExtTime) >= (iCurrentMasterFreeBlockEnd (*MD2*) - iCurrentRecipeBusyBlockEnd (*RD2*)) THEN
+					iNextShiftAllowedTime := (iCurrentMasterFreeBlockEnd (*MD2*) - iCurrentRecipeBusyBlockEnd (*RD2*));
+					ELSE
+		
+						IF ((iCurrentRecipeBusyBlockMaxTime - iCurrentRecipeBusyBlockMinTime) - iExtTime) > 0 THEN
+						iNextShiftAllowedTime := ((iCurrentRecipeBusyBlockMaxTime - iCurrentRecipeBusyBlockMinTime) - iExtTime);
+						ELSE
+						iNextShiftAllowedTime := 0;
+						END_IF
+		
+		
+					END_IF
+	
+				END_IF
+		
+		(*Spacing OK and check whether shifting is enough*)
+		ELSIF bSpacingOK
+			AND (iCurrentMasterFreeBlockStart (*MD1*) >= iCurrentRecipeBusyBlockStart (*RD1*) AND iCurrentMasterFreeBlockEnd (*MD2*) >= iCurrentRecipeBusyBlockEnd (*RD2*))
+			THEN
+				bCrashFound := TRUE;
+
+					IF iCurrentShiftAllowedTime >= (iCurrentMasterFreeBlockStart (*MD1*) - iCurrentRecipeBusyBlockStart (*RD1*)) AND bBusyLinkMasterCheck THEN
+					iRTB_ShiftTime := (iCurrentMasterFreeBlockStart (*MD1*) - iCurrentRecipeBusyBlockStart (*RD1*));
+					bRTB_ShiftTimeRequestFlag := TRUE;
+					ELSE
+					iMTB_ShiftTime := (iCurrentMasterFreeBlockStart (*MD1*) - iCurrentRecipeBusyBlockStart (*RD1*));
+					bMTB_ShiftTimeRequestFlag := TRUE;
+					END_IF
+		
+	
+		ELSE
+			bMTB_ShiftBlockRequestFlag	:= TRUE;
+		END_IF
+
+	END_IF
+
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_SubMTBRTBCrashCheck">
+      <LineId Id="55" Count="154" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,353 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="HMI_Page_Control" Id="{badc8e9c-d3d7-4fe4-908a-2bac04b63b3a}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM HMI_Page_Control
+VAR
+	PowerOnDelayRE	:R_TRIG;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*tLdSensor1DelayOffTimer(IN:=(NOT X120_00 ) , PT:= t#0.5s, Q=> , ET=> );*)
+(*Initial Loading PAge*)
+(*
+bAutoModeOnTON	:TON;
+	bManualModeOnTON	:TON;
+	bRecipeModeOnTON	:TON;
+	bRecipeSSUROnTON	:TON;
+	bRecipeSSEROnTON	:TON;
+	bAlarmModeOnTON	:TON;
+	bUserModeOnTON	:TON;
+*)
+(*
+bAutoModeOnTON(IN:=( NOT bAutoModeOnSeq ) , PT:= t#5s, Q=> , ET=> );
+bManualModeOnTON(IN:=(bAutoModeOnSeq AND NOT bManualModeOnSeq ) , PT:= t#5s, Q=> , ET=> );
+bRecipeModeOnTON(IN:=(bManualModeOnSeq AND NOT bRecipeModeOnSeq ) , PT:= t#5s, Q=> , ET=> );
+bRecipeSSEROnTON(IN:=(bRecipeModeOnSeq AND NOT bRecipeSSEROnSeq ) , PT:= t#5s, Q=> , ET=> );
+bRecipeSSUROnTON(IN:=(bRecipeSSEROnSeq AND NOT bRecipeSSUROnSeq ) , PT:= t#5s, Q=> , ET=> );
+
+IF NOT bAutoModeOnTON.Q THEN
+	bAutoModeOn:=TRUE;
+ELSIF  bAutoModeOnTON.Q THEN
+	bAutoModeOn:=FALSE;
+	bAutoModeOnSeq:=TRUE;
+	bManualModeOn:=TRUE;
+ELSIF bManualModeOnTON.Q THEN
+	bManualModeOn:=FALSE;
+	bManualModeOnSeq:=TRUE;
+	bRecipeModeOn:=TRUE;
+	bRecipeSSEROn:=TRUE;
+ELSIF bRecipeSSEROnTON.Q THEN
+	bRecipeModeOn:=FALSE;
+	bRecipeSSEROn:=FALSE;
+	bRecipeSSEROnSeq:=TRUE;
+	bRecipeSSUROn:=TRUE;
+ELSIF bRecipeSSUROnTON.Q THEN
+	bRecipeSSUROn:=FALSE;
+	bRecipeSSUROnSeq:=TRUE;
+	bLoadingPageSeqComplete:=TRUE;
+END_IF
+
+IF bLoadingPageSeqCompleteRE.Q THEN
+	bAutoModeOn:=TRUE;
+END_IF
+
+*)
+
+
+
+
+
+
+(*PAge Screen Changes Control*)
+//Start comment - syafiq
+(*PowerOnDelayRE(CLK:=  PowerOnDelay.Q, Q=> );
+bAutoModeOnRE(CLK:=  bAutoModeOnPB, Q=> );
+bManualModeOnRE(CLK:=  bManualModeOnPB, Q=> );
+
+bRecipeModeOnRE(CLK:=  bRecipeModeOnPB, Q=> );
+	bRecipeSSUROnRE(CLK:=  bRecipeSSUROnPB, Q=> );
+	bRecipeSSEROnRE(CLK:=  bRecipeSSEROnPB, Q=> );
+	bRecipeBasicOnRE(CLK:=  bRecipeBasicOnPB, Q=> );
+          bRecipeBasic2OnRE(CLK:= bRecipeBasic2OnPB, Q=> );
+	bRecipeProductOnRE(CLK:=  bRecipeProductOnPB, Q=> );
+	bRecipeOtherOnRE(CLK:=  bRecipeOtherOnPB, Q=> );
+	bRecipeTimeOptimizeOnRE(CLK:=  bRecipeTimeOptimizeOnPB, Q=> );
+         bRecipeArmSettingOnRE(CLK:= bRecipeArmSettingOnPB, Q=> );
+	bRecipeArmSetting2OnRE(CLK:= bRecipeArmSetting2OnPB, Q=> );
+
+bUserModeOnRE(CLK:=  bUserModeOnPB, Q=> );
+bAlarmModeOnRE(CLK:=  bAlarmModeOnPB, Q=> );
+bManualModeOnLatchFE(CLK:=  bManualModeOnLatch, Q=> );
+
+bManuPageOn:=bManualModeOnLatch;
+
+(*Others Mode Control*)
+IF NOT  bManualModeOnLatch THEN
+	IF bAutoModeOnRE.Q THEN
+		bAutoModeOn:=TRUE;
+		bManualModeOn:=FALSE;
+		bRecipeModeOn:=FALSE;
+		bUserModeOn:=FALSE;
+		bAlarmModeOn:=FALSE;
+	ELSIF bManualModeOnRE.Q THEN
+		bManualModeOn:=TRUE;
+		bManualModeOnLatch:=TRUE;
+		bAutoModeOn:=FALSE;
+		bRecipeModeOn:=FALSE;
+		bUserModeOn:=FALSE;
+		bAlarmModeOn:=FALSE;
+	ELSIF bRecipeModeOnRE.Q THEN
+		bRecipeProductOn:=TRUE;
+		bRecipeOtherOn	:=FALSE;
+		bRecipeTimeOptimizeOn:=FALSE;
+		bRecipeSSEROn:=FALSE;
+		bRecipeSSUROn:=FALSE;
+		bRecipeBasicOn:=FALSE;
+                   bRecipeBasic2On:=FALSE;
+                   bRecipeModeOn:=TRUE;
+		bManualModeOn:=FALSE;
+		bAutoModeOn:=FALSE;
+		bUserModeOn:=FALSE;
+		bAlarmModeOn:=FALSE;
+	ELSIF bUserModeOnRE.Q THEN
+		bUserModeOn:=TRUE;
+		bManualModeOn:=FALSE;
+		bAutoModeOn:=FALSE;
+		bRecipeModeOn:=FALSE;
+		bAlarmModeOn:=FALSE;
+	ELSIF bAlarmModeOnRE.Q THEN
+		bAlarmModeOn:=TRUE;
+		bManualModeOn:=FALSE;
+		bAutoModeOn:=FALSE;
+		bRecipeModeOn:=FALSE;
+		bUserModeOn:=FALSE;
+	END_IF
+END_IF
+
+
+(*Recipe Mode Page Control*)
+IF NOT bRecipeModeOn THEN
+		bRecipeSSUROn:=FALSE;
+		bRecipeSSEROn:=FALSE;
+		bRecipeBasicOn:=FALSE;
+                   bRecipeBasic2On:=FALSE;
+                  bRecipeProductOn:=FALSE;
+		bRecipeOtherOn	:=FALSE;
+		bRecipeTimeOptimizeOn:=FALSE;
+		bRecipeArmSettingOn:=FALSE;
+		bRecipeArmSetting2On:=FALSE;
+	ELSIF bRecipeModeOn AND bRecipeSSUROnRE.Q THEN
+		bRecipeSSUROn:=TRUE;(*ON*)
+		bRecipeSSEROn:=FALSE;
+		bRecipeBasicOn:=FALSE;
+                  bRecipeBasic2On:=FALSE;
+                   bRecipeProductOn:=FALSE;
+		bRecipeOtherOn	:=FALSE;
+		bRecipeTimeOptimizeOn:=FALSE;
+		bRecipeArmSettingOn:=FALSE;
+		bRecipeArmSetting2On:=FALSE;
+	ELSIF bRecipeModeOn AND bRecipeSSEROnRE.Q THEN
+		bRecipeSSEROn:=TRUE;(*ON*)
+		bRecipeSSUROn:=FALSE;
+		bRecipeBasicOn:=FALSE;
+                  bRecipeBasic2On:=FALSE;
+                   bRecipeProductOn:=FALSE;
+		bRecipeOtherOn	:=FALSE;
+		bRecipeTimeOptimizeOn:=FALSE;
+		bRecipeArmSettingOn:=FALSE;
+		bRecipeArmSetting2On:=FALSE;
+	ELSIF bRecipeModeOn AND bRecipeBasicOnRE.Q THEN
+		bRecipeBasicOn:=TRUE;(*ON*)
+                   bRecipeBasic2On :=FALSE;
+                   bRecipeSSUROn :=FALSE;
+		bRecipeSSEROn:=FALSE;
+		bRecipeProductOn:=FALSE;
+		bRecipeOtherOn	:=FALSE;
+		bRecipeTimeOptimizeOn:=FALSE;
+		bRecipeArmSettingOn:=FALSE;
+		bRecipeArmSetting2On:=FALSE;
+         ELSIF bRecipeModeOn AND bRecipeBasic2OnRE.Q THEN
+                   bRecipeBasicOn:=FALSE;
+                   bRecipeBasic2On:=TRUE;(*ON*)
+                   bRecipeSSUROn:=FALSE;
+		bRecipeSSEROn:=FALSE;
+		bRecipeProductOn:=FALSE;
+		bRecipeOtherOn	:=FALSE;
+		bRecipeTimeOptimizeOn:=FALSE;
+          ELSIF bRecipeModeOn AND bRecipeProductOnRE.Q THEN
+		bRecipeBasicOn:=FALSE;
+                   bRecipeBasic2On:=FALSE;
+                   bRecipeSSUROn:=FALSE;
+		bRecipeSSEROn:=FALSE;
+		bRecipeProductOn:=TRUE;(*ON*)
+		bRecipeOtherOn	:=FALSE;
+		bRecipeTimeOptimizeOn:=FALSE;
+		bRecipeArmSettingOn:=FALSE;
+		bRecipeArmSetting2On:=FALSE;
+	ELSIF bRecipeModeOn AND bRecipeOtherOnRE.Q THEN
+		bRecipeBasicOn:=FALSE;
+                  bRecipeBasic2On:=FALSE;
+                   bRecipeSSUROn:=FALSE;
+		bRecipeSSEROn:=FALSE;
+		bRecipeProductOn:=FALSE;
+		bRecipeOtherOn	:=TRUE;(*ON*)
+		bRecipeTimeOptimizeOn:=FALSE;
+		bRecipeArmSettingOn:=FALSE;
+		bRecipeArmSetting2On:=FALSE;
+	ELSIF bRecipeModeOn AND bRecipeTimeOptimizeOnRE.Q THEN
+		bRecipeBasicOn:=FALSE;
+                   bRecipeBasic2On:=FALSE;
+                   bRecipeSSUROn:=FALSE;
+		bRecipeSSEROn:=FALSE;
+		bRecipeProductOn:=FALSE;
+		bRecipeOtherOn	:=FALSE;
+		bRecipeTimeOptimizeOn:=TRUE;(*ON*)
+		bRecipeArmSettingOn:=FALSE;
+		bRecipeArmSetting2On:=FALSE;
+	ELSIF bRecipeModeOn AND bRecipeArmSettingOnRE.Q THEN
+		bRecipeBasicOn:=FALSE;
+                   bRecipeBasic2On:=FALSE;
+                   bRecipeSSUROn:=FALSE;
+		bRecipeSSEROn:=FALSE;
+		bRecipeProductOn:=FALSE;
+		bRecipeOtherOn	:=FALSE;
+		bRecipeTimeOptimizeOn:=FALSE;
+		bRecipeArmSettingOn:=TRUE;(*ON*)
+		bRecipeArmSetting2On:=FALSE;
+ELSIF bRecipeModeOn AND bRecipeArmSetting2OnRE.Q THEN
+		bRecipeBasicOn:=FALSE;
+                   bRecipeBasic2On:=FALSE;
+                   bRecipeSSUROn:=FALSE;
+		bRecipeSSEROn:=FALSE;
+		bRecipeProductOn:=FALSE;
+		bRecipeOtherOn	:=FALSE;
+		bRecipeTimeOptimizeOn:=FALSE;
+		bRecipeArmSettingOn:=FALSE;
+		bRecipeArmSetting2On:=TRUE;(*ON*)
+
+END_IF
+
+(*bRecipeProductOn:BOOL;
+		bRecipeOtherOn	:BOOL;
+		bRecipeTimeOptimizeOn:BOOL;*)
+
+(*Manual Mode Page Control*)
+IF bManualModeOnLatch THEN
+	IF bAutoModeOnRE.Q THEN
+		bManualOutToAutoConfirmPageOn:=TRUE;
+	ELSIF bManualModeOnLatch AND bRecipeModeOnRE.Q THEN
+		bManualOutToRecipeConfirmPageOn:=TRUE;
+	ELSIF bManualModeOnLatch AND bUserModeOnRE.Q THEN
+		bManualOutToUserConfirmPageOn:=TRUE;
+	ELSIF bManualModeOnLatchFE.Q THEN
+		bAutoModeOnPB:=FALSE;
+		bManualModeOnPB:=FALSE;
+		bRecipeModeOnPB:=FALSE;
+	ELSIF bAlarmModeOnRE.Q THEN
+		bAlarmModeOn:=TRUE;
+		bManualModeOn:=FALSE;
+		bAutoModeOn:=FALSE;
+		bRecipeModeOn:=FALSE;
+		bUserModeOn:=FALSE;
+	ELSIF bManualModeOnRE.Q THEN
+		bManualModeOn:=TRUE;
+		bManualModeOnLatch:=TRUE;
+		bAutoModeOn:=FALSE;
+		bRecipeModeOn:=FALSE;
+		bUserModeOn:=FALSE;
+		bAlarmModeOn:=FALSE;
+	END_IF
+ELSE bManualOutToAutoConfirmPageOn:=FALSE;
+	bManualOutToRecipeConfirmPageOn:=FALSE;
+	bManualOutToUserConfirmPageOn:=FALSE;
+	bManualCalibrate:=FALSE;
+END_IF
+
+
+
+
+
+IF bManualModeOnLatchFE.Q THEN
+	bManualOutLatchCfm:=TRUE;
+
+END_IF
+
+bManualOutLatchCfmTON(IN:= bManualOutLatchCfm, PT:= t#1s , Q=> , ET=> );
+
+IF bManualOutLatchCfmTON.Q THEN
+	bAutoModeOnPB:=FALSE;
+	bRecipeModeOnPB:=FALSE;
+	bUserModeOnPB:=FALSE;
+	bManualOutLatchCfm:=FALSE;
+
+END_IF
+
+
+IF NOT bAutoModeOn THEN
+	bAutoPrepareStatus:=FALSE;
+	bStatusOriginPageOn:=FALSE;
+	bStatusPreparePageOn:= FALSE;
+	bBarcodeRegisterPageON:=FALSE;
+	bSecGemsPageON:=FALSE;
+
+END_IF
+
+*)
+// end comment - Syafiq
+
+(*Save confirmation page ctrl*)
+bSavePageCnfmOnRE(CLK:=  bSaveCfmPB, Q=> );
+bSaveBufferPBRE(CLK:=  bSaveBufferPB, Q=> );
+
+IF bSavePageCnfmOnRE.Q THEN
+	bSaveCfmPageOn:=TRUE;
+
+END_IF
+(*
+IF (sUserPasswordSave = UserPassword[6]) OR (sUserPasswordSave = UserPassword[7]) AND bSaveBufferPBRE.Q THEN
+bRecipeSavePb:=TRUE;
+bIncorrectPswdOn:=FALSE;
+END_IF
+
+IF (sUserPasswordSave <> UserPassword[6]) AND (sUserPasswordSave <> UserPassword[7]) AND bSaveBufferPBRE.Q THEN
+bIncorrectPswdOn:=TRUE;
+END_IF
+
+tBackupDelayOffTimer(IN:=bRecipeSavePb, PT:=t#1s , Q=> , ET=> );
+
+IF tBackupDelayOffTimer.Q THEN
+	bRecipeSavePb:=FALSE;
+END_IF
+*)
+IF tBackupDelayOffTimer.Q THEN
+	bSaveCfmPageOn:=FALSE;
+	sUserPasswordSave:='';
+	bIncorrectPswdOn:=FALSE;
+END_IF
+
+
+(*Door Control Auto Mode*)
+(*
+IF bStn1DoorOpenCompleted THEN
+	wDoorOpenFunc.1:=FALSE;
+ELSIF  bStn1DoorCloseCompleted THEN
+	wDoorCloseFunc.1:=FALSE;
+END_IF
+
+
+(*Door Motor Brake Release*)
+IF Y100_14 OR Y100_15 THEN
+	WY10204_01:=TRUE;
+ELSE WY10204_01:=FALSE;
+END_IF
+*)]]></ST>
+    </Implementation>
+    <LineIds Name="HMI_Page_Control">
+      <LineId Id="5" Count="51" />
+      <LineId Id="342" Count="0" />
+      <LineId Id="57" Count="232" />
+      <LineId Id="341" Count="0" />
+      <LineId Id="290" Count="46" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

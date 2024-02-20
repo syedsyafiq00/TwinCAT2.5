@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="XML" Id="{33f26703-f09c-432a-a1da-4b38ca4f7684}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+	XML_ImportExport 										: ARRAY [1..iProductRecipeArrayQty] OF DS_XML_InputOutput;
+
+	sFilePath				:T_MaxString;
+
+
+	bRead					: BOOL;
+
+	FBXmlSrvRead1			:  FB_XmlSrvRead;
+	ePath 					: E_OpenPath := PATH_GENERIC;
+	nMode 					: WORD := XMLSRV_ADDMISSING;
+(*	sFilePath1				:T_MaxString:='C:\Users\SFQ\Desktop\File1.xml';*)
+	sXPath					:T_MaxString:='/dataentry/MAIN.value1';
+	bEXERead1				: BOOL;
+
+
+	bEXEWrite1				: BOOL;
+	FBXmlSrvWrite1			:  FB_XmlSrvWrite;
+
+
+
+
+
+	Filename: STRING;
+	string1: STRING;
+	string2: STRING;
+	step: INT;
+	bImport: BOOL;
+	bExport: BOOL;
+	bWriteDone				: BOOL;
+	bReadDone				: BOOL;
+
+
+
+	iFLStnNo: INT;
+	iFLRcpNo: INT;
+	iRcpNo: INT;
+
+	bImport_file: BOOL;
+	bExport_file: BOOL;
+	bImportDone: BOOL;
+	iFLStnNo1: INT;
+	iFLStnNo2: INT;
+	bExportDone: BOOL;
+
+
+
+	fbV3XML_Handler_Server					: fbV3_XML_Handler;
+	bErrorRst_Server							: BOOL;
+	bXMLServerBusyFlag						: BOOL;
+	bXMLServerErrorFlag						: BOOL;
+	udXMLServerErrorID						: UDINT;
+
+	fbV3XML_Handler_Local					: fbV3_XML_Handler;
+	bErrorRst_Local							: BOOL;
+	bXMLLocalBusyFlag						: BOOL;
+	bXMLLocalErrorFlag						: BOOL;
+	udXMLLocalErrorID						: UDINT;
+
+
+	iLocalImportHS							: INT;
+	iLocalExportHS							: INT;
+	iLocalDeleteAllHS							: INT;
+	iLocalImportExportRecipeNo				: INT;
+
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

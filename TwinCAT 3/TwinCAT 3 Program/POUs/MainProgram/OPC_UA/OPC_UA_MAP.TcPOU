@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <POU Name="OPC_UA_MAP" Id="{5e36ad26-9dde-4373-b169-e4ee41295b4d}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM OPC_UA_MAP
+VAR
+	bIPC_Machine_Run: BOOL;
+	bIPC_Machine_Alarm: BOOL;
+	bIPC_Ideal_Cycle_Time: INT;
+
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[bMachine_Run_OPC_UA 	:=bAutoStartPb;			
+                                    
+                                    
+bMachine_Idle_OPC_UA 	:=ARwDO[eY11005_GeneralTowerLightInd_Yellow].00;			
+                                    
+                                    
+bMachine_Alarm_OPC_UA 	:=ARwDO[eY11004_GeneralTowerLightInd_Red].00;			
+                                    
+                                    
+iRecipe_Number_OPC_UA 	:=iUserDefineProductRecipeNo;				
+                                    
+                                    
+sUsername_OPCUA 		:=fbHmiTF1800_UserlevelManagement.dsHmiUserStatus_Active.sLoginName;				
+                                    
+                                    
+ARbBasketAvailibility_OPCUA[1]:= DSStnBasketInfo[1].bAvailibility;			
+ARbBasketAvailibility_OPCUA[2]:= DSStnBasketInfo[2].bAvailibility;;
+ARbBasketAvailibility_OPCUA[3]:= DSStnBasketInfo[3].bAvailibility;;
+ARbBasketAvailibility_OPCUA[4]:= DSStnBasketInfo[4].bAvailibility;;
+ARbBasketAvailibility_OPCUA[5]:= DSStnBasketInfo[5].bAvailibility;;
+ARbBasketAvailibility_OPCUA[6]:= DSStnBasketInfo[6].bAvailibility;;
+ARbBasketAvailibility_OPCUA[7]:= DSStnBasketInfo[7].bAvailibility;;
+ARbBasketAvailibility_OPCUA[8]:= DSStnBasketInfo[8].bAvailibility;;
+ARbBasketAvailibility_OPCUA[9]:= DSStnBasketInfo[9].bAvailibility;;
+//ARbBasketAvailibility_OPCUA[10]:= DSStnBasketInfo[10].bAvailibility;;
+                                    
+                                    
+ARbStationBasketStatus_OPCUA[1]:=DSStnBasketInfo[1].sProductQuality;			
+ARbStationBasketStatus_OPCUA[2]:=DSStnBasketInfo[2].sProductQuality;                                    
+ARbStationBasketStatus_OPCUA[3]:=DSStnBasketInfo[3].sProductQuality;                                    
+ARbStationBasketStatus_OPCUA[4]:=DSStnBasketInfo[4].sProductQuality;
+ARbStationBasketStatus_OPCUA[5]:=DSStnBasketInfo[5].sProductQuality;
+ARbStationBasketStatus_OPCUA[6]:=DSStnBasketInfo[6].sProductQuality;
+ARbStationBasketStatus_OPCUA[7]:=DSStnBasketInfo[7].sProductQuality;
+ARbStationBasketStatus_OPCUA[8]:=DSStnBasketInfo[8].sProductQuality;
+ARbStationBasketStatus_OPCUA[9]:=DSStnBasketInfo[9].sProductQuality;
+//ARbStationBasketStatus_OPCUA[10]:=DSStnBasketInfo[10].sProductQuality;
+
+                                    
+                                    
+ARrStnTempPV_OPCUA					:=ARrStnTempPV;                                
+                                  
+ARrStnTempHysterysisSV_OPCUA		:=ARrStnTempHYSsv;			                                    	
+                                    
+ARrStnTempHighTempSV_OPCUA			:=ARrStnTempHALsv;			                                  	
+                                    
+ARrStnTempSV_OPCUA					:=ARrStnTempSV;					                                    
+                                    
+ARrStnTempReadySV_OPCUA				:=ARrStnTempRDYsv;		                                    
+                                    
+ARrStnTemp1stLimitSV_OPCUA			:=ARrStnTemp1stLimitSv;	
+                                   
+ARrStnTemp2ndLimitSV_OPCUA			:=ARrStnTemp2ndLimitSv;		                                    
+                                 
+ARiStnPreparationTempSV_OPCUA		:=ARiStnPreparationTempSv;
+                                                                      
+ARrStnConductivityPV_OPCUA 			:=ARrStnConductivityPV;
+                                                                      
+ARrStnLowConductivitySV_OPCUA		:=ARrStnLowConductivitySv;	                                    
+                                    
+ARrStnHighConductivitySV_OPCUA		:=ARrStnHighConductivitySv;
+                                   
+ARrStnFilterPressurePV_OPCUA		:=ARrStnFilterPressurePV;
+                                   
+ARrStnLowFilterPressureSV_OPCUA		:=ARrStnLowFilterPressureSv;
+                                   
+                                   
+ARrStnHighFilterPressureSV_OPCUA	:=ARrStnHighFilterPressureSv;
+                                    
+                                    
+ARiUltrasonicPV_OPCUA[1]			:=ARiUsPowerPV_percent[1];					
+ARiUltrasonicPV_OPCUA[2]			:=ARiUsPowerPV_percent[2];	
+ARiUltrasonicPV_OPCUA[3]			:=ARiUsPowerPV_percent[3];	
+ARiUltrasonicPV_OPCUA[4]			:=ARiUsPowerPV_percent[4];	
+ARiUltrasonicPV_OPCUA[5]			:=ARiUsPowerPV_percent[5];	
+ARiUltrasonicPV_OPCUA[6]			:=ARiUsPowerPV_percent[6];	
+ARiUltrasonicPV_OPCUA[7]			:=ARiUsPowerPV_percent[7];	
+ARiUltrasonicPV_OPCUA[8]			:=ARiUsPowerPV_percent[8];	
+                                
+                                    
+ARiUltrasonicSV_OPCUA[1]			:=ARDsStnSeqProcessCtrl[1].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;					
+ARiUltrasonicSV_OPCUA[2]			:=ARDsStnSeqProcessCtrl[2].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;	
+ARiUltrasonicSV_OPCUA[3]			:=ARDsStnSeqProcessCtrl[3].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;	
+ARiUltrasonicSV_OPCUA[4]			:=ARDsStnSeqProcessCtrl[4].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;	
+ARiUltrasonicSV_OPCUA[5]			:=ARDsStnSeqProcessCtrl[5].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;	
+ARiUltrasonicSV_OPCUA[6]			:=ARDsStnSeqProcessCtrl[6].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;	
+ARiUltrasonicSV_OPCUA[7]			:=ARDsStnSeqProcessCtrl[7].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;
+ARiUltrasonicSV_OPCUA[8]			:=ARDsStnSeqProcessCtrl[8].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent;
+                                                    ]]></ST>
+    </Implementation>
+    <LineIds Name="OPC_UA_MAP">
+      <LineId Id="82" Count="84" />
+      <LineId Id="54" Count="0" />
+      <LineId Id="167" Count="1" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

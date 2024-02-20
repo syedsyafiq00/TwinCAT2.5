@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbOilSeperatorTankCtrl" Id="{6945d394-70c8-456a-90a5-cbd89c06e1d7}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbOilSeperatorTankCtrl
+VAR_INPUT
+	bEnable			: BOOL;
+	bOilLowLevel		: BOOL;
+	bOilHighLevel	: BOOL;
+	bResetCounter	: BOOL;
+	iDrainCounterSV	: INT;
+END_VAR
+VAR_OUTPUT
+	bDrainingValve	: BOOL;
+	bOilTankFull		: BOOL;
+
+END_VAR
+VAR_OUTPUT PERSISTENT
+	iDrainCounterPV	: INT;
+END_VAR
+
+VAR
+	T_HighLevel: TON;
+
+	F_LowLevel: F_TRIG;
+	R_CounterAdd: R_TRIG;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF bEnable THEN
+
+T_HighLevel(IN:=bOilHighLevel , PT:=T#3S , Q=> , ET=> );
+F_LowLevel(CLK:=bOilLowLevel , Q=> );
+R_CounterAdd(CLK:=bDrainingValve , Q=> );
+
+	IF bOilLowLevel AND bOilHighLevel AND T_HighLevel.Q THEN
+		bDrainingValve := TRUE;
+	END_IF
+
+	IF F_LowLevel.Q THEN
+		bDrainingValve := FALSE;
+	END_IF
+
+	IF R_CounterAdd.Q THEN
+		iDrainCounterPV := iDrainCounterPV +1;
+	END_IF
+
+	IF iDrainCounterPV >= iDrainCounterSV THEN
+		bOilTankFull := TRUE;
+	ELSE
+		bOilTankFull := FALSE;
+	END_IF
+
+	IF bResetCounter THEN
+		iDrainCounterPV := 0;
+	END_IF
+
+ELSE
+
+	bDrainingValve := FALSE;
+
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbOilSeperatorTankCtrl">
+      <LineId Id="23" Count="32" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_InvAxisJog" Id="{04fd6ed5-2aae-4812-bd2d-c4d29b92f8b7}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_InvAxisJog
+VAR_INPUT
+	bEstop : BOOL;
+	bPositiveJogDirectionSt : BOOL;
+	bNegativeJogDirectionSt : BOOL;
+	bFwdOverTravelSensorNC : BOOL;
+	bRwdOverTravelSensorNC : BOOL;
+
+	rJogSpeedHz : REAL;
+
+END_VAR
+
+VAR_IN_OUT
+	bJogEn : BOOL;
+
+END_VAR
+
+VAR_OUTPUT
+
+	bOut_InvMoveFwd : BOOL;
+	bOut_InvMoveRwd : BOOL;
+
+	rJogTargetSpdHz : REAL;
+
+END_VAR
+
+VAR
+	iStep: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Jog Control*)
+
+rJogTargetSpdHz := rJogSpeedHz;
+
+
+IF bEstop THEN
+iStep := 0;
+
+ELSIF bJogEn THEN
+
+	IF bPositiveJogDirectionSt AND bFwdOverTravelSensorNC AND NOT bNegativeJogDirectionSt   THEN
+	iStep := 11;
+	ELSIF bNegativeJogDirectionSt AND bRwdOverTravelSensorNC AND NOT bPositiveJogDirectionSt THEN
+	iStep := 21;
+	ELSE
+	iStep := 1;
+	END_IF
+
+ELSE
+iStep := 1;
+
+END_IF
+
+
+CASE iStep OF
+
+(*Reset or Estop*)
+0:
+	bJogEn := FALSE;
+	bOut_InvMoveFwd := FALSE;
+	bOut_InvMoveRwd := FALSE;
+
+
+
+(* Jog Process - Standby*)
+1:
+
+	bOut_InvMoveFwd := FALSE;
+	bOut_InvMoveRwd := FALSE;
+
+
+
+11: (*Jog Control - Forward*)
+
+bOut_InvMoveFwd := TRUE;
+bOut_InvMoveRwd := FALSE;
+
+
+21: (*Jog Control - Reverse*)
+
+bOut_InvMoveFwd := FALSE;
+bOut_InvMoveRwd := TRUE;
+
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_InvAxisJog">
+      <LineId Id="29" Count="53" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

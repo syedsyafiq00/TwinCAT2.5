@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbMachineTimeCounter" Id="{be77e9b1-bae4-4c53-98f1-e2ad283c5d65}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbMachineTimeCounter
+VAR_INPUT
+	bEnable		: BOOL;
+	bReset		: BOOL;
+END_VAR
+
+VAR_OUTPUT
+	sTotalTimePV	: STRING;
+END_VAR
+VAR
+
+	TON1			: TON;
+	TON2			: TON;
+	FBTRIG			: R_TRIG;
+	FB1TRIG		: R_TRIG;
+	step				: INT;
+
+	Second				: DINT;
+
+END_VAR
+VAR PERSISTENT
+	Counter				: DINT;
+	Minute				: DINT;
+	Hour				: DINT;
+	Day					: DINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[TON1(IN:=(bEnable AND NOT TON2.Q) , PT:=T#0.5S , Q=> , ET=> );
+TON2(IN:=TON1.Q , PT:=T#0.5S , Q=> , ET=> );
+FB1TRIG(CLK:=bReset , Q=> );
+
+IF bEnable THEN
+	FBTRIG(CLK:=TON2.Q , Q=> );
+END_IF
+
+IF FB1TRIG.Q THEN
+	Counter		:= 0;
+	Second		:= 0;
+	Minute		:= 0;
+	Hour		:= 0;
+	Day			:= 0;
+END_IF
+
+IF bEnable AND FBTRIG.Q THEN
+	Second := Second + 1;
+END_IF
+
+IF bEnable AND Second >= 60 THEN
+	Minute := MInute + 1;
+	Second := 0;
+END_IF
+
+IF bEnable AND Minute >= 60 THEN
+	Hour := hour + 1;
+	Minute := 0;
+END_IF
+
+IF bEnable AND Hour >= 24 THEN
+	Day := Day +1;
+	Hour := 0;
+END_IF
+
+sTotalTimePV := CONCAT(DINT_TO_STRING(Day),':');
+
+IF Hour < 10 THEN
+sTotalTimePV :=CONCAT(sTotalTimePV,'0');
+sTotalTimePV :=CONCAT(sTotalTimePV,DINT_TO_STRING(Hour));
+ELSE
+sTotalTimePV :=CONCAT(sTotalTimePV,DINT_TO_STRING(Hour));
+END_IF
+
+sTotalTimePV := CONCAT(sTotalTimePV,':');
+
+IF Minute < 10 THEN
+sTotalTimePV :=CONCAT(sTotalTimePV,'0');
+sTotalTimePV :=CONCAT(sTotalTimePV,DINT_TO_STRING(Minute));
+ELSE
+sTotalTimePV :=CONCAT(sTotalTimePV,DINT_TO_STRING(Minute));
+END_IF
+
+sTotalTimePV := CONCAT(sTotalTimePV,':');
+
+IF Second < 10 THEN
+sTotalTimePV := CONCAT(sTotalTimePV,'0');
+sTotalTimePV := CONCAT(sTotalTimePV,DINT_TO_STRING(Second));
+ELSE
+sTotalTimePV := CONCAT(sTotalTimePV,DINT_TO_STRING(Second));
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbMachineTimeCounter">
+      <LineId Id="27" Count="60" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

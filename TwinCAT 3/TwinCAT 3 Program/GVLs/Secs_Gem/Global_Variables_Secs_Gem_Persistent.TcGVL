@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_Secs_Gem_Persistent" Id="{f0659ed5-5253-4b56-af0e-daa9e87bca1f}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL PERSISTENT
+
+
+	iSecs_Control_State :INT;	(* Determine in Gem Console. Machine react base on this setting
+							3 - Offline (Secs/GEM Offline - Remote Command disable)
+							4 - Online Local (Secs/GEM Online - Local Control - Remote Command disable)
+							5 - Online Remote (Secs/Gem Online - Host Control - Remote Command enable)*)
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

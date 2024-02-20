@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_CsvReport" Id="{59f3edde-c515-4106-97a8-78873cf36913}">
+    <Declaration><![CDATA[TYPE DS_CsvReport :
+STRUCT
+	
+	ARsHeadlineTitle			: ARRAY [1..100] OF STRING;		// Please consider to replace the name on next project
+	ARsHeadlineData				: ARRAY [1..100] OF STRING;	                		
+	ARsLogUnit					: ARRAY [1..100] OF STRING;
+	ARsLogTitle					: ARRAY [1..100] OF STRING;
+	AR2sLogData					: ARRAY [1..100]OF ARRAY [1..C_iCsvDataBlockQty] OF STRING;
+
+	iNumOfData_HeadlineTitle 	: INT := 50;
+	iNumOfData_HeadlineData		: INT := 50;
+	iNumOfData_LogUnit			: INT := 50;
+	iNumOfData_LogTitle			: INT := 50;
+	iNumOfData_LogData			: INT := 50;
+
+	ARsLogTitle_EventLog 			: ARRAY [1..C_iCsvDataBlockQty] OF STRING;
+	ARsLogData_EventLog 			: ARRAY [1..C_iCsvDataBlockQty] OF STRING;
+
+	iNumOfData_LogTitle_EventLog 	: INT := 10;
+	iNumOfData_LogData_EventLog 	: INT := 10;
+	
+	ARsLogBuffer		: ARRAY [1..C_udiCsvBufferByteQty] OF BYTE; 
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

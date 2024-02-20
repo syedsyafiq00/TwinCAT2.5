@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSChemicalWithoutDosingPump" Id="{65d46980-002d-4c76-8d7b-120d549bf594}">
+    <Declaration><![CDATA[TYPE DSChemicalWithoutDosingPump :
+STRUCT
+
+(*Input*)
+	IN_b1StFillEnable						: BOOL;
+	IN_bBasketResetQty					: BOOL;
+	IN_i1stLimitBasketQty					: INT;
+	IN_i2ndLimitBasketQty					: INT;
+	IN_diMixingTime						: DINT;
+	IN_bChemicalTopUpNotice				: BOOL;
+	IN_bBasketCounterUp					: BOOL;
+
+(*Output*)
+
+	OUT_iCurrentBasketQty				: INT;
+	OUT_b1stLimitBasketAlarm				: BOOL;
+	OUT_b2ndLimitBasketAlarm			: BOOL;
+
+
+	OUT_b1stFillChemicalTopUpBit			: BOOL;
+	OUT_bProcessFillChemicalTopupBit		: BOOL;
+	OUT_b1stFillCompleted				: BOOL;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

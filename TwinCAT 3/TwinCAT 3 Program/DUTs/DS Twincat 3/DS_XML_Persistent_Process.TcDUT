@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_XML_Persistent_Process" Id="{e71495eb-238e-4ac2-956b-6be88cbaca88}">
+    <Declaration><![CDATA[TYPE DS_XML_Persistent_Process :
+STRUCT
+	(* xxxxxxxxxxxxxxxxxxxxxxx DosingPumpControl Process Variable xxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARDSProminentDosingHMI 									: ARRAY [1..iStnQty] OF DS_ProminentDosingHMI;
+	ARfbProminentDosingCtrl									: ARRAY [1..iStnQty] OF fbProminentDosingCtrl;
+
+	ARiStnPulseOnTime_ms									: ARRAY [1..iStnQty] OF INT;
+	ARiStnPulseOffTime_ms 									: ARRAY [1..iStnQty] OF INT;
+	ARiStnPumpFeedbackPulseInputFilter_ms 					: ARRAY [1..iStnQty] OF INT;
+	ARiStnPumpHealthCheckPulseSV 							: ARRAY [1..iStnQty] OF INT;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx Conveyor Motor Control xxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	ARrLdIndexPBDelayTimeSV_Sec 							: ARRAY [0..iLdStnQty] OF REAL;
+	ARrLdRapidPBDelayTimeSV_Sec 							: ARRAY [0..iLdStnQty] OF REAL;
+	ARrLdIndexConfirmDelayTimeSV_Sec 						: ARRAY [0..iLdStnQty] OF REAL;
+	ARrLdEndZoneDelayTimeSV_Sec 							: ARRAY [0..iLdStnQty] OF REAL;
+
+	ARrUldIndexPBDelayTimeSV_Sec 							: ARRAY [0..iUldStnQty] OF REAL;
+	ARrUldRapidPBDelayTimeSV_Sec 							: ARRAY [0..iUldStnQty] OF REAL;
+	ARrUldIndexConfirmDelayTimeSV_Sec 						: ARRAY [0..iUldStnQty] OF REAL;
+	ARrUldEndZoneDelayTimeSV_Sec 							: ARRAY [0..iUldStnQty] OF REAL;
+
+	diUnloadingTimer										: DINT;
+	iUldBasketDelayPushTimerSV_sec							: INT;
+	iUldBasketDelayPushTimeCountDown						: INT;
+	diLdReturnConvMotorDelayOffTimer						: DINT;
+	diUldReturnConvMotorDelayOffTimer						: DINT;
+
+	rLdConveyorPos1ConfirmDelayTimeSV_Sec 					: REAL;
+	rLdConveyorPos2ConfirmDelayTimeSV_Sec 					: REAL;
+	rLdConveyorPos3ConfirmDelayTimeSV_Sec 					: REAL;
+	rLdConveyorPos4ConfirmDelayTimeSV_Sec 					: REAL;
+
+	rLdConveyorPos1ConfirmDelayOnTimeSV_Sec 				: REAL;
+	rLdConveyorPos2ConfirmDelayOnTimeSV_Sec 				: REAL;
+	rLdConveyorPos3ConfirmDelayOnTimeSV_Sec 				: REAL;
+	rLdConveyorPos4ConfirmDelayOnTimeSV_Sec 				: REAL;
+	
+	rUldConveyorPos1ConfirmDelayTimeSV_Sec 					: REAL;
+	rUldConveyorPos2ConfirmDelayTimeSV_Sec 					: REAL;
+	rUldConveyorPos3ConfirmDelayTimeSV_Sec 					: REAL;
+	rUldConveyorPos4ConfirmDelayTimeSV_Sec 					: REAL;
+
+	rUldConveyorPos1ConfirmDelayOnTimeSV_Sec 				: REAL;
+	rUldConveyorPos2ConfirmDelayOnTimeSV_Sec 				: REAL;
+	rUldConveyorPos3ConfirmDelayOnTimeSV_Sec 				: REAL;
+	rUldConveyorPos4ConfirmDelayOnTimeSV_Sec 				: REAL;
+	
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxx General Process Variable xxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*======================================================================*)
+
+	ARiStnToleranceTimeSV									: ARRAY [0..iStnQty] OF INT;
+	ARiArmToleranceTimeSV									: ARRAY [0..iArmQty] OF INT;
+
+	ARbRecipeSelectedFlag									: ARRAY [1..iProductRecipeArrayQty] OF BOOL;
+
+    ARbOptionSelectedAutoTopupFlag							: ARRAY [1..iProductRecipeArrayQty] OF BOOL;
+    ARbOptionSelectedRecipeFlag								: ARRAY [1..iProductRecipeArrayQty] OF BOOL;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxx Arm related in Process xxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*======================================================================*)
+
+	tAllStnArmTake											: INT;
+	ARiStnDippingTimeSV										: ARRAY [1..iStnQty] OF INT;
+	iFFUDelayOffTimerSV_min									: INT;
+	iStnAgitation1DelayOffTimerSV_min						: INT;
+	iStnAgitation2DelayOffTimerSV_min						: INT;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx Valve related in Process  xxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+
+	iAllTankLowLevelDelayTimeSV 							: INT;
+	ARiStnTopUpDelayOffTimeSV								: ARRAY [1..iStnQty] OF INT;
+	ARiStnSubTankTopUpDelayOffTimeSV						: ARRAY [1..iStnQty] OF INT;
+
+	ARiStnTopUpMaxTimeCutOffSV								: ARRAY [1..iStnQty] OF INT;
+
+	iVacuumDrainSV											: INT;
+
+	bBasketPushBasedTimer									: BOOL;
+
+	ARbIncomingDIValveBasedDetergent						: ARRAY [1..iStnQty] OF BOOL;
+
+	iCylinderBasketBackDelayTimeSV							: INT;
+	iCylinderBasketFrontDelayTimeSV							: INT;
+
+	iStn3PumpHzSV											: INT;
+
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_HMI" Id="{7653bcfa-e821-4297-bcfd-accd3d24df67}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+	bAutoModeOnPB		:BOOL;
+	bAutoPrepareStatus		:BOOL;
+	bBarcodeRegisterPageON	:BOOL;
+	bManualModeOnPB	:BOOL;
+	bRecipeModeOnPB	:BOOL;
+	bRecipeSSUROnPB		:BOOL;
+	bRecipeSSEROnPB		:BOOL;
+	bRecipeBasicOnPB		:BOOL;
+	bRecipeBasic2OnPB		:BOOL;
+	bRecipeProductOnPB		:BOOL;
+	bRecipeOtherOnPB		:BOOL;
+	bRecipeTimeOptimizeOnPB:BOOL;
+	bRecipeArmSettingOnPB	:BOOL;
+	bRecipeArmSetting2OnPB	:BOOL;
+	bAlarmModeOnPB	:BOOL;
+	bUserModeOnPB		:BOOL;
+
+	bManualCalibrate		:BOOL;
+	bAutoModeOperationStatusPage:	BOOL;
+
+
+	bAutoModeOn	:BOOL;
+	bManualModeOn	:BOOL;
+	bRecipeModeOn	:BOOL;
+	bRecipeSSUROn	:BOOL;
+	bRecipeSSEROn	:BOOL;
+	bRecipeBasicOn	:BOOL;
+	bRecipeBasic2On	:BOOL;
+	bRecipeProductOn:BOOL;
+	bRecipeOtherOn	:BOOL;
+	bRecipeTimeOptimizeOn:BOOL;
+	bRecipeArmSettingOn	:BOOL;
+	bRecipeArmSetting2On:BOOL;
+	bAlarmModeOn	:BOOL;
+	bUserModeOn	:BOOL;
+	bSchematicPageOn :BOOL;
+
+	bManualModeOnLatch :BOOL;	(*to call Confirm Pop Up page Manual Out*)
+	bManualOutToAutoConfirmPageOn	:BOOL; (*Manual Out Pop Up Page to Auto On bit*)
+	bManualOutToRecipeConfirmPageOn	:BOOL; (*Manual Out Pop Up Page to Recipe On bit*)
+	bManualOutToUserConfirmPageOn	:BOOL; (*Manual Out Pop Up Page to User On bit*)
+	bManualOutLatchCfm				:BOOL; (*Use as a latch bit for timer to reset All Page bit On PB*)
+	
+	bManualModeOffLatch :BOOL;	(*to exit Confirm Pop Up page Manual Out*)
+	bManualOutToAutoConfirmPageOff	:BOOL; (*Manual Out Pop Up Page to Auto Off bit*)
+	bManualOutToRecipeConfirmPageOff	:BOOL; (*Manual Out Pop Up Page to Recipe Off bit*)
+	bManualOutToUserConfirmPageOff	:BOOL; (*Manual Out Pop Up Page to User Of bit*)
+
+
+
+
+	(*iStationNo		:INT;*)
+
+
+
+	bAutoModeOnRE		:R_TRIG;
+	bManualModeOnRE	:R_TRIG;
+	bRecipeModeOnRE	:R_TRIG;
+	bRecipeSSUROnRE	:R_TRIG;
+	bRecipeBasicOnRE	:R_TRIG;
+	bRecipeBasic2OnRE	:R_TRIG;
+	bRecipeSSEROnRE	:R_TRIG;
+	bRecipeProductOnRE   :R_TRIG;
+	bRecipeOtherOnRE	:R_TRIG;
+	bRecipeTimeOptimizeOnRE:R_TRIG;
+	bRecipeArmSettingOnRE	:R_TRIG;
+	bRecipeArmSetting2OnRE	:R_TRIG;
+	bAlarmModeOnRE	:R_TRIG;
+	bUserModeOnRE		:R_TRIG;
+
+	bLoadingPageSeqCompleteRE	:R_TRIG;
+	bManualModeOnLatchFE	:F_TRIG;
+
+
+(*Initial Loading Page Timer*)
+
+	bAutoModeOnTON	:TON;
+	bManualModeOnTON	:TON;
+	bRecipeModeOnTON	:TON;
+	bRecipeSSUROnTON	:TON;
+	bRecipeSSEROnTON	:TON;
+	bRecipeBasicOnTON	:TON;
+	bRecipeBasic2OnTON	:TON;
+	bRecipeProductOnTON:TON;
+	bRecipeOtherOnTON	:TON;
+	bRecipeTimeOptimizeOnTON:TON;
+	bRecipeArmSettingOnTON	:TON;
+	bRecipeArmSetting2OnTON :TON;
+	bAlarmModeOnTON	:TON;
+	bUserModeOnTON	:TON;
+	bManualOutLatchCfmTON 	:TON;
+
+
+	bAutoModeOnSeq	:BOOL;
+	bManualModeOnSeq	:BOOL;
+	bRecipeModeOnSeq	:BOOL;
+	bRecipeSSUROnSeq	:BOOL;
+	bRecipeSSEROnSeq	:BOOL;
+	bAlarmModeOnSeq	:BOOL;
+	bUserModeOnSeq	:BOOL;
+         bRecipeBasicOnSeq	:BOOL;
+         bRecipeBasic2OnSeq	:BOOL;
+         bRecipeProductOnSeq		:BOOL;
+	bRecipeOtherOnSeq		:BOOL;
+	bRecipeTimeOptimizeOnSeq:BOOL;
+	bRecipeArmSettingOnSeq	:BOOL;
+	bRecipeArmSetting2OnSeq	:BOOL;
+
+
+(*Password Save Confirm page*)
+	bSaveCfmPB: BOOL;
+	bSaveCfmPageOn: BOOL;
+	bSaveBufferPB:BOOL;
+	bSavePageCnfmOnRE: R_TRIG;
+	sUserPasswordSave: STRING;
+	tBackupDelayOffTimer: TON;
+	bIncorrectPswdOn: BOOL;
+	bSaveBufferPBRE: R_TRIG;
+
+
+
+(*Xml Execute Push Button*)
+	bExecuteWriteXml		: BOOL;
+	bExecuteReadXml	:BOOL;
+	bErrorReadXml		:BOOL;
+
+
+(*Secs\Gem Command Page Call*)
+
+	bSecGemsPageON 									:BOOL;
+
+(*Recipe Selection Mode*)
+
+	sRecipeSelectionStatus								:STRING;
+
+(*SECS\GEM Selection Mode Message*)
+
+	sSecGemSelectionButtonMessage						:STRING;
+
+	sRemotCommandStateMessage						:STRING;
+
+
+
+
+
+	bLoadingPageSeqComplete	:BOOL;
+	
+	ARdsMAP_HmiVariableStn		: ARRAY[1..iStnQty] OF DS_HMI_MappingVariable;
+	ARdsMAP_HmiVariableGeneral	: DS_HMI_MappingVariable;
+
+	
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

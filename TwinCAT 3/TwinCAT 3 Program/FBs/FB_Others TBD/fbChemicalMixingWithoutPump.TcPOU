@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbChemicalMixingWithoutPump" Id="{f0a176c8-627c-42bd-9d1d-b78df205331f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbChemicalMixingWithoutPump
+VAR_INPUT
+	bPreparation_Mode	: BOOL;
+	bAutoStart_Mode		: BOOL;
+	bBasketCounterIN		: BOOL;
+
+	bProTankLowLvl		: BOOL;
+	bSubTankLowLvl		: BOOL;
+	bSubTankMedLvl		: BOOL;
+	bSubTankHighLvl		: BOOL;
+
+END_VAR
+VAR_OUTPUT
+	bFillingValveOn		: BOOL;
+	bPumpOn			: BOOL;
+END_VAR
+VAR_IN_OUT
+
+	DS_ChemicalMixingTank	: DSChemicalWithoutDosingPump;
+
+END_VAR
+
+VAR PERSISTENT
+	iBasketCounter: INT;
+END_VAR
+VAR
+	i1stFill: INT;
+	iAutoMode: INT;
+
+	T_MixingTimer: TON;
+
+	R_AutoMode: R_TRIG;
+	R_ResetMode: R_TRIG;
+	R_1stFill: R_TRIG;
+	R_CounterAdd: R_TRIG;
+	R_1stFill_1: R_TRIG;
+	bChemical1stFillDone: BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[T_MixingTimer(IN:=i1stFill=4 , PT:=DINT_TO_TIME((DS_ChemicalMixingTank.IN_diMixingTime*1000)) , Q=> , ET=> );
+
+R_1stFill(CLK:=bPreparation_Mode  AND NOT bSubTankLowLvl  AND NOT bSubTankMedLvl AND NOT DS_ChemicalMixingTank.OUT_b1stFillCompleted AND NOT bChemical1stFillDone   , Q=> );
+R_1stFill_1(CLK:=bPreparation_Mode  AND bSubTankLowLvl  (*AND NOT bSubTankMedLvl*) , Q=> );
+R_AutoMode(CLK:=bPreparation_Mode AND bAutoStart_Mode AND bSubTankLowLvl  AND bSubTankMedLvl AND NOT DS_ChemicalMixingTank.IN_bBasketResetQty AND DS_ChemicalMixingTank.OUT_b1stFillCompleted   , Q=> );
+R_ResetMode(CLK:=DS_ChemicalMixingTank.IN_bBasketResetQty (*OR  (DS_ChemicalMixingTank.OUT_b1stLimitBasketAlarm OR DS_ChemicalMixingTank.OUT_b2ndLimitBasketAlarm)*)   , Q=> );
+R_CounterAdd(CLK:=bAutoStart_Mode AND bBasketCounterIN , Q=> );
+
+
+DS_ChemicalMixingTank.OUT_iCurrentBasketQty := iBasketCounter ;
+
+IF R_AutoMode.Q THEN
+	i1stFill :=6;
+END_IF
+
+IF R_ResetMode.Q THEN
+iBasketCounter := 0;
+END_IF
+
+IF R_1stFill.Q THEN
+	i1stFill := 1;
+END_IF
+
+IF bSubTankHighLvl THEN
+	i1stFill := 5;
+END_IF
+
+
+IF NOT bPreparation_Mode AND NOT bAutoStart_Mode THEN
+	i1stFill := 99;
+END_IF
+
+
+IF R_1stFill_1.Q THEN
+	i1stFill := 3;
+END_IF
+
+CASE i1stFill OF
+
+0:;
+
+1:
+	bFillingValveOn := TRUE;
+
+	IF bProTankLowLvl AND bSubTankLowLvl AND NOT bSubTankMedLvl AND NOT bChemical1stFillDone THEN
+		i1stFill := 2;
+	END_IF
+
+2:
+	bFillingValveOn := FALSE;
+	DS_ChemicalMixingTank.OUT_b1stFillChemicalTopUpBit := TRUE;
+
+	IF DS_ChemicalMixingTank.IN_bChemicalTopUpNotice THEN
+		bChemical1stFillDone	:= TRUE;
+		i1stFill := 3;
+	END_IF
+
+3:
+	DS_ChemicalMixingTank.OUT_b1stFillChemicalTopUpBit := FALSE;
+
+	IF NOT bSubTankMedLvl THEN
+		bFillingValveOn := TRUE;
+	ELSE
+		i1stFill := 4;
+	END_IF
+
+4:
+	bFillingValveOn := FALSE;
+	bPumpOn := TRUE;
+
+	IF T_MixingTimer.Q THEN
+		i1stFill := 5;
+	END_IF
+
+
+5:
+	DS_ChemicalMixingTank.OUT_b1stFillCompleted := TRUE;
+	bPumpOn := FALSE;
+	bFillingValveOn := FALSE;
+	DS_ChemicalMixingTank.OUT_b1stFillChemicalTopUpBit := FALSE;
+
+	i1stFill := 0;
+
+7:
+
+	i1stFill := 0;
+
+
+99:
+	bFillingValveOn := FALSE;
+	bPumpOn := FALSE;
+	DS_ChemicalMixingTank.OUT_b1stFillChemicalTopUpBit := FALSE;
+	DS_ChemicalMixingTank.OUT_b1stFillCompleted := FALSE;
+	bChemical1stFillDone	:= FALSE;
+
+END_CASE
+
+	IF R_CounterAdd.Q THEN
+		iBasketCounter := iBasketCounter + 1;
+	END_IF
+
+	IF iBasketCounter > DS_ChemicalMixingTank.IN_i1stLimitBasketQty THEN
+		DS_ChemicalMixingTank.OUT_b1stLimitBasketAlarm := TRUE;
+	END_IF
+
+	IF iBasketCounter > DS_ChemicalMixingTank.IN_i2ndLimitBasketQty THEN
+		DS_ChemicalMixingTank.OUT_b2ndLimitBasketAlarm := TRUE;
+	END_IF
+
+	IF iBasketCounter <= 0 THEN
+		DS_ChemicalMixingTank.OUT_b1stLimitBasketAlarm := FALSE;
+		DS_ChemicalMixingTank.OUT_b2ndLimitBasketAlarm := FALSE;
+	END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbChemicalMixingWithoutPump">
+      <LineId Id="38" Count="112" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_DryerCoolingCtrl" Id="{f79ca498-7917-4b7c-9131-cdb81693e3c7}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_DryerCoolingCtrl
+VAR_INPUT
+	bDelayTimeEn : BOOL;
+	bBelowTemperatureRangeEn : BOOL;
+	rTemperaturePV : REAL;
+	rCoolingTemperatureSV : REAL;
+(*	bBlowerOnOffStatus: BOOL;*)
+	bHeaterOnOffStatus : BOOL;
+	bReset : BOOL;
+END_VAR
+
+VAR_IN_OUT
+	iHeaterOnTimeActivation_Sec : INT;
+	iBlowerDelayOffTime_Min : INT;
+END_VAR
+
+VAR_OUTPUT
+	bBlowerOn : BOOL;
+	iHeaterOnDelayTimePV_Sec : INT;
+	iDelayTimePV_Min : INT;
+	iDelayTimePV_Sec : INT;
+	sStatus : STRING;
+END_VAR
+
+VAR
+	bBlowerOnOffRE : R_TRIG;
+	bBlowerOnOffFE : F_TRIG;
+	bHeaterOnOffRE : R_TRIG;
+	bHeaterOnOffFE : F_TRIG;
+	iDelayTimePV_Sec_int: INT;
+	iDelayTimePV_Min_int: INT;
+
+END_VAR
+
+
+VAR PERSISTENT
+	tHeaterOnDelayTimer: TON;
+	tBlowerDelayOffTimer: TON;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Limit Ctrl*)
+IF iHeaterOnTimeActivation_Sec < 5 THEN iHeaterOnTimeActivation_Sec := 5; END_IF
+IF iHeaterOnTimeActivation_Sec > 30 THEN iHeaterOnTimeActivation_Sec := 30; END_IF
+IF iBlowerDelayOffTime_Min < 20 THEN iBlowerDelayOffTime_Min := 20; END_IF
+IF iBlowerDelayOffTime_Min > 600 THEN iBlowerDelayOffTime_Min := 600; END_IF
+
+(*R_TRIG & F_TRIG Ctrl*)
+
+(*bBlowerOnOffRE(CLK:= bBlowerOnOffStatus, Q=> );
+bBlowerOnOffFE(CLK:= bBlowerOnOffStatus, Q=> );*)
+bHeaterOnOffRE(CLK:= tHeaterOnDelayTimer.Q, Q=> );
+bHeaterOnOffFE(CLK:= tHeaterOnDelayTimer.Q, Q=> );
+
+(*Timer Ctrl*)
+tHeaterOnDelayTimer(IN:=(bBelowTemperatureRangeEn OR bDelayTimeEn) AND  bHeaterOnOffStatus AND NOT bReset , PT:=DINT_TO_TIME(INT_TO_DINT(iHeaterOnTimeActivation_Sec)*1000) , Q=> , ET=> );
+tBlowerDelayOffTimer(IN:=bBlowerOn AND NOT bHeaterOnOffStatus , PT:=DINT_TO_TIME(INT_TO_DINT(iBlowerDelayOffTime_Min)*60*1000) , Q=> , ET=> );
+
+
+IF ((bDelayTimeEn OR bBelowTemperatureRangeEn)AND  tHeaterOnDelayTimer.Q)  THEN
+bBlowerOn := TRUE;
+END_IF
+
+
+IF ((bDelayTimeEn AND tBlowerDelayOffTimer.Q) OR NOT bDelayTimeEn) AND((bBelowTemperatureRangeEn AND (rCoolingTemperatureSV >= rTemperaturePV)) OR NOT bBelowTemperatureRangeEn)  THEN
+bBlowerOn := FALSE;
+END_IF
+
+
+
+(*EV Display*)
+iHeaterOnDelayTimePV_Sec := DINT_TO_INT(INT_TO_DINT(iHeaterOnTimeActivation_Sec) - TIME_TO_DINT(tHeaterOnDelayTimer.ET/1000));
+iDelayTimePV_Min_int := DINT_TO_INT(INT_TO_DINT(iBlowerDelayOffTime_Min) - TIME_TO_DINT(tBlowerDelayOffTimer.ET/1000/60));
+
+iDelayTimePV_Sec_int := 60 - (DINT_TO_INT( (TIME_TO_DINT(tBlowerDelayOffTimer.ET/1000)) - (TIME_TO_DINT(tBlowerDelayOffTimer.ET/1000/60)*60) ) );
+
+IF iDelayTimePV_Sec_int >= 60 THEN
+iDelayTimePV_Sec := 0;
+iDelayTimePV_Min := iDelayTimePV_Min_int ;
+ELSE
+iDelayTimePV_Sec := iDelayTimePV_Sec_int;
+iDelayTimePV_Min := iDelayTimePV_Min_int-1;
+
+END_IF
+
+IF bReset THEN
+bBlowerOn := FALSE;
+END_IF
+
+(*Status Display*)
+IF NOT bDelayTimeEn AND NOT bBelowTemperatureRangeEn THEN
+sStatus := 'Disable Mode';
+ELSIF NOT bBlowerOn THEN
+sStatus := CONCAT(CONCAT('Idle Mode - Waiting Heater On Delay ',INT_TO_STRING(iHeaterOnDelayTimePV_Sec)),' Sec');
+ELSIF bBlowerOn AND bHeaterOnOffStatus THEN
+sStatus := 'Process Mode - Waiting Heater Off';
+ELSIF bDelayTimeEn AND bBlowerOn AND NOT bHeaterOnOffStatus AND (iDelayTimePV_Sec > 0 OR iDelayTimePV_Min >0) THEN
+sStatus := CONCAT(CONCAT(CONCAT(CONCAT('Delay Off Mode - ',INT_TO_STRING(iDelayTimePV_Min)),' Min, '), INT_TO_STRING(iDelayTimePV_Sec)), ' Sec');
+ELSIF bBelowTemperatureRangeEn  AND bBlowerOn AND NOT bHeaterOnOffStatus AND rCoolingTemperatureSV < rTemperaturePV THEN
+sStatus := 'Delay Off Mode - Waiting Temperature Below Cooling Set Point';
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_DryerCoolingCtrl">
+      <LineId Id="40" Count="59" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

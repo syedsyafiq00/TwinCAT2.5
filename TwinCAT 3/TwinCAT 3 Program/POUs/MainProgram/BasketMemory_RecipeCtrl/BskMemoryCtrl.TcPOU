@@ -1,0 +1,418 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="BskMemoryCtrl" Id="{94214961-738c-4b07-86be-80b49a688824}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM BskMemoryCtrl
+VAR
+
+	iMFL: INT;
+	iSFL: INT;
+	ARbLdBasketClearPb: ARRAY [1..iLdStnQty] OF BOOL;
+	ARbUldBasketClearPb: ARRAY [1..iUldStnQty] OF BOOL;
+	ARbLdBasketClearPbRE: R_TRIG;
+	ARbUld1BasketClearPbRE: R_TRIG;
+	ARbUld2BasketClearPbRE: R_TRIG;
+
+	bCvLdBasket3ConfirmRE: R_TRIG;
+	bCvLdBasket3ConfirmFE: F_TRIG;
+
+	bCvUld1Basket1ConfirmRE: R_TRIG;
+	bCvUld1Basket1ConfirmFE: F_TRIG;
+
+	bCvUld2Basket1ConfirmRE: R_TRIG;
+	bCvUld2Basket1ConfirmFE: F_TRIG;
+
+	DSV2BasketInfoEmpty: DSV2_BasketInfo;
+	ARsBarcodeDataEmpty : ARRAY [0..10] OF STRING(99); (* Byte "n+400~n+499" *)
+	DSV2MinMaxEffTimeEmpty : DSV2_MinMaxEffTime;
+	Nothing: BOOL;
+	Nothing2: BOOL;
+
+
+	(*Added for Basket Memory Control*)
+(*	iLdStnQty								: INT := 1;							(* To Define Loading Group Set - How many set of Loading Conveyor*)
+	iUldStnQty								: INT := 1;							(* To Define Unloading Group Set - How many set of Unloading Conveyor*)
+	iCvLdQty									: INT := 1;
+	iCvUldQty								: INT := 1;
+	iStnQty 									: INT := 10;						(* To change the Qty of Array*)
+	iArmQty 									: INT := 1; 						(* ArmQty must lesser than StnQty*)
+*)
+(*
+	fbBasketInfoManagerCfm_STN : ARRAY [0..iStnQty] OF fbV2_BasketInfoManager;
+
+	fbBasketInfoManagerCfm_ARM : ARRAY [0..iArmQty] OF fbV2_BasketInfoManager;
+
+
+	DSLdBasketInfoConfirm 				: ARRAY [0..iLdStnQty] OF DSV2_BasketInfo;
+	DSLdBasketInfoTransfer 				: ARRAY [0..iLdStnQty] OF DSV2_BasketInfo;
+
+	DSUldBasketInfoConfirm 				: ARRAY [0..iUldStnQty] OF DSV2_BasketInfo;
+	DSUldBasketInfoTransfer 				: ARRAY [0..iUldStnQty] OF DSV2_BasketInfo;
+
+	DSStnBasketInfo						: ARRAY [0..iStnQty] OF DSV2_BasketInfo;
+	DSArmBasketInfo 						: ARRAY [0..iArmQty] OF DSV2_BasketInfo;
+
+*)
+
+	iBMFL: INT;
+	iBMSFL: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*xxxxxxxxxxxxxxxxxxxxxxxxx Basket Memory Clear - Loading / Unloading Control xxxxxxxxxxxxxxxxxxxxxxxxx*)
+ARbLdBasketClearPbRE(CLK:= ARbLdBasketClearPb[1] , Q=> );
+ARbUld1BasketClearPbRE(CLK:= ARbUldBasketClearPb[1] , Q=> );
+(*ARbUld2BasketClearPbRE(CLK:= ARbUldBasketClearPb[2] , Q=> );*)
+
+IF ARbLdBasketClearPbRE.Q THEN
+		iSFL :=1;
+			FOR iSFL := 1 TO iCvLdQty DO
+				IF iSFL >= 1 AND iSFL <= iCvLdQty THEN
+					AR2sDSCv_LdConfirmBasketInfo[1, iSFL].iProductRecipeNo := 0;
+					AR2sDSCv_LdTransferBasketInfo[1,iSFL].iProductRecipeNo := 0;
+				END_IF
+			END_FOR
+END_IF
+
+IF ARbUld1BasketClearPbRE.Q THEN
+		iSFL :=1;
+			FOR iSFL := 1 TO iCvUldQty DO
+				IF iSFL >= 1 AND iSFL <= iCvUldQty THEN
+					AR2sDSCv_UldConfirmBasketInfo[1, iSFL].iProductRecipeNo := 0;
+					AR2sDSCv_UldTransferBasketInfo[1,iSFL].iProductRecipeNo := 0;
+				END_IF
+			END_FOR
+END_IF
+
+
+(*
+IF ARbUld2BasketClearPbRE.Q THEN
+		iSFL :=1;
+			FOR iSFL := 1 TO iCvUldQty DO
+				IF iSFL >= 1 AND iSFL <= iCvUldQty THEN
+					AR2sDSCv_UldConfirmBasketInfo[2, iSFL].iProductRecipeNo := 0;
+					AR2sDSCv_UldTransferBasketInfo[2,iSFL].iProductRecipeNo := 0;
+				END_IF
+			END_FOR
+END_IF
+*)
+
+(*xxxxxxxxxxxxxxxxxxxxxxxxx Basket Memory  - Loading Conveyor "AR2sDSCv_LdConfirmBasketInfo" MOVE to " DSLdBasketInfoConfirm Control"xxxxxxxxxxxxxxxxxxxxxxxxx*)
+
+bCvLdBasket3ConfirmRE(CLK:=AR2sDSCv_LdConfirmBasketInfo[1,4].bAvailibility , Q=> );
+IF bCvLdBasket3ConfirmRE.Q OR fbBasketInfoManagerCfm_LDCV[1,4].bRecipeChangedFlag OR fbBasketInfoManagerCfm_LDCV[1,4].bMinMaxEffChangeFlag THEN
+DSLdBasketInfoConfirm[1] := AR2sDSCv_LdConfirmBasketInfo[1,4];
+END_IF
+
+bCvLdBasket3ConfirmFE(CLK:=AR2sDSCv_LdConfirmBasketInfo[1,4].bAvailibility , Q=> );
+IF bCvLdBasket3ConfirmFE.Q THEN
+DSLdBasketInfoConfirm[1] := DSV2BasketInfoEmpty;
+END_IF
+
+(*xxxxxxxxxxxxxxxxxxxxxxxxx Basket Memory  - Unloading Conveyor "AR2sDSCv_UldConfirmBasketInfo" MOVE to " DSUldBasketInfoConfirm Control"xxxxxxxxxxxxxxxxxxxxxxxxx*)
+
+bCvUld1Basket1ConfirmRE(CLK:=AR2sDSCv_UldConfirmBasketInfo[1,1].bAvailibility , Q=> );
+IF bCvUld1Basket1ConfirmRE.Q THEN
+DSUldBasketInfoConfirm[1] := AR2sDSCv_UldConfirmBasketInfo[1,1];
+END_IF
+
+
+bCvUld1Basket1ConfirmFE(CLK:=AR2sDSCv_UldConfirmBasketInfo[1,1].bAvailibility , Q=> );
+IF bCvUld1Basket1ConfirmFE.Q THEN
+DSUldBasketInfoConfirm[1] := DSV2BasketInfoEmpty;
+END_IF
+
+
+(*xxxxxxxxxxxxxxxxxxxxxxxxx Basket Memory  - Loading - Station - Unloading Control xxxxxxxxxxxxxxxxxxxxxxxxx*)
+
+
+iBMFL := 1;
+FOR iBMFL := 1 TO iLdStnQty DO
+	IF iBMFL >= 1 AND iBMFL <= iLdStnQty THEN
+		iBMSFL := 1;
+		FOR iBMSFL := 1 TO iCvLdQty DO
+			IF iBMSFL >= 1 AND iBMSFL <= iCvLdQty THEN
+				fbBasketInfoManagerCfm_LDCV[iBMFL,iBMSFL](iRecipeChangeFlagDelayTime_Sec:=0.3 , DSV2BasketInfo:=AR2sDSCv_LdConfirmBasketInfo[iBMFL,iBMSFL] , bRecipeChangedFlag=> );
+				fbBasketInfoManagerTrf_LDCV[iBMFL,iBMSFL](iRecipeChangeFlagDelayTime_Sec:=0.3 , DSV2BasketInfo:=AR2sDSCv_LdTransferBasketInfo[iBMFL,iBMSFL] , bRecipeChangedFlag=> );
+			END_IF
+		END_FOR
+	END_IF
+END_FOR
+
+iBMFL := 1;
+FOR iBMFL := 1 TO iUldStnQty DO
+	IF iBMFL >= 1 AND iBMFL <= iUldStnQty THEN
+		iBMSFL := 1;
+		FOR iBMSFL := 1 TO iCvUldQty DO
+			IF iBMSFL >= 1 AND iBMSFL <= iCvUldQty THEN
+				fbBasketInfoManagerCfm_ULDCV[iBMFL,iBMSFL](iRecipeChangeFlagDelayTime_Sec:=0.3 , DSV2BasketInfo:=AR2sDSCv_UldConfirmBasketInfo[iBMFL,iBMSFL] , bRecipeChangedFlag=> );
+				fbBasketInfoManagerTrf_ULDCV[iBMFL,iBMSFL](iRecipeChangeFlagDelayTime_Sec:=0.3 , DSV2BasketInfo:=AR2sDSCv_UldTransferBasketInfo[iBMFL,iBMSFL] , bRecipeChangedFlag=> );
+			END_IF
+		END_FOR
+	END_IF
+END_FOR
+
+iBMFL := 1;
+FOR iBMFL := 1 TO iLdStnQty DO
+	IF iBMFL >= 1 AND iBMFL <= iLdStnQty THEN
+		fbBasketInfoManagerCfm_LD[iBMFL](iRecipeChangeFlagDelayTime_Sec:=0.3 , DSV2BasketInfo:=DSLdBasketInfoConfirm[iBMFL] , bRecipeChangedFlag=> );
+		fbBasketInfoManagerTrf_LD[iBMFL](iRecipeChangeFlagDelayTime_Sec:=0.3 , DSV2BasketInfo:=DSLdBasketInfoTransfer[iBMFL] , bRecipeChangedFlag=> );
+	END_IF
+END_FOR
+
+iBMFL := 1;
+FOR iBMFL := 1 TO iUldStnQty DO
+	IF iBMFL >= 1 AND iBMFL <= iUldStnQty THEN
+		fbBasketInfoManagerCfm_ULD[iBMFL](iRecipeChangeFlagDelayTime_Sec:=0.3 , DSV2BasketInfo:=DSUldBasketInfoConfirm[iBMFL] , bRecipeChangedFlag=> );
+		fbBasketInfoManagerTrf_ULD[iBMFL](iRecipeChangeFlagDelayTime_Sec:=0.3 , DSV2BasketInfo:=DSUldBasketInfoTransfer[iBMFL] , bRecipeChangedFlag=> );
+	END_IF
+END_FOR
+
+
+iBMFL := 1;
+FOR iBMFL := 1 TO iStnQty DO
+	IF iBMFL >= 1 AND iBMFL <= iStnQty THEN
+		fbBasketInfoManagerCfm_STN[iBMFL](iRecipeChangeFlagDelayTime_Sec:=0.3 , DSV2BasketInfo:=DSStnBasketInfo[iBMFL] , bRecipeChangedFlag=> );
+	END_IF
+END_FOR
+
+iBMFL := 1;
+FOR iBMFL := 1 TO iArmQty DO
+	IF iBMFL >= 1 AND iBMFL <= iArmQty THEN
+		fbBasketInfoManagerCfm_ARM[iBMFL](iRecipeChangeFlagDelayTime_Sec:=0.3 , DSV2BasketInfo:=DSArmBasketInfo[iBMFL] , bRecipeChangedFlag=> );
+	END_IF
+END_FOR
+
+
+IF AR2sDSCv_LdConfirmBasketInfo[1,4].bAvailibility AND AR2sDSCv_LdConfirmBasketInfo[1,4].sProductQuality ='GOOD' THEN
+ARbBasketGdFlag[1] := TRUE;
+ELSE
+ARbBasketGdFlag[1] := FALSE;
+END_IF
+
+
+IF DSStnBasketInfo[1].bAvailibility AND DSStnBasketInfo[1].sProductQuality ='GOOD' THEN
+ARbBasketGdFlag[2] := TRUE;
+ELSE
+ARbBasketGdFlag[2] := FALSE;
+END_IF
+
+IF DSStnBasketInfo[2].bAvailibility AND DSStnBasketInfo[2].sProductQuality ='GOOD' THEN
+ARbBasketGdFlag[3] := TRUE;
+ELSE
+ARbBasketGdFlag[3] := FALSE;
+END_IF
+
+IF DSStnBasketInfo[3].bAvailibility AND DSStnBasketInfo[3].sProductQuality ='GOOD' THEN
+ARbBasketGdFlag[4] := TRUE;
+ELSE
+ARbBasketGdFlag[4] := FALSE;
+END_IF
+
+IF DSStnBasketInfo[4].bAvailibility AND DSStnBasketInfo[4].sProductQuality ='GOOD' THEN
+ARbBasketGdFlag[5] := TRUE;
+ELSE
+ARbBasketGdFlag[5] := FALSE;
+END_IF
+
+IF DSStnBasketInfo[5].bAvailibility AND DSStnBasketInfo[5].sProductQuality ='GOOD' THEN
+ARbBasketGdFlag[6] := TRUE;
+ELSE
+ARbBasketGdFlag[6] := FALSE;
+END_IF
+
+IF DSStnBasketInfo[6].bAvailibility AND DSStnBasketInfo[6].sProductQuality ='GOOD' THEN
+ARbBasketGdFlag[7] := TRUE;
+ELSE
+ARbBasketGdFlag[7] := FALSE;
+END_IF
+
+IF DSStnBasketInfo[7].bAvailibility AND DSStnBasketInfo[7].sProductQuality ='GOOD' THEN
+ARbBasketGdFlag[8] := TRUE;
+ELSE
+ARbBasketGdFlag[8] := FALSE;
+END_IF
+
+IF DSStnBasketInfo[8].bAvailibility AND DSStnBasketInfo[8].sProductQuality ='GOOD' THEN
+ARbBasketGdFlag[9] := TRUE;
+ELSE
+ARbBasketGdFlag[9] := FALSE;
+END_IF
+
+IF DSStnBasketInfo[9].bAvailibility AND DSStnBasketInfo[9].sProductQuality ='GOOD' THEN
+ARbBasketGdFlag[10] := TRUE;
+ELSE
+ARbBasketGdFlag[10] := FALSE;
+END_IF
+
+IF DSStnBasketInfo[10].bAvailibility AND DSStnBasketInfo[10].sProductQuality ='GOOD' THEN
+ARbBasketGdFlag[11] := TRUE;
+ELSE
+ARbBasketGdFlag[11] := FALSE;
+END_IF
+
+IF AR2sDSCv_UldConfirmBasketInfo[1,1].bAvailibility AND AR2sDSCv_UldConfirmBasketInfo[1,1].sProductQuality ='GOOD' THEN
+ARbBasketGdFlag[12] := TRUE;
+ELSE
+ARbBasketGdFlag[12] := FALSE;
+END_IF
+
+IF AR2sDSCv_UldConfirmBasketInfo[1,2].bAvailibility AND AR2sDSCv_UldConfirmBasketInfo[1,2].sProductQuality ='GOOD' THEN
+ARbBasketGdFlag[13] := TRUE;
+ELSE
+ARbBasketGdFlag[13] := FALSE;
+END_IF
+
+IF AR2sDSCv_UldConfirmBasketInfo[1,3].bAvailibility AND AR2sDSCv_UldConfirmBasketInfo[1,3].sProductQuality ='GOOD' THEN
+ARbBasketGdFlag[14] := TRUE;
+ELSE
+ARbBasketGdFlag[14] := FALSE;
+END_IF
+
+IF AR2sDSCv_UldConfirmBasketInfo[1,4].bAvailibility AND AR2sDSCv_UldConfirmBasketInfo[1,4].sProductQuality ='GOOD' THEN
+ARbBasketGdFlag[15] := TRUE;
+ELSE
+ARbBasketGdFlag[15] := FALSE;
+END_IF
+(*
+IF AR2sDSCv_UldConfirmBasketInfo[1,5].bAvailibility AND AR2sDSCv_UldConfirmBasketInfo[1,5].sProductQuality ='GOOD' THEN
+ARbBasketGdFlag[16] := TRUE;
+ELSE
+ARbBasketGdFlag[16] := FALSE;
+END_IF
+*)
+
+IF DSArmBasketInfo[1].bAvailibility AND DSArmBasketInfo[1].sProductQuality ='GOOD' THEN
+ARbBasketGdFlag[16] := TRUE;
+ELSE
+ARbBasketGdFlag[16] := FALSE;
+END_IF
+
+(*
+IF DSArmBasketInfo[2].bAvailibility AND DSArmBasketInfo[2].sProductQuality ='GOOD' THEN
+ARbBasketGdFlag[18] := TRUE;
+ELSE
+ARbBasketGdFlag[18] := FALSE;
+END_IF
+*)
+
+
+IF DSStnBasketInfo[1].bAvailibility AND DSStnBasketInfo[1].sProductQuality ='BAD' THEN
+ARbBasketBdFlag[2] := TRUE;
+ELSE
+ARbBasketBdFlag[2] := FALSE;
+END_IF
+
+IF DSStnBasketInfo[2].bAvailibility AND DSStnBasketInfo[2].sProductQuality ='BAD' THEN
+ARbBasketBdFlag[3] := TRUE;
+ELSE
+ARbBasketBdFlag[3] := FALSE;
+END_IF
+
+IF DSStnBasketInfo[3].bAvailibility AND DSStnBasketInfo[3].sProductQuality ='BAD' THEN
+ARbBasketBdFlag[4] := TRUE;
+ELSE
+ARbBasketBdFlag[4] := FALSE;
+END_IF
+
+IF DSStnBasketInfo[4].bAvailibility AND DSStnBasketInfo[4].sProductQuality ='BAD' THEN
+ARbBasketBdFlag[5] := TRUE;
+ELSE
+ARbBasketBdFlag[5] := FALSE;
+END_IF
+
+IF DSStnBasketInfo[5].bAvailibility AND DSStnBasketInfo[5].sProductQuality ='BAD' THEN
+ARbBasketBdFlag[6] := TRUE;
+ELSE
+ARbBasketBdFlag[6] := FALSE;
+END_IF
+
+IF DSStnBasketInfo[6].bAvailibility AND DSStnBasketInfo[6].sProductQuality ='BAD' THEN
+ARbBasketBdFlag[7] := TRUE;
+ELSE
+ARbBasketBdFlag[7] := FALSE;
+END_IF
+
+IF DSStnBasketInfo[7].bAvailibility AND DSStnBasketInfo[7].sProductQuality ='BAD' THEN
+ARbBasketBdFlag[8] := TRUE;
+ELSE
+ARbBasketBdFlag[8] := FALSE;
+END_IF
+
+IF DSStnBasketInfo[8].bAvailibility AND DSStnBasketInfo[8].sProductQuality ='BAD' THEN
+ARbBasketBdFlag[9] := TRUE;
+ELSE
+ARbBasketBdFlag[9] := FALSE;
+END_IF
+
+IF DSStnBasketInfo[9].bAvailibility AND DSStnBasketInfo[9].sProductQuality ='BAD' THEN
+ARbBasketBdFlag[10] := TRUE;
+ELSE
+ARbBasketBdFlag[10] := FALSE;
+END_IF
+
+IF DSStnBasketInfo[10].bAvailibility AND DSStnBasketInfo[10].sProductQuality ='BAD' THEN
+ARbBasketBdFlag[11] := TRUE;
+ELSE
+ARbBasketBdFlag[11] := FALSE;
+END_IF
+(*
+IF DSStnBasketInfo[11].bAvailibility AND DSStnBasketInfo[11].sProductQuality ='BAD' THEN
+ARbBasketBdFlag[12] := TRUE;
+ELSE
+ARbBasketBdFlag[12] := FALSE;
+END_IF
+
+IF DSStnBasketInfo[12].bAvailibility AND DSStnBasketInfo[12].sProductQuality ='BAD' THEN
+ARbBasketBdFlag[13] := TRUE;
+ELSE
+ARbBasketBdFlag[13] := FALSE;
+END_IF
+*)
+
+IF AR2sDSCv_UldConfirmBasketInfo[1,1].bAvailibility AND AR2sDSCv_UldConfirmBasketInfo[1,1].sProductQuality ='BAD' THEN
+ARbBasketBdFlag[12] := TRUE;
+ELSE
+ARbBasketBdFlag[12] := FALSE;
+END_IF
+
+IF AR2sDSCv_UldConfirmBasketInfo[1,2].bAvailibility AND AR2sDSCv_UldConfirmBasketInfo[1,2].sProductQuality ='BAD' THEN
+ARbBasketBdFlag[13] := TRUE;
+ELSE
+ARbBasketBdFlag[13] := FALSE;
+END_IF
+
+IF AR2sDSCv_UldConfirmBasketInfo[1,3].bAvailibility AND AR2sDSCv_UldConfirmBasketInfo[1,3].sProductQuality ='BAD' THEN
+ARbBasketBdFlag[14] := TRUE;
+ELSE
+ARbBasketBdFlag[14] := FALSE;
+END_IF
+
+IF AR2sDSCv_UldConfirmBasketInfo[1,4].bAvailibility AND AR2sDSCv_UldConfirmBasketInfo[1,4].sProductQuality ='BAD' THEN
+ARbBasketBdFlag[15] := TRUE;
+ELSE
+ARbBasketBdFlag[15] := FALSE;
+END_IF
+
+IF DSArmBasketInfo[1].bAvailibility AND DSArmBasketInfo[1].sProductQuality ='BAD' THEN
+ARbBasketBdFlag[16] := TRUE;
+ELSE
+ARbBasketBdFlag[16] := FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="BskMemoryCtrl">
+      <LineId Id="55" Count="266" />
+      <LineId Id="396" Count="4" />
+      <LineId Id="322" Count="0" />
+      <LineId Id="402" Count="5" />
+      <LineId Id="401" Count="0" />
+      <LineId Id="408" Count="10" />
+      <LineId Id="420" Count="5" />
+      <LineId Id="427" Count="11" />
+      <LineId Id="426" Count="0" />
+      <LineId Id="323" Count="17" />
+      <LineId Id="439" Count="4" />
+      <LineId Id="341" Count="0" />
+      <LineId Id="500" Count="4" />
+      <LineId Id="498" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

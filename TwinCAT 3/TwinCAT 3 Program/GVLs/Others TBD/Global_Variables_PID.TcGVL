@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Variables_PID" Id="{8733b371-c215-4187-8723-b85df6eac4df}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+	No_input							: INT;
+	Ratio								: INT;
+	InvRatio							: INT;
+
+	Stn1FlowRawData				: INT;
+	Stn2FlowRawData				: INT;
+	Stn3FlowRawData				: INT;
+	Stn4FlowRawData				: INT;
+	Stn5FlowRawData				: INT;
+	Stn6FlowRawData				: INT;
+	Stn7FlowRawData				: INT;
+	ARiStnFlowRawData				: ARRAY [1..iStnQty] OF INT;
+
+	Stn1ActualFlowRawData		: INT;
+	Stn2ActualFlowRawData		: INT;
+	Stn3ActualFlowRawData		: INT;
+	Stn4ActualFlowRawData		: INT;
+	Stn5ActualFlowRawData		: INT;
+	Stn6ActualFlowRawData		: INT;
+	Stn7ActualFlowRawData		: INT;
+	ARiStnActualFlowRawData	: ARRAY [1..iStnQty] OF INT;
+
+
+	Stn1U_SonicOn				: BOOL;
+	Stn2U_SonicOn				: BOOL;
+	Stn3U_SonicOn				: BOOL;
+	Stn4U_SonicOn				: BOOL;
+	Stn5U_SonicOn				: BOOL;
+	Stn6U_SonicOn				: BOOL;
+	Stn7U_SonicOn				: BOOL;
+	ARiStnU_SonicOn			: ARRAY [1..iStnQty] OF BOOL;
+
+	Pump1_Freq_Reading			: REAL;
+	Pump2_Freq_Reading			: REAL;
+	Pump3_Freq_Reading			: REAL;
+	Pump4_Freq_Reading			: REAL;
+	Pump5_Freq_Reading			: REAL;
+	Pump6_Freq_Reading			: REAL;
+	Pump7_Freq_Reading			: REAL;
+
+	Pump1_Freq_Actual			: INT;
+	Pump2_Freq_Actual			: INT;
+	Pump3_Freq_Actual			: INT;
+	Pump4_Freq_Actual			: INT;
+	Pump5_Freq_Actual			: INT;
+	Pump6_Freq_Actual			: INT;
+	Pump7_Freq_Actual			: INT;
+
+	Pump1_Freq_Reading_Raw	: INT;
+	Pump2_Freq_Reading_Raw	: INT;
+	Pump3_Freq_Reading_Raw	: INT;
+	Pump4_Freq_Reading_Raw	: INT;
+	Pump5_Freq_Reading_Raw	: INT;
+	Pump6_Freq_Reading_Raw	: INT;
+	Pump7_Freq_Reading_Raw	: INT;
+
+	Stn1Actual_LPM				: INT;
+	Stn2Actual_LPM				: INT;
+	Stn3Actual_LPM				: INT;
+	Stn4Actual_LPM				: INT;
+	Stn5Actual_LPM				: INT;
+	Stn6Actual_LPM				: INT;
+	Stn7Actual_LPM				: INT;
+
+	Pump1FlowAlarm				: BOOL;
+	Pump2FlowAlarm				: BOOL;
+	Pump3FlowAlarm				: BOOL;
+	Pump4FlowAlarm				: BOOL;
+	Pump5FlowAlarm				: BOOL;
+	Pump6FlowAlarm				: BOOL;
+	Pump7FlowAlarm				: BOOL;
+	
+	//Heater
+	Stn8TempRawData				: INT;
+	Stn9TempRawData				: INT;
+	Stn10TempRawData			: INT;
+
+
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

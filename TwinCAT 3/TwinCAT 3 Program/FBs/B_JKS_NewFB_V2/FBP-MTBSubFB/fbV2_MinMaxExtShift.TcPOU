@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_MinMaxExtShift" Id="{dc3c1a50-0b5e-4aa6-b78c-eab0de685f55}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_MinMaxExtShift
+VAR_INPUT
+	bEN: BOOL;
+	bTempPushEffTime : BOOL;
+	iLdProductRecipeNo : INT;
+END_VAR
+VAR_OUTPUT
+	DSV2LdBasketMinMaxEffTime 								: DSV2_MinMaxEffTime;
+END_VAR
+VAR_IN_OUT
+	DSV2MTBMinMaxEffTime 								: DSV2_MinMaxEffTime;
+	ARDsSSERSourceMinMaxTime_Uni						: ARRAY [1..iStnQty] OF DSV2_SSERSourceMinMaxTime;
+
+(*	AR2SiCalledRecipeTimeBlockNoCallArmTime 			: ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+	AR2SiCalledRecipeTimeBlockWithCallArmTime 			: ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+*)
+END_VAR
+VAR
+	bENRE: R_TRIG;
+	iStep: INT;
+	iBufferProductRecipeNo: INT;
+	ARiTransferStationNoEmpty		: ARRAY [0..iProductRecipeStepArrayQty] OF INT;
+	ARiStnSeqRepNoEmpty	 		: ARRAY [0..iProductRecipeStepArrayQty] OF INT;
+	ARiMinTimeEmpty 				: ARRAY [0..iProductRecipeStepArrayQty] OF INT;
+	ARiMaxTimeEmpty 				: ARRAY [0..iProductRecipeStepArrayQty] OF INT;
+	ARiEffTimeEmpty 					: ARRAY [0..iProductRecipeStepArrayQty] OF INT;
+
+	iScanFL: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[DSV2MTBMinMaxEffTime.iProductRecipeNo := iLdProductRecipeNo;
+
+bENRE(CLK:=bEN AND DSV2MTBMinMaxEffTime.iProductRecipeNo <> iBufferProductRecipeNo , Q=> );
+IF bENRE.Q THEN
+iStep := 1;
+END_IF
+IF NOT bEN THEN
+iStep := 0;
+
+END_IF
+
+CASE iStep OF
+
+0:
+	DSV2MTBMinMaxEffTime.ARiTransferStationNo	:= ARiTransferStationNoEmpty		;
+	DSV2MTBMinMaxEffTime.ARiStnSeqRepNo		:= ARiStnSeqRepNoEmpty	 		;
+	DSV2MTBMinMaxEffTime.ARiMinTime			:= ARiMinTimeEmpty 				;
+	DSV2MTBMinMaxEffTime.ARiMaxTime			:= ARiMaxTimeEmpty 				;
+	DSV2MTBMinMaxEffTime.ARiEffTime			:= ARiEffTimeEmpty 				;
+
+
+1:
+iScanFL := 1;
+	FOR iScanFL := 1 TO iProductRecipeStepArrayQty DO
+		IF iScanFL >= 1 AND iScanFL <= iProductRecipeStepArrayQty THEN
+			IF (DSV2MTBMinMaxEffTime.ARiTransferStationNo[iScanFL] >= 1 AND DSV2MTBMinMaxEffTime.ARiTransferStationNo[iScanFL] <= iStnQty)
+			AND (DSV2MTBMinMaxEffTime.ARiStnSeqRepNo[iScanFL] >= 1 AND DSV2MTBMinMaxEffTime.ARiStnSeqRepNo[iScanFL] <= iStationSequenceRecipeArrayQty) THEN
+
+				DSV2MTBMinMaxEffTime.ARiMinTime[iScanFL]			:= ARDsSSERSourceMinMaxTime_Uni[DSV2MTBMinMaxEffTime.ARiTransferStationNo[iScanFL]].ARiMinTime[DSV2MTBMinMaxEffTime.ARiStnSeqRepNo[iScanFL]];
+				DSV2MTBMinMaxEffTime.ARiMaxTime[iScanFL]			:= ARDsSSERSourceMinMaxTime_Uni[DSV2MTBMinMaxEffTime.ARiTransferStationNo[iScanFL]].ARiMaxTime[DSV2MTBMinMaxEffTime.ARiStnSeqRepNo[iScanFL]];
+
+				IF bTempPushEffTime THEN
+					DSV2MTBMinMaxEffTime.ARiEffTime[iScanFL]		:= ARDsSSERSourceMinMaxTime_Uni[DSV2MTBMinMaxEffTime.ARiTransferStationNo[iScanFL]].ARiMinTime[DSV2MTBMinMaxEffTime.ARiStnSeqRepNo[iScanFL]];
+
+				END_IF
+
+
+			ELSE
+
+				DSV2MTBMinMaxEffTime.ARiMinTime[iScanFL]			:= ARiMinTimeEmpty[iScanFL] 				;
+				DSV2MTBMinMaxEffTime.ARiMaxTime[iScanFL]			:= ARiMaxTimeEmpty[iScanFL] 				;
+				DSV2MTBMinMaxEffTime.ARiEffTime[iScanFL]			:= ARiEffTimeEmpty[iScanFL] 				;
+
+			END_IF
+		END_IF
+	END_FOR
+
+iScanFL := 2;
+iBufferProductRecipeNo := DSV2MTBMinMaxEffTime.iProductRecipeNo ;
+DSV2LdBasketMinMaxEffTime := DSV2MTBMinMaxEffTime;
+2:; (*Completed*)
+
+
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_MinMaxExtShift">
+      <LineId Id="29" Count="53" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

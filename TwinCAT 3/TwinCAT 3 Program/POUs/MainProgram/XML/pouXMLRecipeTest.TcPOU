@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="pouXMLRecipeTest" Id="{a455080d-cb2a-42a9-8e1a-245bf2557e49}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM pouXMLRecipeTest
+VAR
+	bWriteSt				: BOOL;
+	bReadSt					: BOOL;
+	bShutdownRequestFlag 	: BOOL;
+
+	eVariableType			: E_XMLVariableType;
+	eXmlRwMode				: E_XmlRWMode;
+		
+	sDefaultFilePath		: STRING := 'C:\SW\XML Management\Recipe Handling\';
+	sFileExtension			: STRING := 'XML';
+
+
+	bWrite_Done				: BOOL;
+	bWrite_Busy				: BOOL;
+	bWrite_Error			: BOOL;
+	udWrite_ErrId			: UDINT;
+	bRead_Done				: BOOL;
+	bRead_Busy				: BOOL;
+	bRead_Error				: BOOL;
+	udRead_ErrId 			: UDINT;
+	bReadyToShutdownFlag 	: BOOL;
+	sErrorMessage			: STRING;
+	iTotalTime_100ms		: INT;
+	iExportedImportedQty	: INT;
+	iProgressPercentage		: INT;	
+	
+	fbXmlSvrRW_Recipe : FB3_XmlSvrRW_Recipe;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[fbXmlSvrRW_Recipe(
+	bWriteSt				:= bWriteSt	OR bManualRecipe_ExportSt				, 
+	bReadSt					:= bReadSt OR bManualRecipe_ImportSt					, 
+	bShutdownRequestFlag	:= bShutdownRequestFlag		, 
+	eVariableType			:= eManualRecipe_SelectedVariableType			,  //eVariableType
+	eXmlRwMode				:= eManualRecipe_ImportExportMode			    ,  //eXmlRwMode
+	sDefaultFilePath		:= sDefaultFilePath	   		, 
+	sFileExtension			:= sFileExtension		    , 
+	bWrite_Done				=> bWrite_Done			    , 
+	bWrite_Busy				=> bWrite_Busy			    , 
+	bWrite_Error			=> bWrite_Error		      	, 
+	udWrite_ErrId			=> udWrite_ErrId		    , 
+	bRead_Done				=> bRead_Done			    , 
+	bRead_Busy				=> bRead_Busy			    , 
+	bRead_Error				=> bRead_Error			    , 
+	udRead_ErrId			=> udRead_ErrId		     	, 
+	bReadyToShutdownFlag	=> bReadyToShutdownFlag		, 
+	sErrorMessage			=> sManualRecipe_sErrorMessage			, //sErrorMessage
+	iTotalTime_100ms		=> iManualRecipe_TotalTimePv_100ms	   		, //iManualRecipe_TotalTimePv_100ms
+	iExportedImportedQty	=> iManualRecipe_ExportedImportedQty		, //iExportedImportedQty
+	iProgressPercentage		=> iManualRecipe_ProgressPercentage		); //iProgressPercentage
+	
+	
+(*	IF bWrite_Done AND (bWriteSt OR bManualRecipe_ExportSt) THEN
+		bManualRecipe_ExportSt:=FALSE;
+		bWriteSt:=FALSE;
+	END_IF
+	
+	IF bRead_Done AND (bReadSt OR bManualRecipe_ImportSt) THEN
+		bManualRecipe_ImportSt:=FALSE;
+		bReadSt:=FALSE;
+	END_IF
+	*)
+	
+	
+	]]></ST>
+    </Implementation>
+    <LineIds Name="pouXMLRecipeTest">
+      <LineId Id="6" Count="19" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="55" Count="3" />
+      <LineId Id="65" Count="1" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="62" Count="2" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="126" Count="2" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

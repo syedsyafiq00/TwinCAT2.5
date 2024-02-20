@@ -1,0 +1,390 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_SubFreeMTBShifting" Id="{c0d78cda-8ad8-4864-bc65-7b71d87200fb}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_SubFreeMTBShifting
+VAR_INPUT
+	bReset			: BOOL;
+	iShiftValue		: INT;
+	AR3SiSortedMasterTimeBlockFreeArm_In					: ARRAY[1..iArmQty, 1..iMasterBlockQty, 1..3] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+	AR3SiSortedMasterTimeBlockFreeStn_In 						: ARRAY[1..iStnQty, 1..iMasterBlockQty, 1..3] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+	AR3SiSortedMasterTimeBlockFreeUld_In 					: ARRAY[1..iUldStnQty, 1..iMasterBlockQty, 1..3] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+
+	ARiFreeSlotDataQtyArm_in									: ARRAY[1..iArmQty] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+	ARiFreeSlotDataQtyStn_In									: ARRAY[1..iStnQty] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+	ARiFreeSlotDataQtyUld_In									: ARRAY[1..iUldStnQty] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+
+
+END_VAR
+
+VAR_IN_OUT
+	bEn				: BOOL;
+	AR3SiSortedMasterTimeBlockFreeArm_Out						: ARRAY[1..iArmQty, 1..iMasterBlockQty, 1..3] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+	AR3SiSortedMasterTimeBlockFreeStn_Out 						: ARRAY[1..iStnQty, 1..iMasterBlockQty, 1..3] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+	AR3SiSortedMasterTimeBlockFreeUld_Out 						: ARRAY[1..iUldStnQty, 1..iMasterBlockQty, 1..3] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+
+	ARiFreeSlotDataQtyArm_Out									: ARRAY[1..iArmQty] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+	ARiFreeSlotDataQtyStn_Out									: ARRAY[1..iStnQty] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+	ARiFreeSlotDataQtyUld_Out									: ARRAY[1..iUldStnQty] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+	iStep: INT;
+
+END_VAR
+
+
+
+VAR_OUTPUT
+	bDone					 									: BOOL;
+	iPreviousShiftValue											: INT;
+
+END_VAR
+VAR
+	bResetRE: R_TRIG;
+
+	iArmFL: INT;
+	iStnFL: INT;
+	iUldFL: INT;
+	iFreeSlotFL: INT;
+
+	AR3SiSortedMasterTimeBlockFreeArmEmpty						: ARRAY[1..iArmQty, 1..iMasterBlockQty, 1..3] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+	AR3SiSortedMasterTimeBlockFreeStnEmpty 						: ARRAY[1..iStnQty, 1..iMasterBlockQty, 1..3] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+	AR3SiSortedMasterTimeBlockFreeUldEmpty						: ARRAY[1..iUldStnQty, 1..iMasterBlockQty, 1..3] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+
+	ARiFreeSlotDataQtyArmEmpty									: ARRAY[1..iArmQty] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+	ARiFreeSlotDataQtyStnEmpty									: ARRAY[1..iStnQty] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+	ARiFreeSlotDataQtyUldEmpty									: ARRAY[1..iUldStnQty] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+
+	AR3SiSortedMasterTimeBlockFreeArmBuffer					: ARRAY[1..iArmQty, 1..iMasterBlockQty, 1..3] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+	AR3SiSortedMasterTimeBlockFreeStnBuffer 					: ARRAY[1..iStnQty, 1..iMasterBlockQty, 1..3] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+	AR3SiSortedMasterTimeBlockFreeUldBuffer 					: ARRAY[1..iUldStnQty, 1..iMasterBlockQty, 1..3] OF INT; (* fbV2_SubMTBFreeSlotGenerator*)
+
+
+
+	iShiftFL: INT;
+	iClearZeroFL: INT;
+	bEnRE: R_TRIG;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[bResetRE(CLK:=bReset , Q=> );
+bEnRE(CLK:=bEn , Q=> );
+
+IF bResetRE.Q THEN
+
+AR3SiSortedMasterTimeBlockFreeArm_Out 		:= AR3SiSortedMasterTimeBlockFreeArmEmpty;
+AR3SiSortedMasterTimeBlockFreeStn_Out 		:= AR3SiSortedMasterTimeBlockFreeStnEmpty;
+AR3SiSortedMasterTimeBlockFreeUld_Out 		:= AR3SiSortedMasterTimeBlockFreeUldEmpty;
+
+AR3SiSortedMasterTimeBlockFreeArmBuffer 		:= AR3SiSortedMasterTimeBlockFreeArmEmpty;
+AR3SiSortedMasterTimeBlockFreeStnBuffer 		:= AR3SiSortedMasterTimeBlockFreeStnEmpty;
+AR3SiSortedMasterTimeBlockFreeUldBuffer 		:= AR3SiSortedMasterTimeBlockFreeUldEmpty;
+
+ARiFreeSlotDataQtyArm_Out					:= ARiFreeSlotDataQtyArmEmpty;
+ARiFreeSlotDataQtyStn_Out					:= ARiFreeSlotDataQtyStnEmpty;
+ARiFreeSlotDataQtyUld_Out					:= ARiFreeSlotDataQtyUldEmpty;
+bDone := FALSE;
+
+END_IF
+
+
+IF NOT bEn THEN
+bDone := FALSE;
+END_IF
+
+
+
+IF NOT bReset AND bEn THEN
+
+bDone := FALSE;
+
+(*
+CASE iStep OF
+
+1:*)
+
+
+
+
+(*Data Clear*)
+AR3SiSortedMasterTimeBlockFreeArm_Out 		:= AR3SiSortedMasterTimeBlockFreeArmEmpty;
+AR3SiSortedMasterTimeBlockFreeStn_Out 		:= AR3SiSortedMasterTimeBlockFreeStnEmpty;
+AR3SiSortedMasterTimeBlockFreeUld_Out 		:= AR3SiSortedMasterTimeBlockFreeUldEmpty;
+
+AR3SiSortedMasterTimeBlockFreeArmBuffer 		:= AR3SiSortedMasterTimeBlockFreeArmEmpty;
+AR3SiSortedMasterTimeBlockFreeStnBuffer 		:= AR3SiSortedMasterTimeBlockFreeStnEmpty;
+AR3SiSortedMasterTimeBlockFreeUldBuffer 		:= AR3SiSortedMasterTimeBlockFreeUldEmpty;
+
+ARiFreeSlotDataQtyArm_Out					:= ARiFreeSlotDataQtyArmEmpty;
+ARiFreeSlotDataQtyStn_Out					:= ARiFreeSlotDataQtyStnEmpty;
+ARiFreeSlotDataQtyUld_Out					:= ARiFreeSlotDataQtyUldEmpty;
+
+
+
+(*Minus - Shifting Value*)
+
+	iArmFL := 1;
+	FOR iArmFL := 1 TO iArmQty DO
+		IF iArmFL >= 1 AND iArmFL <= iArmQty THEN
+		iShiftFL := 1;
+			FOR iShiftFL := 1 TO iMasterBlockQty DO
+				IF iShiftFL >= 1 AND iShiftFL <= iMasterBlockQty THEN
+
+					IF AR3SiSortedMasterTimeBlockFreeArm_In[iArmFL, iShiftFL, 2] > 0 AND iShiftFL <= ARiFreeSlotDataQtyArm_in[iArmFL] THEN
+					AR3SiSortedMasterTimeBlockFreeArmBuffer[iArmFL, iShiftFL, 1] := AR3SiSortedMasterTimeBlockFreeArm_In[iArmFL, iShiftFL, 1] - iShiftValue;
+					AR3SiSortedMasterTimeBlockFreeArmBuffer[iArmFL, iShiftFL, 2] := AR3SiSortedMasterTimeBlockFreeArm_In[iArmFL, iShiftFL, 2] - iShiftValue;
+					AR3SiSortedMasterTimeBlockFreeArmBuffer[iArmFL, iShiftFL, 3] := AR3SiSortedMasterTimeBlockFreeArm_In[iArmFL, iShiftFL, 3];
+					ELSE
+					AR3SiSortedMasterTimeBlockFreeArmBuffer[iArmFL, iShiftFL, 1] := 0;
+					AR3SiSortedMasterTimeBlockFreeArmBuffer[iArmFL, iShiftFL, 2] := 0;
+					AR3SiSortedMasterTimeBlockFreeArmBuffer[iArmFL, iShiftFL, 3] := 0;
+					END_IF
+				END_IF
+			END_FOR
+		END_IF
+	END_FOR
+
+(*Minus - Shifting Value*)
+
+	iStnFL := 1;
+	FOR iStnFL := 1 TO iStnQty DO
+		IF iStnFL >= 1 AND iStnFL <= iStnQty THEN
+		iShiftFL := 1;
+			FOR iShiftFL := 1 TO iMasterBlockQty DO
+				IF iShiftFL >= 1 AND iShiftFL <= iMasterBlockQty THEN
+
+					IF AR3SiSortedMasterTimeBlockFreeStn_In[iStnFL, iShiftFL, 2] > 0 AND iShiftFL <= ARiFreeSlotDataQtyStn_in[iStnFL] THEN
+					AR3SiSortedMasterTimeBlockFreeStnBuffer[iStnFL, iShiftFL, 1] := AR3SiSortedMasterTimeBlockFreeStn_In[iStnFL, iShiftFL, 1] - iShiftValue;
+					AR3SiSortedMasterTimeBlockFreeStnBuffer[iStnFL, iShiftFL, 2] := AR3SiSortedMasterTimeBlockFreeStn_In[iStnFL, iShiftFL, 2] - iShiftValue;
+					AR3SiSortedMasterTimeBlockFreeStnBuffer[iStnFL, iShiftFL, 3] := AR3SiSortedMasterTimeBlockFreeStn_In[iStnFL, iShiftFL, 3];
+					ELSE
+					AR3SiSortedMasterTimeBlockFreeStnBuffer[iStnFL, iShiftFL, 1] := 0;
+					AR3SiSortedMasterTimeBlockFreeStnBuffer[iStnFL, iShiftFL, 2] := 0;
+					AR3SiSortedMasterTimeBlockFreeStnBuffer[iStnFL, iShiftFL, 3] := 0;
+					END_IF
+				END_IF
+			END_FOR
+		END_IF
+	END_FOR
+
+
+(*Minus - Shifting Value*)
+
+	iUldFL := 1;
+	FOR iUldFL := 1 TO iUldStnQty DO
+		IF iUldFL >= 1 AND iUldFL <= iUldStnQty THEN
+		iShiftFL := 1;
+			FOR iShiftFL := 1 TO iMasterBlockQty DO
+				IF iShiftFL >= 1 AND iShiftFL <= iMasterBlockQty THEN
+
+					IF AR3SiSortedMasterTimeBlockFreeUld_In[iUldFL, iShiftFL, 2] > 0 AND iShiftFL <= ARiFreeSlotDataQtyUld_in[iUldFL] THEN
+					AR3SiSortedMasterTimeBlockFreeUldBuffer[iUldFL, iShiftFL, 1] := AR3SiSortedMasterTimeBlockFreeUld_In[iUldFL, iShiftFL, 1] - iShiftValue;
+					AR3SiSortedMasterTimeBlockFreeUldBuffer[iUldFL, iShiftFL, 2] := AR3SiSortedMasterTimeBlockFreeUld_In[iUldFL, iShiftFL, 2] - iShiftValue;
+					AR3SiSortedMasterTimeBlockFreeUldBuffer[iUldFL, iShiftFL, 3] := AR3SiSortedMasterTimeBlockFreeUld_In[iUldFL, iShiftFL, 3];
+					ELSE
+					AR3SiSortedMasterTimeBlockFreeUldBuffer[iUldFL, iShiftFL, 1] := 0;
+					AR3SiSortedMasterTimeBlockFreeUldBuffer[iUldFL, iShiftFL, 2] := 0;
+					AR3SiSortedMasterTimeBlockFreeUldBuffer[iUldFL, iShiftFL, 3] := 0;
+					END_IF
+				END_IF
+			END_FOR
+		END_IF
+	END_FOR
+(*
+iStep := 11;
+
+2:
+*)
+
+(*Clear Zero*)
+	iArmFL := 1;
+	FOR iArmFL := 1 TO iArmQty DO
+		IF iArmFL >= 1 AND iArmFL <= iArmQty THEN
+		iClearZeroFL := 1;
+			FOR iClearZeroFL := 1 TO ARiFreeSlotDataQtyArm_in[iArmFL] DO
+				IF iClearZeroFL >= 1 AND iClearZeroFL <= ARiFreeSlotDataQtyArm_in[iArmFL] THEN
+
+					IF AR3SiSortedMasterTimeBlockFreeArmBuffer[iArmFL, iClearZeroFL, 2] <= 0 THEN
+					AR3SiSortedMasterTimeBlockFreeArmBuffer[iArmFL, iClearZeroFL, 1] := 0;
+					AR3SiSortedMasterTimeBlockFreeArmBuffer[iArmFL, iClearZeroFL, 2] := 0;
+					AR3SiSortedMasterTimeBlockFreeArmBuffer[iArmFL, iClearZeroFL, 3] := 0;
+					ELSIF AR3SiSortedMasterTimeBlockFreeArmBuffer[iArmFL, iClearZeroFL, 1] <= 0 THEN
+					AR3SiSortedMasterTimeBlockFreeArmBuffer[iArmFL, iClearZeroFL, 1] := 0;
+					END_IF
+				END_IF
+			END_FOR
+		END_IF
+	END_FOR
+
+
+(*Clear Zero*)
+	iStnFL := 1;
+	FOR iStnFL := 1 TO iStnQty DO
+		IF iStnFL >= 1 AND iStnFL <= iStnQty THEN
+		iClearZeroFL := 1;
+			FOR iClearZeroFL := 1 TO ARiFreeSlotDataQtyStn_in[iStnFL] DO
+				IF iClearZeroFL >= 1 AND iClearZeroFL <= ARiFreeSlotDataQtyStn_in[iStnFL] THEN
+
+					IF AR3SiSortedMasterTimeBlockFreeStnBuffer[iStnFL, iClearZeroFL, 2] <= 0 THEN
+					AR3SiSortedMasterTimeBlockFreeStnBuffer[iStnFL, iClearZeroFL, 1] := 0;
+					AR3SiSortedMasterTimeBlockFreeStnBuffer[iStnFL, iClearZeroFL, 2] := 0;
+					AR3SiSortedMasterTimeBlockFreeStnBuffer[iStnFL, iClearZeroFL, 3] := 0;
+					ELSIF AR3SiSortedMasterTimeBlockFreeStnBuffer[iStnFL, iClearZeroFL, 1] <= 0 THEN
+					AR3SiSortedMasterTimeBlockFreeStnBuffer[iStnFL, iClearZeroFL, 1] := 0;
+					END_IF
+				END_IF
+			END_FOR
+		END_IF
+	END_FOR
+
+(*Clear Zero*)
+	iUldFL := 1;
+	FOR iUldFL := 1 TO iUldStnQty DO
+		IF iUldFL >= 1 AND iUldFL <= iUldStnQty THEN
+		iClearZeroFL := 1;
+			FOR iClearZeroFL := 1 TO ARiFreeSlotDataQtyUld_in[iUldFL] DO
+				IF iClearZeroFL >= 1 AND iClearZeroFL <= ARiFreeSlotDataQtyUld_in[iUldFL] THEN
+
+					IF AR3SiSortedMasterTimeBlockFreeUldBuffer[iUldFL, iClearZeroFL, 2] <= 0 THEN
+					AR3SiSortedMasterTimeBlockFreeUldBuffer[iUldFL, iClearZeroFL, 1] := 0;
+					AR3SiSortedMasterTimeBlockFreeUldBuffer[iUldFL, iClearZeroFL, 2] := 0;
+					AR3SiSortedMasterTimeBlockFreeUldBuffer[iUldFL, iClearZeroFL, 3] := 0;
+					ELSIF AR3SiSortedMasterTimeBlockFreeUldBuffer[iUldFL, iClearZeroFL, 1] <= 0 THEN
+					AR3SiSortedMasterTimeBlockFreeUldBuffer[iUldFL, iClearZeroFL, 1] := 0;
+					END_IF
+				END_IF
+			END_FOR
+		END_IF
+	END_FOR
+
+(*
+iStep := 12;
+
+3:
+*)
+
+(*fbV2_MTBConsolidateSorted - Clear Free Slot*)
+
+	iArmFL := 1;
+	FOR iArmFL := 1 TO iArmQty DO
+		IF iArmFL >= 1 AND iArmFL <= iArmQty THEN
+		iFreeSlotFL := 1;
+		ARiFreeSlotDataQtyArm_Out[iArmFL] := 1;
+			FOR iFreeSlotFL := 1 TO ARiFreeSlotDataQtyArm_in[iArmFL] DO
+				IF iFreeSlotFL >= 1 AND iFreeSlotFL <= ARiFreeSlotDataQtyArm_in[iArmFL] THEN
+
+					IF AR3SiSortedMasterTimeBlockFreeArmBuffer[iArmFL, iFreeSlotFL, 2] > 0 THEN
+					AR3SiSortedMasterTimeBlockFreeArm_Out[iArmFL, ARiFreeSlotDataQtyArm_Out[iArmFL], 1] := AR3SiSortedMasterTimeBlockFreeArmBuffer[iArmFL, iFreeSlotFL, 1];
+					AR3SiSortedMasterTimeBlockFreeArm_Out[iArmFL, ARiFreeSlotDataQtyArm_Out[iArmFL], 2] := AR3SiSortedMasterTimeBlockFreeArmBuffer[iArmFL, iFreeSlotFL, 2];
+					AR3SiSortedMasterTimeBlockFreeArm_Out[iArmFL, ARiFreeSlotDataQtyArm_Out[iArmFL], 3] := AR3SiSortedMasterTimeBlockFreeArmBuffer[iArmFL, iFreeSlotFL, 3];
+					ARiFreeSlotDataQtyArm_Out[iArmFL] := ARiFreeSlotDataQtyArm_Out[iArmFL] +1;
+					ELSE
+					AR3SiSortedMasterTimeBlockFreeArm_Out[iArmFL, iFreeSlotFL, 1] := 0;
+					AR3SiSortedMasterTimeBlockFreeArm_Out[iArmFL, iFreeSlotFL, 2] := 0;
+					AR3SiSortedMasterTimeBlockFreeArm_Out[iArmFL, iFreeSlotFL, 3] := 0;
+					END_IF
+
+				END_IF
+			END_FOR
+		END_IF
+	END_FOR
+
+
+(*fbV2_MTBConsolidateSorted - Clear Free Slot*)
+
+	iStnFL := 1;
+	FOR iStnFL := 1 TO iStnQty DO
+		IF iStnFL >= 1 AND iStnFL <= iStnQty THEN
+		iFreeSlotFL := 1;
+		ARiFreeSlotDataQtyStn_Out[iStnFL] := 1;
+			FOR iFreeSlotFL := 1 TO ARiFreeSlotDataQtyStn_in[iStnFL] DO
+				IF iFreeSlotFL >= 1 AND iFreeSlotFL <= ARiFreeSlotDataQtyStn_in[iStnFL] THEN
+
+					IF AR3SiSortedMasterTimeBlockFreeStnBuffer[iStnFL, iFreeSlotFL, 2] > 0 THEN
+					AR3SiSortedMasterTimeBlockFreeStn_Out[iStnFL, ARiFreeSlotDataQtyStn_Out[iStnFL], 1] := AR3SiSortedMasterTimeBlockFreeStnBuffer[iStnFL, iFreeSlotFL, 1];
+					AR3SiSortedMasterTimeBlockFreeStn_Out[iStnFL, ARiFreeSlotDataQtyStn_Out[iStnFL], 2] := AR3SiSortedMasterTimeBlockFreeStnBuffer[iStnFL, iFreeSlotFL, 2];
+					AR3SiSortedMasterTimeBlockFreeStn_Out[iStnFL, ARiFreeSlotDataQtyStn_Out[iStnFL], 3] := AR3SiSortedMasterTimeBlockFreeStnBuffer[iStnFL, iFreeSlotFL, 3];
+					ARiFreeSlotDataQtyStn_Out[iStnFL] := ARiFreeSlotDataQtyStn_Out[iStnFL] +1;
+					ELSE
+					AR3SiSortedMasterTimeBlockFreeStn_Out[iStnFL, iFreeSlotFL, 1] := 0;
+					AR3SiSortedMasterTimeBlockFreeStn_Out[iStnFL, iFreeSlotFL, 2] := 0;
+					AR3SiSortedMasterTimeBlockFreeStn_Out[iStnFL, iFreeSlotFL, 3] := 0;
+					END_IF
+
+				END_IF
+			END_FOR
+		END_IF
+	END_FOR
+
+
+(*fbV2_MTBConsolidateSorted - Clear Free Slot*)
+
+	iUldFL := 1;
+	FOR iUldFL := 1 TO iUldStnQty DO
+		IF iUldFL >= 1 AND iUldFL <= iUldStnQty THEN
+		iFreeSlotFL := 1;
+		ARiFreeSlotDataQtyUld_Out[iUldFL] := 1;
+			FOR iFreeSlotFL := 1 TO ARiFreeSlotDataQtyUld_in[iUldFL] DO
+				IF iFreeSlotFL >= 1 AND iFreeSlotFL <= ARiFreeSlotDataQtyUld_in[iUldFL] THEN
+
+					IF AR3SiSortedMasterTimeBlockFreeUldBuffer[iUldFL, iFreeSlotFL, 2] > 0 THEN
+					AR3SiSortedMasterTimeBlockFreeUld_Out[iUldFL, ARiFreeSlotDataQtyUld_Out[iUldFL], 1] := AR3SiSortedMasterTimeBlockFreeUldBuffer[iUldFL, iFreeSlotFL, 1];
+					AR3SiSortedMasterTimeBlockFreeUld_Out[iUldFL, ARiFreeSlotDataQtyUld_Out[iUldFL], 2] := AR3SiSortedMasterTimeBlockFreeUldBuffer[iUldFL, iFreeSlotFL, 2];
+					AR3SiSortedMasterTimeBlockFreeUld_Out[iUldFL, ARiFreeSlotDataQtyUld_Out[iUldFL], 3] := AR3SiSortedMasterTimeBlockFreeUldBuffer[iUldFL, iFreeSlotFL, 3];
+					ARiFreeSlotDataQtyUld_Out[iUldFL] := ARiFreeSlotDataQtyUld_Out[iUldFL] +1;
+					ELSE
+					AR3SiSortedMasterTimeBlockFreeUld_Out[iUldFL, iFreeSlotFL, 1] := 0;
+					AR3SiSortedMasterTimeBlockFreeUld_Out[iUldFL, iFreeSlotFL, 2] := 0;
+					AR3SiSortedMasterTimeBlockFreeUld_Out[iUldFL, iFreeSlotFL, 3] := 0;
+					END_IF
+
+				END_IF
+			END_FOR
+		END_IF
+	END_FOR
+
+
+
+(*
+iStep := 13;
+4:
+*)
+	iArmFL := 1;
+	FOR iArmFL := 1 TO iArmQty DO
+		IF iArmFL >= 1 AND iArmFL <= iArmQty THEN
+			ARiFreeSlotDataQtyArm_Out[iArmFL] := ARiFreeSlotDataQtyArm_Out[iArmFL] -1;
+		END_IF
+	END_FOR
+
+	iStnFL := 1;
+	FOR iStnFL := 1 TO iStnQty DO
+		IF iStnFL >= 1 AND iStnFL <= iStnQty THEN
+			ARiFreeSlotDataQtyStn_Out[iStnFL] := ARiFreeSlotDataQtyStn_Out[iStnFL] -1;
+		END_IF
+	END_FOR
+
+
+	iUldFL := 1;
+	FOR iUldFL := 1 TO iUldStnQty DO
+		IF iUldFL >= 1 AND iUldFL <= iUldStnQty THEN
+			ARiFreeSlotDataQtyUld_Out[iUldFL] := ARiFreeSlotDataQtyUld_Out[iUldFL] -1;
+		END_IF
+	END_FOR
+
+(*
+iStep := 14;
+
+11:;
+12:;
+13:;
+14:;
+15:;
+
+END_CASE
+*)
+bDone := TRUE;
+bEn := FALSE;
+iPreviousShiftValue := iShiftValue;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_SubFreeMTBShifting">
+      <LineId Id="61" Count="318" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

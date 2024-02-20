@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbHMIAddMappingBool" Id="{763b4822-da57-41e2-994e-0cdfae88e1d2}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbHMIAddMappingBool
+
+
+VAR_INPUT
+	bEN : BOOL;
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+	ARbBoolAddress_Pro 					: BOOL;
+	ARbBoolAddress_Hmi 				: BOOL;
+END_VAR
+
+
+VAR_OUTPUT
+END_VAR
+
+
+VAR
+	ARBufferbBoolAddress_Pro 				:  BOOL;
+	ARBufferbBoolAddress_Hmi 				:  BOOL;
+
+	ARUpdate_bBoolAddress_Pro 				:  BOOL;
+	ARUpdate_bBoolAddress_Hmi 				:  BOOL;
+
+END_VAR
+VAR
+	bENRE : R_TRIG;
+
+	ProSideFL: INT;
+	HmiSideFL: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Initialized*)
+bENRE(CLK:=bEN , Q=> );
+IF bENRE.Q THEN
+			(*Bool*)
+			ARBufferbBoolAddress_Pro := ARbBoolAddress_Pro;
+			ARBufferbBoolAddress_Hmi := ARbBoolAddress_Pro;
+			ARbBoolAddress_Hmi := ARbBoolAddress_Pro;
+END_IF
+
+(*Program*)
+
+
+ARUpdate_bBoolAddress_Pro := FALSE;
+
+	IF ARBufferbBoolAddress_Pro <> ARbBoolAddress_Pro THEN
+		ARUpdate_bBoolAddress_Pro := TRUE;
+	END_IF
+
+	IF ARUpdate_bBoolAddress_Pro THEN
+		ARBufferbBoolAddress_Pro := ARbBoolAddress_Pro;
+		ARBufferbBoolAddress_Hmi := ARbBoolAddress_Pro;
+		ARbBoolAddress_Hmi := ARbBoolAddress_Pro;
+	END_IF
+
+
+
+			(**********HMI Side Value Change**********)
+
+ARUpdate_bBoolAddress_Hmi := FALSE;
+
+	(**********Bool**********)
+	IF ARBufferbBoolAddress_Hmi <> ARbBoolAddress_Hmi THEN
+		ARUpdate_bBoolAddress_Hmi := TRUE;
+	END_IF
+
+	IF ARUpdate_bBoolAddress_Hmi THEN
+		ARBufferbBoolAddress_Pro := ARbBoolAddress_Hmi;
+		ARBufferbBoolAddress_Hmi := ARbBoolAddress_Hmi;
+		ARbBoolAddress_Pro := ARbBoolAddress_Hmi;
+	END_IF
+
+(*
+(*Bool 001*)
+IF NOT ARUpdate_bBoolAddress_Hmi THEN ARbBoolAddress_Pro := Pro_bBool_001; ELSE Pro_bBool_001 := ARbBoolAddress_Pro; END_IF
+IF NOT ARUpdate_bBoolAddress_Pro THEN ARbBoolAddress_Hmi := Hmi_bBool_001; ELSE Hmi_bBool_001 := ARbBoolAddress_Hmi; END_IF
+*)]]></ST>
+    </Implementation>
+    <LineIds Name="fbHMIAddMappingBool">
+      <LineId Id="31" Count="45" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

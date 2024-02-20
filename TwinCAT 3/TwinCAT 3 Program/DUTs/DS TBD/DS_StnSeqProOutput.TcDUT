@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_StnSeqProOutput" Id="{25f3e7cc-f410-4d39-bf81-f28868c49674}">
+    <Declaration><![CDATA[TYPE DS_StnSeqProOutput : (*Full Occupied Byte = 200*)
+STRUCT
+	b1ProTankPump : BOOL; (* Byte "n" *)
+	b2ProTankHeater : BOOL; (* Byte "n+1" *)
+	b3ProTankBottomUltrasonicA : BOOL; (* Byte "n+2" *)
+	b4ProTankBottomUltrasonicB : BOOL; (* Byte "n+3" *)
+	b5ProTankBottomUltrasonicC : BOOL; (* Byte "n+4" *)
+	b6ProTankSideUltrasonicA : BOOL; (* Byte "n+5" *)
+	b7ProTankSideUltrasonicB : BOOL; (* Byte "n+6" *)
+	b8SubTankPump : BOOL; (* Byte "n+7" *)
+	b9SubTankHeater : BOOL; (* Byte "n+8" *)
+	b10Blower : BOOL; (* Byte "n+9" *)
+	b11VacuumPump : BOOL; (* Byte "n+10" *)
+	b12SlowPull : BOOL; (* Byte "n+11" *)
+	b13Instrument2 : BOOL; (* Byte "n+12" *)
+	b14Instrument3 : BOOL; (* Byte "n+13" *)
+	b15Instrument4 : BOOL; (* Byte "n+14" *)
+
+	b1ActValve1 : BOOL; (* Byte "n+15" *)
+	b2ActValve2 : BOOL; (* Byte "n+16" *)
+	b3ActValve3 : BOOL; (* Byte "n+17" *)
+	b4ActValve4 : BOOL; (* Byte "n+18" *)
+	b5ActValve5 : BOOL; (* Byte "n+19" *)
+	b6ActValve6 : BOOL; (* Byte "n+20" *)
+	b7ActValve7 : BOOL; (* Byte "n+21" *)
+	b8ActValve8 : BOOL; (* Byte "n+22" *)
+	b9ActValve9 : BOOL; (* Byte "n+23" *)
+	b10ActValve10 : BOOL; (* Byte "n+24" *)
+	b11ActValve11 : BOOL; (* Byte "n+25" *)
+	b12ActValve12 : BOOL; (* Byte "n+26" *)
+	b13ActValve13 : BOOL; (* Byte "n+27" *)
+	b14ActValve14 : BOOL; (* Byte "n+28" *)
+	b15ActValve15 : BOOL; (* Byte "n+29" *)
+	b16ActValve16 : BOOL; (* Byte "n+30" *)
+	b17ActValve17 : BOOL; (* Byte "n+31" *)
+	b18ActValve18 : BOOL; (* Byte "n+32" *)
+	b19ActValve19 : BOOL; (* Byte "n+33" *)
+	b20ActValve20 : BOOL; (* Byte "n+34" *)
+
+	b16EnProTankChangeTemp : BOOL; (* Byte "n+35" *) (*New*)
+	b17EnSubTankChangeTemp : BOOL; (* Byte "n+36" *) (*New*)
+
+	sReservedBool : STRING(50); (* Byte "n+37~n+99" *)
+
+	i1ProTankPumpLPM : INT; (* Byte "n+100, n+101" *)
+	i2ProTankPumpHz : INT; (* Byte "n+102, n+103" *)
+	i3ProTankBtmUsAPwrPercent : INT; (* Byte "n+104, n+105" *)
+	i4ProTankBtmUsBPwrPercent : INT; (* Byte "n+106, n+107" *)
+	i5ProTankBtmUsCPwrPercent : INT; (* Byte "n+108, n+109" *)
+	i6ProTankSideUsAPwrPercent : INT; (* Byte "n+110, n+111" *)
+	i7ProTankSideUsBPwrPercent : INT; (* Byte "n+112, n+113" *)
+	i8ProTankBtmUsAkHz : INT; (* Byte "n+114, n+115" *)
+	i9ProTankBtmUsBkHz : INT; (* Byte "n+116, n+117" *)
+	i10ProTankBtmUsCkHz : INT; (* Byte "n+118, n+119" *)
+	i11ProTankSideUsAkHz : INT; (* Byte "n+120, n+121" *)
+	i12ProTankSideUsBkHz : INT; (* Byte "n+122, n+123" *)
+	i13ProTankBlowerHz : INT; (* Byte "n+124, n+125" *)
+	r14ProTankChangeTempDegC : REAL; (*Byte " n+126, n+129" *) (*New*)
+	r15SubTankChangeTempDegC :REAL; (*Byte "N+130, n+133" *) (*New*)
+	i16SubTankPumpLPM : INT; (*Byte "N+134, n+135" *) (*New*)
+	i17SubTankPumpHz : INT; (*Byte "N+136, n+137" *) (*New*)
+	i18SlowPullVelocity   : INT;(* Byte "n+154, n+155" *) (*MODIFIED*)
+	i19SlowPullDelayTime   : INT;(* Byte "n+154, n+155" *) (*MODIFIED*)
+
+
+	sReservedInt : STRING(50); (* Byte "n+138~n+199" *)
+
+
+
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

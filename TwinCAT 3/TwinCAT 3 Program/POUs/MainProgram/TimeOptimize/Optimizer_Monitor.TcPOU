@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Optimizer_Monitor" Id="{f1069f14-16a5-46ad-b01a-f39b77b0c4c8}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Optimizer_Monitor
+VAR
+	MTB_ArmTimeOK: BOOL;
+	DSLdBasketInfo: DSV2_BasketInfo;
+	AR2SMinMaxCallRTBWithCallArmTime_Tracker	: ARRAY[1..iRecipeBlockQty, 1..9] OF INT;
+	AR3SiMasterTimeBlockArmMTB_Monitor			: ARRAY[1..iArmQty, 1..iMasterBlockQty, 1..3] OF INT;
+	AR3SiMasterTimeBlockStnMTB_Monitor			: ARRAY[1..iStnQty, 1..iMasterBlockQty, 1..3] OF INT;
+	AR3SiMasterTimeBlockUldMTB_Monitor			: ARRAY[1..iUldStnQty, 1..iMasterBlockQty, 1..3] OF INT;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[DSLdBasketInfo := TimeOptimizeCtrl.LDBasketInfo;
+AR2SMinMaxCallRTBWithCallArmTime_Tracker := TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.AR2SMinMaxCallRTBWithCallArmTime_Tracker;
+AR3SiMasterTimeBlockArmMTB_Monitor := AR3SiMasterTimeBlockArm_MTB;
+AR3SiMasterTimeBlockStnMTB_Monitor := AR3SiMasterTimeBlockStn_MTB;
+AR3SiMasterTimeBlockUldMTB_Monitor := AR3SiMasterTimeBlockUld_MTB;
+
+
+IF ARbMTBArmProgress[1] AND ARbPnPbusy[1] THEN
+MTB_ArmTimeOK := TRUE;
+ELSE
+MTB_ArmTimeOK := FALSE;
+END_IF
+
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.iNextTransferTime_Main;
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.iNextNotAvailableTime_Main;
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.iCheckStep;
+TimeOptimizeCtrl.bAutoRetry;
+TimeOptimizeCtrl.tAutoRetryTimerEV;
+
+
+(*Input*)
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.bStartEn;
+
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.bScanEn;
+
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.bWriteEn;
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.bWriteDisable;
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.bWriteBasketRTBEnable;
+
+
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.bCallRTB_CallOk;
+
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.bMTBResetEN;
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.iLdProductRecipeNo;
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.bCallRTB_CallOk;
+
+
+
+(*Output*)
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.bScanBusyFlag;
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.bScanCompletedFlag;
+
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.bWriteDoneFlag;
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.bMTBResetDoneFlag;
+
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.bWriteArmDataError;
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.bWriteStnDataError;
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.bWriteUldDataError;
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.bNoAvailableSlotError;
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.bArmIDAndStnIDAndUldIDNotFound;
+(*TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.iNextTransferScanCounter;
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.iNextNotAvailableScanCounter;
+*)
+
+
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.diSinceStartRunningTime;
+TimeOptimizeCtrl.fbV2MasterTimeBlockWithMinMax.diSinceCopyRunningTime;]]></ST>
+    </Implementation>
+    <LineIds Name="Optimizer_Monitor">
+      <LineId Id="10" Count="56" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Manual_ImportExport_Others" Id="{fe32f5df-c998-498a-97a9-8c672f6ec4ff}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Manual_ImportExport_Others
+VAR
+	fbEventImportExport 		: FBV4_SingleFileImportExport;
+	bEventReadyToShutDown 		: BOOL;
+	bEventExport				: BOOL;
+	bEventImport				: BOOL;
+	sEventExportImportStatus	: STRING(30);		
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[fbEventImportExport(
+	bWritePb:= bEventExport, 
+	bReadPb:= bEventImport, 
+	pSymAddr:= ADR(AR2dsEventDescriptionCausedRemedy), 
+	cbSymSize:= SIZEOF(AR2dsEventDescriptionCausedRemedy), 
+	sWriteFilePath:= 'C:\SW\XML Management\Alarm Message\Export\Event.xml', 
+	sReadFilePath:= 'C:\SW\XML Management\Alarm Message\Import\Event.xml',
+	sXPath:= '/Event/AR2DSEventDescriptionCausedRemedy', 
+	bShutdownRequestFlag:= bShutdownRequestFlag, 	
+	sStatus=> sEventExportImportStatus,
+	bReadyToShutdownFlag=> bEventReadyToShutDown 	
+);
+]]></ST>
+    </Implementation>
+    <LineIds Name="Manual_ImportExport_Others">
+      <LineId Id="3" Count="11" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

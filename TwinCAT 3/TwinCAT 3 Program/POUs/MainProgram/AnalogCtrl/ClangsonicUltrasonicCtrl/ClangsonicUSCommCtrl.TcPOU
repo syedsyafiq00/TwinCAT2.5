@@ -1,0 +1,416 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="ClangsonicUSCommCtrl" Id="{04d24bb8-7958-4b31-95fb-498b5643f59a}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM ClangsonicUSCommCtrl
+VAR
+	bStn1UsPowerModbusEn		: BOOL;
+	bStn2UsPowerModbusEn		: BOOL;
+	bStn3UsPowerModbusEn		: BOOL;
+	bStn4UsPowerModbusEn		: BOOL;
+	bStn5UsPowerModbusEn		: BOOL;
+	bStn6UsPowerModbusEn		: BOOL;
+	bStn7UsPowerModbusEn		: BOOL;
+	bStn8UsPowerModbusEn		: BOOL;
+
+	tStn1UsPowerModbusEn: TON;
+	tStn1_1UsPowerModbusEn: TON;
+	tStn2UsPowerModbusEn: TON;
+	tStn2_1UsPowerModbusEn: TON;
+	tStn3UsPowerModbusEn: TON;
+	tStn3_1UsPowerModbusEn: TON;
+	tStn4UsPowerModbusEn: TON;
+	tStn5UsPowerModbusEn: TON;
+	tStn5_1UsPowerModbusEn: TON;
+	tStn6UsPowerModbusEn: TON;
+	tStn6_1UsPowerModbusEn: TON;
+	tStn7UsPowerModbusEn: TON;
+	tStn7_1UsPowerModbusEn: TON;
+	tStn8UsPowerModbusEn: TON;
+	tStn8_1UsPowerModbusEn: TON;
+	bStn1UsPowerDisplayNoSame : BOOL;
+	bStn1_1UsPowerDisplayNoSame : BOOL;
+	bStn2UsPowerDisplayNoSame : BOOL;
+	bStn2_1UsPowerDisplayNoSame : BOOL;
+	bStn3UsPowerDisplayNoSame : BOOL;
+	bStn3_1UsPowerDisplayNoSame : BOOL;
+	bStn4UsPowerDisplayNoSame : BOOL;
+	bStn5UsPowerDisplayNoSame : BOOL;
+	bStn5_1UsPowerDisplayNoSame : BOOL;
+	bStn6UsPowerDisplayNoSame : BOOL;
+	bStn6_1UsPowerDisplayNoSame : BOOL;
+	bStn7UsPowerDisplayNoSame : BOOL;
+	bStn7_1UsPowerDisplayNoSame : BOOL;
+	bStn8UsPowerDisplayNoSame : BOOL;
+	bStn8_1UsPowerDisplayNoSame : BOOL;
+
+	tStn1UsPowerDisplayNoSame : TON;
+	tStn1_1UsPowerDisplayNoSame : TON;
+	tStn2UsPowerDisplayNoSame : TON;
+	tStn2_1UsPowerDisplayNoSame : TON;
+	tStn3UsPowerDisplayNoSame : TON;
+	tStn3_1UsPowerDisplayNoSame : TON;
+	tStn4UsPowerDisplayNoSame : TON;
+	tStn5UsPowerDisplayNoSame : TON;
+	tStn5_1UsPowerDisplayNoSame : TON;
+	tStn6UsPowerDisplayNoSame : TON;
+	tStn6_1UsPowerDisplayNoSame : TON;
+	tStn7UsPowerDisplayNoSame : TON;
+	tStn7_1UsPowerDisplayNoSame : TON;
+	tStn8UsPowerDisplayNoSame : TON;
+	tStn8_1UsPowerDisplayNoSame : TON;
+
+	iStn1PowerValueTemp: INT;
+	iStn1_1PowerValueTemp: INT;
+	iStn2PowerValueTemp: INT;
+	iStn2_1PowerValueTemp: INT;
+	iStn3PowerValueTemp: INT;
+	iStn3_1PowerValueTemp: INT;
+	iStn4PowerValueTemp: INT;
+	iStn5PowerValueTemp: INT;
+	iStn5_1PowerValueTemp: INT;
+	iStn6PowerValueTemp: INT;
+	iStn6_1PowerValueTemp: INT;
+	iStn7PowerValueTemp: INT;
+	iStn7_1PowerValueTemp: INT;
+	iStn8PowerValueTemp: INT;
+	iStn8_1PowerValueTemp: INT;
+
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF ARDsStnSeqProcessCtrl[1].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent (*i6ProTankSideUsAPwrPercent*) > 0 THEN
+bStn1UsPowerModbusEn := TRUE;
+ELSE
+bStn1UsPowerModbusEn := FALSE;
+END_IF
+
+IF ARDsStnSeqProcessCtrl[2].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent (*i6ProTankSideUsAPwrPercent*) > 0 THEN
+bStn2UsPowerModbusEn := TRUE;
+ELSE
+bStn2UsPowerModbusEn := FALSE;
+END_IF
+
+IF ARDsStnSeqProcessCtrl[3].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent > 0 THEN
+bStn3UsPowerModbusEn := TRUE;
+ELSE
+bStn3UsPowerModbusEn := FALSE;
+END_IF
+
+IF ARDsStnSeqProcessCtrl[4].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent > 0 THEN
+bStn4UsPowerModbusEn := TRUE;
+ELSE
+bStn4UsPowerModbusEn := FALSE;
+END_IF
+
+IF ARDsStnSeqProcessCtrl[5].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent > 0 THEN
+bStn5UsPowerModbusEn := TRUE;
+ELSE
+bStn5UsPowerModbusEn := FALSE;
+END_IF
+
+IF ARDsStnSeqProcessCtrl[6].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent > 0 THEN
+bStn6UsPowerModbusEn := TRUE;
+ELSE
+bStn6UsPowerModbusEn := FALSE;
+END_IF
+
+IF ARDsStnSeqProcessCtrl[7].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent > 0 THEN
+bStn7UsPowerModbusEn := TRUE;
+ELSE
+bStn7UsPowerModbusEn := FALSE;
+END_IF
+
+IF ARDsStnSeqProcessCtrl[8].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent > 0 THEN
+bStn8UsPowerModbusEn := TRUE;
+ELSE
+bStn8UsPowerModbusEn := FALSE;
+END_IF
+
+
+tStn1UsPowerModbusEn(IN:= bStn1UsPowerModbusEn AND (ARDsStnSeqProcessCtrl[1].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent (*i6ProTankSideUsAPwrPercent*) <> ARiUsPowerPV_percent[1]) , PT:= t#20s, Q=> , ET=> );
+
+IF tStn1UsPowerModbusEn.Q THEN
+bStn1UsPowerDisplayNoSame := TRUE;
+END_IF
+
+tStn1UsPowerDisplayNoSame(IN:=bStn1UsPowerDisplayNoSame , PT:=t#10s , Q=> , ET=> );
+
+IF bStn1UsPowerDisplayNoSame THEN
+iStn1PowerValueTemp := ARDsStnSeqProcessCtrl[1].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent (*i6ProTankSideUsAPwrPercent*) - 5 ;
+ELSE
+iStn1PowerValueTemp := 0 ;
+END_IF
+
+IF bStn1UsPowerDisplayNoSame AND tStn1UsPowerDisplayNoSame.Q THEN
+bStn1UsPowerDisplayNoSame := FALSE;
+END_IF
+
+
+(*
+tStn1_1UsPowerModbusEn(IN:= bStn1UsPowerModbusEn AND (ARDsStnSeqProcessCtrl[1].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent (*i6ProTankSideUsAPwrPercent*) <> ARiUsPowerPV_percent[2]) , PT:= t#20s, Q=> , ET=> );
+
+IF tStn1_1UsPowerModbusEn.Q THEN
+bStn1_1UsPowerDisplayNoSame := TRUE;
+END_IF
+
+tStn1_1UsPowerDisplayNoSame(IN:=bStn1_1UsPowerDisplayNoSame , PT:=t#10s , Q=> , ET=> );
+
+IF bStn1_1UsPowerDisplayNoSame THEN
+iStn1_1PowerValueTemp := ARDsStnSeqProcessCtrl[1].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent (*i6ProTankSideUsAPwrPercent*) - 5 ;
+ELSE
+iStn1_1PowerValueTemp := 0 ;
+END_IF
+
+IF bStn1_1UsPowerDisplayNoSame AND tStn1_1UsPowerDisplayNoSame.Q THEN
+bStn1_1UsPowerDisplayNoSame := FALSE;
+END_IF
+*)
+
+
+tStn2UsPowerModbusEn(IN:= bStn2UsPowerModbusEn AND (ARDsStnSeqProcessCtrl[2].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent (*i6ProTankSideUsAPwrPercent*) <> ARiUsPowerPV_percent[2]) , PT:= t#20s, Q=> , ET=> );
+
+IF tStn2UsPowerModbusEn.Q THEN
+bStn2UsPowerDisplayNoSame := TRUE;
+END_IF
+
+tStn2UsPowerDisplayNoSame(IN:=bStn2UsPowerDisplayNoSame , PT:=t#10s , Q=> , ET=> );
+
+IF bStn2UsPowerDisplayNoSame THEN
+iStn2PowerValueTemp := ARDsStnSeqProcessCtrl[2].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent (*i6ProTankSideUsAPwrPercent*) - 5 ;
+ELSE
+iStn2PowerValueTemp := 0 ;
+END_IF
+
+IF bStn2UsPowerDisplayNoSame AND tStn2UsPowerDisplayNoSame.Q THEN
+bStn2UsPowerDisplayNoSame := FALSE;
+END_IF
+
+
+(*
+tStn2_1UsPowerModbusEn(IN:= bStn2UsPowerModbusEn AND (ARDsStnSeqProcessCtrl[2].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent (*i6ProTankSideUsAPwrPercent*) <> ARiUsPowerPV_percent[4]) , PT:= t#20s, Q=> , ET=> );
+
+IF tStn2_1UsPowerModbusEn.Q THEN
+bStn2_1UsPowerDisplayNoSame := TRUE;
+END_IF
+
+tStn2_1UsPowerDisplayNoSame(IN:=bStn2_1UsPowerDisplayNoSame , PT:=t#10s , Q=> , ET=> );
+
+IF bStn2_1UsPowerDisplayNoSame THEN
+iStn2_1PowerValueTemp := ARDsStnSeqProcessCtrl[2].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent (*i6ProTankSideUsAPwrPercent*) - 5 ;
+ELSE
+iStn2_1PowerValueTemp := 0 ;
+END_IF
+
+IF bStn2_1UsPowerDisplayNoSame AND tStn2_1UsPowerDisplayNoSame.Q THEN
+bStn2_1UsPowerDisplayNoSame := FALSE;
+END_IF
+*)
+
+(*
+tStn3UsPowerModbusEn(IN:= bStn3UsPowerModbusEn AND (ARDsStnSeqProcessCtrl[3].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent <> ARiUsPowerPV_percent[3]) , PT:= t#20s, Q=> , ET=> );
+
+IF tStn3UsPowerModbusEn.Q THEN
+bStn3UsPowerDisplayNoSame := TRUE;
+END_IF
+
+tStn3UsPowerDisplayNoSame(IN:=bStn3UsPowerDisplayNoSame , PT:=t#10s , Q=> , ET=> );
+
+IF bStn3UsPowerDisplayNoSame THEN
+iStn3PowerValueTemp := ARDsStnSeqProcessCtrl[3].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent - 5 ;
+ELSE
+iStn3PowerValueTemp := 0 ;
+END_IF
+
+IF bStn3UsPowerDisplayNoSame AND tStn3UsPowerDisplayNoSame.Q THEN
+bStn3UsPowerDisplayNoSame := FALSE;
+END_IF
+
+
+tStn3_1UsPowerModbusEn(IN:= bStn3UsPowerModbusEn AND (ARDsStnSeqProcessCtrl[3].Out_DSStnSeqProOutput.i6ProTankSideUsAPwrPercent <> ARiUsPowerPV_percent[6]) , PT:= T#20S, Q=> , ET=> );
+
+IF tStn3_1UsPowerModbusEn.Q THEN
+bStn3_1UsPowerDisplayNoSame := TRUE;
+END_IF
+
+tStn3_1UsPowerDisplayNoSame(IN:=bStn3_1UsPowerDisplayNoSame , PT:=t#10s , Q=> , ET=> );
+
+IF bStn3_1UsPowerDisplayNoSame THEN
+iStn3_1PowerValueTemp := ARDsStnSeqProcessCtrl[3].Out_DSStnSeqProOutput.i6ProTankSideUsAPwrPercent - 5 ;
+ELSE
+iStn3_1PowerValueTemp := 0 ;
+END_IF
+
+IF bStn3_1UsPowerDisplayNoSame AND tStn3_1UsPowerDisplayNoSame.Q THEN
+bStn3_1UsPowerDisplayNoSame := FALSE;
+END_IF
+*)
+
+tStn4UsPowerModbusEn(IN:= bStn4UsPowerModbusEn AND (ARDsStnSeqProcessCtrl[4].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent <> ARiUsPowerPV_percent[4]) , PT:= T#20S, Q=> , ET=> );
+
+IF tStn4UsPowerModbusEn.Q THEN
+bStn4UsPowerDisplayNoSame := TRUE;
+END_IF
+
+tStn4UsPowerDisplayNoSame(IN:=bStn4UsPowerDisplayNoSame , PT:=t#10s , Q=> , ET=> );
+
+IF bStn4UsPowerDisplayNoSame THEN
+iStn4PowerValueTemp := ARDsStnSeqProcessCtrl[4].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent - 5 ;
+ELSE
+iStn4PowerValueTemp := 0 ;
+END_IF
+
+IF bStn4UsPowerDisplayNoSame AND tStn4UsPowerDisplayNoSame.Q THEN
+bStn4UsPowerDisplayNoSame := FALSE;
+END_IF
+
+
+tStn5UsPowerModbusEn(IN:= bStn5UsPowerModbusEn AND (ARDsStnSeqProcessCtrl[5].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent <> ARiUsPowerPV_percent[5]) , PT:= T#20S, Q=> , ET=> );
+
+IF tStn5UsPowerModbusEn.Q THEN
+bStn5UsPowerDisplayNoSame := TRUE;
+END_IF
+
+tStn5UsPowerDisplayNoSame(IN:=bStn5UsPowerDisplayNoSame , PT:=t#10s , Q=> , ET=> );
+
+IF bStn5UsPowerDisplayNoSame THEN
+iStn5PowerValueTemp := ARDsStnSeqProcessCtrl[5].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent - 5 ;
+ELSE
+iStn5PowerValueTemp := 0 ;
+END_IF
+
+IF bStn5UsPowerDisplayNoSame AND tStn5UsPowerDisplayNoSame.Q THEN
+bStn5UsPowerDisplayNoSame := FALSE;
+END_IF
+
+(*
+tStn5_1UsPowerModbusEn(IN:= bStn5UsPowerModbusEn AND (ARDsStnSeqProcessCtrl[5].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent <> ARiUsPowerPV_percent[8]) , PT:= t#20s, Q=> , ET=> );
+
+IF tStn5_1UsPowerModbusEn.Q THEN
+bStn5_1UsPowerDisplayNoSame := TRUE;
+END_IF
+
+tStn5_1UsPowerDisplayNoSame(IN:=bStn5_1UsPowerDisplayNoSame , PT:=t#10s , Q=> , ET=> );
+
+IF bStn5_1UsPowerDisplayNoSame THEN
+iStn5_1PowerValueTemp := ARDsStnSeqProcessCtrl[5].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent - 5 ;
+ELSE
+iStn5_1PowerValueTemp := 0 ;
+END_IF
+
+IF bStn5_1UsPowerDisplayNoSame AND tStn5_1UsPowerDisplayNoSame.Q THEN
+bStn5_1UsPowerDisplayNoSame := FALSE;
+END_IF
+*)
+
+(*
+tStn6UsPowerModbusEn(IN:= bStn6UsPowerModbusEn AND (ARDsStnSeqProcessCtrl[6].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent <> ARiUsPowerPV_percent[9]) , PT:= t#20s, Q=> , ET=> );
+
+IF tStn6UsPowerModbusEn.Q THEN
+bStn6UsPowerDisplayNoSame := TRUE;
+END_IF
+
+tStn6UsPowerDisplayNoSame(IN:=bStn6UsPowerDisplayNoSame , PT:=t#10s , Q=> , ET=> );
+
+IF bStn6UsPowerDisplayNoSame THEN
+iStn6PowerValueTemp := ARDsStnSeqProcessCtrl[6].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent - 5 ;
+ELSE
+iStn6PowerValueTemp := 0 ;
+END_IF
+
+IF bStn6UsPowerDisplayNoSame AND tStn6UsPowerDisplayNoSame.Q THEN
+bStn6UsPowerDisplayNoSame := FALSE;
+END_IF
+
+
+
+tStn6_1UsPowerModbusEn(IN:= bStn6UsPowerModbusEn AND (ARDsStnSeqProcessCtrl[6].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent <> ARiUsPowerPV_percent[10]) , PT:= t#20s, Q=> , ET=> );
+
+IF tStn6_1UsPowerModbusEn.Q THEN
+bStn6_1UsPowerDisplayNoSame := TRUE;
+END_IF
+
+tStn6_1UsPowerDisplayNoSame(IN:=bStn6_1UsPowerDisplayNoSame , PT:=t#10s , Q=> , ET=> );
+
+IF bStn6_1UsPowerDisplayNoSame THEN
+iStn6_1PowerValueTemp := ARDsStnSeqProcessCtrl[6].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent - 5 ;
+ELSE
+iStn6_1PowerValueTemp := 0 ;
+END_IF
+
+IF bStn6_1UsPowerDisplayNoSame AND tStn6_1UsPowerDisplayNoSame.Q THEN
+bStn6_1UsPowerDisplayNoSame := FALSE;
+END_IF
+*)
+
+
+tStn7UsPowerModbusEn(IN:= bStn7UsPowerModbusEn AND (ARDsStnSeqProcessCtrl[7].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent <> ARiUsPowerPV_percent[7]) , PT:= T#20S, Q=> , ET=> );
+
+IF tStn7UsPowerModbusEn.Q THEN
+bStn7UsPowerDisplayNoSame := TRUE;
+END_IF
+
+tStn7UsPowerDisplayNoSame(IN:=bStn7UsPowerDisplayNoSame , PT:=t#10s , Q=> , ET=> );
+
+IF bStn7UsPowerDisplayNoSame THEN
+iStn7PowerValueTemp := ARDsStnSeqProcessCtrl[7].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent - 5 ;
+ELSE
+iStn7PowerValueTemp := 0 ;
+END_IF
+
+IF bStn7UsPowerDisplayNoSame AND tStn7UsPowerDisplayNoSame.Q THEN
+bStn7UsPowerDisplayNoSame := FALSE;
+END_IF
+
+
+(*
+tStn7_1UsPowerModbusEn(IN:= bStn7UsPowerModbusEn AND (ARDsStnSeqProcessCtrl[7].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent <> ARiUsPowerPV_percent[12]) , PT:= t#20s, Q=> , ET=> );
+
+IF tStn7_1UsPowerModbusEn.Q THEN
+bStn7_1UsPowerDisplayNoSame := TRUE;
+END_IF
+
+tStn7_1UsPowerDisplayNoSame(IN:=bStn7_1UsPowerDisplayNoSame , PT:=t#10s , Q=> , ET=> );
+
+IF bStn7_1UsPowerDisplayNoSame THEN
+iStn7_1PowerValueTemp := ARDsStnSeqProcessCtrl[7].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent - 5 ;
+ELSE
+iStn7_1PowerValueTemp := 0 ;
+END_IF
+
+IF bStn7_1UsPowerDisplayNoSame AND tStn7_1UsPowerDisplayNoSame.Q THEN
+bStn7_1UsPowerDisplayNoSame := FALSE;
+END_IF
+*)
+
+
+tStn8UsPowerModbusEn(IN:= bStn8UsPowerModbusEn AND (ARDsStnSeqProcessCtrl[8].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent <> ARiUsPowerPV_percent[8]) , PT:= T#20S, Q=> , ET=> );
+
+IF tStn8UsPowerModbusEn.Q THEN
+bStn8UsPowerDisplayNoSame := TRUE;
+END_IF
+
+tStn8UsPowerDisplayNoSame(IN:=bStn8UsPowerDisplayNoSame , PT:=T#10S , Q=> , ET=> );
+
+IF bStn8UsPowerDisplayNoSame THEN
+iStn8PowerValueTemp := ARDsStnSeqProcessCtrl[8].Out_DSStnSeqProOutput.i3ProTankBtmUsAPwrPercent - 5 ;
+ELSE
+iStn8PowerValueTemp := 0 ;
+END_IF
+
+IF bStn8UsPowerDisplayNoSame AND tStn8UsPowerDisplayNoSame.Q THEN
+bStn8UsPowerDisplayNoSame := FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="ClangsonicUSCommCtrl">
+      <LineId Id="68" Count="40" />
+      <LineId Id="445" Count="4" />
+      <LineId Id="109" Count="100" />
+      <LineId Id="211" Count="20" />
+      <LineId Id="233" Count="15" />
+      <LineId Id="250" Count="19" />
+      <LineId Id="271" Count="98" />
+      <LineId Id="451" Count="17" />
+      <LineId Id="450" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

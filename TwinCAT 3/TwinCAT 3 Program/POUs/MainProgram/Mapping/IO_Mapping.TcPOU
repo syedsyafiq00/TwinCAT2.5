@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="IO_Mapping" Id="{300c8327-3036-45d6-8afe-6c894d22f771}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM IO_Mapping
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+//Input
+ 
+ARwMapDI[100]:= ARwActualMapDI[1] ;
+ARwMapDI[101]:= ARwActualMapDI[2] ;
+ARwMapDI[102]:= ARwActualMapDI[3] ;
+ARwMapDI[103]:= ARwActualMapDI[4] ;
+ARwMapDI[104]:= ARwActualMapDI[5] ;
+ARwMapDI[110]:= ARwActualMapDI[6] ;
+ARwMapDI[111]:= ARwActualMapDI[7] ;
+ARwMapDI[120]:= ARwActualMapDI[8] ;
+ARwMapDI[121]:= ARwActualMapDI[9] ;
+ARwMapDI[130]:= ARwActualMapDI[10];
+ARwMapDI[140]:= ARwActualMapDI[11];
+ARwMapDI[150]:= ARwActualMapDI[12];
+
+
+FN_DigitalInputMapping(TRUE,100,1);
+FN_DigitalInputMapping(TRUE,101,17);
+FN_DigitalInputMapping(TRUE,102,33);
+FN_DigitalInputMapping(TRUE,103,49);
+FN_DigitalInputMapping(TRUE,104,65);
+FN_DigitalInputMapping(TRUE,110,81);
+FN_DigitalInputMapping(TRUE,111,97);
+FN_DigitalInputMapping(TRUE,120,113);
+FN_DigitalInputMapping(TRUE,121,129);
+FN_DigitalInputMapping(TRUE,130,145);
+FN_DigitalInputMapping(TRUE,140,161);
+FN_DigitalInputMapping(TRUE,150,177);
+
+
+//Output
+
+FN_DigitalOutputMapping(TRUE,100,1);
+FN_DigitalOutputMapping(TRUE,101,17);
+FN_DigitalOutputMapping(TRUE,102,33);
+FN_DigitalOutputMapping(TRUE,103,49);
+FN_DigitalOutputMapping(TRUE,110,65);
+FN_DigitalOutputMapping(TRUE,111,81);
+FN_DigitalOutputMapping(TRUE,120,97);
+FN_DigitalOutputMapping(TRUE,130,113);
+FN_DigitalOutputMapping(TRUE,131,129);
+FN_DigitalOutputMapping(TRUE,132,145);
+
+ARwActualMapDO[1]:= ARwMapDO[100] ;
+ARwActualMapDO[2]:= ARwMapDO[101] ;
+ARwActualMapDO[3]:= ARwMapDO[102] ;
+ARwActualMapDO[4]:= ARwMapDO[103] ;
+ARwActualMapDO[5]:= ARwMapDO[110] ;
+ARwActualMapDO[6]:= ARwMapDO[111] ;
+ARwActualMapDO[7]:= ARwMapDO[120] ;
+ARwActualMapDO[8]:= ARwMapDO[130] ;
+ARwActualMapDO[9]:= ARwMapDO[131] ;
+ARwActualMapDO[10]:= ARwMapDO[132] ;]]></ST>
+    </Implementation>
+    <LineIds Name="IO_Mapping">
+      <LineId Id="113" Count="0" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="74" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="75" Count="10" />
+      <LineId Id="72" Count="1" />
+      <LineId Id="5" Count="1" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="12" Count="7" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="100" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="29" Count="4" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="102" Count="7" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

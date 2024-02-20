@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_EventDescriptionCausedRemedy" Id="{86ac8e49-228f-4581-924d-642f9df4664e}">
+    <Declaration><![CDATA[TYPE DS_EventDescriptionCausedRemedy :
+STRUCT
+	sEventCode						: STRING(10);
+	sEventType						: STRING(10);
+	sLocation						: STRING(20);
+	sSubLocation					: STRING(20);
+	sDescription 					: STRING(80);
+	sCaused							: STRING(80);
+	sRemedy							: STRING(220);
+
+END_STRUCT
+END_TYPE
+
+
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,238 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbV2_InvAxisHome" Id="{83790bd2-0608-494c-a811-f8445167853f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbV2_InvAxisHome
+VAR_INPUT
+	bHomeSt : BOOL;
+	bHomeReset : BOOL;
+	bEstop : BOOL;
+	bNegativeHomingDirectionEn : BOOL;
+	bPositiveHomingDirectionEn : BOOL;
+	bHomeSensor : BOOL;
+	bFwdOverTravelSensorNC : BOOL;
+	bRwdOverTravelSensorNC : BOOL;
+
+	rHomeHighSpeedHz : REAL;
+	rHome2ndSpeedHz : REAL;
+
+END_VAR
+
+VAR_IN_OUT
+
+	rDccDelayTimeSec : REAL;
+
+END_VAR
+
+VAR_OUTPUT
+	bHomeDone : BOOL;
+	bHomeBusy : BOOL;
+
+	bOut_InvMoveFwd : BOOL;
+	bOut_InvMoveRwd : BOOL;
+	bOut_EncoderValueReset : BOOL;
+
+	rHomeTargetSpdHz : REAL;
+	iHomeStep: INT;
+
+END_VAR
+VAR
+	bHomeStRE: R_TRIG;
+	bInternalInvMoveFwd: BOOL;
+	bInternalInvMoveRwd: BOOL;
+	tStep12DT: TON;
+	tStep22DT: TON;
+	tStep32DT: TON;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Lower / Higher Limit*)
+IF rDccDelayTimeSec < 0.1 THEN
+rDccDelayTimeSec := 0.1;
+END_IF
+IF rDccDelayTimeSec > 5 THEN
+rDccDelayTimeSec := 5;
+END_IF
+
+(*Timer*)
+tStep12DT(IN:=iHomeStep=12 , PT:=REAL_TO_TIME(rDccDelayTimeSec*1000) , Q=> , ET=> );
+tStep22DT(IN:=iHomeStep=22 , PT:=REAL_TO_TIME(rDccDelayTimeSec*1000) , Q=> , ET=> );
+tStep32DT(IN:=iHomeStep=32 , PT:=REAL_TO_TIME(rDccDelayTimeSec*1000) , Q=> , ET=> );
+
+
+
+
+(*Homing Control*)
+bHomeStRE(CLK:=bHomeSt , Q=> );
+
+IF bEstop OR bHomeReset OR NOT bFwdOverTravelSensorNC OR NOT bRwdOverTravelSensorNC THEN
+iHomeStep := 0;
+ELSIF bHomeStRE.Q AND NOT bHomeDone THEN
+iHomeStep := 1;
+ELSIF NOT bHomeSt AND NOT bHomeDone THEN
+iHomeStep := 0;
+END_IF
+
+
+
+CASE iHomeStep OF
+
+(*Reset or Estop*)
+0:
+	bHomeDone := FALSE;
+	bHomeBusy := FALSE;
+
+	bInternalInvMoveFwd := FALSE;
+	bInternalInvMoveRwd := FALSE;
+	bOut_EncoderValueReset := FALSE;
+
+	rHomeTargetSpdHz := 0;
+
+
+(* Homing Process*)
+1:
+bHomeBusy := TRUE;
+
+IF bHomeSensor THEN
+iHomeStep := 21;
+ELSE
+iHomeStep := 11;
+END_IF
+
+
+
+
+
+11: (*Home Search - 1st Step*)
+
+bHomeBusy := TRUE;
+bInternalInvMoveRwd := TRUE;
+rHomeTargetSpdHz := rHomeHighSpeedHz;
+
+IF bHomeSensor THEN
+iHomeStep := 12;
+END_IF
+
+
+
+
+
+
+12: (*Home Search - 1st Step -> Delay for DCC*)
+
+bInternalInvMoveRwd := FALSE;
+
+IF tStep12DT.Q THEN
+iHomeStep := 21;
+END_IF
+
+
+
+
+
+
+21: (*Home Search - 2nd Step*)
+
+bHomeBusy := TRUE;
+bInternalInvMoveFwd := TRUE;
+rHomeTargetSpdHz := rHome2ndSpeedHz;
+
+IF NOT bHomeSensor THEN
+iHomeStep := 22;
+END_IF
+
+
+
+
+
+
+
+22: (*Home Search - 2nd Step -> Delay for DCC*)
+
+bInternalInvMoveFwd := FALSE;
+
+IF tStep22DT.Q THEN
+iHomeStep := 31;
+END_IF
+
+
+
+
+
+
+31:(*Home Search - 3rd Step*)
+
+bHomeBusy := TRUE;
+bInternalInvMoveRwd := TRUE;
+rHomeTargetSpdHz := rHome2ndSpeedHz;
+
+IF bHomeSensor THEN
+bOut_EncoderValueReset := TRUE;
+iHomeStep := 32;
+END_IF
+
+
+
+
+
+32: (*Home Search - 3rd Step -> Delay for DCC*)
+
+bInternalInvMoveRwd := FALSE;
+
+IF tStep32DT.Q THEN
+bOut_EncoderValueReset := FALSE;
+iHomeStep := 40;
+END_IF
+
+
+
+
+
+
+40: (*Celebration - Home Done *)
+bHomeBusy := FALSE;
+bOut_EncoderValueReset := FALSE;
+bHomeDone := TRUE;
+rHomeTargetSpdHz := 0;
+
+
+
+END_CASE
+
+
+
+(*Direction Control*)
+IF bNegativeHomingDirectionEn AND NOT bPositiveHomingDirectionEn THEN
+
+	IF bInternalInvMoveFwd THEN
+		bOut_InvMoveFwd := TRUE;
+		bOut_InvMoveRwd := FALSE;
+	ELSIF bInternalInvMoveRwd THEN
+		bOut_InvMoveFwd := FALSE;
+		bOut_InvMoveRwd := TRUE;
+	ELSE
+		bOut_InvMoveRwd := FALSE;
+		bOut_InvMoveFwd := FALSE;
+	END_IF
+
+ELSIF NOT bNegativeHomingDirectionEn AND bPositiveHomingDirectionEn THEN
+
+	IF bInternalInvMoveFwd THEN
+		bOut_InvMoveRwd := TRUE;
+		bOut_InvMoveFwd := FALSE;
+	ELSIF bInternalInvMoveRwd THEN
+		bOut_InvMoveRwd := FALSE;
+		bOut_InvMoveFwd := TRUE;
+	ELSE
+		bOut_InvMoveRwd := FALSE;
+		bOut_InvMoveFwd := FALSE;
+	END_IF
+
+ELSE
+		bOut_InvMoveRwd := FALSE;
+		bOut_InvMoveFwd := FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbV2_InvAxisHome">
+      <LineId Id="42" Count="185" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

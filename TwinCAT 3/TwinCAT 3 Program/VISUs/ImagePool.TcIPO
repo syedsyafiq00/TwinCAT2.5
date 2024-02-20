@@ -1,0 +1,212 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <ImagePool Name="ImagePool" Id="{6bba9ce0-a18f-4d14-aac6-8bf425d74975}">
+    <XmlArchive>
+      <Data>
+        <o xml:space="preserve" t="ImagePoolObject">
+          <v n="UniqueIdGenerator">"202"</v>
+          <l n="BitmapPool" t="ArrayList" cet="ImagePoolItem">
+            <o>
+              <v n="BitmapID">"JKS Logo"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Logo_Types_Logo_CRT.png"</v>
+              <v n="ItemID">5</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Machine Image"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\FullMachine.png"</v>
+              <v n="ItemID">16</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Arm Body"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Arm Body.png"</v>
+              <v n="ItemID">76</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Arm Hook"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Arm hook left.png"</v>
+              <v n="ItemID">79</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Basket Green"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Basket Green.png"</v>
+              <v n="ItemID">83</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Basket Red"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Basket Red.png"</v>
+              <v n="ItemID">87</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Basket Blue"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Basket Blue.png"</v>
+              <v n="ItemID">89</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Add User"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Add User Button.svg"</v>
+              <v n="ItemID">96</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Cancel"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Cancel Button.svg"</v>
+              <v n="ItemID">97</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Clear Button"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Clear.svg"</v>
+              <v n="ItemID">98</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Copy Button"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Copy.svg"</v>
+              <v n="ItemID">99</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Delete User"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Delete User Button.svg"</v>
+              <v n="ItemID">100</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Log In"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Log In Button.svg"</v>
+              <v n="ItemID">102</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Menu Button"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Menu.svg"</v>
+              <v n="ItemID">104</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Next Button"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Next.svg"</v>
+              <v n="ItemID">105</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Previous Button"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Previous.svg"</v>
+              <v n="ItemID">106</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Save Button"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Save.svg"</v>
+              <v n="ItemID">107</v>
+            </o>
+            <o>
+              <v n="BitmapID">"LD_Conv"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\LD_Conv.png"</v>
+              <v n="ItemID">91</v>
+            </o>
+            <o>
+              <v n="BitmapID">"LD"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\LD_Conv-removebg-preview_-_Copy-removebg-preview.png"</v>
+              <v n="ItemID">119</v>
+            </o>
+            <o>
+              <v n="BitmapID">"ULD Conv"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\ULD-removebg-preview.png"</v>
+              <v n="ItemID">124</v>
+            </o>
+            <o>
+              <v n="BitmapID">"ULD"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\ULD_-_Copy-removebg-preview.png"</v>
+              <v n="ItemID">128</v>
+            </o>
+            <o>
+              <v n="BitmapID">"EcoClean Logo"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Logo EcoClean.png"</v>
+              <v n="ItemID">132</v>
+            </o>
+            <o>
+              <v n="BitmapID">"General"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\General.png"</v>
+              <v n="ItemID">154</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Stn 1"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Stn 1.png"</v>
+              <v n="ItemID">158</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Stn 2"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Stn 2.png"</v>
+              <v n="ItemID">163</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Stn 3"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Stn 3.png"</v>
+              <v n="ItemID">165</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Stn 4"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Stn 4.png"</v>
+              <v n="ItemID">167</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Stn 5"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Stn 5.png"</v>
+              <v n="ItemID">169</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Stn 6"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Stn 6.png"</v>
+              <v n="ItemID">173</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Machine"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Machine.png"</v>
+              <v n="ItemID">175</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Inc General"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Inc General.png"</v>
+              <v n="ItemID">184</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Inc Stn 1"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Inc Stn 1.png"</v>
+              <v n="ItemID">191</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Inc Stn 2"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Inc Stn 2.png"</v>
+              <v n="ItemID">193</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Inc Stn 3"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Inc Stn 3.png"</v>
+              <v n="ItemID">195</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Inc Stn 4"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Inc Stn 4.png"</v>
+              <v n="ItemID">197</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Inc Stn 5"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|C:\Image\Inc Stn 5.png"</v>
+              <v n="ItemID">199</v>
+            </o>
+            <o>
+              <v n="BitmapID">""</v>
+              <v n="FileID">""</v>
+              <v n="ItemID">201</v>
+            </o>
+          </l>
+          <v n="GuidInit">{c98c2f7a-6253-4e3f-8f1b-7622db66b5f5}</v>
+          <v n="GuidReInit">{383419d5-aaab-48d9-a4e9-4d511c18ee36}</v>
+          <v n="GuidExitX">{2416f7b7-ea70-4f76-b68d-044491057544}</v>
+          <v n="ValidIds">true</v>
+        </o>
+      </Data>
+      <TypeList>
+        <Type n="ArrayList">System.Collections.ArrayList</Type>
+        <Type n="Boolean">System.Boolean</Type>
+        <Type n="Guid">System.Guid</Type>
+        <Type n="ImagePoolItem">{215b2719-0347-4e4d-ba85-8bcd66946f66}</Type>
+        <Type n="ImagePoolObject">{bb0b9044-714e-4614-ad3e-33cbdf34d16b}</Type>
+        <Type n="Int32">System.Int32</Type>
+        <Type n="String">System.String</Type>
+      </TypeList>
+    </XmlArchive>
+  </ImagePool>
+</TcPlcObject>

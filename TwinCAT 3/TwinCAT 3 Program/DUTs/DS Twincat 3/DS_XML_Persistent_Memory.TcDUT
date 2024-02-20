@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_XML_Persistent_Memory" Id="{ef343817-b5eb-49f9-a089-58202fb29a5f}">
+    <Declaration><![CDATA[TYPE DS_XML_Persistent_Memory :
+STRUCT
+(* xxxxxxxxxxxsxxxxxx BasketMemory - Basket Cfm/ Trf Internal Used xxxxxxxxsxxxxxxxxx*)
+(*========================================================================*)
+
+	fbLdBasketMemory					: ARRAY [0..iCvLdQty] OF fbV2_SingleArmBasketMemoryV2;
+	fbA1StationBasketMemory				: ARRAY [0..iStnQty] OF fbV2_SingleArmBasketMemoryV2;
+	fbA2StationBasketMemory				: ARRAY [0..iStnQty] OF fbV2_SingleArmBasketMemoryV2;
+	fbUldBasketMemory					: ARRAY [0..iCvUldQty] OF fbV2_SingleArmBasketMemoryV2;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxx  BasketInfo - Internal Used xxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*========================================================================*)
+
+	DSLdBasketInfoConfirm 				: ARRAY [0..iLdStnQty] OF DSV2_BasketInfo;
+	DSLdBasketInfoTransfer 				: ARRAY [0..iLdStnQty] OF DSV2_BasketInfo;
+
+	DSUldBasketInfoConfirm 				: ARRAY [0..iUldStnQty] OF DSV2_BasketInfo;
+	DSUldBasketInfoTransfer 			: ARRAY [0..iUldStnQty] OF DSV2_BasketInfo;
+
+	DSStnBasketInfo						: ARRAY [0..iStnQty] OF DSV2_BasketInfo;
+	DSArmBasketInfo 					: ARRAY [0..iArmQty] OF DSV2_BasketInfo;
+
+(* xxxxxxxxxxxxxxxxxxxxx  BasketInfo - Loading / Unloading Conveyor Used xxxxxxxxxxxxxxxxxxxxx *)
+(*================================================================================*)
+
+	AR2sDSCv_LdConfirmBasketInfo 		: ARRAY [1..iLdStnQty, 1..iCvLdQty] OF DSV2_BasketInfo;
+	AR2sDSCv_LdTransferBasketInfo 		: ARRAY [1..iLdStnQty, 1..iCvLdQty] OF DSV2_BasketInfo;
+
+	AR2sDSCv_UldConfirmBasketInfo 		: ARRAY [1..iUldStnQty, 1..iCvUldQty] OF DSV2_BasketInfo;
+	AR2sDSCv_UldTransferBasketInfo 		: ARRAY [1..iUldStnQty, 1..iCvUldQty] OF DSV2_BasketInfo;
+
+(* xxxxxxxxxxxxxxxxxxxxx  Station Memory and InputOutput Variable - Internal Used xxxxxxxxxxxxxxxxxxxxx*)
+(*=====================================================================================*)
+
+	LdDSStationSSERStore				: DSV2_fbStationSequenceRecipeStore;
+	LdDSStationSSURStore 				: DS_fbStationSubRecipeStore;
+
+	LdDSStationSSERCall					: DSV2_fbStationSequenceRecipeCall;
+	LdDSStationSSURCall 				: DS_fbStationSubRecipeCall;
+
+	ARDsStnSeqProInput 					: ARRAY [0..iStnQty] OF DS_StnSeqProInput;
+	ARDSStnSeqProOutput 				: ARRAY [0..iStnQty] OF DS_StnSeqProOutput;
+
+	AR10DSStationSSERStore				: ARRAY [0..iStnQty] OF DSV2_fbStationSequenceRecipeStore;
+	AR10DSStationSSERCall				: ARRAY [0..iStnQty] OF DSV2_fbStationSequenceRecipeCall;
+
+	AR10DSStationSSURStore 				: ARRAY [0..iStnQty] OF DS_fbStationSubRecipeStore;
+	AR10DSStationSSURCall 				: ARRAY [0..iStnQty] OF DS_fbStationSubRecipeCall;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx  Station Process Variable - Internal Used xxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*=====================================================================================*)
+
+	fbMainStationProcess_Stn			: ARRAY [1..iStnQty] OF fbV2_MainStationProcess;
+	ARDsStnSeqProcessCtrl 				: ARRAY [0..iStnQty] OF DS_fbStnSeqProcessCtrl;
+	ARbProductRecipeCallEn 				: ARRAY [0..iStnQty] OF BOOL;
+	ARiProductRecipeNoCall 				: ARRAY [0..iStnQty] OF INT;
+	ARiProductRecipeStepCall 			: ARRAY [0..iStnQty] OF INT;
+	DSfbGnrProductRecipeMemoryOut 		: DSV2_fbGnrProductRecipeMemoryOut;
+	ARiStnNoToCalledArm					: ARRAY [0..iArmQty] OF INT;
+	ARDSGnrFeedArmPnpParameter			: ARRAY [0..iArmQty] OF DSV2_Gnr_CalledArmPnpParameter;
+	ARbArmReady							: ARRAY [1..iArmQty] OF BOOL;(* Universal*) (* Input  - From ArmPnpFB, This signal is used to confirm if the arm is ready and idling*)
+	ARbStationProcessCompletedFlag		: ARRAY [0..iStnQty] OF BOOL;
+
+(*xxxxxxxxxxxxxxxxxxxxxxxxxxx fbGnrProductRecipeMemory - Internal Used xxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*=====================================================================================*)
+
+(*Input/Output*)
+	ARiCurrentHorzStnNo					: ARRAY [1..iArmQty] OF INT;
+	ARi1StepPatternNo					: ARRAY [1..iArmQty] OF INT;
+	ARDs1StepUpDownMovement				: ARRAY [1..iArmQty] OF DSA1_UpDownMovement;
+	ARi4StepPatternNo					: ARRAY [1..iArmQty] OF INT;
+	ARDs4StepUpDownMovement				: ARRAY [1..iArmQty] OF DSA1_UpDownMovement;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxx  Station ZoneHeight Variable - External Used xxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*=====================================================================================*)
+
+	ARDSLdZoneHeight 					: ARRAY [0..iLdStnQty] OF DSA32_StationZoneHeight;
+	ARDSStationZoneHeight 				: ARRAY [0..iStnQty] OF DSA32_StationZoneHeight;
+	ARDSUldZoneHeight 					: ARRAY [0..iUldStnQty] OF DSA32_StationZoneHeight;
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxx  Station ZoneHeight Variable - Internal Used xxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*=====================================================================================*)
+
+	ARDSLdZonePosOut					: ARRAY [0..iLdStnQty] OF DSA32_StationZonePosOut; (*From fbGnrProductRecipeMemory Output*)
+	ARDSStationZonePosOut 				: ARRAY [0..iStnQty] OF DSA32_StationZonePosOut; (*From fbGnrProductRecipeMemory Output*)
+	ARDSUldZonePosOut 					: ARRAY [0..iUldStnQty] OF DSA32_StationZonePosOut;(*From fbGnrProductRecipeMemory Output*)
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx  MaxMin Time Used  xxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+(*====================================================================*)
+
+	ARDsSSERSourceMinMaxTime_Uni		: ARRAY [1..iStnQty] OF DSV2_SSERSourceMinMaxTime;
+	ARDsStnMinMaxEffTimeDisplay			: ARRAY [0..iStnQty] OF DSV2_StnMinMaxEffTIme;
+	DSV2MTBMinMaxEffTime 				: DSV2_MinMaxEffTime;
+
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbSingleArmBasketMemoryV2" Id="{8a4e614f-4a38-4a92-b05e-50847a3ceb6d}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbSingleArmBasketMemoryV2
+VAR_INPUT
+
+	iCurStationNo : INT;
+	bConfirmCondition : BOOL;
+	bConfirmTrigger : BOOL;
+	bTransferCondition : BOOL;
+	bTransferTrigger : BOOL;
+
+
+END_VAR
+
+
+VAR_OUTPUT
+
+
+
+END_VAR
+
+VAR
+
+	bConfirmTriggerDIFU : R_TRIG;
+	TransferTriggerDIFU : R_TRIG;
+	EmptyDsBasketInfo : DS_BasketInfo;
+	iCTCompareResult: DINT;
+	iTTCompareResult: DINT;
+	bConfirmTriggerHR: BOOL;
+	tConfirmTriggerDoff: TON;
+	tTransferTriggerDoff: TON;
+	bTransferTriggerHR: BOOL;
+END_VAR
+
+VAR_IN_OUT
+	DSPreTransBasketInfo : DS_BasketInfo;
+	DSCurConfirmBasketInfo : DS_BasketInfo;
+	DSCurTransBasketInfo : DS_BasketInfo;
+
+(*
+	bPreTransBasket : BOOL;
+	bCurConfirmBasket : BOOL;
+	bCurTransBasket : BOOL;
+
+	sPreTransStringMemory1 : STRING(50);
+	sPreTransStringMemory2 : STRING(50);
+	sPreTransStringMemory3 : STRING(50);
+	sPreTransStringMemory4 : STRING(50);
+	sPreTransStringMemory5 : STRING(50);
+	sPreTransStringMemory6 : STRING(50);
+	iPreTransRecipeNo : INT;
+	iPrePickedBasketStationNo : INT;
+
+	sCurConfirmStringMemory1 : STRING(50);
+	sCurConfirmStringMemory2 : STRING(50);
+	sCurConfirmStringMemory3 : STRING(50);
+	sCurConfirmStringMemory4 : STRING(50);
+	sCurConfirmStringMemory5 : STRING(50);
+	sCurConfirmStringMemory6 : STRING(50);
+	iCurConfirmRecipeNo : INT;
+
+
+
+	sCurTransStringMemory1 : STRING(50);
+	sCurTransStringMemory2 : STRING(50);
+	sCurTransStringMemory3 : STRING(50);
+	sCurTransStringMemory4 : STRING(50);
+	sCurTransStringMemory5 : STRING(50);
+	sCurTransStringMemory6 : STRING(50);
+	iCurTransRecipeNo : INT;
+	iCurPickedBasketStationNo : INT;
+
+*)
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Generate Basket Confirm Bit *)
+
+IF DSPreTransBasketInfo.iProductRecipeNo <> 0 THEN
+DSPreTransBasketInfo.bAvailibility := TRUE;
+ELSE
+DSPreTransBasketInfo.bAvailibility := FALSE;
+END_IF
+
+IF DSCurConfirmBasketInfo.iProductRecipeNo <> 0 THEN
+DSCurConfirmBasketInfo.bAvailibility := TRUE;
+ELSE
+DSCurConfirmBasketInfo.bAvailibility := FALSE;
+END_IF
+
+IF DSCurTransBasketInfo.iProductRecipeNo <> 0 THEN
+DSCurTransBasketInfo.bAvailibility := TRUE;
+ELSE
+DSCurTransBasketInfo.bAvailibility := FALSE;
+END_IF
+
+
+(* PreTrans -> CurConfirm *)
+bConfirmTriggerDIFU(CLK:=bConfirmTrigger , Q=> );
+tConfirmTriggerDoff(IN:=bConfirmTriggerHR , PT:=t#1s , Q=> , ET=> );
+
+
+IF tConfirmTriggerDoff.Q THEN
+bConfirmTriggerHR := FALSE;
+END_IF
+
+
+IF bConfirmTriggerDIFU.Q THEN
+bConfirmTriggerHR := TRUE;
+END_IF
+
+
+IF (*bConfirmTriggerHR*)bConfirmTriggerDIFU.Q AND bConfirmCondition THEN
+
+	IF DSPreTransBasketInfo.iProductRecipeNo <> 0 AND DSCurConfirmBasketInfo.iProductRecipeNo = 0 THEN
+
+			DSCurConfirmBasketInfo := DSPreTransBasketInfo;
+
+			iCTCompareResult := MEMCMP(ADR(DSCurConfirmBasketInfo), ADR(DSPreTransBasketInfo), SIZEOF(DSPreTransBasketInfo));
+
+			IF iCTCompareResult = 0 THEN
+			DSPreTransBasketInfo := EmptyDsBasketInfo;
+			DSCurConfirmBasketInfo.iCurrentStationNo := iCurStationNo;
+			END_IF
+
+
+			IF DSCurConfirmBasketInfo.iProductRecipeNo <> 0 THEN
+			DSCurConfirmBasketInfo.iPreviousStationNo := 0;
+			END_IF
+
+	END_IF
+
+END_IF
+
+(* CurConfirm -> CurTransfer *)
+TransferTriggerDIFU(CLK:=bTransferTrigger , Q=> );
+
+tTransferTriggerDoff(IN:=bTransferTriggerHR , PT:=t#1s , Q=> , ET=> );
+
+
+IF tTransferTriggerDoff.Q THEN
+bTransferTriggerHR := FALSE;
+END_IF
+
+
+IF TransferTriggerDIFU.Q THEN
+bTransferTriggerHR := TRUE;
+END_IF
+
+
+
+IF (*bTransferTriggerHR*)TransferTriggerDIFU.Q AND bTransferCondition THEN
+
+
+	IF DSCurConfirmBasketInfo.iProductRecipeNo <> 0 AND DSCurTransBasketInfo.iProductRecipeNo = 0 THEN
+			DSCurTransBasketInfo := DSCurConfirmBasketInfo;
+
+			iTTCompareResult := MEMCMP(ADR(DSCurTransBasketInfo), ADR(DSCurConfirmBasketInfo), SIZEOF(DSCurConfirmBasketInfo));
+
+			IF iTTCompareResult = 0 THEN
+			DSCurConfirmBasketInfo := EmptyDsBasketInfo;
+			DSCurTransBasketInfo.iPreviousStationNo := iCurStationNo;
+			END_IF
+
+
+			IF DSCurTransBasketInfo.iProductRecipeNo <> 0 THEN
+			DSCurTransBasketInfo.iCurrentStationNo := 0;
+			END_IF
+
+	END_IF
+
+
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="fbSingleArmBasketMemoryV2">
+      <LineId Id="73" Count="96" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="GVL_Event_Module" Id="{1e2044c7-9122-49ff-952b-e14a02979775}">
+    <Declaration><![CDATA[VAR_GLOBAL
+	fb3EventModule							:FB3_EventModule;
+	bEventRstPBPhysicalInput				: BOOL;
+	bBuzzerRstPBPhysicalInput				: BOOL;
+	bAcknowdgePBPhysicalInput				: BOOL;
+	//bEventRstPB							: BOOL;
+	//bBuzerRstPB							: BOOL;
+	//bAcknowledgePB						: BOOL;
+	bAcknowledgeEnable						: BOOL; 
+	tPowerUpDelayTime						: TIME;
+	//eHmiLanguage							: E_HmiLanguage; 
+	bActiveEventDisplay_ScrollUp			: BOOL;
+	bActiveEventDisplay_ScrollDown			: BOOL;
+	bHistoryEventDisplay_ScrollUp			: BOOL;
+	bHistoryEventDisplay_ScrollDown			: BOOL;	
+	bCautionEventOccuredFlag 				: BOOL;
+	bWarningEventOccuredFlag 				: BOOL;
+	bErrorEventOccuredFlag 					: BOOL;
+	bEventOccuredFlag						: BOOL;
+	iActiveCautionEventCount				: INT;
+	iActiveWarningEventCount 				: INT;
+	iActiveErrorEventCount	 				: INT;
+	bBuzzerOutput							: BOOL;	
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

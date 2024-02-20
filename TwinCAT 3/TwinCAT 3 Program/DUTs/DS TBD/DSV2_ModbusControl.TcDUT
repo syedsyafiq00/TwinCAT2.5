@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSV2_ModbusControl" Id="{46d6c7fc-c224-47b1-8fb7-99d1fdc25b1d}">
+    <Declaration><![CDATA[TYPE DSV2_ModbusControl :
+STRUCT
+
+	iRWRef 						: ARRAY [1..iModbusRWQty] OF INT;
+	(***************************************************)
+	(*
+		0 = --- End Code ---
+		1 = Read ONLY
+		2 = Read/Write
+		3 = Disable
+		4 = --- End Code ---
+		Above 4 = --- End Code ---
+										*)
+	(***************************************************)
+
+	wModbusData 				: ARRAY [1..iModbusRWQty] OF WORD; (*Data for Read or Write*)
+	wModbusRegisterAddr 		: ARRAY [1..iModbusRWQty] OF WORD; (*Modbus Register Address*)
+	B_UnitID 						: ARRAY [1..iModbusRWQty] OF BYTE; (*Unit ID - Modbus ID*)
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_SubRecipeMemory" Id="{8b8f207b-6b8b-4bd0-a717-817f7b8b41fe}">
+    <Declaration><![CDATA[TYPE DS_SubRecipeMemory : (*Full Occupied Byte = 400*)
+STRUCT
+(*BOOL - Start Condition*)
+(*	bStCon1EnLowLiquidLevel : BOOL; (* Byte "n" *)
+	bStCon2EnRegLiquidLevel : BOOL; (* Byte "n+1" *)
+	bStCon3EnLowVacuumLevel : BOOL; (* Byte "n+2" *)
+	bStCon4EnRegVacuumLevel : BOOL; (* Byte "n+3" *)
+	bStCon5EnLowPressureLevel : BOOL; (* Byte "n+4" *)
+	bStCon6EnRegPressureLevel : BOOL; (* Byte "n+5" *)
+	bStCon7EnBelowTargetVacuumLevel : BOOL; (* Byte "n+6" *)
+	bStCon8EnAboveTargetVacuumLevel : BOOL; (* Byte "n+7" *)
+	bStCon9EnBelowTargetPressureLevel : BOOL; (* Byte "n+8" *)
+	bStCon10EnAboveTargetPressureLevel : BOOL; (* Byte "n+9" *)
+	bStCon11EnBelowTargetProTankTempLevel : BOOL; (* Byte "n+10" *)
+	bStCon12EnAboveTargetProTankTempLevel : BOOL; (* Byte "n+11" *)
+	bStCon13EnBelowTargetSubTankTempLevel : BOOL; (* Byte "n+12" *)
+	bStCon14EnAboveTargetSubTankTempLevel : BOOL; (* Byte "n+13" *)
+	bStCon15ExternalActivation : BOOL; (* Byte "n+14" *)
+*)
+	bStCon1EnProLowLiquidLevel : BOOL; (* Byte "n" *)
+	bStCon2EnProRegLiquidLevel : BOOL; (* Byte "n+1" *)
+	bStCon3EnProHighLiquidLevel : BOOL; (* Byte "n+1" *)
+
+	bStCon4EnSubLowLiquidLevel : BOOL; (* Byte "n+1" *)
+	bStCon5EnSubRegLiquidLevel : BOOL; (* Byte "n+1" *)
+	bStCon6EnSubHighLiquidLevel : BOOL; (* Byte "n+1" *)
+
+	bStCon7EnLowVacuumLevel : BOOL; (* Byte "n+2" *)
+	bStCon8EnRegVacuumLevel : BOOL; (* Byte "n+3" *)
+	bStCon9EnLowPressureLevel : BOOL; (* Byte "n+4" *)
+	bStCon10EnRegPressureLevel : BOOL; (* Byte "n+5" *)
+	bStCon11EnBelowTargetVacuumLevel : BOOL; (* Byte "n+6" *)
+	bStCon12EnAboveTargetVacuumLevel : BOOL; (* Byte "n+7" *)
+	bStCon13EnBelowTargetPressureLevel : BOOL; (* Byte "n+8" *)
+	bStCon14EnAboveTargetPressureLevel : BOOL; (* Byte "n+9" *)
+	bStCon15EnBelowTargetProTankTempLevel : BOOL; (* Byte "n+10" *)
+	bStCon16EnAboveTargetProTankTempLevel : BOOL; (* Byte "n+11" *)
+	bStCon17EnBelowTargetSubTankTempLevel : BOOL; (* Byte "n+12" *)
+	bStCon18EnAboveTargetSubTankTempLevel : BOOL; (* Byte "n+13" *)
+	bStCon19ExternalActivation : BOOL; (* Byte "n+14" *)
+
+(*BOOL - Complete Condition*)
+	bComCon1EnProLowLiquidLevel : BOOL; (* Byte "n+15" *)
+	bComCon2EnProRegLiquidLevel : BOOL; (* Byte "n+16" *)
+	bComCon3EnProHighLiquidLevel : BOOL; (* Byte "n+16" *)
+
+	bComCon4EnSubLowLiquidLevel : BOOL; (* Byte "n+16" *)
+	bComCon5EnSubRegLiquidLevel : BOOL; (* Byte "n+16" *)
+	bComCon6EnSubHighLiquidLevel : BOOL; (* Byte "n+16" *)
+
+	bComCon7EnLowVacuumLevel : BOOL; (* Byte "n+17" *)
+	bComCon8EnRegVacuumLevel : BOOL; (* Byte "n+18" *)
+	bComCon9EnLowPressureLevel : BOOL; (* Byte "n+19" *)
+	bComCon10EnRegPressureLevel : BOOL; (* Byte "n+20" *)
+	bComCon11EnBelowTargetVacuumLevel : BOOL; (* Byte "n+21" *)
+	bComCon12EnAboveTargetVacuumLevel : BOOL; (* Byte "n+22" *)
+	bComCon13EnBelowTargetPressureLevel : BOOL; (* Byte "n+23" *)
+	bComCon14EnAboveTargetPressureLevel : BOOL; (* Byte "n+24" *)
+	bComCon15EnBelowTargetProTankTempLevel : BOOL; (* Byte "n+25" *)
+	bComCon16EnAboveTargetProTankTempLevel : BOOL; (* Byte "n+26" *)
+	bComCon17EnBelowTargetSubTankTempLevel : BOOL; (* Byte "n+27" *)
+	bComCon18EnAboveTargetSubTankTempLevel : BOOL; (* Byte "n+28" *)
+	bComCon19EnExternalActivation : BOOL; (* Byte "n+29" *)
+	bComCon20EnProcessTimer : BOOL; (* Byte "n+29" *)
+
+(*BOOL - Instrument Output*)
+	bOut1EnProTankPump : BOOL; (* Byte "n+30" *)
+	bOut2EnProTankHeater : BOOL; (* Byte "n+31" *)
+	bOut3EnProTankBottomUltrasonicA : BOOL; (* Byte "n+32" *)
+	bOut4EnProTankBottomUltrasonicB : BOOL; (* Byte "n+33" *)
+	bOut5EnProTankBottomUltrasonicC : BOOL; (* Byte "n+34" *)
+	bOut6EnProTankSideUltrasonicA : BOOL; (* Byte "n+35" *)
+	bOut7EnProTankSideUltrasonicB : BOOL; (* Byte "n+36" *)
+	bOut8EnSubTankPump : BOOL; (* Byte "n+37" *)
+	bOut9EnSubTankHeater : BOOL; (* Byte "n+38" *)
+	bOut10EnBlower : BOOL; (* Byte "n+39" *)
+	bOut11EnVacuumPump : BOOL; (* Byte "n+40" *)
+	bOut12EnSlowPull : BOOL; (* Byte "n+41" *) (*MODIFIED*)
+	bOut13EnInstrument2 : BOOL; (* Byte "n+42" *)
+	bOut14EnInstrument3 : BOOL; (* Byte "n+43" *)
+	bOut15EnInstrument4 : BOOL; (* Byte "n+44" *)
+
+(*BOOL - Valve Output*)
+	bOut1ActValve1 : BOOL; (* Byte "n+45" *)
+	bOut2ActValve2 : BOOL; (* Byte "n+46" *)
+	bOut3ActValve3 : BOOL; (* Byte "n+47" *)
+	bOut4ActValve4 : BOOL; (* Byte "n+48" *)
+	bOut5ActValve5 : BOOL; (* Byte "n+49" *)
+	bOut6ActValve6 : BOOL; (* Byte "n+50" *)
+	bOut7ActValve7 : BOOL; (* Byte "n+51" *)
+	bOut8ActValve8 : BOOL; (* Byte "n+52" *)
+	bOut9ActValve9 : BOOL; (* Byte "n+53" *)
+	bOut10ActValve10 : BOOL; (* Byte "n+54" *)
+	bOut11ActValve11 : BOOL; (* Byte "n+55" *)
+	bOut12ActValve12 : BOOL; (* Byte "n+56" *)
+	bOut13ActValve13 : BOOL; (* Byte "n+57" *)
+	bOut14ActValve14 : BOOL; (* Byte "n+58" *)
+	bOut15ActValve15 : BOOL; (* Byte "n+59" *)
+	bOut16ActValve16 : BOOL; (* Byte "n+60" *)
+	bOut17ActValve17 : BOOL; (* Byte "n+61" *)
+	bOut18ActValve18 : BOOL; (* Byte "n+62" *)
+	bOut19ActValve19 : BOOL; (* Byte "n+63" *)
+	bOut20ActValve20 : BOOL; (* Byte "n+64" *)
+
+
+(*BOOL - Instrument Output*) (*New*)
+	bOut16EnProTankChangeTemperature : BOOL; (* Byte "n+65" *) (*New*)
+	bOut17EnSubTankChangeTemperature : BOOL; (* Byte "n+66" *) (*New*)
+
+
+	sReservedBool : STRING(50); (* Byte "n+67~n+99" *)
+
+
+(*INT - Start Condition*)
+
+	iStCon1TargetVacuumLevel : INT; (* Byte "n+100, n+101" *)
+	iStCon2TargetPressureLevel : INT; (* Byte "n+102, n+103" *)
+	iStCon3TargetProTankTempLevel : INT; (* Byte "n+104, n+105" *)
+	iStCon4TargetSubTankTempLevel : INT; (* Byte "n+106, n+107" *)
+
+(*INT - Complete Condition*)
+
+	iComCon1TargetVacuumLevel : INT; (* Byte "n+108, n+109" *)
+	iComCon2TargetPressureLevel : INT; (* Byte "n+110, n+111" *)
+	iComCon3TargetProTankTempLevel : INT; (* Byte "n+112, n+113" *)
+	iComCon4TargetSubTankTempLevel : INT; (* Byte "n+114, n+115" *)
+	iComCon5ProcessTimer : INT; (* Byte "n+116, n+117" *)
+
+(*INT - Power/Flow Control*)
+	iOut1ProTankPumpLPM : INT; (* Byte "n+118, n+119" *)
+	iOut2ProTankPumpHz : INT; (* Byte "n+120, n+121" *)
+	iOut3ProTankBtmUsAPwrPercent : INT; (* Byte "n+122, n+123" *)
+	iOut4ProTankBtmUsBPwrPercent : INT; (* Byte "n+124, n+125" *)
+	iOut5ProTankBtmUsCPwrPercent : INT; (* Byte "n+126, n+127" *)
+	iOut6ProTankSideUsAPwrPercent : INT; (* Byte "n+128, n+129" *)
+	iOut7ProTankSideUsBPwrPercent : INT; (* Byte "n+130, n+131" *)
+	iOut8ProTankBtmUsAkHz : INT; (* Byte "n+132, n+133" *)
+	iOut9ProTankBtmUsBkHz : INT; (* Byte "n+134, n+135" *)
+	iOut10ProTankBtmUsCkHz : INT; (* Byte "n+136, n+137" *)
+	iOut11ProTankSideUsAkHz : INT; (* Byte "n+138, n+139" *)
+	iOut12ProTankSideUsBkHz : INT; (* Byte "n+140, n+141" *)
+	iOut13ProTankBlowerHz : INT;(* Byte "n+142, n+143" *)
+
+	rOut14ProTankChangeTemperatureDegC  : REAL;(* Byte "n+144, n+147" *) (*New*)
+	rOut15SubTankChangeTemperatureDegC  : REAL;(* Byte "n+148, n+151" *) (*New*)
+	iOut16SubTankPumpLPM   : INT;(* Byte "n+152, n+153" *) (*New*)
+	iOut17SubTankPumpHz   : INT;(* Byte "n+154, n+155" *) (*New*)
+
+	iOut18SlowPullVelocity   : INT;(* Byte "n+154, n+155" *) (*MODIFIED*)
+	iOut19SlowPullDelayTime   : INT;(* Byte "n+154, n+155" *) (*MODIFIED*)
+
+
+
+	sReservedInt : STRING(50); (* Byte "n+156~n+159" *)
+
+
+(*LREAL - Standby*)
+	lrLREALReserved1 : LREAL; (* Byte "n+160~n+167" *)
+	lrLREALReserved2 : LREAL; (* Byte "n+168~n+175" *)
+	sReservedLreal : STRING(50); (* Byte "n+176~n+199" *)
+
+
+(*STRING - Standby*)
+	sStringReserved1 : STRING(50); (* Byte "n+200 ~ n+299" *)
+	sStringReserved2 : STRING(50); (* Byte "n+300 ~ n+399" *)
+
+
+
+
+
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

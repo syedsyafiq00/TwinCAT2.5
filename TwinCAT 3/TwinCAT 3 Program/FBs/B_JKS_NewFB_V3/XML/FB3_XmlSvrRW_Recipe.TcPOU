@@ -1,0 +1,774 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB3_XmlSvrRW_Recipe" Id="{0e2888df-b51a-44bd-aa41-62eb0ce64752}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB3_XmlSvrRW_Recipe
+VAR_INPUT
+	bWriteSt				: BOOL;
+	bReadSt					: BOOL;
+	bShutdownRequestFlag 	: BOOL;
+
+	eVariableType			: E_XMLVariableType;
+	eXmlRwMode				: E_XmlRWMode;
+		
+	sDefaultFilePath		: STRING := 'C:\JKS\PLC\XML\';
+	sFileExtension			: STRING := 'XML';
+	
+END_VAR
+VAR_OUTPUT
+	bWrite_Done				: BOOL;
+	bWrite_Busy				: BOOL;
+	bWrite_Error			: BOOL;
+	udWrite_ErrId			: UDINT;
+	bRead_Done				: BOOL;
+	bRead_Busy				: BOOL;
+	bRead_Error				: BOOL;
+	udRead_ErrId 			: UDINT;
+	bReadyToShutdownFlag 	: BOOL;
+	sErrorMessage			: STRING;
+	iTotalTime_100ms		: INT;
+	iExportedImportedQty	: INT;
+	iProgressPercentage		: INT;
+END_VAR
+
+VAR
+		fbXmlSrvWriteByAdd	: FB_XmlSrvWrite;
+		fbXmlSrvReadByAdd	: FB_XmlSrvRead;
+		fbFileDelete		: FB_FileDelete;
+	bWriteStRE						: R_TRIG;
+	bReadStRE						: R_TRIG;
+	iArrayId_ProRepRecipeQty		: INT;
+	iArrayId_iSSERRecipeQty			: INT;
+	iArrayId_iSSURRecipeQty			: INT;
+	iArrayId_iSSMRRecipeQty			: INT;
+	iArrayId_SSERProcessStnQty		: INT;
+	iArrayId_SSURProcessStnQty		: INT;
+	iArrayId_SSMRProcessStnQty		: INT;
+	iFL								: INT;
+	iCase							: INT;
+	bFound							: BOOL;
+
+	bWriteSt_Int					: BOOL;
+	bReadSt_Int						: BOOL;
+	bWrite_Busy_Int					: BOOL;
+	bRead_Busy_Int					: BOOL;
+	bFileDeleteSt					: BOOL;
+	sFilePath_Int					: T_MaxString;
+	sXPath_Int						: T_MaxString;
+
+	
+	iRepType			: INT;
+	
+	
+	pSymAddr_Int		: PVOID;
+	pSymAddr_Empty		: PVOID;
+
+	cbSymSize_Int		: UDINT;
+	sFileName_Main			: STRING;
+	sFileName_Sub1			: STRING;
+	sFileName_Sub2			: STRING;
+
+	sXPath_Main			: STRING; 	// No Spacing is allowed
+	sXPath_Sub1			: STRING;	// No Spacing is allowed
+	sXPath_Sub2			: STRING;	// No Spacing is allowed
+
+	
+	bRead_Error_Int: BOOL;
+	iTotalWriteTask: INT;
+	iProRepTask: INT;
+	iSSERTask: INT;
+	iSSURTask: INT;
+	iSSMRTask: INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+IF NOT bWriteSt AND NOT bReadSt THEN
+	iCase 	:= 0;
+END_IF
+
+bWriteStRE(CLK	:=bWriteSt AND NOT bShutdownRequestFlag 	, Q=> );
+bReadStRE(CLK	:=bReadSt AND NOT bShutdownRequestFlag  	, Q=> );
+
+
+// Shutdown request control
+	bReadyToShutdownFlag := NOT bWrite_Busy AND NOT bRead_Busy AND bShutdownRequestFlag;
+
+
+// Capture Total Time for Read or Write
+IF iCase = 1 OR (iCase >= 10 AND iCase < 19) OR (iCase >= 20 AND iCase < 29) THEN
+	IF bClockPulse_0_1Sec THEN
+		iTotalTime_100ms := iTotalTime_100ms + 1;
+	END_IF
+END_IF
+
+
+fbXmlSrvWriteByAdd(
+	sNetId			:= '', 
+	ePath			:= PATH_GENERIC, 
+	nMode			:= XMLSRV_ADDMISSING, 
+	pSymAddr		:= pSymAddr_Int, 
+	cbSymSize		:= cbSymSize_Int, 
+	sFilePath		:= sFilePath_Int, 
+	sXPath			:= sXPath_Int, 
+	bExecute		:= bWriteSt_Int, 
+	tTimeout		:= T#5S, 
+	bBusy			=> bWrite_Busy_Int, 
+	bError			=> bWrite_Error);
+
+fbXmlSrvReadByAdd(
+	sNetId			:= '', 
+	ePath			:= PATH_GENERIC, 
+	nMode			:= XMLSRV_SKIPMISSING, 
+	pSymAddr		:= pSymAddr_Int, 
+	cbSymSize		:= cbSymSize_Int, 
+	sFilePath		:= sFilePath_Int, 
+	sXPath			:= sXPath_Int, 
+	bExecute		:= bReadSt_Int, 
+	tTimeout		:= T#5S, 
+	bBusy			=> bRead_Busy_Int, 
+	bError			=> bRead_Error_Int, 
+	nErrId			=> );
+
+IF 		bWriteStRE.Q 	AND NOT bReadSt 	AND NOT bRead_Busy 	THEN 	iCase := 1; 	bWrite_Busy := TRUE;
+ELSIF	bReadStRE.Q		AND NOT bWriteSt 	AND NOT bWrite_Busy	THEN 	iCase := 1;		bRead_Busy := TRUE;			END_IF	
+
+IF bRead_Error_Int AND fbXmlSrvReadByAdd.nErrId <> 1804 THEN
+	bRead_Error := TRUE;
+ELSE	
+	bRead_Error := FALSE;
+END_IF
+
+CASE iCase OF
+	
+	0: 	// Reset ALL
+
+			iArrayId_ProRepRecipeQty		:= 0;
+			iArrayId_iSSERRecipeQty			:= 0;
+			iArrayId_iSSURRecipeQty			:= 0;
+			iArrayId_iSSMRRecipeQty			:= 0;
+			iArrayId_SSERProcessStnQty		:= 0;
+			iArrayId_SSURProcessStnQty		:= 0;
+			iArrayId_SSMRProcessStnQty		:= 0;
+
+			udWrite_ErrId			:= 0;
+			bWrite_Busy				:= FALSE;
+			bWrite_Error			:= FALSE;
+			bWrite_Done				:= FALSE;
+
+			udRead_ErrId			:= 0;
+			bRead_Busy				:= FALSE;
+			bRead_Error				:= FALSE;
+			bRead_Done				:= FALSE;
+	
+			
+			iTotalTime_100ms		:= 0;	
+
+			bWriteSt_Int 			:= FALSE;
+			bReadSt_Int 			:= FALSE;
+			bFileDeleteSt			:= FALSE;
+		
+			iExportedImportedQty	:= 0;			
+			pSymAddr_Int			:= pSymAddr_Empty;
+			cbSymSize_Int			:= 0;	
+			sFilePath_Int			:= '';
+			sXPath_Int				:= '';	
+			
+			iRepType				:= 0;   // 1: Product Recipe, 2: SSER, 3: SSUR, 4: SSMR
+
+			
+			
+			
+	1: // Check Avaiable Array to trigger Read/Write
+
+			IF iRepType 					< 1 	THEN iRepType 						:= 1; 	END_IF
+			IF iArrayId_ProRepRecipeQty		< 1 	THEN iArrayId_ProRepRecipeQty	 	:= 1;	END_IF
+			IF iArrayId_SSERProcessStnQty 	< 1 	THEN iArrayId_SSERProcessStnQty 	:= 1;	END_IF
+			IF iArrayId_iSSERRecipeQty 		< 1	 	THEN iArrayId_iSSERRecipeQty 		:= 1; 	END_IF			
+			IF iArrayId_SSURProcessStnQty 	< 1 	THEN iArrayId_SSURProcessStnQty 	:= 1;	END_IF
+			IF iArrayId_iSSURRecipeQty 		< 1	 	THEN iArrayId_iSSURRecipeQty 		:= 1; 	END_IF
+			IF iArrayId_SSMRProcessStnQty 	< 1 	THEN iArrayId_SSMRProcessStnQty 	:= 1;	END_IF
+			IF iArrayId_iSSMRRecipeQty 		< 1	 	THEN iArrayId_iSSMRRecipeQty 		:= 1; 	END_IF
+				
+			CASE eXmlRwMode OF 
+			
+(*				eXmlMode_MergeAllByType:
+						acMergeAllByType();							// ACTION			
+*)						
+				eXmlMode_SeperateByProductAndStation:			
+						acSeperateByProductAndStation();			// ACTION
+			
+(*				eXmlMode_SeperateAll:			
+						acSeperateAll();							// ACTION
+*)
+			END_CASE
+
+						acGenerate_Filename_XPath();				// ACTION		
+		
+			IF 		bWrite_Busy AND iCase <> 19 THEN		
+					iCase 	:= 12;					
+			
+			ELSIF 	bRead_Busy AND iCase <> 29 THEN		
+					iCase 	:= 22;					
+			END_IF			
+
+				
+	12: // Write Start
+
+			bWriteSt_Int := TRUE;
+	
+			IF fbXmlSrvWriteByAdd.bExecute AND NOT fbXmlSrvWriteByAdd.bBusy AND NOT fbXmlSrvWriteByAdd.bError 
+			AND 	fbXmlSrvWriteByAdd.pSymAddr		= pSymAddr_Int
+			AND 	fbXmlSrvWriteByAdd.cbSymSize	= cbSymSize_Int	
+			AND 	fbXmlSrvWriteByAdd.sFilePath 	= sFilePath_Int
+			AND 	fbXmlSrvWriteByAdd.sXPath		= sXPath_Int		
+			THEN	iCase := 13; // Write Done -> Proceed to clear FB to prepare for Next Cycle (Array) 
+					iExportedImportedQty := iExportedImportedQty + 1;			
+				
+			ELSIF fbXmlSrvWriteByAdd.bExecute AND fbXmlSrvWriteByAdd.bError THEN
+				udWrite_ErrId := fbXmlSrvWriteByAdd.nErrId;
+				mtLogErrorId();
+				iCase := 99;	// WRITE ERROR
+
+				
+			END_IF
+
+	13: 	//  Write - prepare for Next Cycle (Array) 
+			
+			bWriteSt_Int := FALSE;
+	
+			IF NOT fbXmlSrvWriteByAdd.bExecute AND NOT fbXmlSrvWriteByAdd.bBusy  THEN
+				iCase := 1; // Proceed to Next Cycle (Array) 
+			END_IF
+		
+		
+	19: // Write - All Done 
+		
+			bWrite_Busy 	:= FALSE;
+			bWrite_Done 	:= TRUE;
+			
+	22: // Read Start
+
+			bReadSt_Int := TRUE;
+	
+			IF 		fbXmlSrvReadByAdd.bExecute AND NOT fbXmlSrvReadByAdd.bBusy AND NOT fbXmlSrvReadByAdd.bError 
+			AND 	fbXmlSrvReadByAdd.pSymAddr		= pSymAddr_Int
+			AND 	fbXmlSrvReadByAdd.cbSymSize		= cbSymSize_Int
+			AND 	fbXmlSrvReadByAdd.sFilePath 	= sFilePath_Int
+			AND 	fbXmlSrvReadByAdd.sXPath		= sXPath_Int		
+			THEN	iCase := 23; bFileDeleteSt := TRUE;	// Read Done -> Proceed to delete file and clear FB to prepare for Next Cycle (Array)			
+					iExportedImportedQty := iExportedImportedQty + 1;			
+
+			ELSIF fbXmlSrvReadByAdd.bExecute AND fbXmlSrvReadByAdd.bError AND fbXmlSrvReadByAdd.nErrId = 1804 
+			THEN	iCase := 23; // Object Not Found -> Skipped and Proceed to clear FB to prepare for Next Cycle (Array)		
+					
+			ELSIF fbXmlSrvReadByAdd.bExecute AND fbXmlSrvReadByAdd.bError THEN
+				udRead_ErrId := fbXmlSrvReadByAdd.nErrId;
+				mtLogErrorId();
+				iCase := 99;	// READ ERROR
+			END_IF
+
+	23:		// Delete file after read
+			fbFileDelete(
+			sNetId			:= '', 
+			sPathName		:= sFilePath_Int, 
+			ePath			:= PATH_GENERIC, 
+			bExecute		:= bFileDeleteSt, 
+			tTimeout		:= T#2S, 
+			bBusy			=> , 
+			bError			=> , 
+			nErrId			=> );		
+
+			IF fbFileDelete.bExecute AND NOT fbFileDelete.bBusy THEN
+				bFileDeleteSt := FALSE;
+			END_IF
+
+			IF NOT fbFileDelete.bExecute AND NOT bFileDeleteSt THEN
+				iCase := 24;	// Delete file done, proceed to clear FB to prepare for Next Cycle (Array)
+			END_IF
+			
+	24: 	//  Read - prepare for Next Cycle (Array) 
+			
+			bReadSt_Int := FALSE;
+	
+			IF NOT fbXmlSrvReadByAdd.bExecute AND NOT fbXmlSrvReadByAdd.bBusy  THEN
+				iCase := 1; // Proceed to Next Cycle (Array)
+			END_IF
+		
+		
+	29: // Read - All Done 
+		
+			bRead_Busy 	:= FALSE;
+			bRead_Done 	:= TRUE;
+		
+	
+	99: // Error
+	
+			bWriteSt_Int 	:= FALSE;
+			bReadSt_Int 	:= FALSE;
+
+END_CASE
+
+// Progress Percentage
+		IF NOT bWriteSt AND NOT bReadSt  THEN
+			iProgressPercentage := 0;			
+
+		ELSIF (bWriteSt AND NOT bWrite_Done) OR (bReadSt AND NOT bRead_Done) THEN
+			acProgressPercentage();
+		
+		ELSIF (bWriteSt AND bWrite_Done) OR (bReadSt AND bRead_Done) THEN
+			iProgressPercentage := 100;			
+		END_IF
+
+	]]></ST>
+    </Implementation>
+    <Action Name="acGenerate_Filename_XPath" Id="{578d48be-11b2-4d76-a275-8b5af124aa9b}">
+      <Implementation>
+        <ST><![CDATA[
+		IF 		bWrite_Busy THEN		
+		sFilePath_Int	:=	concat(sDefaultFilePath,	'Manual_Export'	);
+		sFilePath_Int	:=	concat(sFilePath_Int,		'\'				);
+		sFilePath_Int	:=	concat(sFilePath_Int,		sFileName_Main	);
+		
+		ELSIF 	bRead_Busy THEN		
+		sFilePath_Int	:=	concat(sDefaultFilePath,	'Manual_Import'	);
+		sFilePath_Int	:=	concat(sFilePath_Int,		'\'				);
+		sFilePath_Int	:=	concat(sFilePath_Int,		sFileName_Main	);
+		END_IF			
+	
+		IF sFileName_Sub1 <> '' THEN
+		sFilePath_Int	:=	concat(sFilePath_Int,		'_'				);
+		sFilePath_Int	:=	concat(sFilePath_Int,		sFileName_Sub1	);
+		END_IF
+		
+		IF sFileName_Sub2 <> '' THEN
+		sFilePath_Int	:=	concat(sFilePath_Int,		'_'				);
+		sFilePath_Int	:=	concat(sFilePath_Int,		sFileName_Sub2	);
+		END_IF
+		
+		sFilePath_Int	:=	concat(sFilePath_Int,		'.'				);
+		sFilePath_Int	:=	concat(sFilePath_Int,		sFileExtension	);
+
+
+							
+		sXPath_Int		:=	concat('/Recipe/',		sXPath_Main		);
+
+		IF sXPath_Sub1 <> '' THEN
+		sXPath_Int		:=	concat(sXPath_Int,		'/ID'			);
+		sXPath_Int		:=	concat(sXPath_Int,		sXPath_Sub1		);
+		END_IF
+		
+		IF sXPath_Sub2 <> '' THEN
+		sXPath_Int		:=	concat(sXPath_Int,		'/ID'			);
+		sXPath_Int		:=	concat(sXPath_Int,		sXPath_Sub2		);
+		END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="acMergeAllByType" Id="{b07ef4d2-a83c-49a9-9329-2fb15ff5fd15}">
+      <Implementation>
+        <ST><![CDATA[
+	IF 		iRepType 		= eXmlParTypeSSER                       
+	THEN	pSymAddr_Int 	:= ADR	(fbMainStationProcess_Stn);  
+			cbSymSize_Int	:= SIZEOF(fbMainStationProcess_Stn);
+			sFileName_Main	:= 'MergeAll\SSER';                 
+			sFileName_Sub1	:= 'All';                           
+			sFileName_Sub2	:= '';                              
+			sXPath_Main		:= 'AR2dsSSER';                       
+			sXPath_Sub1		:= '';                                
+			sXPath_Sub2		:= '';                                
+
+			
+	ELSIF 	iRepType 		= eXmlParTypeSSUR                       
+	THEN	pSymAddr_Int 	:= ADR	(fbMainStationProcess_Stn);  
+			cbSymSize_Int	:= SIZEOF(fbMainStationProcess_Stn);
+			sFileName_Main	:= 'MergeAll\SSUR';                 
+			sFileName_Sub1	:= 'All';                           
+			sFileName_Sub2	:= '';                              
+			sXPath_Main		:= 'AR2dsSSUR';                       
+			sXPath_Sub1		:= '';                                
+			sXPath_Sub2		:= '';     
+			
+
+
+	
+
+	ELSE  	// All Done
+			IF 		bWrite_Busy	THEN
+				iCase 	:= 19;
+			ELSIF 	bRead_Busy	THEN
+				iCase 	:= 29;
+			END_IF
+	END_IF
+
+	iRepType := iRepType +1;						
+						
+		]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="acProgressPercentage" Id="{b8ce1557-5292-4f15-9b5e-e664bee9f8d1}">
+      <Implementation>
+        <ST><![CDATA[
+IF 		eXmlRwMode = eXmlMode_MergeAllByType THEN
+
+		iTotalWriteTask 	:= 4; // Refer to E_XmlParType
+		
+		IF iRepType-1 >= 1 AND iRepType-1 <= 4 THEN 
+			iProgressPercentage := ((iRepType-1)*100) / iTotalWriteTask;
+		END_IF
+
+		IF iProgressPercentage > 100 THEN iProgressPercentage := 100; END_IF
+		
+ELSIF	eXmlRwMode = eXmlMode_SeperateByProductAndStation THEN
+
+		iProRepTask			:= C_iProRepRecipeQty;
+		iSSERTask			:= C_iProcessStnQty;
+		iSSURTask			:= C_iProcessStnQty;
+		iSSMRTask			:= C_iProcessStnQty;
+				
+		iTotalWriteTask 	:= (iProRepTask) + (iSSERTask) + (iSSURTask) + (iSSMRTask);
+
+			IF 		iRepType = eXmlParTypeProductRecipe THEN
+						iProgressPercentage := (iArrayId_ProRepRecipeQty*100) / iTotalWriteTask;
+			ELSIF 	iRepType = eXmlParTypeSSER THEN		
+						iProgressPercentage := (iArrayId_iSSERRecipeQty*100) / iTotalWriteTask;
+						iProgressPercentage := iProgressPercentage + ((iProRepTask*100) / iTotalWriteTask);
+			ELSIF 	iRepType = eXmlParTypeSSUR THEN		
+						iProgressPercentage := (iArrayId_iSSURRecipeQty*100) / iTotalWriteTask;
+						iProgressPercentage := iProgressPercentage + ((iProRepTask*100) / iTotalWriteTask);
+						iProgressPercentage := iProgressPercentage + ((iSSERTask*100) / iTotalWriteTask);
+		(*	ELSIF 	iRepType = eXmlParTypeSSMR THEN		
+						iProgressPercentage := (iArrayId_iSSMRRecipeQty*100) / iTotalWriteTask;
+						iProgressPercentage := iProgressPercentage + ((iProRepTask*100) / iTotalWriteTask);
+						iProgressPercentage := iProgressPercentage + ((iSSERTask*100) / iTotalWriteTask);
+						iProgressPercentage := iProgressPercentage + ((iSSURTask*100) / iTotalWriteTask);
+		*)				
+			END_IF
+
+			IF iProgressPercentage > 100 THEN iProgressPercentage := 100; END_IF
+			
+	
+ELSIF	eXmlRwMode = eXmlMode_SeperateAll THEN
+
+		iProRepTask			:= C_iProRepRecipeQty;
+		iSSERTask			:= C_iProcessStnQty*C_iSSERRecipeQty;
+		iSSURTask			:= C_iProcessStnQty*C_iSSURRecipeQty;
+		iSSMRTask			:= C_iProcessStnQty*C_iSSMRRecipeQty;
+				
+		iTotalWriteTask 	:= (iProRepTask) + (iSSERTask) + (iSSURTask) + (iSSMRTask);
+
+			IF 		iRepType = eXmlParTypeProductRecipe THEN
+						iProgressPercentage := (iArrayId_ProRepRecipeQty*100) / iTotalWriteTask;
+			ELSIF 	iRepType = eXmlParTypeSSER THEN		
+
+						iProgressPercentage := ((((iArrayId_SSERProcessStnQty-1)*C_iSSERRecipeQty) + iArrayId_iSSERRecipeQty) *100) / iTotalWriteTask;
+						iProgressPercentage := iProgressPercentage + ((iProRepTask*100) / iTotalWriteTask);
+
+			ELSIF 	iRepType = eXmlParTypeSSUR THEN		
+						iProgressPercentage := ((((iArrayId_SSURProcessStnQty-1)*C_iSSURRecipeQty) + iArrayId_iSSURRecipeQty) *100) / iTotalWriteTask;
+						iProgressPercentage := iProgressPercentage + ((iProRepTask*100) / iTotalWriteTask);
+						iProgressPercentage := iProgressPercentage + ((iSSERTask*100) / iTotalWriteTask);
+		(*	ELSIF 	iRepType = eXmlParTypeSSMR THEN		
+						iProgressPercentage := ((((iArrayId_SSMRProcessStnQty-1)*C_iSSMRRecipeQty) + iArrayId_iSSMRRecipeQty) *100) / iTotalWriteTask;
+						iProgressPercentage := iProgressPercentage + ((iProRepTask*100) / iTotalWriteTask);
+						iProgressPercentage := iProgressPercentage + ((iSSERTask*100) / iTotalWriteTask);
+						iProgressPercentage := iProgressPercentage + ((iSSURTask*100) / iTotalWriteTask);
+		*)				
+			END_IF
+
+			IF iProgressPercentage > 100 THEN iProgressPercentage := 100; END_IF
+		
+END_IF
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="acSeperateByProductAndStation" Id="{530cc17b-b3e2-4c27-8478-922e1b17f33e}">
+      <Implementation>
+        <ST><![CDATA[
+	IF 		iRepType = eXmlParTypeSSER 	THEN				
+			
+            	pSymAddr_Int 	:= ADR		(fbMainStationProcess_Stn[iArrayId_SSERProcessStnQty].StnSeqProcessfb.fbStationSequenceRecipefb.ARDsStorageStationSequenceRecipeMemory);
+				cbSymSize_Int	:= SIZEOF	(fbMainStationProcess_Stn[iArrayId_SSERProcessStnQty].StnSeqProcessfb.fbStationSequenceRecipefb.ARDsStorageStationSequenceRecipeMemory);
+				sFileName_Main	:= 'ByProductAndStation\SSER';
+				sFileName_Sub1	:= TO_STRING(iArrayId_SSERProcessStnQty);
+				sFileName_Sub2	:= ''; 
+				sXPath_Main		:= 'AR2dsSSER';
+				sXPath_Sub1		:= TO_STRING(iArrayId_SSERProcessStnQty);
+				sXPath_Sub2		:= '';
+			
+			IF 		iArrayId_SSERProcessStnQty + 1 > C_iProcessStnQty THEN 
+					iRepType 					:= iRepType +1;
+            		iArrayId_SSERProcessStnQty 	:= 1;
+			ELSE
+					iArrayId_SSERProcessStnQty 	:= iArrayId_SSERProcessStnQty + 1;
+			END_IF
+			
+
+			
+			
+	ELSIF	iRepType = eXmlParTypeSSUR	THEN
+
+					pSymAddr_Int 	:= ADR		(fbMainStationProcess_Stn[iArrayId_SSURProcessStnQty].StnSeqProcessfb.fbStationSubRecipefb);
+					cbSymSize_Int	:= SIZEOF	(fbMainStationProcess_Stn[iArrayId_SSURProcessStnQty].StnSeqProcessfb.fbStationSubRecipefb);
+					sFileName_Main	:= 'ByProductAndStation\SSUR';
+					sFileName_Sub1	:= TO_STRING(iArrayId_SSURProcessStnQty);
+					sFileName_Sub2	:= '';
+					sXPath_Main		:= 'AR2dsSSUR';
+					sXPath_Sub1		:= TO_STRING(iArrayId_SSURProcessStnQty);
+					sXPath_Sub2		:= '';
+
+			IF 		iArrayId_SSURProcessStnQty + 1 > C_iProcessStnQty THEN 
+					iRepType 					:= iRepType +1;
+					iArrayId_SSURProcessStnQty 	:= 1;
+			ELSE
+					iArrayId_SSURProcessStnQty 	:= iArrayId_SSURProcessStnQty + 1;
+			END_IF
+
+			
+	ELSIF 	iRepType = eXmlParTypeProductRecipe	THEN
+					
+					pSymAddr_Int 	:= ADR		(PnPstorageMemory_Arm.fbGnrProductRecipeMemory_Main.fbA1PnpSequenceMemory.ARDsPnpSequenceMemory[iArrayId_ProRepRecipeQty]);
+					cbSymSize_Int	:= SIZEOF	(PnPstorageMemory_Arm.fbGnrProductRecipeMemory_Main.fbA1PnpSequenceMemory.ARDsPnpSequenceMemory[iArrayId_ProRepRecipeQty]);
+					sFileName_Main	:= 'ByProductAndStation\ProductRecipe';
+					sFileName_Sub1	:= TO_STRING(iArrayId_ProRepRecipeQty);
+					sFileName_Sub2	:= '';
+					sXPath_Main		:= 'ARdsProductRecipe';
+					sXPath_Sub1		:= TO_STRING(iArrayId_ProRepRecipeQty);
+					sXPath_Sub2		:= '';
+
+			IF 		iArrayId_ProRepRecipeQty + 1 > C_iProRepRecipeQty THEN 
+					iRepType 					:= iRepType +1;
+					iArrayId_ProRepRecipeQty 	:= 1;
+			ELSE				
+					iArrayId_ProRepRecipeQty 	:= iArrayId_ProRepRecipeQty + 1; 
+			END_IF			
+			
+
+		ELSE	// All Done
+				IF 		bWrite_Busy	THEN
+					iCase 	:= 19;
+				ELSIF 	bRead_Busy	THEN
+					iCase 	:= 29;
+				END_IF
+		
+		END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="mtLogErrorId" Id="{e3dd4cd3-e98c-472b-a116-4816a765003f}">
+      <Declaration><![CDATA[METHOD PRIVATE mtLogErrorId : BOOL
+VAR_INPUT
+	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[		IF 		bWriteSt_Int 
+		THEN	sErrorMessage := concat('XML Write Error -' , 	'ErrorId: ');
+				sErrorMessage := concat (sErrorMessage, 		TO_STRING(udWrite_ErrId));
+				sErrorMessage := concat (sErrorMessage, 		' - ');
+				sErrorMessage := concat (sErrorMessage, 		sFilePath_Int);
+		ELSIF	bReadSt_Int
+		THEN	sErrorMessage := concat('XML Read Error -' , 	'ErrorId: ');
+				sErrorMessage := concat (sErrorMessage, 		TO_STRING(udRead_ErrId));
+				sErrorMessage := concat (sErrorMessage, 		' - ');
+				sErrorMessage := concat (sErrorMessage, 		sFilePath_Int);
+		END_IF
+	
+		mtLogErrorId := TRUE;
+		]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB3_XmlSvrRW_Recipe">
+      <LineId Id="505" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="44" Count="1" />
+      <LineId Id="48" Count="1" />
+      <LineId Id="236" Count="0" />
+      <LineId Id="1426" Count="3" />
+      <LineId Id="1432" Count="0" />
+      <LineId Id="330" Count="0" />
+      <LineId Id="324" Count="0" />
+      <LineId Id="323" Count="0" />
+      <LineId Id="325" Count="0" />
+      <LineId Id="327" Count="1" />
+      <LineId Id="326" Count="0" />
+      <LineId Id="561" Count="0" />
+      <LineId Id="74" Count="0" />
+      <LineId Id="13" Count="11" />
+      <LineId Id="256" Count="14" />
+      <LineId Id="77" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="1216" Count="0" />
+      <LineId Id="202" Count="0" />
+      <LineId Id="1217" Count="0" />
+      <LineId Id="1219" Count="0" />
+      <LineId Id="1221" Count="0" />
+      <LineId Id="1218" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="197" Count="0" />
+      <LineId Id="81" Count="0" />
+      <LineId Id="196" Count="0" />
+      <LineId Id="639" Count="3" />
+      <LineId Id="1053" Count="2" />
+      <LineId Id="290" Count="9" />
+      <LineId Id="302" Count="0" />
+      <LineId Id="1236" Count="0" />
+      <LineId Id="329" Count="0" />
+      <LineId Id="1247" Count="0" />
+      <LineId Id="1250" Count="2" />
+      <LineId Id="1249" Count="0" />
+      <LineId Id="1248" Count="0" />
+      <LineId Id="612" Count="3" />
+      <LineId Id="603" Count="1" />
+      <LineId Id="1253" Count="0" />
+      <LineId Id="300" Count="0" />
+      <LineId Id="1254" Count="1" />
+      <LineId Id="89" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="1073" Count="0" />
+      <LineId Id="1078" Count="0" />
+      <LineId Id="1066" Count="1" />
+      <LineId Id="1070" Count="1" />
+      <LineId Id="1076" Count="1" />
+      <LineId Id="572" Count="3" />
+      <LineId Id="804" Count="0" />
+      <LineId Id="609" Count="0" />
+      <LineId Id="582" Count="0" />
+      <LineId Id="905" Count="0" />
+      <LineId Id="818" Count="0" />
+      <LineId Id="577" Count="0" />
+      <LineId Id="579" Count="0" />
+      <LineId Id="985" Count="0" />
+      <LineId Id="580" Count="0" />
+      <LineId Id="233" Count="0" />
+      <LineId Id="445" Count="0" />
+      <LineId Id="433" Count="0" />
+      <LineId Id="274" Count="1" />
+      <LineId Id="280" Count="2" />
+      <LineId Id="454" Count="0" />
+      <LineId Id="459" Count="0" />
+      <LineId Id="450" Count="0" />
+      <LineId Id="331" Count="6" />
+      <LineId Id="729" Count="1" />
+      <LineId Id="338" Count="0" />
+      <LineId Id="1257" Count="0" />
+      <LineId Id="339" Count="3" />
+      <LineId Id="802" Count="0" />
+      <LineId Id="731" Count="1" />
+      <LineId Id="344" Count="13" />
+      <LineId Id="186" Count="0" />
+      <LineId Id="358" Count="0" />
+      <LineId Id="360" Count="4" />
+      <LineId Id="727" Count="1" />
+      <LineId Id="365" Count="2" />
+      <LineId Id="1258" Count="0" />
+      <LineId Id="1145" Count="3" />
+      <LineId Id="369" Count="1" />
+      <LineId Id="805" Count="0" />
+      <LineId Id="371" Count="0" />
+      <LineId Id="373" Count="0" />
+      <LineId Id="1222" Count="0" />
+      <LineId Id="374" Count="0" />
+      <LineId Id="1225" Count="7" />
+      <LineId Id="1224" Count="0" />
+      <LineId Id="1237" Count="1" />
+      <LineId Id="1240" Count="1" />
+      <LineId Id="1243" Count="0" />
+      <LineId Id="1239" Count="0" />
+      <LineId Id="1244" Count="1" />
+      <LineId Id="1223" Count="0" />
+      <LineId Id="375" Count="11" />
+      <LineId Id="359" Count="0" />
+      <LineId Id="387" Count="0" />
+      <LineId Id="173" Count="2" />
+      <LineId Id="272" Count="1" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="82" Count="0" />
+      <LineId Id="1336" Count="0" />
+      <LineId Id="1335" Count="0" />
+      <LineId Id="1338" Count="0" />
+      <LineId Id="1340" Count="3" />
+      <LineId Id="1347" Count="0" />
+      <LineId Id="1344" Count="2" />
+      <LineId Id="1337" Count="0" />
+      <LineId Id="80" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_XmlSvrRW_Recipe.acGenerate_Filename_XPath">
+      <LineId Id="39" Count="0" />
+      <LineId Id="2" Count="36" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_XmlSvrRW_Recipe.acMergeAllByType">
+      <LineId Id="65" Count="11" />
+      <LineId Id="119" Count="7" />
+      <LineId Id="95" Count="3" />
+      <LineId Id="107" Count="8" />
+      <LineId Id="118" Count="0" />
+      <LineId Id="116" Count="1" />
+      <LineId Id="20" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_XmlSvrRW_Recipe.acProgressPercentage">
+      <LineId Id="16" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="147" Count="1" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="150" Count="0" />
+      <LineId Id="158" Count="1" />
+      <LineId Id="155" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="90" Count="4" />
+      <LineId Id="96" Count="15" />
+      <LineId Id="160" Count="0" />
+      <LineId Id="112" Count="2" />
+      <LineId Id="156" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="115" Count="3" />
+      <LineId Id="139" Count="1" />
+      <LineId Id="122" Count="3" />
+      <LineId Id="143" Count="0" />
+      <LineId Id="126" Count="1" />
+      <LineId Id="144" Count="0" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="145" Count="0" />
+      <LineId Id="130" Count="2" />
+      <LineId Id="146" Count="0" />
+      <LineId Id="134" Count="2" />
+      <LineId Id="161" Count="0" />
+      <LineId Id="137" Count="1" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="31" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_XmlSvrRW_Recipe.acSeperateByProductAndStation">
+      <LineId Id="2" Count="0" />
+      <LineId Id="20" Count="1" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="29" Count="8" />
+      <LineId Id="105" Count="0" />
+      <LineId Id="100" Count="4" />
+      <LineId Id="39" Count="2" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="49" Count="8" />
+      <LineId Id="108" Count="5" />
+      <LineId Id="131" Count="0" />
+      <LineId Id="114" Count="16" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="79" Count="9" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB3_XmlSvrRW_Recipe.mtLogErrorId">
+      <LineId Id="15" Count="11" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="27" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

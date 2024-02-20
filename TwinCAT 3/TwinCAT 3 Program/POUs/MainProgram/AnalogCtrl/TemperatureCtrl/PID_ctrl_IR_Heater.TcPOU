@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="PID_ctrl_IR_Heater" Id="{23ac1cb9-477c-420c-b47b-6e3bc9d3da0a}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM PID_ctrl_IR_Heater
+VAR
+	fbBasicPID 						: FB_BasicPID;
+	Stn10FlowRawData				: LREAL;
+	Stn10ActualFlowRawData			: LREAL;
+	bReset							: BOOL;	
+	rHeater10_Temp_Reading_Raw		: LREAL;
+	nerrorStatus					: UINT;
+	
+	rCtrlCycletime					: LREAL := 0.01;
+	Stn10_PID_fKp_					: LREAL := 0.2				; (*1.0*)
+	Stn10_PID_tTn_					: LREAL	:= 1				;
+	Stn10_PID_tTv_					: LREAL	:= 0.03				;
+	Stn10_PID_tTd_					: LREAL	:= 0.04				;	
+
+	lrDiff: LREAL;
+	lrPrevious: LREAL;
+	lrOutput: LREAL;
+	itest: LREAL;
+	itest2: LREAL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//IF ARbDO[eY10207_STN10PROCESSTANKHEATERON_OFF] THEN
+	
+	fbBasicPID(
+	fSetpointValue:=itest (*REAL_TO_LREAL(ARrStnTempSV[10])*), 
+	fActualValue:= itest2(*REAL_TO_LREAL(ARrStnTempPV[10])*), 
+	bReset:= bReset, 
+	fCtrlCycleTime:= rCtrlCycletime, 
+	fKp:= Stn10_PID_fKp_, 
+	fTn:= Stn10_PID_tTn_, 
+	fTv:= Stn10_PID_tTv_, 
+	fTd:= Stn10_PID_tTd_, 
+	fCtrlOutput=> rHeater10_Temp_Reading_Raw, 
+	nErrorStatus=> nerrorStatus);
+
+ 
+	lrDiff := rHeater10_Temp_Reading_Raw - lrPrevious;
+	lrPrevious := rHeater10_Temp_Reading_Raw ;
+	
+	IF	lrOutput + lrDiff > 0 AND  lrOutput + lrDiff < 32767 THEN
+		lrOutput := lrOutput + lrDiff;
+	ELSIF lrDiff > 0 THEN
+		lrOutput := 32767;		
+	ELSIF lrDiff < 0 THEN
+		lrOutput := 0;	
+	END_IF
+	
+	ANO1_1 := LREAL_TO_INT (lrOutput);
+
+//END_IF
+]]></ST>
+    </Implementation>
+    <LineIds Name="PID_ctrl_IR_Heater">
+      <LineId Id="66" Count="1" />
+      <LineId Id="3" Count="10" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="14" Count="12" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DS_fbStationSubRecipeCall" Id="{e89ba987-2d21-4cad-9d09-875df02c4dff}">
+    <Declaration><![CDATA[TYPE DS_fbStationSubRecipeCall : (*Full Occupied Byte = 700*)
+STRUCT
+
+	bCallPB: BOOL; (* Byte "n" *)
+	bCallCompleted : BOOL; (* Byte "n+1" *)
+	bInvalidCallSubRecipeNoHold: BOOL; (* Byte "n+2" *)
+	bInvalidCallSubRecipeNoPulse: BOOL; (* Byte "n+3" *)
+	sReservedBool : STRING(50); (* Byte "n+4~n+99" *)
+
+	Call_iSubRecipe : INT; (* Byte "n+100, n+101" *)
+	sReservedInt : STRING(50); (* Byte "n+102~n+199" *)
+
+
+	Call_sSubDescription : STRING(50); (* Byte "n+200~n+299" *)
+
+
+	Call_DsSubRecipeMemory : DS_SubRecipeMemory; (* Byte "n+300 onward" *)
+
+
+
+
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

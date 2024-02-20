@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="UserlevelFB" Id="{b5fcf634-242e-4d6d-a2c2-1f6ac3ff19cb}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK UserlevelFB
+VAR_INPUT
+	fb_userlogin:STRING;
+	fb_userpassword:ARRAY [0..7] OF STRING;
+	fb_username:ARRAY [0..7] OF WSTRING;
+END_VAR
+VAR_OUTPUT
+	fb_userlevel:DWORD;
+	fb_userlevelname:WSTRING;
+	fb_userloginrecord:ARRAY [0..7] OF BOOL;
+END_VAR
+VAR
+	n: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF fb_userlogin = fb_userpassword[1] THEN
+fb_userlevelname:=fb_username[1];
+fb_userlevel:=1;
+fb_userloginrecord[0]:=FALSE;
+fb_userloginrecord[1]:=TRUE;
+fb_userloginrecord[2]:=FALSE;
+fb_userloginrecord[3]:=FALSE;
+fb_userloginrecord[4]:=FALSE;
+fb_userloginrecord[5]:=FALSE;
+fb_userloginrecord[6]:=FALSE;
+fb_userloginrecord[7]:=FALSE;
+
+ELSIF fb_userlogin = fb_userpassword[2] THEN
+fb_userlevel:=2;
+fb_userlevelname:=fb_username[2];
+fb_userloginrecord[0]:=FALSE;
+fb_userloginrecord[1]:=FALSE;
+fb_userloginrecord[2]:=TRUE;
+fb_userloginrecord[3]:=FALSE;
+fb_userloginrecord[4]:=FALSE;
+fb_userloginrecord[5]:=FALSE;
+fb_userloginrecord[6]:=FALSE;
+fb_userloginrecord[7]:=FALSE;
+
+ELSIF fb_userlogin = fb_userpassword[3] THEN
+fb_userlevel:=3;
+fb_userlevelname:=fb_username[3];
+fb_userloginrecord[0]:=FALSE;
+fb_userloginrecord[1]:=FALSE;
+fb_userloginrecord[2]:=FALSE;
+fb_userloginrecord[3]:=TRUE;
+fb_userloginrecord[4]:=FALSE;
+fb_userloginrecord[5]:=FALSE;
+fb_userloginrecord[6]:=FALSE;
+fb_userloginrecord[7]:=FALSE;
+
+ELSIF fb_userlogin = fb_userpassword[4] THEN
+fb_userlevel:=4;
+fb_userlevelname:=fb_username[4];
+fb_userloginrecord[0]:=FALSE;
+fb_userloginrecord[1]:=FALSE;
+fb_userloginrecord[2]:=FALSE;
+fb_userloginrecord[3]:=FALSE;
+fb_userloginrecord[4]:=TRUE;
+fb_userloginrecord[5]:=FALSE;
+fb_userloginrecord[6]:=FALSE;
+fb_userloginrecord[7]:=FALSE;
+
+ELSIF fb_userlogin = fb_userpassword[5] THEN
+fb_userlevel:=5;
+fb_userlevelname:=fb_username[5];
+fb_userloginrecord[0]:=FALSE;
+fb_userloginrecord[1]:=FALSE;
+fb_userloginrecord[2]:=FALSE;
+fb_userloginrecord[3]:=FALSE;
+fb_userloginrecord[4]:=FALSE;
+fb_userloginrecord[5]:=TRUE;
+fb_userloginrecord[6]:=FALSE;
+fb_userloginrecord[7]:=FALSE;
+
+ELSIF fb_userlogin = fb_userpassword[6] THEN
+fb_userlevel:=6;
+fb_userlevelname:=fb_username[6];
+fb_userloginrecord[0]:=FALSE;
+fb_userloginrecord[1]:=FALSE;
+fb_userloginrecord[2]:=FALSE;
+fb_userloginrecord[3]:=FALSE;
+fb_userloginrecord[4]:=FALSE;
+fb_userloginrecord[5]:=FALSE;
+fb_userloginrecord[6]:=TRUE;
+fb_userloginrecord[7]:=FALSE;
+
+ELSIF fb_userlogin = fb_userpassword[7] THEN
+fb_userlevel:=7;
+fb_userlevelname:=fb_username[7];
+fb_userloginrecord[0]:=FALSE;
+fb_userloginrecord[1]:=FALSE;
+fb_userloginrecord[2]:=FALSE;
+fb_userloginrecord[3]:=FALSE;
+fb_userloginrecord[4]:=FALSE;
+fb_userloginrecord[5]:=FALSE;
+fb_userloginrecord[6]:=FALSE;
+fb_userloginrecord[7]:=TRUE;
+
+ELSE
+fb_userlevel:=0;
+fb_userlevelname:=fb_username[0];
+fb_userloginrecord[0]:=TRUE;
+fb_userloginrecord[1]:=FALSE;
+fb_userloginrecord[2]:=FALSE;
+fb_userloginrecord[3]:=FALSE;
+fb_userloginrecord[4]:=FALSE;
+fb_userloginrecord[5]:=FALSE;
+fb_userloginrecord[6]:=FALSE;
+fb_userloginrecord[7]:=FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="UserlevelFB">
+      <LineId Id="14" Count="95" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

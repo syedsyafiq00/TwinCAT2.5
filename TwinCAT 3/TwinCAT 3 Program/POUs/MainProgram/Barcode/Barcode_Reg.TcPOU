@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Barcode_Reg" Id="{f8359af2-4aa8-4b44-bc90-1712ec517cd5}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Barcode_Reg
+VAR
+	bBarcodeRegSaveRE: R_TRIG;
+	iBarcodeRegUserSelectNoDataToSave_Previous: INT;
+	iFL: INT;
+	bBarcodeRegClearRE: R_TRIG;
+	bBarcodeRegSaveTimer: TON;
+	bBarcodeRegClearTimer: TON;
+	bBarcodeRegSaveHR: BOOL;
+	bBarcodeRegClearHR: BOOL;
+	bBarcodeRegSelectEn: BOOL;
+	iScanFL	: INT;
+	bBarcodeDuplicate : BOOL;
+	sStatus	: STRING;
+	iDonNow: INT;
+	sBarcodeScannerReceivedCmdForRegBuffer: STRING;
+	bReceivedNewBarcodeReg: BOOL;
+	bBarcodeReceived_RE: R_TRIG;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
+// Check barcode duplicate
+bBarcodeDuplicate := FALSE;
+IF sBarcodeScannerReceivedCmdForReg <> '' THEN
+		iScanFL := 1;
+		FOR iScanFL := 1 TO iBarcodeRegQty DO
+			IF iScanFL >= 1 AND iScanFL <= iBarcodeRegQty THEN
+				IF iScanFL <> iBarcodeRegUserSelectNoDataToSave THEN 
+					 IF	DsAr1sG_BarcodeRegistration[iScanFL].sBarcodeRegistered = sBarcodeScannerReceivedCmdForReg THEN
+//					IF DsAr1sG_BarcodeRegSectionDisplayHMI[iScanFL].sBarcodeRegistered = sBarcodeScannerReceivedCmdForReg THEN
+						bBarcodeDuplicate := TRUE;
+						iDonNow:=iScanFL;
+					END_IF
+				END_IF
+			END_IF
+		END_FOR
+END_IF
+
+// Error Status shown when Barcode detected was ERROR
+IF bBarcodeDuplicate THEN
+iScanFL := 1;
+FOR iScanFL := 1 TO iBarcodeRegQty DO
+	IF iScanFL >= 1 AND iScanFL <= iBarcodeRegSecDisplayQty THEN
+		sStatus := 'Error - Barcode Duplicated Found. Make sure assign barcode correctly';
+		iScanFL := iBarcodeRegQty+1;
+	END_IF
+END_FOR
+ELSE
+		sStatus := 'No Error Found';
+END_IF
+
+// Barcode scanner received push to buffer barcode for register
+IF sBarcodeScannerReceivedCmd <> '' AND sBarcodeScannerReceivedCmdForRegBuffer<>sBarcodeScannerReceivedCmd AND bBarcodeRegPage  THEN
+sBarcodeScannerReceivedCmdForRegBuffer := sBarcodeScannerReceivedCmd;
+bReceivedNewBarcodeReg:=TRUE;
+ELSE
+bReceivedNewBarcodeReg:=FALSE;
+END_IF
+
+bBarcodeReceived_RE(CLK:=bReceivedNewBarcodeReg , Q=> );
+	
+IF bBarcodeReceived_RE.Q THEN
+	sBarcodeScannerReceivedCmdForReg:=sBarcodeScannerReceivedCmdForRegBuffer;
+END_IF
+
+IF NOT bBarcodeRegPage THEN
+	sBarcodeScannerReceivedCmdForReg:='';
+	sBarcodeScannerReceivedCmdForRegBuffer:='';
+END_IF
+
+IF sBarcodeScannerReceivedCmdForReg = '' THEN
+bBarcodeEmpty := TRUE;
+ELSE
+bBarcodeEmpty := FALSE;
+END_IF
+
+// Barcode reg control
+bBarcodeRegSaveRE(CLK:=bBarcodeRegSave , Q=> );
+bBarcodeRegClearRE(CLK:=bBarcodeRegClear , Q=> );
+bBarcodeRegSaveTimer(IN:=bBarcodeRegSaveHR , PT:=T#0.5S , Q=> , ET=> );
+bBarcodeRegClearTimer(IN:=bBarcodeRegClearHR , PT:=T#0.5S , Q=> , ET=> );
+
+IF bBarcodeRegSaveTimer.Q THEN
+	bBarcodeRegSaveHR := FALSE;
+END_IF
+
+IF bBarcodeRegClearTimer.Q THEN
+	bBarcodeRegClearHR := FALSE;
+END_IF
+
+IF bBarcodeRegSaveRE.Q THEN
+	bBarcodeRegSaveHR := TRUE;
+END_IF
+
+IF bBarcodeRegClearRE.Q THEN
+	bBarcodeRegClearHR := TRUE; 
+END_IF
+
+IF bBarcodeRegSaveHR OR bBarcodeRegClearHR 
+OR iBarcodeRegUserSelectNoDataToSave_Previous <> iBarcodeRegUserSelectNoDataToSave 
+THEN
+bBarcodeReceiveStringRst			:= TRUE ;
+ELSE
+bBarcodeReceiveStringRst			:= FALSE ;
+END_IF
+
+
+bBarcodeRegSelectEn := iBarcodeRegUserSelectNoDataToSave <> 0;
+
+		IF bBarcodeRegSaveRE.Q AND NOT bBarcodeDuplicate AND sBarcodeScannerReceivedCmdForReg <> '' AND iBarcodeRegUserSelectRecipeNo <> 0 THEN
+	 		IF iBarcodeRegUserSelectNoDataToSave >= 1 AND iBarcodeRegUserSelectNoDataToSave <= iBarcodeRegQty THEN
+				DsAr1sG_BarcodeRegistration[iBarcodeRegUserSelectNoDataToSave].iLinkProductRecipeNo				:= iBarcodeRegUserSelectRecipeNo;
+				//DsAr1sG_BarcodeRegistration[iBarcodeRegUserSelectNoDataToSave].sLinkProductRecipeNoDisplay		:= TO_STRING(iBarcodeRegUserSelectRecipeNo);
+				DsAr1sG_BarcodeRegistration[iBarcodeRegUserSelectNoDataToSave].sBarcodeRegistered				:= sBarcodeScannerReceivedCmdForReg;
+				DsAr1sG_BarcodeRegistration[iBarcodeRegUserSelectNoDataToSave].sLinkProductRecipeDescription	:= ARsProductRecipeDescription[iBarcodeRegUserSelectRecipeNo];
+			END_IF
+		END_IF
+		IF bBarcodeRegSaveHR THEN
+		iBarcodeRegUserSelectRecipeNo		:= 0	;
+		sBarcodeScannerReceivedCmdForReg	:= ''	;
+		iBarcodeRegUserSelectNoDataToSave 	:= 0	;		
+		END_IF
+
+		IF bBarcodeRegClearRE.Q THEN
+	 		IF iBarcodeRegUserSelectNoDataToSave >= 1 AND iBarcodeRegUserSelectNoDataToSave <= iBarcodeRegQty THEN
+				DsAr1sG_BarcodeRegistration[iBarcodeRegUserSelectNoDataToSave].iLinkProductRecipeNo				:=	0;
+				//DsAr1sG_BarcodeRegistration[iBarcodeRegUserSelectNoDataToSave].sLinkProductRecipeNoDisplay		:=	'';
+				DsAr1sG_BarcodeRegistration[iBarcodeRegUserSelectNoDataToSave].sBarcodeRegistered				:=	'';
+				DsAr1sG_BarcodeRegistration[iBarcodeRegUserSelectNoDataToSave].sLinkProductRecipeDescription	:=	'';
+			END_IF
+		END_IF
+		IF bBarcodeRegClearHR THEN
+		iBarcodeRegUserSelectRecipeNo		:= 0	;
+		sBarcodeScannerReceivedCmdForReg	:= ''	;
+		iBarcodeRegUserSelectNoDataToSave 	:= 0	;		
+		END_IF
+
+	(*
+		IF iBarcodeRegUserSelectNoDataToSave_Previous <> iBarcodeRegUserSelectNoDataToSave THEN
+			iBarcodeRegUserSelectNoDataToSave_Previous := iBarcodeRegUserSelectNoDataToSave;
+			FOR iFL := 1 TO iBarcodeRegQty DO
+				DsAr1sG_BarcodeRegistration[iFL].bHmiBarcodeRegistrationSelected := FALSE;
+			END_FOR
+
+	 		IF iBarcodeRegUserSelectNoDataToSave >= 1 AND iBarcodeRegUserSelectNoDataToSave <= iBarcodeRegQty THEN
+			
+				DsAr1sG_BarcodeRegistration[iBarcodeRegUserSelectNoDataToSave].bHmiBarcodeRegistrationSelected := TRUE;
+				
+				iBarcodeRegUserSelectRecipeNo	:= DsAr1sG_BarcodeRegistration[iBarcodeRegUserSelectNoDataToSave].iLinkProductRecipeNo	;
+				sBarcodeScannerReceivedCmdForReg:=	DsAr1sG_BarcodeRegistration[iBarcodeRegUserSelectNoDataToSave].sBarcodeRegistered	;
+			END_IF			
+		END_IF
+		*)]]></ST>
+    </Implementation>
+    <LineIds Name="Barcode_Reg">
+      <LineId Id="19" Count="33" />
+      <LineId Id="159" Count="1" />
+      <LineId Id="162" Count="0" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="156" Count="0" />
+      <LineId Id="153" Count="0" />
+      <LineId Id="157" Count="1" />
+      <LineId Id="164" Count="1" />
+      <LineId Id="186" Count="0" />
+      <LineId Id="185" Count="0" />
+      <LineId Id="187" Count="0" />
+      <LineId Id="189" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="54" Count="82" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

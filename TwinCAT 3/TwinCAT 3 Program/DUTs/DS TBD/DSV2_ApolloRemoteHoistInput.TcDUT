@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSV2_ApolloRemoteHoistInput" Id="{558fa094-8ce5-4565-a7bb-2ff66714127d}">
+    <Declaration><![CDATA[TYPE DSV2_ApolloRemoteHoistInput :
+STRUCT
+
+
+(*
+
+	iStnQty 									: INT := 12;						(* To change the Qty of Array*)
+	iArmQty 									: INT := 2; 						(* ArmQty must lesser than StnQty*)
+	iArmSlowPullQty							: INT := 1;
+*)
+
+	bPB_EmergencyStop									: BOOL;
+
+	bPB_SelectionSwtich_RemoteEn						: BOOL;
+	bPB_SelectionSwtich_JogEn							: BOOL;
+
+
+	bPB_1stSpd_ArmUp									: BOOL;
+	bPB_1stSpd_ArmDown								: BOOL;
+	bPB_1stSpd_ArmLeft									: BOOL;
+	bPB_1stSpd_ArmRight									: BOOL;
+	bPB_1stSpd_ArmHook									: BOOL;
+	bPB_1stSpd_ArmUnhook								: BOOL;
+	bPB_1stSpd_SlidingDoorOpen							: BOOL;
+	bPB_1stSpd_SlidingDoorClose							: BOOL;
+	bPB_1stSpd_SlidingDoorClamp							: BOOL;
+	bPB_1stSpd_SlidingDoorUnclamp						: BOOL;
+
+
+	bPB_2ndSpd_ArmUp									: BOOL;
+	bPB_2ndSpd_ArmDown								: BOOL;
+	bPB_2ndSpd_ArmLeft									: BOOL;
+	bPB_2ndSpd_ArmRight								: BOOL;
+	bPB_2ndSpd_ArmHook								: BOOL;
+	bPB_2ndSpd_ArmUnhook								: BOOL;
+	bPB_2ndSpd_SlidingDoorOpen							: BOOL;
+	bPB_2ndSpd_SlidingDoorClose							: BOOL;
+	bPB_2ndSpd_SlidingDoorClamp						: BOOL;
+	bPB_2ndSpd_SlidingDoorUnclamp						: BOOL;
+
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

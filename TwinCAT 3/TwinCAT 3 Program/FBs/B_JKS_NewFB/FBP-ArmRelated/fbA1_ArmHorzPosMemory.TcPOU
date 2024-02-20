@@ -1,0 +1,280 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbA1_ArmHorzPosMemory" Id="{310abbca-c41d-460c-8b6c-3a003474d7fd}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbA1_ArmHorzPosMemory
+
+VAR_INPUT PERSISTENT
+	DSA1ArmHorzPosInput : DSA1_ArmHorzPosInput;
+END_VAR
+
+
+
+VAR_OUTPUT PERSISTENT
+	DSA1ArmHorzPosOutput : DSA1_ArmHorzPosOutput;
+END_VAR
+
+
+VAR PERSISTENT
+
+	iToleranceP: INT;
+
+	lrBufferLdHookPosToleranceP: LREAL;
+	lrBufferLdUnhookPosToleranceP: LREAL;
+	lrBufferUldHookPosToleranceP: LREAL;
+	lrBufferUldUnhookPosToleranceP: LREAL;
+
+	ARlrBufferStnHookPosToleranceP: ARRAY [0..iHorzArmPosArrayQty] OF LREAL;
+	ARlrBufferStnUnhookPosToleranceP: ARRAY [0..iHorzArmPosArrayQty] OF LREAL;
+
+	iToleranceN: INT;
+
+	lrBufferLdHookPosToleranceN: LREAL;
+	lrBufferLdUnhookPosToleranceN: LREAL;
+	lrBufferUldHookPosToleranceN: LREAL;
+	lrBufferUldUnhookPosToleranceN: LREAL;
+
+	ARlrBufferStnHookPosToleranceN: ARRAY [0..iHorzArmPosArrayQty] OF LREAL;
+	ARlrBufferStnUnhookPosToleranceN: ARRAY [0..iHorzArmPosArrayQty] OF LREAL;
+
+	i2ndSpdP: INT;
+
+	lrBufferLdHookPos2ndSpdP: LREAL;
+	lrBufferLdUnhookPos2ndSpdP: LREAL;
+	lrBufferUldHookPos2ndSpdP: LREAL;
+	lrBufferUldUnhookPos2ndSpdP: LREAL;
+
+	ARlrBufferStnHookPos2ndSpdP: ARRAY [0..iHorzArmPosArrayQty] OF LREAL;
+	ARlrBufferStnUnhookPos2ndSpdP: ARRAY [0..iHorzArmPosArrayQty] OF LREAL;
+
+	i2ndSpdN: INT;
+
+	lrBufferLdHookPos2ndSpdN: LREAL;
+	lrBufferLdUnhookPos2ndSpdN: LREAL;
+	lrBufferUldHookPos2ndSpdN: LREAL;
+	lrBufferUldUnhookPos2ndSpdN: LREAL;
+
+	ARlrBufferStnHookPos2ndSpdN: ARRAY [0..iHorzArmPosArrayQty] OF LREAL;
+	ARlrBufferStnUnhookPos2ndSpdN: ARRAY [0..iHorzArmPosArrayQty] OF LREAL;
+END_VAR
+
+VAR
+	iPosConfirmFL: INT;
+	i2ndSpdFL: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* Generate Positive Tolerance *)
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+lrBufferLdHookPosToleranceP := DSA1ArmHorzPosInput.lrLdHookPos + DSA1ArmHorzPosInput.lrPosConfirmToleranceSV;
+lrBufferLdUnhookPosToleranceP := DSA1ArmHorzPosInput.lrLdUnhookPos + DSA1ArmHorzPosInput.lrPosConfirmToleranceSV;
+lrBufferUldHookPosToleranceP := DSA1ArmHorzPosInput.lrUldHookPos + DSA1ArmHorzPosInput.lrPosConfirmToleranceSV;
+lrBufferUldUnhookPosToleranceP := DSA1ArmHorzPosInput.lrUldUnhookPos + DSA1ArmHorzPosInput.lrPosConfirmToleranceSV;
+
+iToleranceP := 1;
+
+FOR iToleranceP := 1 TO iHorzArmPosArrayQty DO
+	ARlrBufferStnHookPosToleranceP[iToleranceP] := DSA1ArmHorzPosInput.ARlrStnHookPos[iToleranceP] + DSA1ArmHorzPosInput.lrPosConfirmToleranceSV;
+	ARlrBufferStnUnhookPosToleranceP[iToleranceP] := DSA1ArmHorzPosInput.ARlrStnUnhookPos[iToleranceP] + DSA1ArmHorzPosInput.lrPosConfirmToleranceSV;
+END_FOR
+
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+
+(* Generate Negative Tolerance *)
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+lrBufferLdHookPosToleranceN := DSA1ArmHorzPosInput.lrLdHookPos - DSA1ArmHorzPosInput.lrPosConfirmToleranceSV;
+lrBufferLdUnhookPosToleranceN := DSA1ArmHorzPosInput.lrLdUnhookPos - DSA1ArmHorzPosInput.lrPosConfirmToleranceSV;
+lrBufferUldHookPosToleranceN := DSA1ArmHorzPosInput.lrUldHookPos - DSA1ArmHorzPosInput.lrPosConfirmToleranceSV;
+lrBufferUldUnhookPosToleranceN := DSA1ArmHorzPosInput.lrUldUnhookPos - DSA1ArmHorzPosInput.lrPosConfirmToleranceSV;
+
+iToleranceN := 1;
+
+FOR iToleranceN := 1 TO iHorzArmPosArrayQty DO
+	ARlrBufferStnHookPosToleranceN[iToleranceN] := DSA1ArmHorzPosInput.ARlrStnHookPos[iToleranceN] - DSA1ArmHorzPosInput.lrPosConfirmToleranceSV;
+	ARlrBufferStnUnhookPosToleranceN[iToleranceN] := DSA1ArmHorzPosInput.ARlrStnUnhookPos[iToleranceN] - DSA1ArmHorzPosInput.lrPosConfirmToleranceSV;
+END_FOR
+
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+
+
+(* Generate Positive 2ndSpeed *)
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+lrBufferLdHookPos2ndSpdP := DSA1ArmHorzPosInput.lrLdHookPos + DSA1ArmHorzPosInput.lr2ndSpeedSV;
+lrBufferLdUnhookPos2ndSpdP := DSA1ArmHorzPosInput.lrLdUnhookPos + DSA1ArmHorzPosInput.lr2ndSpeedSV;
+lrBufferUldHookPos2ndSpdP := DSA1ArmHorzPosInput.lrUldHookPos + DSA1ArmHorzPosInput.lr2ndSpeedSV;
+lrBufferUldUnhookPos2ndSpdP := DSA1ArmHorzPosInput.lrUldUnhookPos + DSA1ArmHorzPosInput.lr2ndSpeedSV;
+
+i2ndSpdP := 1;
+
+FOR i2ndSpdP := 1 TO iHorzArmPosArrayQty DO
+	ARlrBufferStnHookPos2ndSpdP[i2ndSpdP] := DSA1ArmHorzPosInput.ARlrStnHookPos[i2ndSpdP] + DSA1ArmHorzPosInput.lr2ndSpeedSV;
+	ARlrBufferStnUnhookPos2ndSpdP[i2ndSpdP] := DSA1ArmHorzPosInput.ARlrStnUnhookPos[i2ndSpdP] + DSA1ArmHorzPosInput.lr2ndSpeedSV;
+END_FOR
+
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+
+(* Generate Negative 2ndSpeed *)
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+lrBufferLdHookPos2ndSpdN := DSA1ArmHorzPosInput.lrLdHookPos - DSA1ArmHorzPosInput.lr2ndSpeedSV;
+lrBufferLdUnhookPos2ndSpdN := DSA1ArmHorzPosInput.lrLdUnhookPos - DSA1ArmHorzPosInput.lr2ndSpeedSV;
+lrBufferUldHookPos2ndSpdN := DSA1ArmHorzPosInput.lrUldHookPos - DSA1ArmHorzPosInput.lr2ndSpeedSV;
+lrBufferUldUnhookPos2ndSpdN := DSA1ArmHorzPosInput.lrUldUnhookPos - DSA1ArmHorzPosInput.lr2ndSpeedSV;
+
+i2ndSpdN := 1;
+
+FOR i2ndSpdN := 1 TO iHorzArmPosArrayQty DO
+	ARlrBufferStnHookPos2ndSpdN[i2ndSpdN] := DSA1ArmHorzPosInput.ARlrStnHookPos[i2ndSpdN] - DSA1ArmHorzPosInput.lr2ndSpeedSV;
+	ARlrBufferStnUnhookPos2ndSpdN[i2ndSpdN] := DSA1ArmHorzPosInput.ARlrStnUnhookPos[i2ndSpdN] - DSA1ArmHorzPosInput.lr2ndSpeedSV;
+END_FOR
+
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+
+(*Generate Pos Confirm Bit*)
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+IF DSA1ArmHorzPosInput.lrCurrentPos >= lrBufferLdHookPosToleranceN  AND DSA1ArmHorzPosInput.lrCurrentPos <= lrBufferLdHookPosToleranceP THEN
+DSA1ArmHorzPosOutput.bLdHookPosConfirm := TRUE;
+ELSE
+DSA1ArmHorzPosOutput.bLdHookPosConfirm := FALSE;
+END_IF
+
+IF DSA1ArmHorzPosInput.lrCurrentPos >= lrBufferLdUnhookPosToleranceN  AND DSA1ArmHorzPosInput.lrCurrentPos <= lrBufferLdUnhookPosToleranceP THEN
+DSA1ArmHorzPosOutput.bLdUnhookPosConfirm := TRUE;
+ELSE
+DSA1ArmHorzPosOutput.bLdUnhookPosConfirm := FALSE;
+END_IF
+
+IF DSA1ArmHorzPosInput.lrCurrentPos >= lrBufferUldHookPosToleranceN  AND DSA1ArmHorzPosInput.lrCurrentPos <= lrBufferUldHookPosToleranceP THEN
+DSA1ArmHorzPosOutput.bUldHookPosConfirm := TRUE;
+ELSE
+DSA1ArmHorzPosOutput.bUldHookPosConfirm := FALSE;
+END_IF
+
+IF DSA1ArmHorzPosInput.lrCurrentPos >= lrBufferUldUnhookPosToleranceN  AND DSA1ArmHorzPosInput.lrCurrentPos <= lrBufferUldUnhookPosToleranceP THEN
+DSA1ArmHorzPosOutput.bUldUnhookPosConfirm := TRUE;
+ELSE
+DSA1ArmHorzPosOutput.bUldUnhookPosConfirm := FALSE;
+END_IF
+
+
+iPosConfirmFL := 1;
+FOR iPosConfirmFL := 1 TO iHorzArmPosArrayQty DO
+
+		IF DSA1ArmHorzPosInput.lrCurrentPos >= ARlrBufferStnHookPosToleranceN[iPosConfirmFL]  AND DSA1ArmHorzPosInput.lrCurrentPos <= ARlrBufferStnHookPosToleranceP[iPosConfirmFL] THEN
+		DSA1ArmHorzPosOutput.ARbStnHookPosConfirm[iPosConfirmFL] := TRUE;
+		ELSE
+		DSA1ArmHorzPosOutput.ARbStnHookPosConfirm[iPosConfirmFL] := FALSE;
+		END_IF
+
+		IF DSA1ArmHorzPosInput.lrCurrentPos >= ARlrBufferStnUnhookPosToleranceN[iPosConfirmFL]  AND DSA1ArmHorzPosInput.lrCurrentPos <= ARlrBufferStnUnhookPosToleranceP[iPosConfirmFL] THEN
+		DSA1ArmHorzPosOutput.ARbStnUnhookPosConfirm[iPosConfirmFL] := TRUE;
+		ELSE
+		DSA1ArmHorzPosOutput.ARbStnUnhookPosConfirm[iPosConfirmFL] := FALSE;
+		END_IF
+
+END_FOR
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+
+
+(*Generate 2nd Speed Bit*)
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+IF DSA1ArmHorzPosInput.lrCurrentPos >= lrBufferLdHookPos2ndSpdN  AND DSA1ArmHorzPosInput.lrCurrentPos <= lrBufferLdHookPos2ndSpdP AND DSA1ArmHorzPosInput.lrTargetPos = DSA1ArmHorzPosInput.lrLdHookPos THEN
+
+
+DSA1ArmHorzPosOutput.bLdHook2ndSpeedEn := TRUE;
+ELSE
+DSA1ArmHorzPosOutput.bLdHook2ndSpeedEn := FALSE;
+END_IF
+
+IF DSA1ArmHorzPosInput.lrCurrentPos >= lrBufferLdUnhookPos2ndSpdN  AND DSA1ArmHorzPosInput.lrCurrentPos <= lrBufferLdUnhookPos2ndSpdP AND DSA1ArmHorzPosInput.lrTargetPos = DSA1ArmHorzPosInput.lrLdUnhookPos THEN
+DSA1ArmHorzPosOutput.bLdUnhook2ndSpeedEn := TRUE;
+ELSE
+DSA1ArmHorzPosOutput.bLdUnhook2ndSpeedEn := FALSE;
+END_IF
+
+IF DSA1ArmHorzPosInput.lrCurrentPos >= lrBufferUldHookPos2ndSpdN  AND DSA1ArmHorzPosInput.lrCurrentPos <= lrBufferUldHookPos2ndSpdP AND DSA1ArmHorzPosInput.lrTargetPos = DSA1ArmHorzPosInput.lrUldHookPos THEN
+DSA1ArmHorzPosOutput.bUldHook2ndSpeedEn := TRUE;
+ELSE
+DSA1ArmHorzPosOutput.bUldHook2ndSpeedEn := FALSE;
+END_IF
+
+IF DSA1ArmHorzPosInput.lrCurrentPos >= lrBufferUldUnhookPos2ndSpdN  AND DSA1ArmHorzPosInput.lrCurrentPos <= lrBufferUldUnhookPos2ndSpdP AND DSA1ArmHorzPosInput.lrTargetPos = DSA1ArmHorzPosInput.lrUldUnhookPos THEN
+DSA1ArmHorzPosOutput.bUldUnhook2ndSpeedEn := TRUE;
+ELSE
+DSA1ArmHorzPosOutput.bUldUnhook2ndSpeedEn := FALSE;
+END_IF
+
+
+i2ndSpdFL := 1;
+FOR i2ndSpdFL := 1 TO iHorzArmPosArrayQty DO
+
+	IF DSA1ArmHorzPosInput.lrCurrentPos >= ARlrBufferStnHookPos2ndSpdN[i2ndSpdFL]  AND DSA1ArmHorzPosInput.lrCurrentPos <= ARlrBufferStnHookPos2ndSpdP[i2ndSpdFL] AND DSA1ArmHorzPosInput.lrTargetPos = DSA1ArmHorzPosInput.ARlrStnHookPos[i2ndSpdFL] THEN
+	DSA1ArmHorzPosOutput.ARbStnHook2ndSpeedEn[i2ndSpdFL] := TRUE;
+	ELSE
+	DSA1ArmHorzPosOutput.ARbStnHook2ndSpeedEn[i2ndSpdFL] := FALSE;
+	END_IF
+
+	IF DSA1ArmHorzPosInput.lrCurrentPos >= ARlrBufferStnUnhookPos2ndSpdN[i2ndSpdFL]  AND DSA1ArmHorzPosInput.lrCurrentPos <= ARlrBufferStnUnhookPos2ndSpdP[i2ndSpdFL] AND DSA1ArmHorzPosInput.lrTargetPos = DSA1ArmHorzPosInput.ARlrStnUnhookPos[i2ndSpdFL] THEN
+	DSA1ArmHorzPosOutput.ARbStnUnhook2ndSpeedEn[i2ndSpdFL] := TRUE;
+	ELSE
+	DSA1ArmHorzPosOutput.ARbStnUnhook2ndSpeedEn[i2ndSpdFL] := FALSE;
+	END_IF
+
+END_FOR
+
+(*[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]*)
+
+
+
+
+(*
+IN
+
+	DSA1ArmHorzPosInput.lrTargetPos
+
+	DSA1ArmHorzPosInput.lrPosConfirmToleranceSV
+	DSA1ArmHorzPosInput.lr2ndSpeedSV
+
+	DSA1ArmHorzPosInput.lrLdHookPos
+	DSA1ArmHorzPosInput.lrLdUnhookPos
+
+	DSA1ArmHorzPosInput.lrUldHookPos 
+	DSA1ArmHorzPosInput.lrUldUnhookPos
+
+	DSA1ArmHorzPosInput.ARlrStnHookPos
+	DSA1ArmHorzPosInput.ARlrStnUnhookPos
+
+
+OUT
+
+	DSA1ArmHorzPosOutput.bLdHookPosConfirm
+	DSA1ArmHorzPosOutput.bLdUnhookPosConfirm
+	DSA1ArmHorzPosOutput.bUldHookPosConfirm
+	DSA1ArmHorzPosOutput.bUldUnhookPosConfirm
+	DSA1ArmHorzPosOutput.ARbStnHookPosConfirm
+	DSA1ArmHorzPosOutput.ARbStnUnhookPosConfirm
+
+	DSA1ArmHorzPosOutput.bLdHook2ndSpeedEn
+	DSA1ArmHorzPosOutput.bLdUnhook2ndSpeedEn 
+	DSA1ArmHorzPosOutput.bUldHook2ndSpeedEn
+	DSA1ArmHorzPosOutput.bUldUnhook2ndSpeedEn 
+	DSA1ArmHorzPosOutput.ARbStnHook2ndSpeedEn
+	DSA1ArmHorzPosOutput.ARbStnUnhook2ndSpeedEn
+*)]]></ST>
+    </Implementation>
+    <LineIds Name="fbA1_ArmHorzPosMemory">
+      <LineId Id="60" Count="209" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_XmlRwMode" Id="{731196ca-9222-48a6-95f8-380d8e178a7c}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+{attribute 'strict'}
+TYPE E_XmlRwMode :
+(
+	eXmlMode_MergeAllByType 					:= 1,			// SSER -> One XML, SSUR -> One XML, Product Recipe -> One XML and so on
+	eXmlMode_SeperateByProductAndStation		:= 2,			// SSER will seperate by Station with Multiple file, same goes to the rest of the Recipe
+	eXmlMode_SeperateAll					 	:= 3			// Seperate each of the recipe individually
+
+
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

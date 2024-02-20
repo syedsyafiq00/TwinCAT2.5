@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DSV2_A1_ArmHorzPosOutput" Id="{fc1b7251-8822-4ab0-b1a1-625e975096fc}">
+    <Declaration><![CDATA[TYPE DSV2_A1_ArmHorzPosOutput : (*Full Occupied Byte = 100*)
+STRUCT
+
+	ARbLdHookPosConfirm 			: ARRAY [0..iLdStnQty] OF BOOL; (* Byte "n" *)
+	ARbLdUnhookPosConfirm		 	: ARRAY [0..iLdStnQty] OF BOOL; (* Byte "n+1" *)
+	ARbUldHookPosConfirm 			: ARRAY [0..iUldStnQty] OF BOOL; (* Byte "n+2" *)
+	ARbUldUnhookPosConfirm 			: ARRAY [0..iUldStnQty] OF BOOL; (* Byte "n+3" *)
+	ARbStnHookPosConfirm 			: ARRAY [0..iStnQty] OF BOOL; (* Byte "n+4 ~ Byte "n+24" *)
+	ARbStnUnhookPosConfirm 			: ARRAY [0..iStnQty] OF BOOL; (* Byte "n+25 ~ Byte "n+45" *)
+
+	ARbLdHook2ndSpeedEn 			: ARRAY [0..iLdStnQty] OF BOOL; (* Byte "n+46" *)
+	ARbLdUnhook2ndSpeedEn 		: ARRAY [0..iLdStnQty] OF BOOL; (* Byte "n+47" *)
+	ARbUldHook2ndSpeedEn 			: ARRAY [0..iUldStnQty] OF BOOL; (* Byte "n+48" *)
+	ARbUldUnhook2ndSpeedEn 		: ARRAY [0..iUldStnQty] OF BOOL; (* Byte "n+49" *)
+	ARbStnHook2ndSpeedEn 			: ARRAY [0..iStnQty] OF BOOL; (* Byte "n+50 ~ Byte "n+70" *)
+	ARbStnUnhook2ndSpeedEn 		: ARRAY [0..iStnQty] OF BOOL; (* Byte "n+71 ~ Byte "n+91" *)
+	sReservedBool 					: STRING(7); (* Byte "n+92~n+99" *)
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

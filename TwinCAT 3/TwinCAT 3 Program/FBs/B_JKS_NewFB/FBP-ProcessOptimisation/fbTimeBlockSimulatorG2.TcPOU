@@ -1,0 +1,1033 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="fbTimeBlockSimulatorG2" Id="{b9aa29b5-4d5f-44d9-b1dc-611288f42a39}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbTimeBlockSimulatorG2
+
+VAR_INPUT
+	bTrackerRecipeSimulateEN : BOOL;
+	bCallRTB_CallOK : BOOL; (*From fbFBPTimeTrackerG2*)
+	ARiArmID: ARRAY [1..iArmQty] OF INT;
+	ARbAlternateStnEn : ARRAY [1..iAlternateSetQty] OF BOOL;
+	AR2siAlternateStn : ARRAY [1..iAlternateSetQty, 1..iAlternateStnQty] OF INT;
+
+	bManualRecipeSimulateEN : BOOL;
+	iLoadingCallArmTime : INT;
+(*	iLoadCallArmTime : INT;*)
+(*	iSkipAreaForNextScan : INT; (*Skip the 1st Station as x2 basket cannot utilized the same tank*)*)
+
+END_VAR
+
+
+VAR_OUTPUT
+
+	bSimulateCompletedFlag: BOOL;
+	iScanningPercentage : INT;
+	bNoSpaceForArmDataToFill: BOOL;
+	bNoSpaceForStnDataToFill: BOOL;
+	bArmIDAndStnIDNotFound: BOOL;
+	iSimulatedBasketQty: INT;
+	iMasterTotalTime: INT;
+	iAvarageTimeSec: INT;
+	rBasketQtyPerHour: REAL;
+	ARiBasketTimeStamp : ARRAY [1..100] OF INT;
+
+END_VAR
+
+VAR_IN_OUT PERSISTENT
+
+(*New added for Manually Simulate the Output by Manual feed in Arm time and process time*)
+	AR2SiManualSimulationInput : ARRAY [1..iRecipeBlockQty, 1..2] OF INT;  (*1st Array=Steps 	2nd Array[1]=ProcessTime/ArmTransferTime 	2ndArray[2]=StnID*)
+
+
+	AR3SiMasterTimeBlockArm : ARRAY[1..iArmQty, 1..iMasterBlockQty, 1..3] OF INT;
+	AR3SiMasterTimeBlockStn : ARRAY[1..iStnQty, 1..iMasterBlockQty, 1..3] OF INT;
+
+END_VAR
+
+VAR_IN_OUT
+
+	AR2SiTrackerRecipeTimeBlockNoCallArmTime : ARRAY[1..iRecipeBlockQty, 1..3] OF INT;
+	AR2SiTrackerRecipeTimeBlockWithCallArmTime : ARRAY[1..iRecipeBlockQty, 1..3] OF INT;
+
+END_VAR
+
+
+
+VAR PERSISTENT
+(*	AR2SiRecipeTimeBlock : ARRAY[1..iRecipeBlockQty, 1..3] OF INT;*)
+
+(*	Ar50_iBasketIntervalTime : ARRAY [1..50] OF INT;*)
+(*	iRecipeTotalTime : INT;*)
+
+
+END_VAR
+
+VAR
+
+	AR2SiManualRecipeTimeBlockNoCallArmTime : ARRAY[1..iRecipeBlockQty, 1..3] OF INT;
+	AR2SiManualRecipeTimeBlockWithCallArmTime : ARRAY[1..iRecipeBlockQty, 1..3] OF INT;
+
+	AR2SiSimulatorRecipeTimeBlockNoCallArmTime : ARRAY[1..iRecipeBlockQty, 1..3] OF INT;
+	AR2SiSimulatorRecipeTimeBlockWithCallArmTime : ARRAY[1..iRecipeBlockQty, 1..3] OF INT;
+
+	ScanMFL: INT;
+	SimulateStep: INT;
+
+	bStepPulseEN: BOOL;
+	bStepAlwaysEN : BOOL := TRUE;
+
+	bTrackerRecipeSimulateENRE: R_TRIG;
+	MTBResetMFL: INT;
+	MTBResetSFL: INT;
+	MTTResetFL: INT;
+	ScanSFL: INT;
+
+	iNextTransferTime: INT;
+
+	rAvarageTimeSec: REAL;
+	bStepENRE: R_TRIG;
+	iClearFL: INT;
+	bCrashArm: BOOL;
+	bCrashStn: BOOL;
+	iCheckArmIDFL: INT;
+	iArmNo: INT;
+	bArmIDFound: BOOL;
+	iCheckStnIDFL: INT;
+	iStnNo: INT;
+	bStnIDFound: BOOL;
+	MTBMinusTimeMFL: INT;
+	MTBMinusTimeSFL: INT;
+	FillMFL: INT;
+	iFillArmNo: INT;
+	iFillStnNo: INT;
+	bFIllArmIDFound: BOOL;
+	bFillStnIDFound: BOOL;
+	iCheckFillArmIDFL: INT;
+	iCheckFillStnIDFL: INT;
+	FillSFL: INT;
+
+	bFillArmDone: BOOL;
+	bFillStnDone: BOOL;
+	iClearBufferAltFL: INT;
+	ARiBufferAltStn: ARRAY [1..iAlternateStnQty] OF INT;
+	bAltStnIDFound: BOOL;
+	bAlternateStnEnableFound: BOOL;
+	iAlternateSetFindFL: INT;
+	iAlternateStnFindFL: INT;
+	iAltStnTransferFL: INT;
+	iScanAltStnFL: INT;
+	bAltnStnNoCrashFound: BOOL;
+	bCrashAltStn: BOOL;
+	iCheckAlternateStnEnFL: INT;
+
+	iSaveToMemoryFL : INT;
+	iModStnMemoryFL : INT;
+
+	bManualRecipeSimulateENRE: R_TRIG;
+	bSimStManualRecipeENRE: R_TRIG;
+	bRecipeSimulateENRE: R_TRIG;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Manual Simulation -> Generate TimeBlock ->  Calculate Output by Manual feed in Arm time and process time*)
+bTrackerRecipeSimulateENRE(CLK:=bTrackerRecipeSimulateEN , Q=> );
+bSimStManualRecipeENRE(CLK:=bTrackerRecipeSimulateEN AND bManualRecipeSimulateEN , Q=> );
+bManualRecipeSimulateENRE(CLK:=bManualRecipeSimulateEN , Q=> );
+IF bSimStManualRecipeENRE.Q OR bManualRecipeSimulateENRE.Q THEN
+iSaveToMemoryFL := 1;
+iModStnMemoryFL := 1;
+
+	FOR iSaveToMemoryFL := 1 TO iRecipeBlockQty DO
+
+		IF iSaveToMemoryFL > 0 AND iSaveToMemoryFL <= iRecipeBlockQty THEN
+			IF iSaveToMemoryFL = 1 AND AR2SiManualSimulationInput[iSaveToMemoryFL, 2]<>0 THEN
+			AR2SiManualRecipeTimeBlockNoCallArmTime[iSaveToMemoryFL, 1] := 1;
+			AR2SiManualRecipeTimeBlockNoCallArmTime[iSaveToMemoryFL, 2] := AR2SiManualSimulationInput[iSaveToMemoryFL, 1](*+iLoadingCallArmTime*);
+			AR2SiManualRecipeTimeBlockNoCallArmTime[iSaveToMemoryFL, 3] := AR2SiManualSimulationInput[iSaveToMemoryFL, 2];
+			END_IF
+
+			IF iSaveToMemoryFL > 1 AND AR2SiManualSimulationInput[iSaveToMemoryFL, 2]<>0 THEN
+			AR2SiManualRecipeTimeBlockNoCallArmTime[iSaveToMemoryFL, 1] := AR2SiManualRecipeTimeBlockNoCallArmTime[iSaveToMemoryFL-1, 2]+1;
+			AR2SiManualRecipeTimeBlockNoCallArmTime[iSaveToMemoryFL, 2] := AR2SiManualRecipeTimeBlockNoCallArmTime[iSaveToMemoryFL-1, 2]+AR2SiManualSimulationInput[iSaveToMemoryFL, 1];
+			AR2SiManualRecipeTimeBlockNoCallArmTime[iSaveToMemoryFL, 3] := AR2SiManualSimulationInput[iSaveToMemoryFL, 2];
+			END_IF
+
+
+		END_IF
+
+		IF iSaveToMemoryFL > 0 AND iSaveToMemoryFL <= iRecipeBlockQty THEN
+			IF iSaveToMemoryFL = 1 AND AR2SiManualSimulationInput[iSaveToMemoryFL, 2]<>0 THEN
+			AR2SiManualRecipeTimeBlockWithCallArmTime[iSaveToMemoryFL, 1] := 1;
+			AR2SiManualRecipeTimeBlockWithCallArmTime[iSaveToMemoryFL, 2] := AR2SiManualSimulationInput[iSaveToMemoryFL, 1]+iLoadingCallArmTime;
+			AR2SiManualRecipeTimeBlockWithCallArmTime[iSaveToMemoryFL, 3] := AR2SiManualSimulationInput[iSaveToMemoryFL, 2];
+			END_IF
+
+			IF iSaveToMemoryFL > 1 AND AR2SiManualSimulationInput[iSaveToMemoryFL, 2]<>0 THEN
+			AR2SiManualRecipeTimeBlockWithCallArmTime[iSaveToMemoryFL, 1] := AR2SiManualRecipeTimeBlockWithCallArmTime[iSaveToMemoryFL-1, 2]+1;
+			AR2SiManualRecipeTimeBlockWithCallArmTime[iSaveToMemoryFL, 2] := AR2SiManualRecipeTimeBlockWithCallArmTime[iSaveToMemoryFL-1, 2]+AR2SiManualSimulationInput[iSaveToMemoryFL, 1];
+			AR2SiManualRecipeTimeBlockWithCallArmTime[iSaveToMemoryFL, 3] := AR2SiManualSimulationInput[iSaveToMemoryFL, 2];
+			END_IF
+
+
+		END_IF
+
+	END_FOR
+
+
+	FOR iModStnMemoryFL := 1 TO iRecipeBlockQty DO
+
+		IF iModStnMemoryFL > 0 AND iModStnMemoryFL <= iRecipeBlockQty THEN
+			IF iModStnMemoryFL > 1
+			AND AR2SiManualRecipeTimeBlockNoCallArmTime[iModStnMemoryFL, 3] > 0
+			AND AR2SiManualRecipeTimeBlockNoCallArmTime[iModStnMemoryFL, 3] <= iStnQty THEN
+			AR2SiManualRecipeTimeBlockNoCallArmTime[iModStnMemoryFL, 1] := AR2SiManualRecipeTimeBlockNoCallArmTime[iModStnMemoryFL-1, 1];
+			AR2SiManualRecipeTimeBlockNoCallArmTime[iModStnMemoryFL, 2] := AR2SiManualRecipeTimeBlockNoCallArmTime[iModStnMemoryFL+1, 2];
+			AR2SiManualRecipeTimeBlockNoCallArmTime[iModStnMemoryFL, 3] := AR2SiManualRecipeTimeBlockNoCallArmTime[iModStnMemoryFL, 3];
+			END_IF
+
+		END_IF
+
+		IF iModStnMemoryFL > 0 AND iModStnMemoryFL <= iRecipeBlockQty THEN
+			IF iModStnMemoryFL > 1
+			AND AR2SiManualRecipeTimeBlockWithCallArmTime[iModStnMemoryFL, 3] > 0
+			AND AR2SiManualRecipeTimeBlockWithCallArmTime[iModStnMemoryFL, 3] <= iStnQty THEN
+			AR2SiManualRecipeTimeBlockWithCallArmTime[iModStnMemoryFL, 1] := AR2SiManualRecipeTimeBlockWithCallArmTime[iModStnMemoryFL-1, 1];
+			AR2SiManualRecipeTimeBlockWithCallArmTime[iModStnMemoryFL, 2] := AR2SiManualRecipeTimeBlockWithCallArmTime[iModStnMemoryFL+1, 2];
+			AR2SiManualRecipeTimeBlockWithCallArmTime[iModStnMemoryFL, 3] := AR2SiManualRecipeTimeBlockWithCallArmTime[iModStnMemoryFL, 3];
+			END_IF
+
+		END_IF
+
+
+	END_FOR
+
+
+
+END_IF
+
+(*Manual Simulation -> Select TimeBlock used in Simulator*)
+IF bTrackerRecipeSimulateEN AND bManualRecipeSimulateEN AND SimulateStep <=1 THEN
+AR2SiSimulatorRecipeTimeBlockNoCallArmTime		:= AR2SiManualRecipeTimeBlockNoCallArmTime;
+AR2SiSimulatorRecipeTimeBlockWithCallArmTime		:= AR2SiManualRecipeTimeBlockWithCallArmTime;
+END_IF
+
+IF bTrackerRecipeSimulateEN AND NOT bManualRecipeSimulateEN AND SimulateStep <=1 THEN
+AR2SiSimulatorRecipeTimeBlockNoCallArmTime		:= AR2SiTrackerRecipeTimeBlockNoCallArmTime;
+AR2SiSimulatorRecipeTimeBlockWithCallArmTime		:= AR2SiTrackerRecipeTimeBlockWithCallArmTime;
+END_IF
+
+
+(*General*)
+bStepENRE(CLK:=bStepPulseEN , Q=> );
+
+
+bRecipeSimulateENRE(CLK:=(bTrackerRecipeSimulateEN AND bCallRTB_CallOK AND NOT bManualRecipeSimulateEN) OR (NOT bTrackerRecipeSimulateEN AND bManualRecipeSimulateEN) , Q=> );
+IF bRecipeSimulateENRE.Q THEN
+iSimulatedBasketQty := 1;
+SimulateStep := 1;
+
+END_IF
+
+
+(*Check if AlternateStn Enable*)
+bAlternateStnEnableFound := FALSE;
+iCheckAlternateStnEnFL := 1;
+	FOR iCheckAlternateStnEnFL := 1 TO iAlternateSetQty DO
+		IF iCheckAlternateStnEnFL >= 1 AND iCheckAlternateStnEnFL <= iAlternateSetQty THEN
+			IF ARbAlternateStnEn[iCheckAlternateStnEnFL] THEN
+				bAlternateStnEnableFound := TRUE;
+			END_IF
+		END_IF
+	END_FOR
+
+
+(*Generate Scanning Percentage*)
+IF ((bTrackerRecipeSimulateEN AND NOT bManualRecipeSimulateEN) OR (NOT bTrackerRecipeSimulateEN AND bManualRecipeSimulateEN))  AND ((iMasterTotalTime+iNextTransferTime)*100)/20000 <= 100 AND iMasterTotalTime+iNextTransferTime > 0 THEN
+iScanningPercentage := ((iMasterTotalTime+iNextTransferTime)*100)/20000;
+END_IF
+
+IF ((bTrackerRecipeSimulateEN AND NOT bManualRecipeSimulateEN) OR (NOT bTrackerRecipeSimulateEN AND bManualRecipeSimulateEN)) AND  ((iMasterTotalTime+iNextTransferTime)*100)/20000 > 100 AND iMasterTotalTime+iNextTransferTime > 0 THEN
+iScanningPercentage := 100;
+END_IF
+
+IF (NOT bTrackerRecipeSimulateEN AND NOT bManualRecipeSimulateEN) OR  (bTrackerRecipeSimulateEN AND NOT bCallRTB_CallOK) OR  (bTrackerRecipeSimulateEN AND bManualRecipeSimulateEN )THEN
+iScanningPercentage := 0;
+END_IF
+
+(*Master Time Block Reset Program*)
+IF (NOT bTrackerRecipeSimulateEN AND NOT bManualRecipeSimulateEN) OR  (bTrackerRecipeSimulateEN AND NOT bCallRTB_CallOK) OR  (bTrackerRecipeSimulateEN AND bManualRecipeSimulateEN )THEN
+SimulateStep:=0;
+iSimulatedBasketQty := 0;
+iMasterTotalTime := 0;
+iNextTransferTime:=0;
+bSimulateCompletedFlag:=FALSE;
+iAvarageTimeSec:=0;
+rAvarageTimeSec:=0;
+rBasketQtyPerHour :=0;
+bNoSpaceForArmDataToFill := FALSE;
+bNoSpaceForStnDataToFill := FALSE;
+bArmIDAndStnIDNotFound := FALSE;
+
+END_IF
+
+
+
+CASE SimulateStep OF
+0:;
+
+1:
+(*Data Reset*)
+
+MTBResetMFL := 1;
+MTBResetSFL := 1;
+MTTResetFL := 1;
+
+
+		IF MTBResetMFL>0 AND MTBResetMFL < iStnQty+1 THEN
+			FOR MTBResetMFL := 1 TO iStnQty DO
+			MTBResetSFL := 1;
+				IF MTBResetSFL>0 AND MTBResetSFL < iMasterBlockQty+1 THEN
+					FOR MTBResetSFL := 1 TO iMasterBlockQty DO
+
+						AR3SiMasterTimeBlockStn[MTBResetMFL, MTBResetSFL, 1] := 0;
+						AR3SiMasterTimeBlockStn[MTBResetMFL, MTBResetSFL, 2] := 0;
+						AR3SiMasterTimeBlockStn[MTBResetMFL, MTBResetSFL, 3] := 0;
+
+						IF MTBResetMFL <= iArmQty THEN
+						AR3SiMasterTimeBlockArm[MTBResetMFL, MTBResetSFL, 1] := 0;
+						AR3SiMasterTimeBlockArm[MTBResetMFL, MTBResetSFL, 2] := 0;
+						AR3SiMasterTimeBlockArm[MTBResetMFL, MTBResetSFL, 3] := 0;
+						END_IF
+
+					END_FOR
+				END_IF
+
+			END_FOR
+
+		END_IF
+
+		IF MTTResetFL>0 AND MTTResetFL < 100+1 THEN
+
+			FOR MTTResetFL := 0 TO 100 DO
+
+			ARiBasketTimeStamp[MTTResetFL] := 0;
+
+			END_FOR
+
+		END_IF
+
+ScanMFL:= 1;
+ScanSFL:= 1;
+iNextTransferTime:=1;
+SimulateStep := 2;
+
+
+(************************************************Simulate**********************************************************)
+
+
+2: (*Compare BufferTimeBlock VS RecipeTimeBlock*)
+
+		IF ScanMFL>0 AND ScanMFL < iRecipeBlockQty+1 THEN
+
+			FOR ScanMFL := 1 TO iRecipeBlockQty DO
+
+				IF AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 2] > 0 THEN
+
+					iClearBufferAltFL := 1;
+						FOR iClearBufferAltFL := 1 TO iAlternateStnQty DO
+							IF iClearBufferAltFL >= 1 AND iClearBufferAltFL <= iAlternateStnQty THEN
+							ARiBufferAltStn[iClearBufferAltFL] := 0;
+							END_IF
+						END_FOR
+
+					iArmNo:=0;
+					iStnNo:=0;
+					bArmIDFound:= FALSE;
+					bStnIDFound:= FALSE;
+					bAltStnIDFound := FALSE;
+
+					iCheckArmIDFL := 1;
+					iCheckStnIDFL := 1;
+
+					(*Check ArmID*)
+					IF iCheckArmIDFL>0 AND  iCheckArmIDFL < iArmQty+1 THEN
+						FOR iCheckArmIDFL := 1 TO iArmQty DO
+							IF AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL,3] = ARiArmID[iCheckArmIDFL] THEN
+							iArmNo := iCheckArmIDFL;
+							bArmIDFound := TRUE;
+							iCheckArmIDFL := iArmQty+1;
+							END_IF
+						END_FOR
+					END_IF
+
+					(*Check StnID*)
+					IF iCheckStnIDFL>0 AND iCheckStnIDFL <iStnQty+1 THEN
+						FOR iCheckStnIDFL := 1 TO iStnQty DO
+							IF AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL,3] = iCheckStnIDFL THEN
+							iStnNo := iCheckStnIDFL;
+							bStnIDFound := TRUE;
+							iCheckStnIDFL := iStnQty+1;
+							END_IF
+(*						END_FOR
+					END_IF
+*)
+					(*ADD HERE*)
+							IF bStnIDFound AND bAlternateStnEnableFound THEN
+							iAlternateSetFindFL := 1;
+								FOR iAlternateSetFindFL := 1 TO iAlternateSetQty DO
+									IF iAlternateSetFindFL >= 1 AND iAlternateSetFindFL <= iAlternateSetQty THEN
+										IF ARbAlternateStnEn[iAlternateSetFindFL] THEN
+										iAlternateStnFindFL := 1; (*Find Stn ID matching*)
+											FOR iAlternateStnFindFL := 1 TO iAlternateStnQty DO
+												IF iAlternateStnFindFL >= 1 AND iAlternateStnFindFL <= iAlternateStnQty THEN
+													IF iStnNo = AR2SiAlternateStn[iAlternateSetFindFL , iAlternateStnFindFL] THEN
+														bAltStnIDFound := TRUE;
+														iAltStnTransferFL := 1;
+															FOR iAltStnTransferFL := 1 TO iAlternateStnQty DO
+																IF iAltStnTransferFL >= 1 AND iAltStnTransferFL <= iAlternateStnQty THEN
+																	ARiBufferAltStn[iAltStnTransferFL] := AR2SiAlternateStn[iAlternateSetFindFL , iAltStnTransferFL];
+																END_IF
+															END_FOR
+														iAlternateSetFindFL := iAlternateSetQty+1;
+														iAlternateStnFindFL := iAlternateStnQty+1;
+														iAltStnTransferFL := iAlternateStnQty+1;
+
+													END_IF
+												END_IF
+											END_FOR
+										END_IF
+									END_IF
+								END_FOR
+							END_IF
+						END_FOR
+					END_IF
+
+
+					IF (bArmIDFound OR bStnIDFound) AND NOT bAltStnIDFound THEN
+
+					ScanSFL := 1;
+					bCrashArm := FALSE;
+					bCrashStn := FALSE;
+
+						IF (bArmIDFound OR bStnIDFound) AND ScanSFL>0 AND ScanSFL < iMasterBlockQty+1 THEN
+							FOR ScanSFL := 1 TO iMasterBlockQty DO
+
+								(*Arm Scanning*)
+								IF bArmIDFound THEN
+
+									IF AR3SiMasterTimeBlockArm[iArmNo,ScanSFL, 2] > 0 THEN
+
+										IF
+										AR3SiMasterTimeBlockArm[iArmNo,ScanSFL, 1] (*MD1*) <= AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*)
+										AND
+										AR3SiMasterTimeBlockArm[iArmNo,ScanSFL, 2] (*MD2*) >= AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*)
+										THEN
+										bCrashArm:=TRUE;
+										ScanSFL:=iMasterBlockQty+1;
+										ScanMFL := iRecipeBlockQty+1;
+										END_IF
+
+										IF
+										AR3SiMasterTimeBlockArm[iArmNo,ScanSFL, 1] (*MD1*) <= AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*)
+										AND
+										AR3SiMasterTimeBlockArm[iArmNo,ScanSFL, 2] (*MD2*) >= AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*)
+										THEN
+										bCrashArm:=TRUE;
+										ScanSFL:=iMasterBlockQty+1;
+										ScanMFL := iRecipeBlockQty+1;
+										END_IF
+
+										IF
+										AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*) <= AR3SiMasterTimeBlockArm[iArmNo,ScanSFL, 1] (*MD1*)
+										AND
+										AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*) >= AR3SiMasterTimeBlockArm[iArmNo,ScanSFL, 1] (*MD1*)
+										THEN
+										bCrashArm:=TRUE;
+										ScanSFL:=iMasterBlockQty+1;
+										ScanMFL := iRecipeBlockQty+1;
+										END_IF
+
+										IF
+										AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*) <= AR3SiMasterTimeBlockArm[iArmNo,ScanSFL, 2] (*MD2*)
+										AND
+										AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*) >= AR3SiMasterTimeBlockArm[iArmNo,ScanSFL, 2] (*MD2*)
+										THEN
+										bCrashArm:=TRUE;
+										ScanSFL:=iMasterBlockQty+1;
+										ScanMFL := iRecipeBlockQty+1;
+										END_IF
+
+
+									END_IF
+
+								END_IF
+
+								(*Stn Scanning without Alternate Stn*)
+								IF bStnIDFound AND NOT bAltStnIDFound THEN
+
+									IF AR3SiMasterTimeBlockStn[iStnNo,ScanSFL, 2] > 0 THEN
+
+										IF
+										AR3SiMasterTimeBlockStn[iStnNo,ScanSFL, 1] (*MD1*) <= AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*)
+										AND
+										AR3SiMasterTimeBlockStn[iStnNo,ScanSFL, 2] (*MD2*) >= AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*)
+										THEN
+										bCrashStn:=TRUE;
+										ScanSFL:=iMasterBlockQty+1;
+										ScanMFL := iRecipeBlockQty+1;
+										END_IF
+
+										IF
+										AR3SiMasterTimeBlockStn[iStnNo,ScanSFL, 1] (*MD1*) <= AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*)
+										AND
+										AR3SiMasterTimeBlockStn[iStnNo,ScanSFL, 2] (*MD2*) >= AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*)
+										THEN
+										bCrashStn:=TRUE;
+										ScanSFL:=iMasterBlockQty+1;
+										ScanMFL := iRecipeBlockQty+1;
+										END_IF
+
+										IF
+										AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*) <= AR3SiMasterTimeBlockStn[iStnNo,ScanSFL, 1] (*MD1*)
+										AND
+										AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*) >= AR3SiMasterTimeBlockStn[iStnNo,ScanSFL, 1] (*MD1*)
+										THEN
+										bCrashStn:=TRUE;
+										ScanSFL:=iMasterBlockQty+1;
+										ScanMFL := iRecipeBlockQty+1;
+										END_IF
+
+										IF
+										AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*) <= AR3SiMasterTimeBlockStn[iStnNo,ScanSFL, 2] (*MD2*)
+										AND
+										AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*) >= AR3SiMasterTimeBlockStn[iStnNo,ScanSFL, 2] (*MD2*)
+										THEN
+										bCrashStn:=TRUE;
+										ScanSFL:=iMasterBlockQty+1;
+										ScanMFL := iRecipeBlockQty+1;
+										END_IF
+
+
+									END_IF
+
+								END_IF
+
+							END_FOR
+
+						END_IF
+
+					END_IF
+
+					(*Stn Scanning WITH Alternate Stn*)
+					IF bStnIDFound AND bAltStnIDFound THEN
+
+					iScanAltStnFL := 1;
+					bCrashArm := FALSE;
+					bCrashStn := FALSE;
+					bAltnStnNoCrashFound := FALSE;
+						FOR iScanAltStnFL := 1 TO iAlternateStnQty DO
+							IF iScanAltStnFL >= 1 AND iScanAltStnFL <= iAlternateStnQty THEN
+
+								IF ARiBufferAltStn[iScanAltStnFL] > 0 THEN
+								bCrashAltStn := FALSE;
+								ScanSFL := 1;
+
+									FOR ScanSFL := 1 TO iMasterBlockQty DO
+										IF  ScanSFL>= 1 AND ScanSFL <= iMasterBlockQty AND NOT bAltnStnNoCrashFound THEN
+
+											IF AR3SiMasterTimeBlockStn[ARiBufferAltStn[iScanAltStnFL],ScanSFL, 2] > 0 THEN
+
+												IF
+												AR3SiMasterTimeBlockStn[ARiBufferAltStn[iScanAltStnFL],ScanSFL, 1] (*MD1*) <= AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*)
+												AND
+												AR3SiMasterTimeBlockStn[ARiBufferAltStn[iScanAltStnFL],ScanSFL, 2] (*MD2*) >= AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*)
+												THEN
+												bCrashAltStn:=TRUE;
+												ScanSFL:=iMasterBlockQty+1;
+												END_IF
+
+												IF
+												AR3SiMasterTimeBlockStn[ARiBufferAltStn[iScanAltStnFL],ScanSFL, 1] (*MD1*) <= AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*)
+												AND
+												AR3SiMasterTimeBlockStn[ARiBufferAltStn[iScanAltStnFL],ScanSFL, 2] (*MD2*) >= AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*)
+												THEN
+												bCrashAltStn:=TRUE;
+												ScanSFL:=iMasterBlockQty+1;
+												END_IF
+
+												IF
+												AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*) <= AR3SiMasterTimeBlockStn[ARiBufferAltStn[iScanAltStnFL],ScanSFL, 1] (*MD1*)
+												AND
+												AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*) >= AR3SiMasterTimeBlockStn[ARiBufferAltStn[iScanAltStnFL],ScanSFL, 1] (*MD1*)
+												THEN
+												bCrashAltStn:=TRUE;
+												ScanSFL:=iMasterBlockQty+1;
+												END_IF
+
+												IF
+												AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 1] (*RD1*) <= AR3SiMasterTimeBlockStn[ARiBufferAltStn[iScanAltStnFL],ScanSFL, 2] (*MD2*)
+												AND
+												AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 2] (*RD2*) >= AR3SiMasterTimeBlockStn[ARiBufferAltStn[iScanAltStnFL],ScanSFL, 2] (*MD2*)
+												THEN
+												bCrashAltStn:=TRUE;
+												ScanSFL:=iMasterBlockQty+1;
+												END_IF
+											END_IF
+										END_IF
+									END_FOR
+
+									IF ScanSFL > iMasterBlockQty AND bCrashAltStn AND (ARiBufferAltStn[iScanAltStnFL+1] <=0 OR iScanAltStnFL >= iAlternateStnQty) AND NOT bAltnStnNoCrashFound THEN
+									bCrashStn := TRUE;
+									iScanAltStnFL := iAlternateStnQty+1;
+									ScanMFL := iRecipeBlockQty+1;
+									END_IF
+
+									IF ScanSFL > iMasterBlockQty AND NOT bCrashAltStn AND NOT bAltnStnNoCrashFound THEN
+									AR2SiSimulatorRecipeTimeBlockWithCallArmTime[ScanMFL, 3] := ARiBufferAltStn[iScanAltStnFL];
+									AR2SiSimulatorRecipeTimeBlockNoCallArmTime[ScanMFL, 3] := ARiBufferAltStn[iScanAltStnFL];
+									bAltnStnNoCrashFound := TRUE;
+									bCrashAltStn:=FALSE;
+									bCrashStn := FALSE;
+									END_IF
+
+								END_IF
+							END_IF
+						END_FOR
+					END_IF
+
+
+
+				END_IF
+
+			END_FOR
+
+		END_IF
+
+(*	END_IF
+*)
+
+(* No ArmID or StnID found*)
+IF ScanMFL > iRecipeBlockQty AND NOT bStnIDFound AND NOT bArmIDFound THEN
+SimulateStep := 12; (*ArmID and StnID not found Error*)
+END_IF
+
+(* No Crash Found, Can proceed to Push In Basket *)
+IF ScanMFL > iRecipeBlockQty AND ScanSFL > iMasterBlockQty AND NOT bCrashArm AND NOT bCrashStn AND (bStepENRE.Q OR bStepAlwaysEN) THEN
+FillMFL:=1;
+FillSFL:=1;
+SimulateStep := 3;
+END_IF
+
+(* CRASH Found !!!, Shift one Second and Test again*)
+IF ScanMFL > iRecipeBlockQty AND ScanSFL > iMasterBlockQty AND (bCrashArm OR bCrashStn) AND (bStepENRE.Q OR bStepAlwaysEN) THEN
+MTBMinusTimeMFL := 1;
+MTBMinusTimeSFL := 1;
+SimulateStep := 4;
+END_IF
+
+
+(*
+		IF ScanMFL>0 AND ScanMFL < iRecipeBlockQty+1 THEN
+
+			FOR ScanMFL := 1 TO iRecipeBlockQty DO
+
+				IF AR2SiRecipeTimeBlock[ScanMFL, 2] > 0 THEN
+
+					iArmNo:=0;
+					iStnNo:=0;
+					bArmIDFound:= FALSE;
+					bStnIDFound:= FALSE;
+	
+					iCheckArmIDFL := 1;
+					iCheckStnIDFL := 1;
+
+					(*Check ArmID*)
+					IF iCheckArmIDFL>0 AND  iCheckArmIDFL < iArmQty+1 THEN
+						FOR iCheckArmIDFL := 1 TO iArmQty DO
+							IF AR2SiRecipeTimeBlock[ScanMFL,3] = ARiArmID[iCheckArmIDFL] THEN
+							iArmNo := iCheckArmIDFL;
+							bArmIDFound := TRUE;
+							iCheckArmIDFL := iArmQty+1;
+							END_IF
+						END_FOR
+					END_IF
+
+					(*Check StnID*)
+					IF iCheckStnIDFL>0 AND iCheckStnIDFL <iStnQty+1 THEN
+						FOR iCheckStnIDFL := 1 TO iStnQty DO
+							IF AR2SiRecipeTimeBlock[ScanMFL,3] = iCheckStnIDFL THEN
+							iStnNo := iCheckStnIDFL;
+							bStnIDFound := TRUE;
+							iCheckStnIDFL := iStnQty+1;
+							END_IF
+						END_FOR
+					END_IF
+	
+					ScanSFL := 1;
+					bCrashArm := FALSE;
+					bCrashStn := FALSE;
+
+
+	
+					IF (bArmIDFound OR bStnIDFound) AND ScanSFL>0 AND ScanSFL < iMasterBlockQty+1 THEN
+						FOR ScanSFL := 1 TO iMasterBlockQty DO
+
+							(*Arm Scanning*)
+							IF bArmIDFound THEN
+	
+								IF AR3SiMasterTimeBlockArm[iArmNo,ScanSFL, 2] > 0 THEN
+	
+									IF
+									AR3SiMasterTimeBlockArm[iArmNo,ScanSFL, 1] (*MD1*) <= AR2SiRecipeTimeBlock[ScanMFL, 1] (*RD1*)
+									AND
+									AR3SiMasterTimeBlockArm[iArmNo,ScanSFL, 2] (*MD2*) >= AR2SiRecipeTimeBlock[ScanMFL, 1] (*RD1*)
+									THEN
+									bCrashArm:=TRUE;
+									ScanSFL:=iMasterBlockQty+1;
+									ScanMFL := iRecipeBlockQty+1;
+									END_IF
+	
+									IF
+									AR3SiMasterTimeBlockArm[iArmNo,ScanSFL, 1] (*MD1*) <= AR2SiRecipeTimeBlock[ScanMFL, 2] (*RD2*)
+									AND
+									AR3SiMasterTimeBlockArm[iArmNo,ScanSFL, 2] (*MD2*) >= AR2SiRecipeTimeBlock[ScanMFL, 2] (*RD2*)
+									THEN
+									bCrashArm:=TRUE;
+									ScanSFL:=iMasterBlockQty+1;
+									ScanMFL := iRecipeBlockQty+1;
+									END_IF
+
+									IF
+									AR2SiRecipeTimeBlock[ScanMFL, 1] (*RD1*) <= AR3SiMasterTimeBlockArm[iArmNo,ScanSFL, 1] (*MD1*)
+									AND
+									AR2SiRecipeTimeBlock[ScanMFL, 2] (*RD2*) >= AR3SiMasterTimeBlockArm[iArmNo,ScanSFL, 1] (*MD1*)
+									THEN
+									bCrashArm:=TRUE;
+									ScanSFL:=iMasterBlockQty+1;
+									ScanMFL := iRecipeBlockQty+1;
+									END_IF
+
+									IF
+									AR2SiRecipeTimeBlock[ScanMFL, 1] (*RD1*) <= AR3SiMasterTimeBlockArm[iArmNo,ScanSFL, 2] (*MD2*)
+									AND
+									AR2SiRecipeTimeBlock[ScanMFL, 2] (*RD2*) >= AR3SiMasterTimeBlockArm[iArmNo,ScanSFL, 2] (*MD2*)
+									THEN
+									bCrashArm:=TRUE;
+									ScanSFL:=iMasterBlockQty+1;
+									ScanMFL := iRecipeBlockQty+1;
+									END_IF
+
+								END_IF
+	
+							END_IF
+	
+							(*Stn Scanning*)
+							IF bStnIDFound THEN
+	
+								IF AR3SiMasterTimeBlockStn[iStnNo,ScanSFL, 2] > 0 THEN
+	
+									IF
+									AR3SiMasterTimeBlockStn[iStnNo,ScanSFL, 1] (*MD1*) <= AR2SiRecipeTimeBlock[ScanMFL, 1] (*RD1*)
+									AND
+									AR3SiMasterTimeBlockStn[iStnNo,ScanSFL, 2] (*MD2*) >= AR2SiRecipeTimeBlock[ScanMFL, 1] (*RD1*)
+									THEN
+									bCrashStn:=TRUE;
+									ScanSFL:=iMasterBlockQty+1;
+									ScanMFL := iRecipeBlockQty+1;
+									END_IF
+	
+									IF
+									AR3SiMasterTimeBlockStn[iStnNo,ScanSFL, 1] (*MD1*) <= AR2SiRecipeTimeBlock[ScanMFL, 2] (*RD2*)
+									AND
+									AR3SiMasterTimeBlockStn[iStnNo,ScanSFL, 2] (*MD2*) >= AR2SiRecipeTimeBlock[ScanMFL, 2] (*RD2*)
+									THEN
+									bCrashStn:=TRUE;
+									ScanSFL:=iMasterBlockQty+1;
+									ScanMFL := iRecipeBlockQty+1;
+									END_IF
+
+									IF
+									AR2SiRecipeTimeBlock[ScanMFL, 1] (*RD1*) <= AR3SiMasterTimeBlockStn[iStnNo,ScanSFL, 1] (*MD1*)
+									AND
+									AR2SiRecipeTimeBlock[ScanMFL, 2] (*RD2*) >= AR3SiMasterTimeBlockStn[iStnNo,ScanSFL, 1] (*MD1*)
+									THEN
+									bCrashStn:=TRUE;
+									ScanSFL:=iMasterBlockQty+1;
+									ScanMFL := iRecipeBlockQty+1;
+									END_IF
+	
+									IF
+									AR2SiRecipeTimeBlock[ScanMFL, 1] (*RD1*) <= AR3SiMasterTimeBlockStn[iStnNo,ScanSFL, 2] (*MD2*)
+									AND
+									AR2SiRecipeTimeBlock[ScanMFL, 2] (*RD2*) >= AR3SiMasterTimeBlockStn[iStnNo,ScanSFL, 2] (*MD2*)
+									THEN
+									bCrashStn:=TRUE;
+									ScanSFL:=iMasterBlockQty+1;
+									ScanMFL := iRecipeBlockQty+1;
+									END_IF
+
+								END_IF
+
+							END_IF
+
+						END_FOR
+	
+					END_IF
+
+				END_IF
+
+			END_FOR
+
+		END_IF
+
+(* No ArmID or StnID found*)
+IF ScanMFL > iRecipeBlockQty AND NOT bStnIDFound AND NOT bArmIDFound THEN
+SimulateStep := 12; (*ArmID and StnID not found Error*)
+END_IF
+
+(* No Crash Found, Can proceed to Push In Basket *)
+IF ScanMFL > iRecipeBlockQty AND ScanSFL > iMasterBlockQty AND NOT bCrashArm AND NOT bCrashStn AND (bStepENRE.Q OR bStepAlwaysEN) THEN
+FillMFL:=1;
+FillSFL:=1;
+SimulateStep := 3;
+END_IF
+
+(* CRASH Found !!!, Shift one Second and Test again*)
+IF ScanMFL > iRecipeBlockQty AND ScanSFL > iMasterBlockQty AND (bCrashArm OR bCrashStn) AND (bStepENRE.Q OR bStepAlwaysEN) THEN
+MTBMinusTimeMFL := 1;
+MTBMinusTimeSFL := 1;
+SimulateStep := 4;
+END_IF
+
+*)
+
+3:(* No Crash Found, Can proceed to Push In Basket *)
+
+
+		IF FillMFL>0 AND FillMFL < iRecipeBlockQty+1 THEN
+
+			FOR FillMFL := 1 TO iRecipeBlockQty DO
+
+				IF AR2SiSimulatorRecipeTimeBlockWithCallArmTime[FillMFL, 2] > 0 THEN
+
+					iFillArmNo:=0;
+					iFillStnNo:=0;
+					bFIllArmIDFound:= FALSE;
+					bFillStnIDFound:= FALSE;
+
+					iCheckFillArmIDFL := 1;
+					iCheckFillStnIDFL := 1;
+
+					(*Check ArmID*)
+					IF iCheckFillArmIDFL>0 AND iCheckFillArmIDFL < iArmQty+1 THEN
+						FOR iCheckFillArmIDFL := 1 TO iArmQty DO
+							IF AR2SiSimulatorRecipeTimeBlockWithCallArmTime[FillMFL,3] = ARiArmID[iCheckFillArmIDFL] THEN
+							iFillArmNo := iCheckFillArmIDFL;
+							bFillArmIDFound := TRUE;
+							iCheckFillArmIDFL := iArmQty+1;
+							END_IF
+						END_FOR
+					END_IF
+	
+					(*Check StnID*)
+					IF iCheckFillStnIDFL>0 AND iCheckFillStnIDFL <iStnQty+1 THEN
+						FOR iCheckFillStnIDFL := 1 TO iStnQty DO
+							IF AR2SiSimulatorRecipeTimeBlockWithCallArmTime[FillMFL,3] = iCheckFillStnIDFL THEN
+							iFillStnNo := iCheckFillStnIDFL;
+							bFIllStnIDFound := TRUE;
+							iCheckFillStnIDFL := iStnQty+1;
+							END_IF
+						END_FOR
+					END_IF
+
+					FillSFL := 1;
+					bFillArmDone := FALSE;
+					bFillStnDone := FALSE;
+
+					IF (bFillArmIDFound OR bFillStnIDFound) AND FillSFL>0 AND FillSFL < iMasterBlockQty+1 THEN
+							FOR FillSFL := 1 TO iMasterBlockQty DO
+	
+								(*Arm Scanning*)
+								IF bFillArmIDFound THEN
+
+									IF AR3SiMasterTimeBlockArm[iFillArmNo,FillSFL, 2] = 0 THEN
+	
+									AR3SiMasterTimeBlockArm[iFillArmNo,FillSFL, 1] := AR2SiSimulatorRecipeTimeBlockWithCallArmTime[FillMFL, 1];
+									AR3SiMasterTimeBlockArm[iFillArmNo,FillSFL, 2] := AR2SiSimulatorRecipeTimeBlockWithCallArmTime[FillMFL, 2];
+									AR3SiMasterTimeBlockArm[iFillArmNo,FillSFL, 3] := AR2SiSimulatorRecipeTimeBlockWithCallArmTime[FillMFL, 3];
+									bFillArmDone := TRUE;
+									FillSFL:=iMasterBlockQty+1;
+									END_IF
+
+								END_IF
+
+								(*Stn Scanning*)
+								IF bFillStnIDFound THEN
+
+									IF AR3SiMasterTimeBlockStn[iFillStnNo,FillSFL, 2] = 0 THEN
+
+									AR3SiMasterTimeBlockStn[iFillStnNo,FillSFL, 1] := AR2SiSimulatorRecipeTimeBlockWithCallArmTime[FillMFL, 1];
+									AR3SiMasterTimeBlockStn[iFillStnNo,FillSFL, 2] := AR2SiSimulatorRecipeTimeBlockWithCallArmTime[FillMFL, 2];
+									AR3SiMasterTimeBlockStn[iFillStnNo,FillSFL, 3] := AR2SiSimulatorRecipeTimeBlockWithCallArmTime[FillMFL, 3];
+									bFillStnDone := TRUE;
+									FillSFL:=iMasterBlockQty+1;
+									END_IF
+	
+								END_IF
+	
+							END_FOR
+	
+						IF FillSFL > iMasterBlockQty AND bFillArmIDFound AND NOT bFillArmDone THEN
+						SimulateStep := 10; (*Error!!! No Space for Arm data to fill*)
+						END_IF
+
+						IF FillSFL > iMasterBlockQty AND bFillStnIDFound AND NOT bFillStnDone THEN
+						SimulateStep := 11; (*Error!!! No Space for Stn data to fill*)
+						END_IF
+
+					END_IF
+
+				END_IF
+
+			END_FOR
+
+		END_IF
+
+
+(*Find if full data*)
+
+IF bStepENRE.Q OR bStepAlwaysEN THEN
+
+SimulateStep := 5;
+END_IF
+
+4:(* CRASH Found !!!, Shift one Second and Test again*)
+
+
+
+		IF MTBMinusTimeMFL>0 AND MTBMinusTimeMFL < iStnQty+1 THEN
+			FOR MTBMinusTimeMFL := 1 TO iStnQty DO
+			MTBMinusTimeSFL := 1;
+				IF MTBMinusTimeSFL>0 AND MTBMinusTimeSFL < iMasterBlockQty+1 THEN
+					FOR MTBMinusTimeSFL := 1 TO iMasterBlockQty DO
+
+						IF AR3SiMasterTimeBlockStn[MTBMinusTimeMFL, MTBMinusTimeSFL, 1] > 0 THEN
+						AR3SiMasterTimeBlockStn[MTBMinusTimeMFL, MTBMinusTimeSFL, 1] := AR3SiMasterTimeBlockStn[MTBMinusTimeMFL, MTBMinusTimeSFL, 1] - 1;
+						END_IF
+
+						IF AR3SiMasterTimeBlockStn[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] > 0 THEN
+						AR3SiMasterTimeBlockStn[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] := AR3SiMasterTimeBlockStn[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] - 1;
+						END_IF
+
+						IF AR3SiMasterTimeBlockStn[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] <= 0 THEN
+						AR3SiMasterTimeBlockStn[MTBMinusTimeMFL, MTBMinusTimeSFL, 1] := 0;
+						AR3SiMasterTimeBlockStn[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] := 0;
+						AR3SiMasterTimeBlockStn[MTBMinusTimeMFL, MTBMinusTimeSFL, 3] := 0;
+						END_IF
+
+
+
+						IF MTBMinusTimeMFL>0 AND MTBMinusTimeMFL <= iArmQty THEN
+
+							IF AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 1] > 0 THEN
+							AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 1] := AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 1] - 1;
+							END_IF
+
+							IF AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] > 0 THEN
+							AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] := AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] - 1;
+							END_IF
+
+							IF AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] <= 0 THEN
+							AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 1] := 0;
+							AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 2] := 0;
+							AR3SiMasterTimeBlockArm[MTBMinusTimeMFL, MTBMinusTimeSFL, 3] := 0;
+							END_IF
+
+
+						END_IF
+
+					END_FOR
+				END_IF
+
+			END_FOR
+
+		END_IF
+
+ScanMFL:= 1;
+ScanSFL:= 1;
+
+
+(*Generate Scanning Percentage*)
+IF ((iMasterTotalTime+iNextTransferTime)*100)/20000 <= 100 THEN
+iScanningPercentage := ((iMasterTotalTime+iNextTransferTime)*100)/20000;
+ELSE
+iScanningPercentage := 100;
+END_IF
+
+(*Return to Step 2*)
+
+IF bStepENRE.Q OR bStepAlwaysEN THEN
+
+iNextTransferTime:= iNextTransferTime +1;
+
+
+SimulateStep := 2;
+END_IF
+
+
+
+
+5: (*After Basket Load In*)
+ARiBasketTimeStamp[iSimulatedBasketQty] := iNextTransferTime;
+iSimulatedBasketQty := iSimulatedBasketQty+1;
+iMasterTotalTime := iMasterTotalTime+iNextTransferTime;
+SimulateStep := 6;
+
+6:
+IF iMasterTotalTime < 20000 THEN
+ScanMFL:= 1;
+ScanSFL:= 1;
+iNextTransferTime:=1;
+	IF bStepENRE.Q OR bStepAlwaysEN THEN
+	SimulateStep := 2;
+	END_IF
+
+ELSE
+	IF bStepENRE.Q OR bStepAlwaysEN THEN
+	SimulateStep := 9;
+	END_IF
+END_IF
+
+
+9:
+(*Done*)
+
+
+IF iMasterTotalTime > 0 AND (iSimulatedBasketQty-1-1) >0 THEN
+iAvarageTimeSec:= iMasterTotalTime / (iSimulatedBasketQty-1-1);
+ELSE
+iAvarageTimeSec:=0;
+END_IF
+
+rAvarageTimeSec := INT_TO_REAL(iAvarageTimeSec);
+
+IF rAvarageTimeSec > 0 THEN
+rBasketQtyPerHour := 60 /(rAvarageTimeSec/60) ;
+ELSE
+rBasketQtyPerHour := 0;
+END_IF
+
+bSimulateCompletedFlag:=TRUE;
+
+10:  (*Error!!! No Space for Arm data to fill*)
+bNoSpaceForArmDataToFill := TRUE;
+11:  (*Error!!! No Space for Stn data to fill*)
+bNoSpaceForStnDataToFill := TRUE;
+12: (*Error!!! ArmID and StnID not found*)
+bArmIDAndStnIDNotFound := TRUE;
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="fbTimeBlockSimulatorG2">
+      <LineId Id="126" Count="896" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
